@@ -1,0 +1,395 @@
+﻿#nullable enable
+
+using System.Collections.ObjectModel;
+using System.Collections.Generic;
+using System.Linq;
+using System;
+
+using static System.Math;
+
+namespace __obsolete__.Unknown6656.Mathematics.Statistics
+{
+    /// <summary>
+    /// Rpresents an abstract, generic data set for regression calculations
+    /// </summary>
+    /// <typeparam name="T">Generic data parameter type</typeparam>
+    public interface IRegressionData<T>
+        where T : IComparable
+    {
+        /// <summary>
+        /// Returns the sum of the current data set
+        /// </summary>
+        T Sum { get; }
+        /// <summary>
+        /// Returns the Average of the current data set
+        /// </summary>
+        T Average { get; }
+        /// <summary>
+        /// Returns the variance of the current data set
+        /// </summary>
+        T Variance { get; }
+        /// <summary>
+        /// Returns the median of the current data set
+        /// </summary>
+        T Median { get; }
+        /// <summary>
+        /// Returns the standard deviation of the current data set
+        /// </summary>
+        T StandardDeviation { get; }
+        /// <summary>
+        /// Retruns the variation coefficient of the current data set
+        /// </summary>
+        T VariationCoefficient { get; }
+        /// <summary>
+        /// Returns the ordered data set
+        /// </summary>
+        T[] Ordered { get; }
+        /// <summary>
+        /// The number of elements in the current data set.
+        /// </summary>
+        long Count { get; }
+
+        /// <summary>
+        /// Adds the given value to the current collection
+        /// </summary>
+        /// <param name="value">Value to be added</param>
+        /// <returns>Current data set</returns>
+        IRegressionData<T> Add(T value);
+        /// <summary>
+        /// Adds the given value collection to the current one
+        /// </summary>
+        /// <param name="values">Values to be added</param>
+        /// <returns>Current data set</returns>
+        IRegressionData<T> AddRange(IEnumerable<T> values);
+    }
+
+    /// <summary>
+    /// Represents a data set, wich contains one-dimensional regression data
+    /// </summary>
+    public sealed class RegressionData
+        : ObservableCollection<double>
+        , IRegressionData<double>
+    {
+        /// <summary>
+        /// Returns the sum of the current data set
+        /// </summary>
+        public double Sum => this.Sum();
+        /// <summary>
+        /// Returns the Average of the current data set
+        /// </summary>
+        public double Average => this.Average();
+        /// <summary>
+        /// Returns the variance of the current data set
+        /// </summary>
+        public double Variance
+        {
+            get
+            {
+                if (this.Count < 2)
+                    throw new InvalidOperationException("The data set needs at least two elements to calculate the variance or standard deviation.");
+
+                double avg = this.Average();
+
+                return this.Sum(i => Pow(i - avg, 2)) / (this.Count - 1);
+            }
+        }
+        /// <summary>
+        /// Returns the standard deviation of the current data set
+        /// </summary>
+        public double StandardDeviation => Sqrt(Variance);
+        /// <summary>
+        /// Retruns the variation coefficient of the current data set
+        /// </summary>
+        public double VariationCoefficient => StandardDeviation / Average;
+        /// <summary>
+        /// Returns the ordered data set
+        /// </summary>
+        public double[] Ordered { get; private set; }
+        /// <summary>
+        /// Returns the median of the current data set
+        /// </summary>
+        public double Median
+        {
+            get
+            {
+                var ord = Ordered; // local variable copy to avoid multiple property invocation
+
+                if (ord.Length % 2 != 0)
+                    return ord[(ord.Length + 1) / 2];
+                else
+                    return (ord[ord.Length / 2] + ord[(ord.Length / 2) + 1]) / 2;
+            }
+        }
+        /// <summary>
+        /// Returns the α-quantile of the current data set
+        /// </summary>
+        public Func<double, double> Quantile => α =>
+        {
+            double k = α * this.Count;
+            double res = Ordered[(int)k + 1];
+
+            if (Abs(k % 1) <= double.Epsilon * 100)
+                return (res + Ordered[(int)k]) / 2;
+            else
+                return res;
+        };
+        /// <summary>
+        /// Returns the lower quartile (= 0.25-quantile) of the current data set
+        /// </summary>
+        public double LowerQuartile => Quantile(0.25);
+        /// <summary>
+        /// Returns the upper quartile (= 0.75-quantile) of the current data set
+        /// </summary>
+        public double UpperQuartile => Quantile(0.75);
+        /// <summary>
+        /// Returns the quarile distance of the current data set
+        /// </summary>
+        public double QuartileDistance => UpperQuartile - LowerQuartile;
+
+
+
+        /// <summary>
+        /// Creates a new instance
+        /// </summary>
+        public RegressionData()
+        {
+            Ordered = Array.Empty<double>();
+            CollectionChanged += (sender, e) => Update();
+
+            Update();
+        }
+
+        /// <summary>
+        /// Creates a new instance from the given data collection
+        /// </summary>
+        /// <param name="data">Data collection</param>
+        public RegressionData(params double[] data)
+            : this(data as IEnumerable<double>)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new instance from the given data collection
+        /// </summary>
+        /// <param name="data">Data collection</param>
+        public RegressionData(IEnumerable<double> data)
+            : this() => AddRange(data);
+
+        private void Update() => Ordered = this.OrderBy(_ => _).ToArray();
+
+        /// <summary>
+        /// Adds the given value to the current collection
+        /// </summary>
+        /// <param name="value">Value to be added</param>
+        /// <returns>Current data set</returns>
+        public new RegressionData Add(double value)
+        {
+            base.Add(value);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the given value collection to the current one
+        /// </summary>
+        /// <param name="values">Values to be added</param>
+        /// <returns>Current data set</returns>
+        public RegressionData AddRange(IEnumerable<double> values)
+        {
+            foreach (double val in values)
+                Add(val);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the given value to the current collection
+        /// </summary>
+        /// <param name="value">Value to be added</param>
+        /// <returns>Current data set</returns>
+        IRegressionData<double> IRegressionData<double>.Add(double value) => Add(value);
+
+        /// <summary>
+        /// Adds the given value collection to the current one
+        /// </summary>
+        /// <param name="values">Values to be added</param>
+        /// <returns>Current data set</returns>
+        IRegressionData<double> IRegressionData<double>.AddRange(IEnumerable<double> value) => AddRange(value);
+
+        public static implicit operator double[](RegressionData data) => data.ToArray();
+        public static implicit operator List<double>(RegressionData data) => data.ToList();
+        public static implicit operator RegressionData(List<double> data) => new RegressionData(data);
+        public static implicit operator RegressionData(double[] data) => new RegressionData(data);
+    }
+
+    /// <summary>
+    /// Represents a data set, wich contains two-dimensional regression data
+    /// </summary>
+    public sealed class RegressionData2D
+        : ObservableCollection<(double, double)>
+        , IRegressionData<(double, double)>
+    {
+        private double sum_xy;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public RegressionData XData { get; private set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public RegressionData YData { get; private set; }
+        /// <summary>
+        /// Returns the sum of the current data set
+        /// </summary>
+        public (double, double) Sum { get; private set; }
+        /// <summary>
+        /// Returns the Average of the current data set
+        /// </summary>
+        public (double, double) Average => (Sum.Item1 / Count, Sum.Item2 / Count);
+        /// <summary>
+        /// Returns the variance of the current data set
+        /// </summary>
+        public (double, double) Variance => (XData.Variance, YData.Variance);
+        /// <summary>
+        /// Returns the median of the current data set
+        /// </summary>
+        public (double, double) Median => (XData.Median, YData.Median);
+        /// <summary>
+        /// Returns the standard deviation of the current data set
+        /// </summary>
+        public (double, double) StandardDeviation => (XData.StandardDeviation, YData.StandardDeviation);
+        /// <summary>
+        /// Retruns the variation coefficient of the current data set
+        /// </summary>
+        public (double, double) VariationCoefficient => (XData.VariationCoefficient, YData.VariationCoefficient);
+        /// <summary>
+        /// Returns the ordered data set
+        /// </summary>
+        public (double, double)[] Ordered { get; private set; }
+        /// <summary>
+        /// Returns the pearson correlation coefficient of the current data set
+        /// </summary>
+        public double PearsonCorrelationCoefficient => (sum_xy - (Count * XData.Average * YData.Average)) / ((Count - 1) * XData.StandardDeviation * YData.StandardDeviation);
+        /// <summary>
+        /// Returns the coefficients A and B to create a linear regression curve 'f(x) = A + B*x'
+        /// </summary>
+        public (double A, double B) LinearRegression
+        {
+            get
+            {
+                double b = PearsonCorrelationCoefficient * YData.StandardDeviation / XData.StandardDeviation;
+                double a = YData.Average - b * XData.Average;
+
+                return (a, b);
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        public (double A, double B, double C) QuadraticRegression
+        {
+            get
+            {
+                // TODO
+
+                throw new NotImplementedException();
+            }
+        }
+
+
+
+        /// <summary>
+        /// Creates a new instance
+        /// </summary>
+        public RegressionData2D()
+        {
+            void Update()
+            {
+                (RegressionData xd, RegressionData yd) = (new RegressionData(), new RegressionData());
+                double tx = 0, ty = 0;
+
+                sum_xy = 0;
+
+                foreach ((double x, double y) in this)
+                {
+                    (tx, ty) = (tx + x, ty + y);
+                    xd.Add(x);
+                    yd.Add(y);
+                    sum_xy += x + y;
+                }
+
+                (XData, YData) = (xd, yd);
+                Sum = (tx, ty);
+                Ordered = this.OrderBy(_ => _).ToArray();
+            }
+
+            XData = new RegressionData();
+            YData = new RegressionData();
+            Ordered = Array.Empty<(double, double)>();
+            CollectionChanged += (sender, e) => Update();
+
+            Update();
+        }
+
+        /// <summary>
+        /// Creates a new instance from the given data collection
+        /// </summary>
+        /// <param name="data">Data collection</param>
+        public RegressionData2D(params (double, double)[] data)
+            : this(data as IEnumerable<(double, double)>)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new instance from the given data collection
+        /// </summary>
+        /// <param name="data">Data collection</param>
+        public RegressionData2D(IEnumerable<(double, double)> data)
+            : this() => AddRange(data);
+
+        /// <summary>
+        /// Adds the given value collection to the current one
+        /// </summary>
+        /// <param name="value">Values to be added</param>
+        /// <returns>Current data set</returns>
+        public new RegressionData2D Add((double, double) value)
+        {
+            base.Add(value);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the given value to the current collection
+        /// </summary>
+        /// <param name="values">Value to be added</param>
+        /// <returns>Current data set</returns>
+        public RegressionData2D AddRange(IEnumerable<(double, double)> values)
+        {
+            foreach ((double, double) val in values)
+                Add(val);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the given value collection to the current one
+        /// </summary>
+        /// <param name="value">Values to be added</param>
+        /// <returns>Current data set</returns>
+        IRegressionData<(double, double)> IRegressionData<(double, double)>.Add((double, double) value) => Add(value);
+
+        /// <summary>
+        /// Adds the given value collection to the current one
+        /// </summary>
+        /// <param name="value">Values to be added</param>
+        /// <returns>Current data set</returns>
+        IRegressionData<(double, double)> IRegressionData<(double, double)>.AddRange(IEnumerable<(double, double)> value) => AddRange(value);
+
+        public static implicit operator (double, double)[] (RegressionData2D data) => data.ToArray();
+        public static implicit operator List<(double, double)>(RegressionData2D data) => data.ToList();
+        public static implicit operator RegressionData2D(List<(double, double)> data) => new RegressionData2D(data);
+        public static implicit operator RegressionData2D((double, double)[] data) => new RegressionData2D(data);
+    }
+}

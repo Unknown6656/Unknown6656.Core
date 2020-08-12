@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net5</TargetFramework>
+        <LangVersion>preview</LangVersion>
+        <PlatformTarget>x64</PlatformTarget>
+        <OutputPath>$(SolutionDir)tests</OutputPath>
+        <AssemblyName>TesterFS</AssemblyName>
+        <ApplicationIcon />
+        <Nullable>enable</Nullable>
+        <NullableContextOptions>enable</NullableContextOptions>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="Program.fs" />
+    </ItemGroup>
+</Project>

@@ -535,7 +535,7 @@ namespace Unknown6656.Mathematics.Graphs
             return g;
         }
 
-        public WeightedGraph<V> ToWeightedGraph(Func<E, double> weight_function) => Cast<WeightedGraph<V>, V, double>(Generics.id, weight_function);
+        public WeightedGraph<V> ToWeightedGraph(Func<E, double> weight_function) => Cast<WeightedGraph<V>, V, double>(LINQ.id, weight_function);
 #if ID_API
         public void MakeClique(params int[] ids) => MakeClique(ids.ToArray(i => this[i]));
 #endif
@@ -633,7 +633,7 @@ namespace Unknown6656.Mathematics.Graphs
 
         public object Clone() => MemberwiseClone<DirectedGraph<V, E>>();
 
-        public G2 MemberwiseClone<G2>() where G2 : Graph<G2, V, E>, new() => Cast<G2, V, E>(Generics.id, Generics.id);
+        public G2 MemberwiseClone<G2>() where G2 : Graph<G2, V, E>, new() => Cast<G2, V, E>(LINQ.id, LINQ.id);
 #if DEBUG
         public void DebugPrintToConsole()
         {
@@ -749,7 +749,7 @@ namespace Unknown6656.Mathematics.Graphs
         protected override WeightedGraph<V> Instance => this;
 
 
-        public DirectedGraph<V, double> ToDirectedGraph() => Cast<DirectedGraph<V, double>, V, double>(Generics.id, Generics.id);
+        public DirectedGraph<V, double> ToDirectedGraph() => Cast<DirectedGraph<V, double>, V, double>(LINQ.id, LINQ.id);
 
         public bool TryFindShortestPath(Vertex<WeightedGraph<V>, V, double> start, Vertex<WeightedGraph<V>, V, double> destination, out Path<WeightedGraph<V>, V, double>? path) =>
             TryFindShortestPath(start, v => v == destination, out path);

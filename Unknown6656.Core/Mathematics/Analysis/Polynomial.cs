@@ -306,7 +306,7 @@ namespace Unknown6656.Mathematics.Analysis
         public bool Is(Polynomial<Function, ScalarMap, T> o) => _coefficients.Are(o._coefficients, (c1, c2) => c1.Is(c2));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int GetHashCode() => Generics.GetHashCode(_coefficients);
+        public override int GetHashCode() => LINQ.GetHashCode(_coefficients);
 
         /// <summary>
         /// Returns the string representation of the current polynomial.

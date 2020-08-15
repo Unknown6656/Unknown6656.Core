@@ -143,7 +143,7 @@ namespace Unknown6656.Mathematics.Graphs.Computation
                                                              select p.Concat(s);
 
             return paths.Concat(gen_paths(Start, _accepted))
-                        .SelectMany(Generics.CartesianProduct)
+                        .SelectMany(LINQ.CartesianProduct)
                         .SequentialDistinct()
                         .Select(Enumerable.ToArray);
         }

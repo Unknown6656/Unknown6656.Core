@@ -18,15 +18,27 @@
         <UseWindowsForms>true</UseWindowsForms>
         <Authors>unknown6656</Authors>
         <Company>unknown6656</Company>
-        <Copyright>Copyright © 2014-2020, unknown6656</Copyright>
+        <Copyright>Copyright © unknown6656, 2014-2020</Copyright>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Product>Unknown6656 Core Library</Product>
         <PackageId>Unknown6656.Core</PackageId>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <Description>Unknown6656 Core Library. Used by multiple other packages and projects.</Description>
+        <PackageProjectUrl>https://github.com/unknown6656/</PackageProjectUrl>
+        <PackageIcon>unknown6656-logo-1024.png</PackageIcon>
+        <RepositoryUrl>https://github.com/Unknown6656/Unknown6656.Core</RepositoryUrl>
+        <RepositoryType>Git</RepositoryType>
+        <PackageTags>unknown6656;core;library</PackageTags>
+        <Version>1.0.3</Version>
+        <AssemblyVersion>1.0.3.0</AssemblyVersion>
     </PropertyGroup>
     <ItemGroup>
+        <None Include="C:\Users\unknown6656\Pictures\unknown6656\unknown6656-logo-1024.png">
+          <Pack>True</Pack>
+          <PackagePath></PackagePath>
+        </None>
         <None Include="Common\Currying.cs">
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>

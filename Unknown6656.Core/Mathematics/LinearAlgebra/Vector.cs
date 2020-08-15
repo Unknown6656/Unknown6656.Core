@@ -502,7 +502,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly override string ToString() => $"({_0}, {_1})";
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override int GetHashCode() => Generics.GetHashCode(Coefficients);
+        public readonly override int GetHashCode() => LINQ.GetHashCode(Coefficients);
 
         // TODO : warning
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1505,7 +1505,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly override string ToString() => $"({_0}, {_1}, {_2})";
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override int GetHashCode() => Generics.GetHashCode(Coefficients);
+        public readonly override int GetHashCode() => LINQ.GetHashCode(Coefficients);
 
         // TODO : warning
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2576,7 +2576,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly override string ToString() => $"({_0}, {_1}, {_2}, {_3})";
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override int GetHashCode() => Generics.GetHashCode(Coefficients);
+        public readonly override int GetHashCode() => LINQ.GetHashCode(Coefficients);
 
         // TODO : warning
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -3729,7 +3729,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly override string ToString() => $"({_0}, {_1}, {_2}, {_3}, {_4})";
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override int GetHashCode() => Generics.GetHashCode(Coefficients);
+        public readonly override int GetHashCode() => LINQ.GetHashCode(Coefficients);
 
         // TODO : warning
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -5073,7 +5073,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly override string ToString() => $"({_0}, {_1}, {_2}, {_3}, {_4}, {_5})";
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override int GetHashCode() => Generics.GetHashCode(Coefficients);
+        public readonly override int GetHashCode() => LINQ.GetHashCode(Coefficients);
 
         // TODO : warning
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -6017,7 +6017,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly override string ToString() => $"({_0}, {_1}, {_2}, {_3}, {_4}, {_5}, {_6})";
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override int GetHashCode() => Generics.GetHashCode(Coefficients);
+        public readonly override int GetHashCode() => LINQ.GetHashCode(Coefficients);
 
         // TODO : warning
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -6971,7 +6971,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly override string ToString() => $"({_0}, {_1}, {_2}, {_3}, {_4}, {_5}, {_6}, {_7})";
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override int GetHashCode() => Generics.GetHashCode(Coefficients);
+        public readonly override int GetHashCode() => LINQ.GetHashCode(Coefficients);
 
         // TODO : warning
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -7898,7 +7898,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly override string ToString() => $"({_0}, {_1}, {_2}, {_3}, {_4}, {_5}, {_6}, {_7}, {_8})";
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override int GetHashCode() => Generics.GetHashCode(Coefficients);
+        public readonly override int GetHashCode() => LINQ.GetHashCode(Coefficients);
 
         // TODO : warning
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -8820,7 +8820,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly override string ToString() => $"({_0}, {_1}, {_2}, {_3}, {_4}, {_5}, {_6}, {_7}, {_8}, {_9})";
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override int GetHashCode() => Generics.GetHashCode(Coefficients);
+        public readonly override int GetHashCode() => LINQ.GetHashCode(Coefficients);
 
         // TODO : warning
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

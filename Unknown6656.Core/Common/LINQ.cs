@@ -1,7 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 using System.Collections;
-using System.Threading;
 using System.Linq;
 using System;
 
@@ -14,7 +13,7 @@ using static System.Math;
 
 namespace Unknown6656.Common
 {
-    public static class Generics
+    public static class LINQ
     {
 #pragma warning disable IDE1006 // naming style
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -173,6 +172,24 @@ namespace Unknown6656.Common
             foreach (T t in coll)
                 if (t is U u)
                     yield return u;
+        }
+
+        public static (IEnumerable<T> @false, IEnumerable<T> @true) Partition<T>(this IEnumerable<T> coll, Predicate<T> pred)
+        {
+            List<T> tl = new List<T>();
+            List<T> fl = new List<T>();
+
+            foreach (T t in coll)
+                (pred(t) ? tl : fl).Add(t);
+
+            return (fl, tl);
+        }
+
+        public static IEnumerable<(T t, U u)> Product<T, U>(this IEnumerable<T> coll1, IEnumerable<U> coll2)
+        {
+            foreach (T t in coll1)
+                foreach (U u in coll2)
+                    yield return (t, u);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -493,171 +510,5 @@ namespace Unknown6656.Common
 
             return hc;
         }
-    }
-
-    public class ConcurrentHashSet<T>
-        : IEnumerable<T>
-        , IDisposable
-    {
-        private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-        private readonly HashSet<T> _hashSet = new HashSet<T>();
-
-
-        public int Count
-        {
-            get
-            {
-                _lock.EnterReadLock();
-
-                try
-                {
-                    return _hashSet.Count;
-                }
-                finally
-                {
-                    if (_lock.IsReadLockHeld)
-                        _lock.ExitReadLock();
-                }
-            }
-        }
-
-
-        ~ConcurrentHashSet() => Dispose(false);
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-                if (_lock != null)
-                    _lock.Dispose();
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        public bool Add(T item)
-        {
-            _lock.EnterWriteLock();
-
-            try
-            {
-                return _hashSet.Add(item);
-            }
-            finally
-            {
-                if (_lock.IsWriteLockHeld)
-                    _lock.ExitWriteLock();
-            }
-        }
-
-        public void Clear()
-        {
-            _lock.EnterWriteLock();
-
-            try
-            {
-                _hashSet.Clear();
-            }
-            finally
-            {
-                if (_lock.IsWriteLockHeld)
-                    _lock.ExitWriteLock();
-            }
-        }
-
-        public bool Contains(T item)
-        {
-            _lock.EnterReadLock();
-
-            try
-            {
-                return _hashSet.Contains(item);
-            }
-            finally
-            {
-                if (_lock.IsReadLockHeld)
-                    _lock.ExitReadLock();
-            }
-        }
-
-        public bool Remove(T item)
-        {
-            _lock.EnterWriteLock();
-
-            try
-            {
-                return _hashSet.Remove(item);
-            }
-            finally
-            {
-                if (_lock.IsWriteLockHeld)
-                    _lock.ExitWriteLock();
-            }
-        }
-
-        public T[] ToArray()
-        {
-            _lock.EnterReadLock();
-
-            try
-            {
-                return _hashSet.ToArray();
-            }
-            finally
-            {
-                if (_lock.IsReadLockHeld)
-                    _lock.ExitReadLock();
-            }
-        }
-
-        public IEnumerator<T> GetEnumerator()
-        {
-            _lock.EnterReadLock();
-
-            try
-            {
-                return _hashSet.ToList().GetEnumerator();
-            }
-            finally
-            {
-                if (_lock.IsReadLockHeld)
-                    _lock.ExitReadLock();
-            }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-
-    public sealed class SequentialDistinctEqualityCompararer<T>
-        : IEqualityComparer<IEnumerable<T>>
-    {
-        public bool Equals(IEnumerable<T> x, IEnumerable<T> y) => x?.SequenceEqual(y) ?? y is null;
-
-        public int GetHashCode(IEnumerable<T> obj)
-        {
-            T[] arr = obj?.ToArray() ?? global::System.Array.Empty<T>();
-
-            return arr.Aggregate(arr.Length, (acc, e) => HashCode.Combine(acc, e?.GetHashCode() ?? 0));
-        }
-    }
-
-    public sealed class CustomEqualityComparer<T>
-        : IEqualityComparer<T>
-    {
-        private readonly Func<T, T, bool> _func;
-
-
-        public CustomEqualityComparer(Func<T, T, bool> equals) => _func = equals;
-
-        public bool Equals(T x, T y) => _func(x, y);
-
-        public int GetHashCode(T _) => 0;
-
-
-        public static implicit operator Func<T, T, bool>(CustomEqualityComparer<T> f) => f._func;
-
-        public static implicit operator CustomEqualityComparer<T>(Func<T, T, bool> f) => new CustomEqualityComparer<T>(f);
     }
 }

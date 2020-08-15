@@ -921,7 +921,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         {
             (Vector2 vec, Scalar val)[] pairs = GetEigenpairs(tolerance);
             Vector2[] vectors = pairs.Select(p => p.vec).Distinct(Vector2.EqualityComparer).ToArray();
-            Scalar[] values = pairs.Select(p => p.val).Distinct(Scalar.EqualityComparer).OrderByDescending(Generics.id).ToArray();
+            Scalar[] values = pairs.Select(p => p.val).Distinct(Scalar.EqualityComparer).OrderByDescending(LINQ.id).ToArray();
 
             return (vectors, values);
         }
@@ -1147,7 +1147,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly int CompareTo(object? other) => other is Matrix2 m ? CompareTo(m) : throw new ArgumentException($"The given value must be a Matrix of the type '{typeof(Matrix2)}'.", nameof(other));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override int GetHashCode() => Generics.GetHashCode(Columns);
+        public readonly override int GetHashCode() => LINQ.GetHashCode(Columns);
 
         #endregion
         #region INSTANCE METHODS : TO_STRING
@@ -2628,7 +2628,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         {
             (Vector3 vec, Scalar val)[] pairs = GetEigenpairs(tolerance);
             Vector3[] vectors = pairs.Select(p => p.vec).Distinct(Vector3.EqualityComparer).ToArray();
-            Scalar[] values = pairs.Select(p => p.val).Distinct(Scalar.EqualityComparer).OrderByDescending(Generics.id).ToArray();
+            Scalar[] values = pairs.Select(p => p.val).Distinct(Scalar.EqualityComparer).OrderByDescending(LINQ.id).ToArray();
 
             return (vectors, values);
         }
@@ -2882,7 +2882,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly int CompareTo(object? other) => other is Matrix3 m ? CompareTo(m) : throw new ArgumentException($"The given value must be a Matrix of the type '{typeof(Matrix3)}'.", nameof(other));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override int GetHashCode() => Generics.GetHashCode(Columns);
+        public readonly override int GetHashCode() => LINQ.GetHashCode(Columns);
 
         #endregion
         #region INSTANCE METHODS : TO_STRING
@@ -4398,7 +4398,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         {
             (Vector4 vec, Scalar val)[] pairs = GetEigenpairs(tolerance);
             Vector4[] vectors = pairs.Select(p => p.vec).Distinct(Vector4.EqualityComparer).ToArray();
-            Scalar[] values = pairs.Select(p => p.val).Distinct(Scalar.EqualityComparer).OrderByDescending(Generics.id).ToArray();
+            Scalar[] values = pairs.Select(p => p.val).Distinct(Scalar.EqualityComparer).OrderByDescending(LINQ.id).ToArray();
 
             return (vectors, values);
         }
@@ -4672,7 +4672,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly int CompareTo(object? other) => other is Matrix4 m ? CompareTo(m) : throw new ArgumentException($"The given value must be a Matrix of the type '{typeof(Matrix4)}'.", nameof(other));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override int GetHashCode() => Generics.GetHashCode(Columns);
+        public readonly override int GetHashCode() => LINQ.GetHashCode(Columns);
 
         #endregion
         #region INSTANCE METHODS : TO_STRING
@@ -6230,7 +6230,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         {
             (Vector5 vec, Scalar val)[] pairs = GetEigenpairs(tolerance);
             Vector5[] vectors = pairs.Select(p => p.vec).Distinct(Vector5.EqualityComparer).ToArray();
-            Scalar[] values = pairs.Select(p => p.val).Distinct(Scalar.EqualityComparer).OrderByDescending(Generics.id).ToArray();
+            Scalar[] values = pairs.Select(p => p.val).Distinct(Scalar.EqualityComparer).OrderByDescending(LINQ.id).ToArray();
 
             return (vectors, values);
         }
@@ -6528,7 +6528,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly int CompareTo(object? other) => other is Matrix5 m ? CompareTo(m) : throw new ArgumentException($"The given value must be a Matrix of the type '{typeof(Matrix5)}'.", nameof(other));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override int GetHashCode() => Generics.GetHashCode(Columns);
+        public readonly override int GetHashCode() => LINQ.GetHashCode(Columns);
 
         #endregion
         #region INSTANCE METHODS : TO_STRING
@@ -8118,7 +8118,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         {
             (Vector6 vec, Scalar val)[] pairs = GetEigenpairs(tolerance);
             Vector6[] vectors = pairs.Select(p => p.vec).Distinct(Vector6.EqualityComparer).ToArray();
-            Scalar[] values = pairs.Select(p => p.val).Distinct(Scalar.EqualityComparer).OrderByDescending(Generics.id).ToArray();
+            Scalar[] values = pairs.Select(p => p.val).Distinct(Scalar.EqualityComparer).OrderByDescending(LINQ.id).ToArray();
 
             return (vectors, values);
         }
@@ -8442,7 +8442,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly int CompareTo(object? other) => other is Matrix6 m ? CompareTo(m) : throw new ArgumentException($"The given value must be a Matrix of the type '{typeof(Matrix6)}'.", nameof(other));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override int GetHashCode() => Generics.GetHashCode(Columns);
+        public readonly override int GetHashCode() => LINQ.GetHashCode(Columns);
 
         #endregion
         #region INSTANCE METHODS : TO_STRING
@@ -10065,7 +10065,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         {
             (Vector7 vec, Scalar val)[] pairs = GetEigenpairs(tolerance);
             Vector7[] vectors = pairs.Select(p => p.vec).Distinct(Vector7.EqualityComparer).ToArray();
-            Scalar[] values = pairs.Select(p => p.val).Distinct(Scalar.EqualityComparer).OrderByDescending(Generics.id).ToArray();
+            Scalar[] values = pairs.Select(p => p.val).Distinct(Scalar.EqualityComparer).OrderByDescending(LINQ.id).ToArray();
 
             return (vectors, values);
         }
@@ -10417,7 +10417,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly int CompareTo(object? other) => other is Matrix7 m ? CompareTo(m) : throw new ArgumentException($"The given value must be a Matrix of the type '{typeof(Matrix7)}'.", nameof(other));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override int GetHashCode() => Generics.GetHashCode(Columns);
+        public readonly override int GetHashCode() => LINQ.GetHashCode(Columns);
 
         #endregion
         #region INSTANCE METHODS : TO_STRING
@@ -12074,7 +12074,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         {
             (Vector8 vec, Scalar val)[] pairs = GetEigenpairs(tolerance);
             Vector8[] vectors = pairs.Select(p => p.vec).Distinct(Vector8.EqualityComparer).ToArray();
-            Scalar[] values = pairs.Select(p => p.val).Distinct(Scalar.EqualityComparer).OrderByDescending(Generics.id).ToArray();
+            Scalar[] values = pairs.Select(p => p.val).Distinct(Scalar.EqualityComparer).OrderByDescending(LINQ.id).ToArray();
 
             return (vectors, values);
         }
@@ -12456,7 +12456,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly int CompareTo(object? other) => other is Matrix8 m ? CompareTo(m) : throw new ArgumentException($"The given value must be a Matrix of the type '{typeof(Matrix8)}'.", nameof(other));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override int GetHashCode() => Generics.GetHashCode(Columns);
+        public readonly override int GetHashCode() => LINQ.GetHashCode(Columns);
 
         #endregion
         #region INSTANCE METHODS : TO_STRING
@@ -14148,7 +14148,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         {
             (Vector9 vec, Scalar val)[] pairs = GetEigenpairs(tolerance);
             Vector9[] vectors = pairs.Select(p => p.vec).Distinct(Vector9.EqualityComparer).ToArray();
-            Scalar[] values = pairs.Select(p => p.val).Distinct(Scalar.EqualityComparer).OrderByDescending(Generics.id).ToArray();
+            Scalar[] values = pairs.Select(p => p.val).Distinct(Scalar.EqualityComparer).OrderByDescending(LINQ.id).ToArray();
 
             return (vectors, values);
         }
@@ -14562,7 +14562,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly int CompareTo(object? other) => other is Matrix9 m ? CompareTo(m) : throw new ArgumentException($"The given value must be a Matrix of the type '{typeof(Matrix9)}'.", nameof(other));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override int GetHashCode() => Generics.GetHashCode(Columns);
+        public readonly override int GetHashCode() => LINQ.GetHashCode(Columns);
 
         #endregion
         #region INSTANCE METHODS : TO_STRING
@@ -16290,7 +16290,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         {
             (Vector10 vec, Scalar val)[] pairs = GetEigenpairs(tolerance);
             Vector10[] vectors = pairs.Select(p => p.vec).Distinct(Vector10.EqualityComparer).ToArray();
-            Scalar[] values = pairs.Select(p => p.val).Distinct(Scalar.EqualityComparer).OrderByDescending(Generics.id).ToArray();
+            Scalar[] values = pairs.Select(p => p.val).Distinct(Scalar.EqualityComparer).OrderByDescending(LINQ.id).ToArray();
 
             return (vectors, values);
         }
@@ -16738,7 +16738,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly int CompareTo(object? other) => other is Matrix10 m ? CompareTo(m) : throw new ArgumentException($"The given value must be a Matrix of the type '{typeof(Matrix10)}'.", nameof(other));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override int GetHashCode() => Generics.GetHashCode(Columns);
+        public readonly override int GetHashCode() => LINQ.GetHashCode(Columns);
 
         #endregion
         #region INSTANCE METHODS : TO_STRING

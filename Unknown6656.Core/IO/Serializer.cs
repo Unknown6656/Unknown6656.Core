@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
-using System.IO.Compression;
 using System.Globalization;
 using System.Drawing;
 using System.Net.Http;
@@ -18,6 +17,7 @@ using Renci.SshNet;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Controls.Console;
 using Unknown6656.Common;
+using Unknown6656.Mathematics.Cryptography;
 
 namespace Unknown6656.IO
 {
@@ -35,27 +35,13 @@ namespace Unknown6656.IO
 
         private From(byte[] data) => Data = data;
 
-        public From Compress()
-        {
-            using MemoryStream ms = new MemoryStream();
-            using GZipStream zip = new GZipStream(ms, CompressionMode.Compress);
+        public From Compress() => Data.Compress();
 
-            zip.Write(Data, 0, Data.Length);
-            zip.Close();
+        public From Uncompress() => Data.Uncompress();
 
-            return new From(ms.ToArray());
-        }
+        public From Encrypt(BinaryCipher algorithm, byte[] key) => Data.Encrypt(algorithm, key);
 
-        public From Uncompress()
-        {
-            using MemoryStream inp = new MemoryStream(Data);
-            using GZipStream zip = new GZipStream(inp, CompressionMode.Decompress);
-            using MemoryStream ms = new MemoryStream();
-
-            zip.CopyTo(ms);
-
-            return new From(ms.ToArray());
-        }
+        public From Decrypt(BinaryCipher algorithm, byte[] key) => Data.Decrypt(algorithm, key);
 
         public From HexDump()
         {
@@ -426,7 +412,7 @@ namespace Unknown6656.IO
         public StringBuilder StringBuilder() => StringBuilder(BytewiseEncoding.Instance);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public StringBuilder StringBuilder(Encoding enc) => new StringBuilder(String());
+        public StringBuilder StringBuilder(Encoding enc) => new StringBuilder(String(enc));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IDictionary<string, IDictionary<string, string>> INI() => INI(BytewiseEncoding.Instance);
@@ -472,6 +458,12 @@ namespace Unknown6656.IO
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MemoryStream Stream() => new MemoryStream(Bytes);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public BinaryReader BinaryReader() => new BinaryReader(Stream());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void BinaryWriter(BinaryWriter writer) => writer.Write(Bytes);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void File(string path)

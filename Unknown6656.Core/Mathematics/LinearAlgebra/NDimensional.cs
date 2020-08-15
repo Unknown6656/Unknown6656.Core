@@ -579,7 +579,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public bool IsNot(Vector other) => !Is(other);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int GetHashCode() => Generics.GetHashCode(_coefficients);
+        public override int GetHashCode() => LINQ.GetHashCode(_coefficients);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Equals(object? obj) => obj is Vector v && Equals(v);
@@ -1490,7 +1490,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public int CompareTo(object? other) => CompareTo((Matrix)other!);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int GetHashCode() => HashCode.Combine(_columns, _rows, Generics.GetHashCode(_coefficients));
+        public override int GetHashCode() => HashCode.Combine(_columns, _rows, LINQ.GetHashCode(_coefficients));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string ToString(bool @short) => @short ? ToShortString() : ToString();
@@ -1784,7 +1784,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         {
             (Vector vec, Scalar val)[] pairs = GetEigenpairs(comparer);
             Vector[] vectors = pairs.Select(p => p.vec).Distinct<Vector>(new CustomEqualityComparer<Vector>((v1, v2) => v1.Coefficients.SequenceEqual(v2.Coefficients, comparer))).ToArray();
-            Scalar[] values = pairs.Select(p => p.val).Distinct<Scalar>(comparer).OrderByDescending(Generics.id).ToArray();
+            Scalar[] values = pairs.Select(p => p.val).Distinct<Scalar>(comparer).OrderByDescending(LINQ.id).ToArray();
 
             return (vectors, values);
         }

@@ -12,9 +12,6 @@ using System;
 
 using Unknown6656.Common;
 using Unknown6656.Imaging;
-using System.Windows.Forms;
-using System.Runtime.InteropServices;
-using Accessibility;
 
 namespace Unknown6656.Controls.Console
 {

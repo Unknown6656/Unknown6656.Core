@@ -142,10 +142,14 @@ namespace Unknown6656.Controls.Console
 
         public static void WriteVertical(string? s, (int left, int top) starting_pos)
         {
+            Console.CursorTop = starting_pos.top;
+            Console.CursorLeft = starting_pos.left;
+
             for (int i = 0; i < (s?.Length ?? 0); i++)
             {
-                Console.SetCursorPosition(starting_pos.left, starting_pos.top + i);
                 Console.Write(s![i]);
+                Console.CursorLeft = starting_pos.left;
+                Console.CursorTop = starting_pos.top + i;
             }
         }
 

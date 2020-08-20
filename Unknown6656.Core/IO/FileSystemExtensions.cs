@@ -47,7 +47,7 @@ namespace Unknown6656.IO
 
         public static Tree<FileSystemInfo> GetDirectoryTree(DirectoryInfo directory)
         {
-            throw new System.NotImplementedException();
+            throw new System.NotImplementedException(); // TODO
         }
     }
 }

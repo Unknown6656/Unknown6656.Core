@@ -166,13 +166,13 @@ namespace Unknown6656.Common
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IEnumerable<U> FilterType<T, U>(this IEnumerable<T> coll)
-            where U : T
-        {
-            foreach (T t in coll)
-                if (t is U u)
-                    yield return u;
-        }
+        public static IEnumerable<T> Slice<T>(this IEnumerable<T> coll, int start, int count) => coll.Skip(start).Take(count);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IEnumerable<T> Slice<T>(this IEnumerable<T> coll, Index start, Index end) => coll.Slice(start..end);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T[] Slice<T>(this IEnumerable<T> coll, Range range) => coll.ToArray()[range];
 
         public static (IEnumerable<T> @false, IEnumerable<T> @true) Partition<T>(this IEnumerable<T> coll, Predicate<T> pred)
         {

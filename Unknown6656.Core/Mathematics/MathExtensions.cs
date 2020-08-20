@@ -209,46 +209,21 @@ namespace Unknown6656.Mathematics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bint? Phi(this bint a) => a.PrimeFactorization().ToArray() is { Length: 2 } l ? (bint?)((l[0] - 1) * (l[1] - 1)) : null;
 
-        public static char ToSuperScript(this char c) => c switch
-        {
-            ',' => '⋅',
-            '.' => '⋅',
-            '+' => '⁺',
-            '-' => '⁻',
-            '=' => '⁼',
-            '(' => '⁽',
-            ')' => '⁾',
-            '1' => '¹',
-            '2' => '²',
-            '3' => '³',
-            char x when x > 0x2f && x < 0x3a => (char)(x + 0x2040),
-            _ => '?',
-        };
+        public static string ToSuperScript(this Scalar l) => l.ToString().ToSuperScript();
 
-        public static char ToSubScript(this char c) => c switch
-        {
-            ',' => '⸳',
-            '.' => '⸳',
-            '+' => '₊',
-            '-' => '₋',
-            '=' => '₌',
-            '(' => '₍',
-            ')' => '₎',
-            char x when x > 0x2f && x < 0x3a => (char)(x + 0x2050),
-            _ => '?',
-        };
+        public static string ToSubScript(this Scalar l) => l.ToString().ToSubScript();
 
-        public static string ToSuperScript(this decimal l) => new string(l.ToString().Select(ToSuperScript).ToArray());
+        public static string ToSuperScript(this decimal l) => l.ToString().ToSuperScript();
 
-        public static string ToSubScript(this decimal l) => new string(l.ToString().Select(ToSubScript).ToArray());
+        public static string ToSubScript(this decimal l) => l.ToString().ToSubScript();
 
-        public static string ToSuperScript(this long l) => new string(l.ToString().Select(ToSuperScript).ToArray());
+        public static string ToSuperScript(this long l) => l.ToString().ToSuperScript();
 
-        public static string ToSubScript(this long l) => new string(l.ToString().Select(ToSubScript).ToArray());
+        public static string ToSubScript(this long l) => l.ToString().ToSubScript();
 
-        public static string ToSuperScript(this ulong l) => new string(l.ToString().Select(ToSuperScript).ToArray());
+        public static string ToSuperScript(this ulong l) => l.ToString().ToSuperScript();
 
-        public static string ToSubScript(this ulong l) => new string(l.ToString().Select(ToSubScript).ToArray());
+        public static string ToSubScript(this ulong l) => l.ToString().ToSubScript();
 
         public static string ToHumanReadableSize(this long l)
         {

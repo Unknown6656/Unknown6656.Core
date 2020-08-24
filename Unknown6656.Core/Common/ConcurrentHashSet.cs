@@ -12,7 +12,7 @@ namespace Unknown6656.Common
     {
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         private readonly HashSet<T> _hashSet = new HashSet<T>();
-
+        
 
         public int Count
         {
@@ -32,14 +32,26 @@ namespace Unknown6656.Common
             }
         }
 
+        public bool IsDisposed { get; private set; }
+
 
         ~ConcurrentHashSet() => Dispose(false);
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
-                if (_lock != null)
-                    _lock.Dispose();
+            if (!IsDisposed)
+            {
+                if (disposing)
+                    if (_lock != null)
+                    {
+                        if (_lock.IsWriteLockHeld)
+                            _lock.ExitWriteLock();
+
+                        _lock.Dispose();
+                    }
+
+                IsDisposed = true;
+            }
         }
 
         public void Dispose()

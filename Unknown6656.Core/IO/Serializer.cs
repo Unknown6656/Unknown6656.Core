@@ -43,6 +43,8 @@ namespace Unknown6656.IO
 
         public From Decrypt(BinaryCipher algorithm, byte[] key) => Data.Decrypt(algorithm, key);
 
+        public From Hash<T>(T hash_function) where T : HashFunction<T> => hash_function.Hash(Data);
+
         public From HexDump()
         {
             ConsoleExtensions.HexDump(Data);

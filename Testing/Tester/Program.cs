@@ -27,13 +27,13 @@ namespace MathLibrary.Tester
     {
         public static void Main(string[] args)
         {
-            Console.OutputEncoding = Encoding.UTF8;
+            // Console.OutputEncoding = Encoding.UTF8;
 
-            Main_Statistics();
+            Main_Math();
             return;
             Main_ConsoleUI();
+            Main_Statistics();
             Main_BMP();
-            Main_Math();
             Main_LinearAlgebra();
             Main_Automaton();
             Main_Graph();

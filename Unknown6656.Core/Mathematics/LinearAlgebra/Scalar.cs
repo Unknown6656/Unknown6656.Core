@@ -523,10 +523,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar[] ToArray() => new[] { this };
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly T[] ToArray<T>() where T : unmanaged => ToArray().BinaryCopy<Scalar, T>();
+        public readonly T[] ToArray<T>() where T : unmanaged => ToArray().CopyTo<Scalar, T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void ToNative<T>(T* dst) where T : unmanaged => ToArray().BinaryCopy(dst);
+        public readonly void ToNative<T>(T* dst) where T : unmanaged => ToArray().CopyTo(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Polynomial ToPolynomial() => new Polynomial(this);

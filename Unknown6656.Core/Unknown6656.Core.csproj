@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop" ToolsVersion="16.7.1">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
         <LangVersion>preview</LangVersion>
@@ -86,6 +86,10 @@
             <Generator>TextTemplatingFileGenerator</Generator>
             <LastGenOutput>Colors.cs</LastGenOutput>
         </None>
+        <None Update="IO\CompressionFunctions.tt">
+          <LastGenOutput>CompressionFunctions.cs</LastGenOutput>
+          <Generator>TextTemplatingFileGenerator</Generator>
+        </None>
         <None Update="IO\UnsafeFunctionPointer.tt">
           <Generator>TextTemplatingFileGenerator</Generator>
           <LastGenOutput>UnsafeFunctionPointer.cs</LastGenOutput>
@@ -147,6 +151,11 @@
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
             <DependentUpon>Colors.tt</DependentUpon>
+        </Compile>
+        <Compile Update="IO\CompressionFunctions.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>CompressionFunctions.tt</DependentUpon>
         </Compile>
         <Compile Update="IO\UnsafeFunctionPointer.cs">
           <DesignTime>True</DesignTime>

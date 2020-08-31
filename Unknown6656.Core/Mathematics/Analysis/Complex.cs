@@ -247,7 +247,7 @@ namespace Unknown6656.Mathematics.Analysis
         public readonly Scalar[] ToArray() => new[] { _re, _im };
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly T[] ToArray<T>() where T : unmanaged => ToArray().BinaryCopy<Scalar, T>(sizeof(Complex));
+        public readonly T[] ToArray<T>() where T : unmanaged => ToArray().CopyTo<Scalar, T>(sizeof(Complex));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly void ToNative<T>(T* dst) where T : unmanaged => ToVector().ToNative(dst);

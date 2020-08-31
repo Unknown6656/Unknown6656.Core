@@ -132,30 +132,32 @@ namespace Unknown6656.Controls.Console
             }
         }
 
-        public static void Write(string? s, (int left, int top) starting_pos)
+        public static void Write(object? value, (int left, int top) starting_pos)
         {
             Console.SetCursorPosition(starting_pos.left, starting_pos.top);
-            Console.Write(s);
+            Console.Write(value);
         }
 
-        public static void WriteVertical(string? s) => WriteVertical(s, (Console.CursorLeft, Console.CursorTop));
+        public static void WriteVertical(object? value) => WriteVertical(value, (Console.CursorLeft, Console.CursorTop));
 
-        public static void WriteVertical(string? s, (int left, int top) starting_pos)
+        public static void WriteVertical(object? value, (int left, int top) starting_pos)
         {
+            string s = value?.ToString() ?? "";
+
             Console.CursorTop = starting_pos.top;
             Console.CursorLeft = starting_pos.left;
 
-            for (int i = 0; i < (s?.Length ?? 0); i++)
+            for (int i = 0; i < s.Length; i++)
             {
-                Console.Write(s![i]);
-                Console.CursorLeft = starting_pos.left;
+                Console.Write(s[i]);
                 Console.CursorTop = starting_pos.top + i;
+                Console.CursorLeft = starting_pos.left;
             }
         }
 
-        public static void WriteUnderlined(string s) => Console.Write($"\x1b[4m{s}\x1b[24m");
+        public static void WriteUnderlined(object? value) => Console.Write($"\x1b[4m{value}\x1b[24m");
 
-        public static void WriteInverted(string s) => Console.Write($"\x1b[7m{s}\x1b[27m");
+        public static void WriteInverted(object? value) => Console.Write($"\x1b[7m{value}\x1b[27m");
 
         /// <summary>
         /// Dumps the given byte array as hexadecimal text viewer

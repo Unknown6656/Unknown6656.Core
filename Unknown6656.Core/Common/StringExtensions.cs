@@ -40,19 +40,23 @@ namespace Unknown6656.Common
             input.Match(false, patterns.ToArray(p => (p.pattern, new Func<Match, bool>(m => { p.action(m); return true; }))));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining), Obsolete]
-        public static T Match<T>(this string input, T @default, Dictionary<string, Func<Match, T>> patterns) =>
+        [return: MaybeNull]
+        public static T Match<T>(this string input, [MaybeNull] T @default, Dictionary<string, Func<Match, T>> patterns) =>
             Match(input, @default, patterns.ToArray(kvp => (kvp.Key, kvp.Value)));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T Match<T>(this string input, T @default, Dictionary<Regex, Func<Match, T>> patterns) =>
+        [return: MaybeNull]
+        public static T Match<T>(this string input, [MaybeNull] T @default, Dictionary<Regex, Func<Match, T>> patterns) =>
             Match(input, @default, patterns.ToArray(kvp => (kvp.Key, kvp.Value)));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining), Obsolete]
-        public static T Match<T>(this string input, T @default, params (string pattern, Func<Match, T> action)[] patterns) =>
+        [return: MaybeNull]
+        public static T Match<T>(this string input, [MaybeNull] T @default, params (string pattern, Func<Match, T> action)[] patterns) =>
             input.Match(@default, patterns.ToArray(p => (new Regex(p.pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled), p.action)));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T Match<T>(this string input, T @default, params (Regex pattern, Func<Match, T> action)[] patterns)
+        [return: MaybeNull]
+        public static T Match<T>(this string input, [MaybeNull] T @default, params (Regex pattern, Func<Match, T> action)[] patterns)
         {
             foreach ((Regex pattern, Func<Match, T> action) in patterns ?? Array.Empty<(Regex, Func<Match, T>)>())
                 if (input.Match(pattern, out Match m))

@@ -564,10 +564,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar DistanceTo(in Vector2 second) => Subtract(second).Length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToNative<T>(T* dst) where T : unmanaged => ToArray().BinaryCopy(dst, BinarySize);
+        public void ToNative<T>(T* dst) where T : unmanaged => ToArray().CopyTo(dst, BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T[] ToArray<T>() where T : unmanaged => new[] { this }.BinaryCopy<Vector2, T>(BinarySize);
+        public T[] ToArray<T>() where T : unmanaged => new[] { this }.CopyTo<Vector2, T>(BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar[] ToArray() => Coefficients;
@@ -1574,10 +1574,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar DistanceTo(in Vector3 second) => Subtract(second).Length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToNative<T>(T* dst) where T : unmanaged => ToArray().BinaryCopy(dst, BinarySize);
+        public void ToNative<T>(T* dst) where T : unmanaged => ToArray().CopyTo(dst, BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T[] ToArray<T>() where T : unmanaged => new[] { this }.BinaryCopy<Vector3, T>(BinarySize);
+        public T[] ToArray<T>() where T : unmanaged => new[] { this }.CopyTo<Vector3, T>(BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar[] ToArray() => Coefficients;
@@ -2646,10 +2646,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar DistanceTo(in Vector4 second) => Subtract(second).Length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToNative<T>(T* dst) where T : unmanaged => ToArray().BinaryCopy(dst, BinarySize);
+        public void ToNative<T>(T* dst) where T : unmanaged => ToArray().CopyTo(dst, BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T[] ToArray<T>() where T : unmanaged => new[] { this }.BinaryCopy<Vector4, T>(BinarySize);
+        public T[] ToArray<T>() where T : unmanaged => new[] { this }.CopyTo<Vector4, T>(BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar[] ToArray() => Coefficients;
@@ -3800,10 +3800,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar DistanceTo(in Vector5 second) => Subtract(second).Length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToNative<T>(T* dst) where T : unmanaged => ToArray().BinaryCopy(dst, BinarySize);
+        public void ToNative<T>(T* dst) where T : unmanaged => ToArray().CopyTo(dst, BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T[] ToArray<T>() where T : unmanaged => new[] { this }.BinaryCopy<Vector5, T>(BinarySize);
+        public T[] ToArray<T>() where T : unmanaged => new[] { this }.CopyTo<Vector5, T>(BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar[] ToArray() => Coefficients;
@@ -5145,10 +5145,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar DistanceTo(in Vector6 second) => Subtract(second).Length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToNative<T>(T* dst) where T : unmanaged => ToArray().BinaryCopy(dst, BinarySize);
+        public void ToNative<T>(T* dst) where T : unmanaged => ToArray().CopyTo(dst, BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T[] ToArray<T>() where T : unmanaged => new[] { this }.BinaryCopy<Vector6, T>(BinarySize);
+        public T[] ToArray<T>() where T : unmanaged => new[] { this }.CopyTo<Vector6, T>(BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar[] ToArray() => Coefficients;
@@ -6090,10 +6090,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar DistanceTo(in Vector7 second) => Subtract(second).Length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToNative<T>(T* dst) where T : unmanaged => ToArray().BinaryCopy(dst, BinarySize);
+        public void ToNative<T>(T* dst) where T : unmanaged => ToArray().CopyTo(dst, BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T[] ToArray<T>() where T : unmanaged => new[] { this }.BinaryCopy<Vector7, T>(BinarySize);
+        public T[] ToArray<T>() where T : unmanaged => new[] { this }.CopyTo<Vector7, T>(BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar[] ToArray() => Coefficients;
@@ -7045,10 +7045,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar DistanceTo(in Vector8 second) => Subtract(second).Length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToNative<T>(T* dst) where T : unmanaged => ToArray().BinaryCopy(dst, BinarySize);
+        public void ToNative<T>(T* dst) where T : unmanaged => ToArray().CopyTo(dst, BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T[] ToArray<T>() where T : unmanaged => new[] { this }.BinaryCopy<Vector8, T>(BinarySize);
+        public T[] ToArray<T>() where T : unmanaged => new[] { this }.CopyTo<Vector8, T>(BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar[] ToArray() => Coefficients;
@@ -7973,10 +7973,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar DistanceTo(in Vector9 second) => Subtract(second).Length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToNative<T>(T* dst) where T : unmanaged => ToArray().BinaryCopy(dst, BinarySize);
+        public void ToNative<T>(T* dst) where T : unmanaged => ToArray().CopyTo(dst, BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T[] ToArray<T>() where T : unmanaged => new[] { this }.BinaryCopy<Vector9, T>(BinarySize);
+        public T[] ToArray<T>() where T : unmanaged => new[] { this }.CopyTo<Vector9, T>(BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar[] ToArray() => Coefficients;
@@ -8896,10 +8896,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar DistanceTo(in Vector10 second) => Subtract(second).Length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToNative<T>(T* dst) where T : unmanaged => ToArray().BinaryCopy(dst, BinarySize);
+        public void ToNative<T>(T* dst) where T : unmanaged => ToArray().CopyTo(dst, BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T[] ToArray<T>() where T : unmanaged => new[] { this }.BinaryCopy<Vector10, T>(BinarySize);
+        public T[] ToArray<T>() where T : unmanaged => new[] { this }.CopyTo<Vector10, T>(BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar[] ToArray() => Coefficients;

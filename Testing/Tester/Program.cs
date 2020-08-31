@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq.Expressions;
 using System.Linq;
 using System.Text;
 using System;
@@ -20,6 +21,8 @@ using Unknown6656.Common;
 using Unknown6656.IO;
 
 using Random = Unknown6656.Mathematics.Numerics.Random;
+using Microsoft.VisualBasic;
+using Unknown6656.Mathematics.Cryptography;
 
 namespace MathLibrary.Tester
 {
@@ -29,12 +32,22 @@ namespace MathLibrary.Tester
         {
             // Console.OutputEncoding = Encoding.UTF8;
 
-            Main_Math();
+            var orig = "ÿ\0Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et felis tortor. Nulla et diam eu urna tincidunt rutrum eu ut mauris. Phasellus sit amet leo ut nisl finibus dapibus. Donec enim urna morbi.";
+            var kek = From.String(orig).Compress(CompressionFunction.Brotli).To.Bytes;
+
+            From.String(orig).Compress(CompressionFunction.Deflate).HexDump();
+            From.String(orig).Compress(CompressionFunction.GZip).HexDump();
+
+            var uco = From.Bytes(kek).Uncompress(CompressionFunction.Brotli).To.Bytes;
+            kek.HexDump();
+            uco.HexDump();
+
+            Main_LinearAlgebra();
             return;
+            Main_Math();
             Main_ConsoleUI();
             Main_Statistics();
             Main_BMP();
-            Main_LinearAlgebra();
             Main_Automaton();
             Main_Graph();
         }
@@ -440,10 +453,11 @@ namespace MathLibrary.Tester
                 π, 0, 0,-τ, 0, 0,-e
             );
             var ccs = m.ToCompressedStorageFormat();
-            var b64 = From.Bytes(ccs).Compress().To.Base64();
-            var bts = From.Base64(b64).Uncompress().To.Bytes;
+            var b64 = From.Bytes(ccs).Compress(CompressionFunction.GZip).To.Base64();
+            var bts = From.Base64(b64).Uncompress(CompressionFunction.GZip).To.Bytes;
             var ccsx = CompressedStorageFormat<Scalar>.FromBytes(bts);
             var m2 = Matrix7.FromCompressedStorageFormat(ccsx);
+
             var s = m.GetEigenspace(1);
 
             Console.WriteLine(m.ToShortString());

@@ -15,7 +15,7 @@
         <UseWindowsForms>true</UseWindowsForms>
     </PropertyGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\Unknown6656.Core\Unknown6656.Core.csproj"/>
+        <ProjectReference Include="..\..\Unknown6656.Core\Unknown6656.Core.csproj" />
     </ItemGroup>
     <ItemGroup>
         <Folder Include="Properties\" />

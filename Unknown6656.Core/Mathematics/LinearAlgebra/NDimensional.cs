@@ -603,10 +603,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public Scalar[] ToArray() => Coefficients;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public X[] ToArray<X>() where X : unmanaged => _coefficients.BinaryCopy<Scalar, X>();
+        public X[] ToArray<X>() where X : unmanaged => _coefficients.CopyTo<Scalar, X>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToNative<X>(X* dst) where X : unmanaged => _coefficients.BinaryCopy(dst);
+        public void ToNative<X>(X* dst) where X : unmanaged => _coefficients.CopyTo(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Polynomial ToPolynomial() => Constructor<Vector, Matrix, Polynomial, ScalarMap, Scalar>.CreatePolynomial(_coefficients);
@@ -1545,10 +1545,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public Scalar[] ToArray() => FlattenedCoefficients;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe X[] ToArray<X>() where X : unmanaged => FlattenedCoefficients.BinaryCopy<Scalar, X>();
+        public unsafe X[] ToArray<X>() where X : unmanaged => FlattenedCoefficients.CopyTo<Scalar, X>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void ToNative<X>(X* dst) where X : unmanaged => FlattenedCoefficients.BinaryCopy(dst);
+        public unsafe void ToNative<X>(X* dst) where X : unmanaged => FlattenedCoefficients.CopyTo(dst);
 
         #endregion
         #region ROW/COLUMN OPERATIONS

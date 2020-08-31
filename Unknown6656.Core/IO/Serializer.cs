@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
+using System.Collections;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.Drawing;
@@ -15,16 +16,24 @@ using System;
 using Renci.SshNet;
 
 using Unknown6656.Mathematics.LinearAlgebra;
+using Unknown6656.Mathematics.Cryptography;
 using Unknown6656.Controls.Console;
 using Unknown6656.Common;
-using Unknown6656.Mathematics.Cryptography;
+using Unknown6656.Imaging;
 
 namespace Unknown6656.IO
 {
     public unsafe sealed class From
+        : IEnumerable<byte>
     {
         public static From Empty { get; } = new byte[0];
 
+
+        public From this[Range range] => Slice(range);
+
+        public From this[Index start, Index end] => Slice(start, end);
+
+        public byte this[Index index] => Data[index];
 
         public byte[] Data { get; }
 
@@ -35,9 +44,9 @@ namespace Unknown6656.IO
 
         private From(byte[] data) => Data = data;
 
-        public From Compress() => Data.Compress();
+        public From Compress(CompressionFunction algorithm) => Data.Compress(algorithm);
 
-        public From Uncompress() => Data.Uncompress();
+        public From Uncompress(CompressionFunction algorithm) => Data.Uncompress(algorithm);
 
         public From Encrypt(BinaryCipher algorithm, byte[] key) => Data.Encrypt(algorithm, key);
 
@@ -52,7 +61,13 @@ namespace Unknown6656.IO
             return this;
         }
 
-        public From Append(From second) => Multiple(this, second);
+        public From Slice(Index start, Index end) => Slice(start..end);
+
+        public From Slice(Range range) => Bytes(Data[range]);
+
+        public From Concat(params From[] others) => Multiple(others.Prepend(this));
+
+        public From Append(params From[] others) => Multiple(others.Prepend(this));
 
         public From Prepend(From first) => Multiple(first, this);
 
@@ -65,6 +80,10 @@ namespace Unknown6656.IO
         public override string ToString() => To.String();
 
         public string ToString(Encoding encoding) => To.String(encoding);
+
+        public IEnumerator<byte> GetEnumerator() => ((IEnumerable<byte>)Data).GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static From Multiple(params From?[]? sources) => Multiple(sources as IEnumerable<From?>);
@@ -125,11 +144,14 @@ namespace Unknown6656.IO
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static From Bitmap(Bitmap bmp)
+        public static From RGBAEncodedBitmap(Bitmap bitmap) => Array(bitmap.ToPixelArray());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static From Bitmap(Bitmap bitmap)
         {
             using MemoryStream ms = new MemoryStream();
 
-            bmp.Save(ms, ImageFormat.Png);
+            bitmap.Save(ms, ImageFormat.Png);
             ms.Seek(0, SeekOrigin.Begin);
 
             return Stream(ms);
@@ -316,7 +338,10 @@ namespace Unknown6656.IO
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static From Bytes(byte[] bytes) => new From(bytes);
+        public static From Bytes(IEnumerable<byte>? bytes) => Bytes(bytes?.ToArray());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static From Bytes(params byte[]? bytes) => new From(bytes ?? new byte[0]);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static From Bytes(byte[] bytes, int offset) => Bytes(bytes[offset..]);
@@ -402,7 +427,7 @@ namespace Unknown6656.IO
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public string Hex() => string.Join("", Bytes.Select(b => b.ToString("X2")));
+        public string Hex(bool uppercase = true, bool spacing = false) => string.Join(spacing ? " " : "", Bytes.Select(b => b.ToString(uppercase ? "X2" : "x2")));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string String() => String(BytewiseEncoding.Instance);
@@ -492,6 +517,29 @@ namespace Unknown6656.IO
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Bitmap RGBAEncodedBitmap()
+        {
+            RGBAColor[] pixels = Array<RGBAColor>();
+            int len = pixels.Length;
+            int i = (int)Math.Sqrt(len);
+            int fac = 1;
+
+            while (i-- > 1)
+                if (len % i == 0)
+                {
+                    fac = i;
+
+                    break;
+                }
+
+            Bitmap bitmap = new Bitmap(fac, len / fac, PixelFormat.Format32bppArgb);
+
+            bitmap.LockRGBAPixels((ptr, _, _) => pixels.CopyTo(ptr));
+
+            return bitmap;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Pointer<T>(T* pointer)
             where T : unmanaged
         {
@@ -575,7 +623,6 @@ namespace Unknown6656.IO
         }
 
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator byte[](To to) => to.Bytes;
     }
@@ -630,6 +677,7 @@ namespace Unknown6656.IO
     // DATA:
     //   - array
     //   - bitmap
+    //   - qr code
     //   - dictionary
     //   - anonymous obj
     // REPR:

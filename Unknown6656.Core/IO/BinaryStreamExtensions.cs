@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.IO.Compression;
 using System.IO;
 using System;
 
@@ -8,36 +7,9 @@ namespace Unknown6656.IO
 {
     public static class BinaryStreamExtensions
     {
-        public static byte[] Compress(this byte[] data)
-        {
-            using MemoryStream mso = new MemoryStream();
-            using GZipStream zip = new GZipStream(mso, CompressionLevel.Optimal);
-            using BinaryWriter wr = new BinaryWriter(zip);
+        public static byte[] Compress(this byte[] data, CompressionFunction algorithm) => algorithm.CompressData(data);
 
-            wr.Write(data.Length);
-            wr.Write(data, 0, data.Length);
-            wr.Flush();
-            wr.Close();
-            zip.Close();
-
-            return mso.ToArray();
-        }
-
-        public static byte[] Uncompress(this byte[] data)
-        {
-            using MemoryStream msi = new MemoryStream(data);
-            using GZipStream zip = new GZipStream(msi, CompressionMode.Decompress);
-            using MemoryStream mso = new MemoryStream();
-            using BinaryReader rd = new BinaryReader(mso);
-
-            zip.CopyTo(mso);
-            zip.Close();
-            mso.Seek(0, SeekOrigin.Begin);
-
-            int count = rd.ReadInt32();
-
-            return rd.ReadBytes(count);
-        }
+        public static byte[] Uncompress(this byte[] data, CompressionFunction algorithm) => algorithm.UncompressData(data);
 
         public static byte[] SerializeCallback(this Action<BinaryWriter> callback)
         {

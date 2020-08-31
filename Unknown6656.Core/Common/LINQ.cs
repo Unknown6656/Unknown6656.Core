@@ -385,26 +385,26 @@ namespace Unknown6656.Common
         public static unsafe U BinaryCast<T, U>(this T value) where T : unmanaged where U : unmanaged => *(U*)&value;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe U[] BinaryCopy<T, U>(this T[] source) where T : unmanaged where U : unmanaged => source.BinaryCopy<T, U>(sizeof(T) * source.Length);
+        public static unsafe U[] CopyTo<T, U>(this T[] source) where T : unmanaged where U : unmanaged => source.CopyTo<T, U>(sizeof(T) * source.Length);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe U[] BinaryCopy<T, U>(this T[] source, int byte_count)
+        public static unsafe U[] CopyTo<T, U>(this T[] source, int byte_count)
             where T : unmanaged
             where U : unmanaged
         {
             U[] dest = new U[(int)Ceiling(byte_count / (float)sizeof(U))];
 
             fixed (U* ptrd = dest)
-                source.BinaryCopy(ptrd, byte_count);
+                source.CopyTo(ptrd, byte_count);
 
             return dest;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void BinaryCopy<T, U>(this T[] source, U* target) where T : unmanaged where U : unmanaged => source.BinaryCopy(target, sizeof(T) * source.Length);
+        public static unsafe void CopyTo<T, U>(this T[] source, U* target) where T : unmanaged where U : unmanaged => source.CopyTo(target, sizeof(T) * source.Length);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void BinaryCopy<T, U>(this T[] source, U* target, int byte_count)
+        public static unsafe void CopyTo<T, U>(this T[] source, U* target, int byte_count)
             where T : unmanaged
             where U : unmanaged
         {

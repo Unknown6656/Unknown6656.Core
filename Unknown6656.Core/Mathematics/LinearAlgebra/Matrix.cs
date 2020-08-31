@@ -1204,10 +1204,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix<Matrix2>(this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly T[] ToArray<T>() where T : unmanaged => new[] { this }.BinaryCopy<Matrix2, T>(BinarySize);
+        public readonly T[] ToArray<T>() where T : unmanaged => new[] { this }.CopyTo<Matrix2, T>(BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void ToNative<T>(T* dst) where T : unmanaged => ToArray().BinaryCopy(dst, BinarySize);
+        public readonly void ToNative<T>(T* dst) where T : unmanaged => ToArray().CopyTo(dst, BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly IEnumerator<Vector2> GetEnumerator() => ((IEnumerable<Vector2>)Columns).GetEnumerator();
@@ -2949,10 +2949,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix<Matrix3>(this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly T[] ToArray<T>() where T : unmanaged => new[] { this }.BinaryCopy<Matrix3, T>(BinarySize);
+        public readonly T[] ToArray<T>() where T : unmanaged => new[] { this }.CopyTo<Matrix3, T>(BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void ToNative<T>(T* dst) where T : unmanaged => ToArray().BinaryCopy(dst, BinarySize);
+        public readonly void ToNative<T>(T* dst) where T : unmanaged => ToArray().CopyTo(dst, BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly IEnumerator<Vector3> GetEnumerator() => ((IEnumerable<Vector3>)Columns).GetEnumerator();
@@ -4750,10 +4750,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix<Matrix4>(this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly T[] ToArray<T>() where T : unmanaged => new[] { this }.BinaryCopy<Matrix4, T>(BinarySize);
+        public readonly T[] ToArray<T>() where T : unmanaged => new[] { this }.CopyTo<Matrix4, T>(BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void ToNative<T>(T* dst) where T : unmanaged => ToArray().BinaryCopy(dst, BinarySize);
+        public readonly void ToNative<T>(T* dst) where T : unmanaged => ToArray().CopyTo(dst, BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly IEnumerator<Vector4> GetEnumerator() => ((IEnumerable<Vector4>)Columns).GetEnumerator();
@@ -6618,10 +6618,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix<Matrix5>(this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly T[] ToArray<T>() where T : unmanaged => new[] { this }.BinaryCopy<Matrix5, T>(BinarySize);
+        public readonly T[] ToArray<T>() where T : unmanaged => new[] { this }.CopyTo<Matrix5, T>(BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void ToNative<T>(T* dst) where T : unmanaged => ToArray().BinaryCopy(dst, BinarySize);
+        public readonly void ToNative<T>(T* dst) where T : unmanaged => ToArray().CopyTo(dst, BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly IEnumerator<Vector5> GetEnumerator() => ((IEnumerable<Vector5>)Columns).GetEnumerator();
@@ -8545,10 +8545,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix<Matrix6>(this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly T[] ToArray<T>() where T : unmanaged => new[] { this }.BinaryCopy<Matrix6, T>(BinarySize);
+        public readonly T[] ToArray<T>() where T : unmanaged => new[] { this }.CopyTo<Matrix6, T>(BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void ToNative<T>(T* dst) where T : unmanaged => ToArray().BinaryCopy(dst, BinarySize);
+        public readonly void ToNative<T>(T* dst) where T : unmanaged => ToArray().CopyTo(dst, BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly IEnumerator<Vector6> GetEnumerator() => ((IEnumerable<Vector6>)Columns).GetEnumerator();
@@ -10534,10 +10534,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix<Matrix7>(this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly T[] ToArray<T>() where T : unmanaged => new[] { this }.BinaryCopy<Matrix7, T>(BinarySize);
+        public readonly T[] ToArray<T>() where T : unmanaged => new[] { this }.CopyTo<Matrix7, T>(BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void ToNative<T>(T* dst) where T : unmanaged => ToArray().BinaryCopy(dst, BinarySize);
+        public readonly void ToNative<T>(T* dst) where T : unmanaged => ToArray().CopyTo(dst, BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly IEnumerator<Vector7> GetEnumerator() => ((IEnumerable<Vector7>)Columns).GetEnumerator();
@@ -12588,10 +12588,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix<Matrix8>(this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly T[] ToArray<T>() where T : unmanaged => new[] { this }.BinaryCopy<Matrix8, T>(BinarySize);
+        public readonly T[] ToArray<T>() where T : unmanaged => new[] { this }.CopyTo<Matrix8, T>(BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void ToNative<T>(T* dst) where T : unmanaged => ToArray().BinaryCopy(dst, BinarySize);
+        public readonly void ToNative<T>(T* dst) where T : unmanaged => ToArray().CopyTo(dst, BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly IEnumerator<Vector8> GetEnumerator() => ((IEnumerable<Vector8>)Columns).GetEnumerator();
@@ -14710,10 +14710,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix<Matrix9>(this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly T[] ToArray<T>() where T : unmanaged => new[] { this }.BinaryCopy<Matrix9, T>(BinarySize);
+        public readonly T[] ToArray<T>() where T : unmanaged => new[] { this }.CopyTo<Matrix9, T>(BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void ToNative<T>(T* dst) where T : unmanaged => ToArray().BinaryCopy(dst, BinarySize);
+        public readonly void ToNative<T>(T* dst) where T : unmanaged => ToArray().CopyTo(dst, BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly IEnumerator<Vector9> GetEnumerator() => ((IEnumerable<Vector9>)Columns).GetEnumerator();
@@ -16903,10 +16903,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix<Matrix10>(this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly T[] ToArray<T>() where T : unmanaged => new[] { this }.BinaryCopy<Matrix10, T>(BinarySize);
+        public readonly T[] ToArray<T>() where T : unmanaged => new[] { this }.CopyTo<Matrix10, T>(BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void ToNative<T>(T* dst) where T : unmanaged => ToArray().BinaryCopy(dst, BinarySize);
+        public readonly void ToNative<T>(T* dst) where T : unmanaged => ToArray().CopyTo(dst, BinarySize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly IEnumerator<Vector10> GetEnumerator() => ((IEnumerable<Vector10>)Columns).GetEnumerator();

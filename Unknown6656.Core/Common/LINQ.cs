@@ -53,6 +53,12 @@ namespace Unknown6656.Common
         public static IEnumerable<(U, T)> Swap<T, U>(this IEnumerable<(T, U)> collection) => collection.Select(t => (t.Item2, t.Item1));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ReadOnlyIndexer<K, V> GetReadOnlyIndexer<K, V>(this IReadOnlyDictionary<K, V> dictionary) => new(k => dictionary[k]);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Indexer<K, V> GetIndexer<K, V>(this IDictionary<K, V> dictionary) => new(k => dictionary[k], (k, v) => dictionary[k] = v);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DensityFunction<T> GenerateDensityFunction<T>(this IEnumerable<T> collection) where T : IComparable<T> => new DensityFunction<T>(collection);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

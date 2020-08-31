@@ -85,6 +85,29 @@ namespace Unknown6656.Common
             _setter = setter ?? throw new ArgumentException("The setter function must not be null.", nameof(setter));
             _getter = getter ?? throw new ArgumentException("The getter function must not be null.", nameof(getter));
         }
+
+        /// <summary>
+        /// Creates a new indexer.
+        /// </summary>
+        /// <param name="getter">Getter function</param>
+        /// <param name="setter">Setter function</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Indexer(ReadOnlyIndexer<<#=pars_types#>, V> getter, WriteOnlyIndexer<<#=pars_types#>, V> setter)
+            : this(getter.AsFunction(), setter.AsFunction())
+        {
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ReadOnlyIndexer<<#=pars_types#>, V> AsReadOnly() => new ReadOnlyIndexer<<#=pars_types#>, V>(_getter);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public WriteOnlyIndexer<<#=pars_types#>, V> AsWriteOnly() => new WriteOnlyIndexer<<#=pars_types#>, V>(_setter);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator ReadOnlyIndexer<<#=pars_types#>, V>(Indexer<<#=pars_types#>, V> indexer) => indexer.AsReadOnly();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator WriteOnlyIndexer<<#=pars_types#>, V>(Indexer<<#=pars_types#>, V> indexer) => indexer.AsWriteOnly();
     }
 
     /// <summary>
@@ -128,6 +151,12 @@ namespace Unknown6656.Common
         /// <param name="getter">Getter function</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ReadOnlyIndexer(Func<<#=pars_types#>, V> getter) => _getter = getter ?? throw new ArgumentException("The getter function must not be null.", nameof(getter));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Func<<#=pars_types#>, V> AsFunction() => _getter;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator Func<<#=pars_types#>, V>(ReadOnlyIndexer<<#=pars_types#>, V> indexer) => indexer.AsFunction();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ReadOnlyIndexer<<#=pars_types#>, V>(Func<<#=pars_types#>, V> func) => new ReadOnlyIndexer<<#=pars_types#>, V>(func);
@@ -174,6 +203,12 @@ namespace Unknown6656.Common
         /// <param name="setter">Setter function</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public WriteOnlyIndexer(Action<<#=pars_types#>, V> setter) => _setter = setter ?? throw new ArgumentException("The setter function must not be null.", nameof(setter));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Action<<#=pars_types#>, V> AsFunction() => _setter;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator Action<<#=pars_types#>, V>(WriteOnlyIndexer<<#=pars_types#>, V> indexer) => indexer.AsFunction();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator WriteOnlyIndexer<<#=pars_types#>, V>(Action<<#=pars_types#>, V> func) => new WriteOnlyIndexer<<#=pars_types#>, V>(func);
@@ -244,6 +279,30 @@ namespace Unknown6656.Common
         /// <param name="func">Ref getter function</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public RefIndexer(RefFunc<<#=pars_types#>, V> func) => _func = func ?? throw new ArgumentException("The getter function must not be null.", nameof(func));
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Indexer<<#=pars_types#>, V> AsIndexer() => new Indexer<<#=pars_types#>, V>(AsReadOnly(), AsWriteOnly());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ReadOnlyIndexer<<#=pars_types#>, V> AsReadOnly() => new ReadOnlyIndexer<<#=pars_types#>, V>((<#=pars_decls#>) => _func(<#=pars_names#>));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public WriteOnlyIndexer<<#=pars_types#>, V> AsWriteOnly() => new WriteOnlyIndexer<<#=pars_types#>, V>((<#=pars_decls#>, V v) => _func(<#=pars_names#>) = v);
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public RefFunc<<#=pars_types#>, V> AsFunction() => _func;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator RefFunc<<#=pars_types#>, V>(RefIndexer<<#=pars_types#>, V> indexer) => indexer.AsFunction();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator Indexer<<#=pars_types#>, V>(RefIndexer<<#=pars_types#>, V> indexer) => indexer.AsIndexer();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator ReadOnlyIndexer<<#=pars_types#>, V>(RefIndexer<<#=pars_types#>, V> indexer) => indexer.AsReadOnly();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator WriteOnlyIndexer<<#=pars_types#>, V>(RefIndexer<<#=pars_types#>, V> indexer) => indexer.AsWriteOnly();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator RefIndexer<<#=pars_types#>, V>(RefFunc<<#=pars_types#>, V> func) => new RefIndexer<<#=pars_types#>, V>(func);

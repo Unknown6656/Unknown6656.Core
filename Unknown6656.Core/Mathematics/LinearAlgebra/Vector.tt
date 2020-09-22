@@ -23,6 +23,7 @@ using System;
 using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Mathematics.Numerics;
 using Unknown6656.Common;
+using Unknown6656.IO;
 
 using num = System.Numerics;
 
@@ -607,7 +608,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly override string ToString() => $"(<#=string.Join(", ", comps.Select(s => "{" + s + "}"))#>)";
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override int GetHashCode() => Generics.GetHashCode(Coefficients);
+        public readonly override int GetHashCode() => LINQ.GetHashCode(Coefficients);
 
         // TODO : warning
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -688,10 +689,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar DistanceTo(in <#=typename#> second) => Subtract(second).Length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToNative<T>(T* dst) where T : unmanaged => ToArray().BinaryCopy(dst, BinarySize);
+        public T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).To.Array<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T[] ToArray<T>() where T : unmanaged => new[] { this }.BinaryCopy<<#=typename#>, T>(BinarySize);
+        public void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).To.Pointer(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar[] ToArray() => Coefficients;

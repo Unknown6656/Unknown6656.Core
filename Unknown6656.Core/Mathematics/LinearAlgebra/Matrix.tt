@@ -22,6 +22,7 @@ using System;
 
 using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Common;
+using Unknown6656.IO;
 
 using static System.Math;
 
@@ -58,6 +59,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
     public unsafe readonly /* ref */ partial struct <#=typename#>
         : Algebra<Scalar>.IMatrix<<#=vecname#>, <#=typename#>>
         , Algebra<Scalar, Polynomial, ScalarMap>.IMatrix<<#=typename#>, MatrixNM>
+        , IReadonlyNative<<#=typename#>>
         , IEnumerable<<#=vecname#>>
         , IRelation<<#=typename#>, <#=vecname#>>
         , IEnumerable<Scalar>
@@ -157,11 +159,11 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         public readonly ReadOnlyIndexer<Range, Range, MatrixNM> Region => new ReadOnlyIndexer<Range, Range, MatrixNM>(GetRegion);
 
-        public readonly ReadOnlyIndexer<int, int, <#=            dim == 2 ? "Scalar" : $"Matrix{dim - 1}"#>> Minors
 <#
         if (dim == 2)
         {
 #>
+        public readonly ReadOnlyIndexer<int, int, Scalar> Minors
         {
             get
             {
@@ -181,7 +183,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         else
         {
 #>
-            => new ReadOnlyIndexer<int, int, Matrix<#=dim-1#>>(GetMinor);
+        public readonly ReadOnlyIndexer<int, int, Matrix<#=dim - 1#>> Minors => new ReadOnlyIndexer<int, int, Matrix<#=dim-1#>>(GetMinor);
 <#
         }
 #>
@@ -191,6 +193,9 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         /// <inheritdoc cref="Dimension"/>
         public readonly (int Columns, int Rows) Size => (<#=dim#>, <#=dim#>);
+        
+        /// <inheritdoc cref="BinarySize"/>
+        readonly int IReadonlyNative<<#=typename#>>.BinarySize => BinarySize;
 
         /// <inheritdoc cref="Dimensions"/>
         readonly (int Columns, int Rows) Algebra<Scalar>.IComposite2D.Dimensions => Size;
@@ -1173,7 +1178,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         {
             (<#=vecname#> vec, Scalar val)[] pairs = GetEigenpairs(tolerance);
             <#=vecname#>[] vectors = pairs.Select(p => p.vec).Distinct(<#=vecname#>.EqualityComparer).ToArray();
-            Scalar[] values = pairs.Select(p => p.val).Distinct(Scalar.EqualityComparer).OrderByDescending(Generics.id).ToArray();
+            Scalar[] values = pairs.Select(p => p.val).Distinct(Scalar.EqualityComparer).OrderByDescending(LINQ.id).ToArray();
 
             return (vectors, values);
         }
@@ -1507,7 +1512,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly int CompareTo(object? other) => other is <#=typename#> m ? CompareTo(m) : throw new ArgumentException($"The given value must be a Matrix of the type '{typeof(<#=typename#>)}'.", nameof(other));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override int GetHashCode() => Generics.GetHashCode(Columns);
+        public readonly override int GetHashCode() => LINQ.GetHashCode(Columns);
 
         #endregion
         #region INSTANCE METHODS : TO_STRING
@@ -1580,13 +1585,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar[] ToArray() => FlattenedCoefficients.ToArray();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix<<#=typename#>>(this);
+        public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix(this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly T[] ToArray<T>() where T : unmanaged => new[] { this }.BinaryCopy<<#=typename#>, T>(BinarySize);
+        public readonly T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).To.Array<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void ToNative<T>(T* dst) where T : unmanaged => ToArray().BinaryCopy(dst, BinarySize);
+        public readonly void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).To.Pointer(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly IEnumerator<<#=vecname#>> GetEnumerator() => ((IEnumerable<<#=vecname#>>)Columns).GetEnumerator();
@@ -1740,7 +1745,11 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
             return new <#=typename#>(t);
         }
-
+        
+<#
+        if (dim > 2)
+        {
+#>
         /// <summary>
         /// Returns the matrix' <#=dim-1#>x<#=dim-1#>-minor at the given indices
         /// </summary>
@@ -1748,23 +1757,6 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// <param name="row">Zero-based row index</param>
         /// <returns><#=dim-1#>x<#=dim-1#>-minor</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-<#
-        if (dim == 2)
-        {
-#>
-        public readonly Scalar GetMinor(int column, int row) => (column, row) switch
-        {
-            (0, 0) => this[1, 1],
-            (0, 1) => this[1, 0],
-            (1, 0) => this[0, 1],
-            (1, 1) => this[0, 0],
-            _ => throw new IndexOutOfRangeException()
-        };
-<#
-        }
-        else if (dim > 2)
-        {
-#>
         public readonly Matrix<#=dim-1#> GetMinor(int column, int row) =>
             Columns
             .Take(column)

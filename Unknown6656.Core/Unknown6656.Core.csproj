@@ -1,10 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk"><!--.WindowsDesktop-->
+﻿<!--<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">-->
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
-        <LangVersion>preview</LangVersion>
+        <TargetFramework>net5</TargetFramework>
+        <LangVersion>latest</LangVersion>
         <!--<PlatformTarget>x64</PlatformTarget>-->
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <OutputPath>..\bin</OutputPath>
+        <OutputPath>../bin</OutputPath>
         <AssemblyName>unknown6656.core</AssemblyName>
         <Nullable>enable</Nullable>
         <NullableContextOptions>enable</NullableContextOptions>
@@ -36,151 +37,153 @@
         <!--<UserSecretsId>e25c8605-a6b4-42e1-9806-2eb3ebe4aa4a</UserSecretsId>-->
     </PropertyGroup>
     <ItemGroup>
-        <None Include="C:\Users\unknown6656\Pictures\unknown6656\unknown6656-logo-1024.png">
+        <None Include="C:/Users/unknown6656/Pictures/unknown6656/unknown6656-logo-1024.png">
           <Pack>True</Pack>
           <PackagePath></PackagePath>
         </None>
-        <None Include="Common\Currying.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>Currying.tt</DependentUpon>
-        </None>
-        <None Include="Common\Indexer.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>Indexer.tt</DependentUpon>
-        </None>
-        <None Include="Imaging\Colors.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>Colors.tt</DependentUpon>
-        </None>
-        <None Include="IO\UnsafeFunctionPointer.cs">
-          <DesignTime>True</DesignTime>
-          <AutoGen>True</AutoGen>
-          <DependentUpon>UnsafeFunctionPointer.tt</DependentUpon>
-        </None>
-        <None Include="Mathematics\Cryptography\HashFunctions.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>HashFunctions.tt</DependentUpon>
-        </None>
     </ItemGroup>
     <ItemGroup>
-      <PackageReference Include="SSH.NET" Version="2016.1.0" />
-    </ItemGroup>
-    <ItemGroup>
-        <None Update="Common\Currying.tt">
-            <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>Currying.cs</LastGenOutput>
-        </None>
-        <None Update="Common\DiscriminatedUnions.tt">
-            <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>DiscriminatedUnions.cs</LastGenOutput>
-        </None>
-        <None Update="Common\Indexer.tt">
-            <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>Indexer.cs</LastGenOutput>
-        </None>
-        <None Update="Imaging\Colors.tt">
-            <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>Colors.cs</LastGenOutput>
-        </None>
-        <None Update="IO\CompressionFunctions.tt">
-          <LastGenOutput>CompressionFunctions.cs</LastGenOutput>
-          <Generator>TextTemplatingFileGenerator</Generator>
-        </None>
-        <None Update="IO\UnsafeFunctionPointer.tt">
-          <Generator>TextTemplatingFileGenerator</Generator>
-          <LastGenOutput>UnsafeFunctionPointer.cs</LastGenOutput>
-        </None>
-        <None Update="Mathematics\Cryptography\HashFunctions.tt">
-            <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>HashFunctions.cs</LastGenOutput>
-        </None>
-        <None Update="Mathematics\LinearAlgebra\Vector.tt">
-            <LastGenOutput>Vector.cs</LastGenOutput>
-            <Generator>TextTemplatingFileGenerator</Generator>
-        </None>
-        <None Update="Mathematics\LinearAlgebra\Matrix.tt">
-            <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>Matrix.cs</LastGenOutput>
-        </None>
-        <None Update="Function\Polynomial.Extensions.tt">
-            <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>Polynomial.Extensions.cs</LastGenOutput>
-        </None>
-        <None Update="Mathematics\LinearAlgebra\VectorSpace.tt">
-            <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>VectorSpace.cs</LastGenOutput>
-        </None>
-        <None Update="Mathematics\LinearAlgebra\~old~Matrix.tt.old">
-            <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>~old~Matrix.tt.cs</LastGenOutput>
-        </None>
-        <None Update="Mathematics\LinearAlgebra\~old~Vector.tt.old">
-            <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>~old~Vector.tt.cs</LastGenOutput>
-        </None>
+        <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="3.8.0-3.final">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="SSH.NET" Version="2020.0.0-beta1" />
     </ItemGroup>
     <ItemGroup>
         <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
     </ItemGroup>
+    <!--<ItemGroup>
+        <None Include="Common/Currying.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Currying.tt</DependentUpon>
+        </None>
+        <None Include="Common/Indexer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Indexer.tt</DependentUpon>
+        </None>
+        <None Include="Imaging/Colors.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Colors.tt</DependentUpon>
+        </None>
+        <None Include="IO/UnsafeFunctionPointer.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>UnsafeFunctionPointer.tt</DependentUpon>
+        </None>
+    </ItemGroup>-->
     <ItemGroup>
-        <Compile Update="Common\Currying.cs">
+        <None Update="Common/Currying.tt">
+            <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>Currying.cs</LastGenOutput>
+        </None>
+        <None Update="Common/Indexer.tt">
+            <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>Indexer.cs</LastGenOutput>
+        </None>
+        <None Update="Common/DiscriminatedUnions.tt">
+            <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>DiscriminatedUnions.cs</LastGenOutput>
+        </None>
+        <None Update="Imaging/Colors.tt">
+            <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>Colors.cs</LastGenOutput>
+        </None>
+        <None Update="IO/CompressionFunctions.tt">
+          <LastGenOutput>CompressionFunctions.cs</LastGenOutput>
+          <Generator>TextTemplatingFileGenerator</Generator>
+        </None>
+        <None Update="IO/UnsafeFunctionPointer.tt">
+          <Generator>TextTemplatingFileGenerator</Generator>
+          <LastGenOutput>UnsafeFunctionPointer.cs</LastGenOutput>
+        </None>
+        <None Update="Function/Polynomial.Extensions.tt">
+            <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>Polynomial.Extensions.cs</LastGenOutput>
+        </None>
+        <None Update="Mathematics/Analysis/Polynomial.Extensions.tt">
+            <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>Polynomial.Extensions.cs</LastGenOutput>
+        </None>
+        <None Update="Mathematics/Cryptography/HashFunctions.tt">
+            <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>HashFunctions.cs</LastGenOutput>
+        </None>
+        <None Update="Mathematics/LinearAlgebra/Matrix.tt">
+            <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>Matrix.cs</LastGenOutput>
+        </None>
+        <None Update="Mathematics/LinearAlgebra/Vector.tt">
+            <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>Vector.cs</LastGenOutput>
+        </None>
+        <None Update="Mathematics/LinearAlgebra/VectorSpace.tt">
+            <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>VectorSpace.cs</LastGenOutput>
+        </None>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Update="Common/Currying.cs">
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
             <DependentUpon>Currying.tt</DependentUpon>
         </Compile>
-        <Compile Update="Common\DiscriminatedUnions.cs">
+        <Compile Update="Common/DiscriminatedUnions.cs">
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
             <DependentUpon>DiscriminatedUnions.tt</DependentUpon>
         </Compile>
-        <Compile Update="Function\Polynomial.Extensions.cs">
+        <Compile Update="Function/Polynomial.Extensions.cs">
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
             <DependentUpon>Polynomial.Extensions.tt</DependentUpon>
         </Compile>
-        <Compile Update="Common\Indexer.cs">
+        <Compile Update="Common/Indexer.cs">
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
             <DependentUpon>Indexer.tt</DependentUpon>
         </Compile>
-        <Compile Update="Imaging\Colors.cs">
+        <Compile Update="Imaging/Colors.cs">
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
             <DependentUpon>Colors.tt</DependentUpon>
         </Compile>
-        <Compile Update="IO\CompressionFunctions.cs">
+        <Compile Update="IO/CompressionFunctions.cs">
           <DesignTime>True</DesignTime>
           <AutoGen>True</AutoGen>
           <DependentUpon>CompressionFunctions.tt</DependentUpon>
         </Compile>
-        <Compile Update="IO\UnsafeFunctionPointer.cs">
+        <Compile Update="IO/UnsafeFunctionPointer.cs">
           <DesignTime>True</DesignTime>
           <AutoGen>True</AutoGen>
           <DependentUpon>UnsafeFunctionPointer.tt</DependentUpon>
         </Compile>
-        <Compile Update="Mathematics\Cryptography\HashFunctions.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>HashFunctions.tt</DependentUpon>
+        <Compile Update="Mathematics/Analysis/Polynomial.Extensions.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>Polynomial.Extensions.tt</DependentUpon>
         </Compile>
-        <Compile Update="Mathematics\LinearAlgebra\Matrix.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>Matrix.tt</DependentUpon>
+        <Compile Update="Mathematics/Cryptography/HashFunctions.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>HashFunctions.tt</DependentUpon>
         </Compile>
-        <Compile Update="Mathematics\LinearAlgebra\Vector.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>Vector.tt</DependentUpon>
+        <Compile Update="Mathematics/LinearAlgebra/Matrix.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>Matrix.tt</DependentUpon>
         </Compile>
-        <Compile Update="Mathematics\LinearAlgebra\VectorSpace.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>VectorSpace.tt</DependentUpon>
+        <Compile Update="Mathematics/LinearAlgebra/Vector.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>Vector.tt</DependentUpon>
+        </Compile>
+        <Compile Update="Mathematics/LinearAlgebra/VectorSpace.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>VectorSpace.tt</DependentUpon>
         </Compile>
     </ItemGroup>
 </Project>

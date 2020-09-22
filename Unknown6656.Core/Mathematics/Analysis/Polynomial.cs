@@ -625,7 +625,7 @@ namespace Unknown6656.Mathematics.Analysis
         // TODO : parse
     }
 
-    public class Polynomial
+    public partial class Polynomial
         : Polynomial<Polynomial, ScalarMap, Scalar>
     {
         public Polynomial(params Scalar[] coefficients)

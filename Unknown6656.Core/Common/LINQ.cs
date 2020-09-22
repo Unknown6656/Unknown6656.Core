@@ -36,7 +36,7 @@ namespace Unknown6656.Common
         public static (T, U, V) Tuple<T, U, V>(T t, U u, V v) => (t, u, v);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T[] GetEnumValues<T>() where T : Enum => Enum.GetValues(typeof(T)).Cast<object>().ToArray(v => (T)v);
+        public static T[] GetEnumValues<T>() where T : Enum => Enum.GetValues(typeof(T)).Cast<object>().ToArray(v => (T)v!);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Count(this IEnumerable collection)
@@ -142,10 +142,10 @@ namespace Unknown6656.Common
         public static T[] HeapSort<T>(this IEnumerable<T> coll) where T : IComparable<T> => BinaryHeap<T>.HeapSort(coll);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T[] BinaryOperation<T>(this T[] coll1, T[] coll2, Func<T, T, T> func) => BinaryOperation<T, T, T>(coll1, coll2, func);
+        public static T[] ArrayZip<T>(this T[] coll1, T[] coll2, Func<T, T, T> func) => ArrayZip<T, T, T>(coll1, coll2, func);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static V[] BinaryOperation<T, U, V>(this T[] coll1, U[] coll2, Func<T, U, V> func)
+        public static V[] ArrayZip<T, U, V>(this T[] coll1, U[] coll2, Func<T, U, V> func)
         {
             V[] res = new V[Min(coll1.Length, coll2.Length)];
 

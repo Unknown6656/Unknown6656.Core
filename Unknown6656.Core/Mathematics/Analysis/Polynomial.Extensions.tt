@@ -13,10 +13,11 @@
 
 using System;
 
-using Unknown6656.Math.LinearAlgebra;
+using Unknown6656.Mathematics.LinearAlgebra;
+using Unknown6656.Common;
 
 
-namespace Unknown6656.Math.Analysis
+namespace Unknown6656.Mathematics.Analysis
 {
 <#
     const string baseiface = "IMatrix";
@@ -61,7 +62,7 @@ namespace Unknown6656.Math.Analysis
                 if (k < ident || v > i)
                     s +=  "0,          ";
                 else
-                    s += $"_coeff[{v,2}], ";
+                    s += $"_coefficients[{v,2}], ";
             }
 
             s = s.Trim();

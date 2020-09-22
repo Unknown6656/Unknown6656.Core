@@ -114,7 +114,7 @@ namespace Unknown6656.Common
             '=' => '₌',
             '(' => '₍',
             ')' => '₎',
-            char x when x > 0x2f && x < 0x3a => (char)(x + 0x2050),
+            > '\x2f' and < '\x3a' => (char)(c + 0x2050),
             _ => c,
         };
 
@@ -130,7 +130,7 @@ namespace Unknown6656.Common
             '1' => '¹',
             '2' => '²',
             '3' => '³',
-            char x when x > 0x2f && x < 0x3a => (char)(x + 0x2040),
+            > '\x2f' and < '\x3a' => (char)(c + 0x2040),
             _ => c,
         };
     }

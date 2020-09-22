@@ -136,7 +136,6 @@ namespace Unknown6656.Imaging
                 int rh = region.Height;
 
                 if (x < rx || y < ry || x >= rx + rw || y >= ry + rh)
-                {
                     switch (mode)
                     {
                         case EdgeHandlingMode.Black:
@@ -166,7 +165,6 @@ namespace Unknown6656.Imaging
 
                             break;
                     }
-                }
 
                 return y * w + x;
             }

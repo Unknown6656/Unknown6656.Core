@@ -409,7 +409,13 @@ namespace Unknown6656.IO
             {
                 byte value = matrix[y = i / width, x = i % width];
 
-                r += value switch { 0xff => 'E', 0xfe => 'S' , byte v when v >= chars.Length => chars[value % (chars.Length - 1) + 1], _ => chars[value] };
+                r += value switch
+                {
+                    0xff => 'E',
+                    0xfe => 'S',
+                    byte v when v >= chars.Length => chars[value % (chars.Length - 1) + 1],
+                    _ => chars[value],
+                };
 
                 if (x > width - 2)
                 {

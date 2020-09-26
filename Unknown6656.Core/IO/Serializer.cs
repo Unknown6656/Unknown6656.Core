@@ -61,6 +61,13 @@ namespace Unknown6656.IO
             return this;
         }
 
+        public From HexDump(TextWriter writer)
+        {
+            ConsoleExtensions.HexDump(Data, writer);
+
+            return this;
+        }
+
         public From Slice(Index start, Index end) => Slice(start..end);
 
         public From Slice(Range range) => Bytes(Data[range]);
@@ -434,6 +441,9 @@ namespace Unknown6656.IO
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string Hex(bool uppercase = true, bool spacing = false) => string.Join(spacing ? " " : "", Bytes.Select(b => b.ToString(uppercase ? "X2" : "x2")));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public string HexDumpString(int width) => ConsoleExtensions.HexDumpToString(Bytes, width);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string String() => String(BytewiseEncoding.Instance);

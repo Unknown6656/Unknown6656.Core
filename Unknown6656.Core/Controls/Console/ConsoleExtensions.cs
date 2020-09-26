@@ -5,6 +5,7 @@ using System;
 
 using Unknown6656.Imaging;
 using Unknown6656.Common;
+using System.IO;
 
 namespace Unknown6656.Controls.Console
 {
@@ -159,88 +160,124 @@ namespace Unknown6656.Controls.Console
 
         public static void WriteInverted(object? value) => Console.Write($"\x1b[7m{value}\x1b[27m");
 
+
+        public static unsafe string HexDumpToString(this byte[] data, int width) => HexDumpToString(new Span<byte>(data), width);
+
+        public static unsafe string HexDumpToString(void* ptr, int length, int width) => HexDumpToString(new Span<byte>(ptr, length), width);
+
+        public static unsafe string HexDumpToString([NotNull] this Span<byte> data, int width, bool colored = true)
+        {
+            if (data.Length == 0)
+                return "";
+
+            width -= 16;
+
+            StringBuilder builder = new StringBuilder();
+            int horizontal_count = (width - 3) / 4;
+            byte b;
+
+            horizontal_count -= horizontal_count % 16;
+
+            int h_digits = (int)Math.Log(horizontal_count, 16);
+            int vertical_count = (int)Math.Ceiling((float)data.Length / horizontal_count);
+
+            if (colored)
+                builder.Append(RGBAColor.White.ToVT100ForegroundString());
+
+            builder.Append(data.Length)
+                   .Append(" bytes:");
+
+            for (int i = h_digits; i >= 0; --i)
+            {
+                builder.Append('\n')
+                       .Append(new string(' ', 8));
+
+                for (int j = 0; j < horizontal_count; ++j)
+                    builder.Append($"  {(int)(j / Math.Pow(16, i)) % 16:x}");
+            }
+
+            builder.Append('\n');
+
+            fixed (byte* ptr = data)
+                for (int i = 0; i < vertical_count; i++)
+                {
+                    builder.Append($"{i * horizontal_count:x8}:  ");
+
+                    bool cflag;
+
+                    for (int j = 0; (j < horizontal_count) && (i * horizontal_count + j < data.Length); ++j)
+                    {
+                        b = ptr[i * horizontal_count + j];
+                        cflag = *(int*)(ptr + (i * horizontal_count) + (j / 4) * 4) != 0;
+
+                        if (colored)
+                            builder.Append((b is 0 ? cflag ? RGBAColor.White : RGBAColor.DarkGray : RGBAColor.Orange).ToVT100ForegroundString());
+
+                        builder.Append($"{b:x2} ");
+                    }
+
+                    if (colored)
+                        builder.Append(RGBAColor.White.ToVT100ForegroundString());
+
+                    if (i == vertical_count - 1)
+                        builder.Append(new string(' ', 3 * (horizontal_count * vertical_count - data.Length)));
+
+                    builder.Append("| ");
+
+                    for (int j = 0; (j < horizontal_count) && (i * horizontal_count + j < data.Length); j++)
+                    {
+                        byte @byte = ptr[i * horizontal_count + j];
+                        bool ctrl = (@byte < 0x20) || ((@byte >= 0x7f) && (@byte <= 0xa0));
+
+                        if (ctrl && colored)
+                            builder.Append(RGBAColor.Red.ToVT100ForegroundString());
+
+                        builder.Append(ctrl ? '.' : (char)@byte);
+
+                        if (colored)
+                            builder.Append(RGBAColor.White.ToVT100ForegroundString());
+                    }
+
+                    builder.AppendLine();
+                }
+
+            return builder.ToString();
+        }
+
+        public static unsafe void HexDump(this byte[] data) => HexDump(new Span<byte>(data));
+
+        public static unsafe void HexDump(void* ptr, int length) => HexDump(new Span<byte>(ptr, length));
+
+        public static unsafe void HexDump([NotNull] this Span<byte> data) => HexDump(data, Console.Out);
+
+        public static unsafe void HexDump(this byte[] data, TextWriter writer) => HexDump(new Span<byte>(data), writer);
+
+        public static unsafe void HexDump(void* ptr, int length, TextWriter writer) => HexDump(new Span<byte>(ptr, length), writer);
+
         /// <summary>
         /// Dumps the given byte array as hexadecimal text viewer
         /// </summary>
         /// <param name="value">Byte array to be dumped</param>
-        public static unsafe void HexDump([NotNull] this Span<byte> data)
+        public static unsafe void HexDump([NotNull] this Span<byte> data, TextWriter writer)
         {
             if (data.Length == 0)
                 return;
 
             ConsoleColor fc = Console.ForegroundColor;
             ConsoleColor bc = Console.BackgroundColor;
-            bool cv = Console.CursorVisible;
-            int w = Console.WindowWidth - 16;
-            int l = (w - 3) / 4;
-            byte b;
+            ConsoleState state = SaveConsoleState();
 
-            l -= l % 16;
+            if (Console.CursorLeft > 0)
+                Console.WriteLine();
 
-            int h = (int)Math.Ceiling((float)data.Length / l);
+            string str = HexDumpToString(data, Console.WindowWidth - 3, true);
 
-            Console.CursorVisible = false;
-            Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.BackgroundColor = ConsoleColor.Black;
-            Console.WriteLine($" {data.Length} bytes:\n\n");
-            Console.CursorLeft += 8;
-
-            for (int j = 0; j <= l; j++)
-            {
-                Console.CursorTop--;
-                Console.Write($"  {j / 16:x}");
-                Console.CursorLeft -= 3;
-                Console.CursorTop++;
-                Console.Write($"  {j % 16:x}");
-            }
-
-            Console.WriteLine();
-
-            fixed (byte* ptr = data)
-                for (int i = 0; i < h; i++)
-                {
-                    Console.Write($"{i * l:x8}:  ");
-
-                    bool cflag;
-
-                    for (int j = 0; (j < l) && (i * l + j < data.Length); j++)
-                    {
-                        b = ptr[i * l + j];
-                        cflag = *((int*)(ptr + i * l + (j / 4) * 4)) != 0;
-
-                        Console.ForegroundColor = b == 0 ? cflag ? ConsoleColor.White : ConsoleColor.DarkGray : ConsoleColor.Yellow;
-                        Console.Write($"{b:x2} ");
-                    }
-
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.CursorLeft = 3 * l + 11;
-                    Console.Write("| ");
-
-                    for (int j = 0; (j < l) && (i * l + j < data.Length); j++)
-                    {
-                        byte _ = ptr[i * l + j];
-                        bool ctrl = (_ < 0x20) || ((_ >= 0x7f) && (_ <= 0xa0));
-
-                        if (ctrl)
-                            Console.ForegroundColor = ConsoleColor.Red;
-
-                        Console.Write(ctrl ? '.' : (char)_);
-                        Console.ForegroundColor = ConsoleColor.White;
-                    }
-
-                    Console.Write("\n");
-                }
-
-            Console.WriteLine();
-            Console.CursorVisible = cv;
+            Console.WriteLine(str);
             Console.ForegroundColor = fc;
             Console.BackgroundColor = bc;
+
+            RestoreConsoleState(state);
         }
-
-        public static unsafe void HexDump(this byte[] data) => HexDump(new Span<byte>(data));
-
-        public static unsafe void HexDump(void* ptr, int length) => HexDump(new Span<byte>(ptr, length));
 
         public static ConsoleState SaveConsoleState() => new ConsoleState
         {

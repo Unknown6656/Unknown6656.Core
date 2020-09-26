@@ -13,6 +13,7 @@
         <Nullable>enable</Nullable>
         <NullableContextOptions>enable</NullableContextOptions>
         <UseWindowsForms>true</UseWindowsForms>
+        <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\Unknown6656.Core\Unknown6656.Core.csproj" />

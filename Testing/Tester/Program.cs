@@ -23,6 +23,7 @@ using Unknown6656.IO;
 using Random = Unknown6656.Mathematics.Numerics.Random;
 using Microsoft.VisualBasic;
 using Unknown6656.Mathematics.Cryptography;
+using System.IO;
 
 namespace MathLibrary.Tester
 {
@@ -32,22 +33,13 @@ namespace MathLibrary.Tester
         {
             // Console.OutputEncoding = Encoding.UTF8;
 
-            var orig = "ÿ\0Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et felis tortor. Nulla et diam eu urna tincidunt rutrum eu ut mauris. Phasellus sit amet leo ut nisl finibus dapibus. Donec enim urna morbi.";
-            var kek = From.String(orig).Compress(CompressionFunction.Brotli).To.Bytes;
-
-            From.String(orig).Compress(CompressionFunction.Deflate).HexDump();
-            From.String(orig).Compress(CompressionFunction.GZip).HexDump();
-
-            var uco = From.Bytes(kek).Uncompress(CompressionFunction.Brotli).To.Bytes;
-            kek.HexDump();
-            uco.HexDump();
-
-            Main_LinearAlgebra();
+            Main_BMP1();
             return;
             Main_Math();
+            Main_BMP2();
             Main_ConsoleUI();
             Main_Statistics();
-            Main_BMP();
+            Main_LinearAlgebra();
             Main_Automaton();
             Main_Graph();
         }
@@ -165,7 +157,40 @@ namespace MathLibrary.Tester
 
         }
 
-        private static void Main_BMP()
+        private static void Main_BMP1()
+        {
+            double total = 1000;
+
+            VideoAssembler.CreateVideoParallel(
+                new FileInfo("render.mp4"),
+                (int)total,
+                new(1920, 1080),
+                (index, frame) =>
+                {
+                    double time = index / total;
+                    using Graphics g = Graphics.FromImage(frame);
+
+                    new ComplexFunctionPlotter<ComplexMap>(
+                        new ComplexMap(c =>
+                        {
+                            return (c * c - time) * ((c - (2, 1 - 2 * time)) ^ 2) / (c * c + (2 * time, 2 * time)) + time;
+                        })
+                    )
+                    {
+                        Scale = 2,
+                        AxisType = AxisType.Polar,
+                        AxisVisible = true,
+                        AxisColor = RGBAColor.Black,
+                        GridVisible = false,
+                        OptionalComment = ($"", RGBAColor.Black),
+                    }
+                    .Plot(g, frame.Width, frame.Height);
+                },
+                frame_rate: 60
+            );
+        }
+
+        private static void Main_BMP2()
         {
             #region
 

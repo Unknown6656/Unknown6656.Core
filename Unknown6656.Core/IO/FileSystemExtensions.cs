@@ -49,5 +49,15 @@ namespace Unknown6656.IO
         {
             throw new System.NotImplementedException(); // TODO
         }
+
+        public static DirectoryInfo GetTemporaryDirectory()
+        {
+            DirectoryInfo dir = new(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
+
+            if (!dir.Exists)
+                dir.Create();
+
+            return dir;
+        }
     }
 }

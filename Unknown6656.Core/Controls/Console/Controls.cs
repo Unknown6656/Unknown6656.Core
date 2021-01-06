@@ -3,7 +3,7 @@ using System.Linq;
 using System;
 using Unknown6656.Common;
 using System.Collections.Generic;
-using System.Windows.Forms;
+//using System.Windows.Forms;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Imaging;
 using System.Globalization;

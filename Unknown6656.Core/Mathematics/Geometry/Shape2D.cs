@@ -7,10 +7,6 @@ using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Imaging;
 using Unknown6656.Common;
 
-///////////////////////////////////////////////////////////////////////////////////////////////
-// THIS ENTIRE FILE COULD PROFIT SOOOOOOOO MUCH FROM COVARIANT RETURN TYPES IN [ro]CLASSES ! //
-///////////////////////////////////////////////////////////////////////////////////////////////
-
 namespace Unknown6656.Mathematics.Geometry
 {
     /// <summary>
@@ -918,16 +914,13 @@ namespace Unknown6656.Mathematics.Geometry
             Height = bottom_left.DistanceTo(top_left);
         }
 
-        // TODO :
+        public override Rectangle MirrorAt(Line2D axis) => new(BottomLeft.MirrorAt(axis), BottomRight.MirrorAt(axis), TopRight.MirrorAt(axis), TopLeft.MirrorAt(axis));
 
-        //public new Rectangle MirrorAt(Line2D axis) => ;
+        public override Rectangle MoveBy(Vector2 offset) => new(BottomLeft.MoveBy(offset), BottomRight.MoveBy(offset), TopRight.MoveBy(offset), TopLeft.MoveBy(offset));
 
-        //public new Rectangle MoveBy(Vector2 offset) => ;
+        public override Rectangle Rotate(Scalar angle) => new(BottomLeft.Rotate(angle), BottomRight.Rotate(angle), TopRight.Rotate(angle), TopLeft.Rotate(angle));
 
-        //public new Rectangle Rotate(Scalar angle) => ;
-
-        //public new Rectangle Scale(Scalar x, Scalar y) => ;
-
+        public override Rectangle Scale(Scalar x, Scalar y) => new(BottomLeft.Multiply(x, y), BottomRight.Multiply(x, y), TopRight.Multiply(x, y), TopLeft.Multiply(x, y));
 
         public static AxisAlignedRectangle CreateAxisAlignedBoundingBox(params Vector2[] vectors)
         {

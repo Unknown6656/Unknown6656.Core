@@ -226,7 +226,10 @@ namespace Unknown6656.Common
         public static Dictionary<T, U> ToDictionary<T, U>(this IEnumerable<(T key, U value)> pairs) where T : notnull => pairs.ToDictionary(fst, snd);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (T key, U value)[] ToDictionary<T, U>(this IDictionary<T, U> dictionary) => dictionary.ToArray(kvp => (kvp.Key, kvp.Value));
+        public static (T key, U value)[] FromDictionary<T, U>(this IDictionary<T, U> dictionary) => dictionary.ToArray(kvp => (kvp.Key, kvp.Value));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static (T key, U value)[] FromDictionary<T, U>(this IReadOnlyDictionary<T, U> dictionary) => dictionary.ToArray(kvp => (kvp.Key, kvp.Value));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IDictionary<T, U> Merge<T, U>(this IDictionary<T, U> dictionary, params IDictionary<T, U>[] others)

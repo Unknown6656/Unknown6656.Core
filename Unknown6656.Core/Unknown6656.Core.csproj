@@ -1,9 +1,8 @@
 ﻿<!--<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">-->
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net5</TargetFramework>
-        <LangVersion>latest</LangVersion>
-        <!--<PlatformTarget>x64</PlatformTarget>-->
+        <TargetFramework>net5.0</TargetFramework>
+        <LangVersion>preview</LangVersion>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <OutputPath>../bin</OutputPath>
         <AssemblyName>unknown6656.core</AssemblyName>
@@ -18,7 +17,6 @@
         <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
         <NoWarn>1701;1702;8652</NoWarn>
         <RootNamespace>Unknown6656</RootNamespace>
-        <UseWindowsForms>true</UseWindowsForms>
         <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
         <Authors>unknown6656</Authors>
         <Company>unknown6656</Company>
@@ -46,11 +44,11 @@
         </None>
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="3.8.0-4.20472.6">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="SSH.NET" Version="2020.0.0-beta1" />
+        <PackageReference Include="SSH.NET" Version="2020.0.0" />
+        <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
+        <PackageReference Include="System.Drawing.Primitives" Version="4.3.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" Version="3.9.0-2.final" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all" Version="3.3.2" />
     </ItemGroup>
     <ItemGroup>
         <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
@@ -90,9 +88,9 @@
             <Generator>TextTemplatingFileGenerator</Generator>
             <LastGenOutput>DiscriminatedUnions.cs</LastGenOutput>
         </None>
-        <None Update="Imaging/Colors.tt">
-            <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>Colors.cs</LastGenOutput>
+        <None Update="Imaging\ColorMemberGenerator.tt">
+          <Generator>TextTemplatingFileGenerator</Generator>
+          <LastGenOutput>ColorMemberGenerator.cs</LastGenOutput>
         </None>
         <None Update="IO/CompressionFunctions.tt">
           <LastGenOutput>CompressionFunctions.cs</LastGenOutput>
@@ -148,10 +146,10 @@
             <AutoGen>True</AutoGen>
             <DependentUpon>Indexer.tt</DependentUpon>
         </Compile>
-        <Compile Update="Imaging/Colors.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>Colors.tt</DependentUpon>
+        <Compile Update="Imaging\ColorMemberGenerator.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>ColorMemberGenerator.tt</DependentUpon>
         </Compile>
         <Compile Update="IO/CompressionFunctions.cs">
           <DesignTime>True</DesignTime>
@@ -188,5 +186,8 @@
           <AutoGen>True</AutoGen>
           <DependentUpon>VectorSpace.tt</DependentUpon>
         </Compile>
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Controls\WinForms\" />
     </ItemGroup>
 </Project>

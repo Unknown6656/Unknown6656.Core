@@ -13,7 +13,6 @@ using Unknown6656.Mathematics.Graphs;
 using Unknown6656.Mathematics.Numerics;
 using Unknown6656.Mathematics.Geometry;
 using Unknown6656.Mathematics;
-using Unknown6656.Controls.WinForms;
 using Unknown6656.Controls.Console;
 using Unknown6656.Imaging.Effects;
 using Unknown6656.Imaging;
@@ -33,9 +32,9 @@ namespace MathLibrary.Tester
         {
             // Console.OutputEncoding = Encoding.UTF8;
 
-            Main_BMP1();
             return;
             Main_Math();
+            Main_BMP1();
             Main_BMP2();
             Main_ConsoleUI();
             Main_Statistics();

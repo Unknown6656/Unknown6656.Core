@@ -47,8 +47,6 @@
         <PackageReference Include="SSH.NET" Version="2020.0.0" />
         <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
         <PackageReference Include="System.Drawing.Primitives" Version="4.3.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" Version="3.9.0-2.final" />
-        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all" Version="3.3.2" />
     </ItemGroup>
     <ItemGroup>
         <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />

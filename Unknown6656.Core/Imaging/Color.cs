@@ -9,11 +9,54 @@ using System;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics;
 using Unknown6656.Common;
+using System.Dynamic;
 
 namespace Unknown6656.Imaging
 {
     public interface IColor
     {
+        internal static Dictionary<ConsoleColorScheme, Dictionary<ConsoleColor, uint>> ConsoleColorSchemes { get; } = new()
+        {
+            [ConsoleColorScheme.Legacy] = new()
+            {
+                [ConsoleColor.Black      ] = 0xff000000u,
+                [ConsoleColor.DarkBlue   ] = 0xff000080u,
+                [ConsoleColor.DarkGreen  ] = 0xff008000u,
+                [ConsoleColor.DarkCyan   ] = 0xff008080u,
+                [ConsoleColor.DarkRed    ] = 0xff800000u,
+                [ConsoleColor.DarkMagenta] = 0xff800080u,
+                [ConsoleColor.DarkYellow ] = 0xff808000u,
+                [ConsoleColor.Gray       ] = 0xffc0c0c0u,
+                [ConsoleColor.DarkGray   ] = 0xff808080u,
+                [ConsoleColor.Blue       ] = 0xff0000ffu,
+                [ConsoleColor.Green      ] = 0xff00ff00u,
+                [ConsoleColor.Cyan       ] = 0xff00ffffu,
+                [ConsoleColor.Red        ] = 0xffff0000u,
+                [ConsoleColor.Magenta    ] = 0xffff00ffu,
+                [ConsoleColor.Yellow     ] = 0xffffff00u,
+                [ConsoleColor.White      ] = 0xffffffffu,
+            },
+            [ConsoleColorScheme.Windows10] = new()
+            {
+                [ConsoleColor.Black      ] = 0xff0c0c0cu,
+                [ConsoleColor.DarkBlue   ] = 0xff0037dau,
+                [ConsoleColor.DarkGreen  ] = 0xff13a10eu,
+                [ConsoleColor.DarkCyan   ] = 0xff3a96ddu,
+                [ConsoleColor.DarkRed    ] = 0xffc50f1fu,
+                [ConsoleColor.DarkMagenta] = 0xff881798u,
+                [ConsoleColor.DarkYellow ] = 0xffc19c00u,
+                [ConsoleColor.Gray       ] = 0xffccccccu,
+                [ConsoleColor.DarkGray   ] = 0xff767676u,
+                [ConsoleColor.Blue       ] = 0xff3b78ffu,
+                [ConsoleColor.Green      ] = 0xff16c60cu,
+                [ConsoleColor.Cyan       ] = 0xff61d6d6u,
+                [ConsoleColor.Red        ] = 0xffe74856u,
+                [ConsoleColor.Magenta    ] = 0xffb4009eu,
+                [ConsoleColor.Yellow     ] = 0xfff9f1a5u,
+                [ConsoleColor.White      ] = 0xfff2f2f2u,
+            }
+        };
+
         /// <summary>
         /// The average of all color channels as a value in the range of [0..1].
         /// </summary>
@@ -77,8 +120,8 @@ namespace Unknown6656.Imaging
         Channel A { get; }
         public Channel this[BitmapChannel channel] { get; }
 
-        void Deconstruct(out Channel r, out Channel g, out Channel b);
-        void Deconstruct(out Channel r, out Channel g, out Channel b, out Channel α);
+        //void Deconstruct(out Channel r, out Channel g, out Channel b);
+        //void Deconstruct(out Channel r, out Channel g, out Channel b, out Channel α);
     }
 
     /// <summary>
@@ -146,12 +189,22 @@ namespace Unknown6656.Imaging
             }
         }
 
+        public RGBAColor ARGB32
+        {
+            readonly get => new RGBAColor(R, G, B, A);
+            set => (R, G, B, A) = (value.Rf, value.Gf, value.Bf, value.Af);
+        }
+
         public readonly HDRColor Complement => new HDRColor(1 - R, 1 - G, 1 - B, A);
 
 
         public int CompareTo(HDRColor other) => throw new NotImplementedException();
 
         public readonly override string ToString() => $"(R:{Math.Round(R, 6)}, G:{Math.Round(G, 6)}, B:{Math.Round(B, 6)}, α:{Math.Round(A, 6)})";
+
+        public static implicit operator HDRColor(RGBAColor color) => new HDRColor { ARGB32 = color };
+
+        public static implicit operator RGBAColor(HDRColor color) => color.ARGB32;
     }
 
 /// <summary>
@@ -162,51 +215,6 @@ namespace Unknown6656.Imaging
         : IColor<RGBAColor, byte>
         , IComparable<RGBAColor>
     {
-        #region STATIC FIELDS AND PROPERTIES
-
-        private static readonly Dictionary<ConsoleColor, RGBAColor>[] _console_colors = new[]
-        {
-            new Dictionary<ConsoleColor, RGBAColor>
-            {
-                [ConsoleColor.Black      ] = 0xff000000,
-                [ConsoleColor.DarkBlue   ] = 0xff000080,
-                [ConsoleColor.DarkGreen  ] = 0xff008000,
-                [ConsoleColor.DarkCyan   ] = 0xff008080,
-                [ConsoleColor.DarkRed    ] = 0xff800000,
-                [ConsoleColor.DarkMagenta] = 0xff800080,
-                [ConsoleColor.DarkYellow ] = 0xff808000,
-                [ConsoleColor.Gray       ] = 0xffc0c0c0,
-                [ConsoleColor.DarkGray   ] = 0xff808080,
-                [ConsoleColor.Blue       ] = 0xff0000ff,
-                [ConsoleColor.Green      ] = 0xff00ff00,
-                [ConsoleColor.Cyan       ] = 0xff00ffff,
-                [ConsoleColor.Red        ] = 0xffff0000,
-                [ConsoleColor.Magenta    ] = 0xffff00ff,
-                [ConsoleColor.Yellow     ] = 0xffffff00,
-                [ConsoleColor.White      ] = 0xffffffff,
-            },
-            new Dictionary<ConsoleColor, RGBAColor>
-            {
-                [ConsoleColor.Black      ] = new RGBAColor(12, 12, 12),
-                [ConsoleColor.DarkBlue   ] = new RGBAColor(0, 55, 218),
-                [ConsoleColor.DarkGreen  ] = new RGBAColor(19, 161, 14),
-                [ConsoleColor.DarkCyan   ] = new RGBAColor(58, 150, 221),
-                [ConsoleColor.DarkRed    ] = new RGBAColor(197, 15, 31),
-                [ConsoleColor.DarkMagenta] = new RGBAColor(136, 23, 152),
-                [ConsoleColor.DarkYellow ] = new RGBAColor(193, 156, 0),
-                [ConsoleColor.Gray       ] = new RGBAColor(204, 204, 204),
-                [ConsoleColor.DarkGray   ] = new RGBAColor(118, 118, 118),
-                [ConsoleColor.Blue       ] = new RGBAColor(59, 120, 255),
-                [ConsoleColor.Green      ] = new RGBAColor(22, 198, 12),
-                [ConsoleColor.Cyan       ] = new RGBAColor(97, 214, 214),
-                [ConsoleColor.Red        ] = new RGBAColor(231, 72, 86),
-                [ConsoleColor.Magenta    ] = new RGBAColor(180, 0, 158),
-                [ConsoleColor.Yellow     ] = new RGBAColor(249, 241, 165),
-                [ConsoleColor.White      ] = new RGBAColor(242, 242, 242),
-            }
-        };
-
-        #endregion
         #region PROPERTIES AND FIELDS
 
         //////////////////////////// DO NOT CHANGE THE ORDER OF THE FOLLOWING FIELDS ! NATIVE CODE DEPENDS ON THIS ORDER ! ////////////////////////////
@@ -379,25 +387,12 @@ namespace Unknown6656.Imaging
 
         public readonly override string ToString() => $"#{ARGB:x8}";
 
-        public readonly Scalar EucledianDistanceTo(RGBAColor other) => ((Vector4)this).DistanceTo(other);
-
 
         public readonly int CompareTo([AllowNull] RGBAColor other)
         {
             int dist = ((Vector3)this).Length.CompareTo(((Vector3)other).Length);
 
             return dist == 0 ? A.CompareTo(other.A) : dist;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly ConsoleColor ToConsoleColor(ConsoleColorScheme color_scheme)
-        {
-            RGBAColor @this = this;
-            Scalar norm = Scalar.Sqrt(3);
-
-            return (from kvp in _console_colors[(int)color_scheme]
-                    orderby kvp.Value.EucledianDistanceTo(@this) / norm ascending
-                    select kvp.Key).FirstOrDefault();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

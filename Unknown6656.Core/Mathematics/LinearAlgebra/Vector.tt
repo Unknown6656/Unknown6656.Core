@@ -432,6 +432,12 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly <#=typename#> Add(params <#=typename#>[] others) => others.Aggregate(this, Add);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly <#=typename#> MoveBy(in <#=typename#> second) => Add(in second);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly <#=typename#> MoveBy(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => Add(<#=string.Join(", ", r(0, dim).Select(i => "s" + i))#>);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly <#=typename#> Subtract(in <#=typename#> second) => Add(second.AdditiveInverse);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

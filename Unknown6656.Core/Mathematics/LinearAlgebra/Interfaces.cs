@@ -17,6 +17,7 @@ using System;
 
 using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Common;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Unknown6656.Mathematics.LinearAlgebra
 {
@@ -113,7 +114,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// <param name="o">Object to compare to</param>
         /// <returns>Equality comparison result</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        bool Is(Object o)
+        bool Is([MaybeNull] Object o)
 #if DEFAULT_IMPL
             => Equals(o);
 #else
@@ -126,7 +127,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// <param name="o">Object to compare to</param>
         /// <returns>Inequality comparison result</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        bool IsNot(Object o)
+        bool IsNot([MaybeNull] Object o)
 #if DEFAULT_IMPL
             => !Is(o);
 #else

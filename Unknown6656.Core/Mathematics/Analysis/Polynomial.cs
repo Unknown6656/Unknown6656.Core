@@ -26,7 +26,7 @@ namespace Unknown6656.Mathematics.Analysis
     /// All derived classes must have a constructor accepting a coefficient array of the type <typeparamref name="T"/>[] as single parameter.
     /// </summary>
     public abstract class Polynomial<Function, ScalarMap, T>
-        : ContinousFunction<Function, Function, Function, T>
+        : ContinuousFieldFunction<Function, Function, Function, T>
         , IEnumerable<T>
         , ICloneable
         where Function : Polynomial<Function, ScalarMap, T>
@@ -193,23 +193,29 @@ namespace Unknown6656.Mathematics.Analysis
         /// </summary>
         /// <param name="c">Polynomial coefficients</param>
         public Polynomial(params T[] coefficients)
-            : base(_ => _)
+            : this(SanitizeCoefficients(coefficients), default)
+        {
+        }
+
+        private Polynomial(T[] coefficients, bool _)
+            : base(x => coefficients.Reverse().Aggregate((acc, c) => acc.Multiply(x).Add(c)))
+        {
+            _coefficients = coefficients;
+            Inverse = (ScalarMap)typeof(ScalarMap).GetConstructor(new[] { typeof(Func<T, T>) }).Invoke(new object[] { new Func<T, T>(x => Evaluate(x).MultiplicativeInverse) });
+        }
+
+        private static T[] SanitizeCoefficients(T[] coefficients)
         {
             coefficients = coefficients.Reverse()
                                        .SkipWhile(c => c.IsZero)
                                        .Reverse()
                                        .ToArray();
 
-            _coefficients = coefficients is { Length: 0 } c ? (new T[] { default }) : coefficients;
-            _func = Evaluate;
-            Inverse = (ScalarMap)typeof(ScalarMap).GetConstructor(new[] { typeof(Func<T, T>) }).Invoke(new object[] { new Func<T, T>(x => Evaluate(x).MultiplicativeInverse) });
+            return coefficients is { Length: 0 } c ? (new T[] { default }) : coefficients;
         }
 
         #endregion
         #region INSTANCE METHODS
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override T Evaluate(T x) => _coefficients.Reverse().Aggregate((acc, c) => acc.Multiply(x).Add(c));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override Function Negate() => _create(_coefficients.Select(c => c.AdditiveInverse));
@@ -295,7 +301,7 @@ namespace Unknown6656.Mathematics.Analysis
         /// <param name="o">Second polynomial</param>
         /// <returns>Comparison result</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool Is(Function o) => Is(o as Polynomial<Function, ScalarMap, T>);
+        public override bool Is(Relation<T>? o) => Is(o as Polynomial<Function, ScalarMap, T>);
 
         /// <summary>
         /// Compares the given polynomial with the current instance and returns whether both are equal.
@@ -303,7 +309,7 @@ namespace Unknown6656.Mathematics.Analysis
         /// <param name="o">Second polynomial</param>
         /// <returns>Comparison result</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Is(Polynomial<Function, ScalarMap, T> o) => _coefficients.Are(o._coefficients, (c1, c2) => c1.Is(c2));
+        public bool Is(Polynomial<Function, ScalarMap, T>? o) => o is { } && _coefficients.Are(o._coefficients, (c1, c2) => c1.Is(c2));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() => LINQ.GetHashCode(_coefficients);
@@ -608,6 +614,22 @@ namespace Unknown6656.Mathematics.Analysis
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override IEnumerable<Complex> Solve(Complex y) => throw new NotImplementedException(); // TODO : solve complexpolynomial
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override Complex Evaluate(Complex x)
+        {
+            int i = _coefficients.Length;
+            Complex res = 0;
+            Complex acc = 1;
+
+            while (i-- > 0)
+            {
+                res += _coefficients[i] * acc;
+                acc *= x;
+            }
+
+            return res;
+        }
     }
 
     public class Polynomial<T>
@@ -623,6 +645,22 @@ namespace Unknown6656.Mathematics.Analysis
         public override IEnumerable<Scalar<T>> Solve(Scalar<T> y) => throw new NotImplementedException(); // TODO : solve polynomial<T>
 
         // TODO : parse
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override Scalar<T> Evaluate(Scalar<T> x)
+        {
+            int i = _coefficients.Length;
+            Scalar<T> res = Scalar<T>.Zero;
+            Scalar<T> acc = Scalar<T>.One;
+
+            while (i-- > 0)
+            {
+                res += _coefficients[i] * acc;
+                acc *= x;
+            }
+
+            return res;
+        }
     }
 
     public partial class Polynomial
@@ -631,6 +669,22 @@ namespace Unknown6656.Mathematics.Analysis
         public Polynomial(params Scalar[] coefficients)
             : base(coefficients)
         {
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override Scalar Evaluate(Scalar x)
+        {
+            int i = _coefficients.Length;
+            Scalar res = 0;
+            Scalar acc = 1;
+
+            while (i-- > 0)
+            {
+                res += _coefficients[i] * acc;
+                acc *= x;
+            }
+
+            return res;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -802,7 +856,7 @@ namespace Unknown6656.Mathematics.Analysis
         }
 
         public static Polynomial GetChebychevInterpolationPolynomial<Func>(Func function, int degree)
-            where Func : Function<Func, Scalar>
+            where Func : AbstractFieldFunction<Func, Scalar>
         {
             (Scalar x, Scalar y)[] points = new (Scalar, Scalar)[degree + 1];
             Scalar c = Scalar.Pi / (2 * points.Length + 2);
@@ -980,7 +1034,7 @@ namespace Unknown6656.Mathematics.Analysis
 //          }
 //      }
 //
-//      FunctionCache<BernsteinPolynomial, scalar, scalar> IContinousDoubleFunction<BernsteinPolynomial>.Cached => new FunctionCache<BernsteinPolynomial, scalar, scalar>(this);
+//      FunctionCache<BernsteinPolynomial, scalar, scalar> IContinuousFunction<BernsteinPolynomial>.Cached => new FunctionCache<BernsteinPolynomial, scalar, scalar>(this);
 //
 //
 //      private BernsteinPolynomial(long v, long n, long c)

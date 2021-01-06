@@ -1584,6 +1584,19 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar[] ToArray() => FlattenedCoefficients.ToArray();
 
+        /// <summary>
+        /// Returns the isomorphism associated with the current matrix.
+        /// This isomorphism is a simple multiplication of a given vector with the current matrix.
+        /// </summary>
+        /// <returns>The isomorphism.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly VectorFieldFunction<<#=vecname#>, Scalar> ToIsomorphism()
+        {
+            <#=typename#> copy = this;
+
+            return new(v => copy.Multiply(v));
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix(this);
 
@@ -2059,6 +2072,9 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator CompressedStorageFormat<Scalar>(in <#=typename#> m) => CompressedStorageFormat<Scalar>.FromMatrix<<#=typename#>>(m);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator Relation<<#=vecname#>>(in <#=typename#> m) => m.ToIsomorphism();
 
         #endregion
 

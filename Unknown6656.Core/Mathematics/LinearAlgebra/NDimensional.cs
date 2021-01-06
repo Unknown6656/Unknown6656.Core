@@ -26,6 +26,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public int[] Cols { get; }
 
 
+        public int CompressedSize => sizeof(Field) * Values.Length + sizeof(int) * (Rows.Length + Cols.Length);
+
+        public int UncompressedSize => sizeof(Field) * Dimensions.Rows * Dimensions.Columns;
+
+        public double CompressionEfficency => 1.0 - ((double)CompressedSize / UncompressedSize);
+
+
         public CompressedStorageFormat(Algebra<Field>.IComposite2D matrix)
             : this(matrix.Coefficients)
         {

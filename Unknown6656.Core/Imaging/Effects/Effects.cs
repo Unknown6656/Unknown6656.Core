@@ -155,7 +155,7 @@ namespace Unknown6656.Imaging.Effects
 
         protected override RGBAColor ProcessColor(RGBAColor input)
         {
-            input.ToHSL(out double h, out double s, out double l);
+            (double h, double s, double l) = input.HSL;
 
             return RGBAColor.FromHSL(h + Degree, s, l);
         }
@@ -183,7 +183,7 @@ namespace Unknown6656.Imaging.Effects
     {
         protected override RGBAColor ProcessColor(RGBAColor input)
         {
-            input.ToHSL(out double h, out double s, out double l);
+            (double h, double s, double l) = input.HSL;
 
             return new Vector4(h / Scalar.Tau, s, l, input.Af);
         }
@@ -244,8 +244,7 @@ namespace Unknown6656.Imaging.Effects
             Parallel.For(0, indices.Length, i =>
             {
                 Scalar l = ((Scalar)source[i].CIEGray * Steps).Rounded / Steps;
-
-                blurred[i].ToHSL(out double h, out double s, out _);
+                (double h, double s, _) = blurred[i].HSL;
 
                 destination[i] = RGBAColor.FromHSL(
                     ((Scalar)h * s2).Rounded / s2,
@@ -1314,11 +1313,10 @@ namespace Unknown6656.Imaging.Effects
                         sum += partial * Complex.Cis((double)(-v * y) / rh);
                     }
 
-                    source[i].ToHSL(out double hue, out _, out _);
                     destination[i] = new Vector4(
                         sum.Real,
                         sum.Imaginary,
-                        hue,
+                        source[i].HSL.Hue,
                         source[i].Af
                     );
                 });

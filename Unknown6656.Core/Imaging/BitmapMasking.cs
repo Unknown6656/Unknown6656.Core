@@ -126,33 +126,13 @@ namespace Unknown6656.Imaging
 
         public static BitmapMask FromAlphaInverted(Bitmap bitmap) => FromBitmap(bitmap, c => 1 - c.Af);
 
-        public static BitmapMask FromLuma(Bitmap bitmap) => FromBitmap(bitmap, c =>
-        {
-            c.ToHSL(out _, out _, out double l);
+        public static BitmapMask FromLuma(Bitmap bitmap) => FromBitmap(bitmap, c => c.HSL.Luminosity);
 
-            return l;
-        });
+        public static BitmapMask FromLumaInverted(Bitmap bitmap) => FromBitmap(bitmap, c => 1 - c.HSL.Luminosity);
 
-        public static BitmapMask FromLumaInverted(Bitmap bitmap) => FromBitmap(bitmap, c =>
-        {
-            c.ToHSL(out _, out _, out double l);
+        public static BitmapMask FromSaturation(Bitmap bitmap) => FromBitmap(bitmap, c => 1 - c.HSL.Saturation);
 
-            return 1 - l;
-        });
-
-        public static BitmapMask FromSaturation(Bitmap bitmap) => FromBitmap(bitmap, c =>
-        {
-            c.ToHSL(out _, out double s, out _);
-
-            return s;
-        });
-
-        public static BitmapMask FromHue(Bitmap bitmap) => FromBitmap(bitmap, c =>
-        {
-            c.ToHSL(out double h, out _, out _);
-
-            return h / Scalar.Tau;
-        });
+        public static BitmapMask FromHue(Bitmap bitmap) => FromBitmap(bitmap, c => c.ToHSL().H / Scalar.Tau);
 
         public static BitmapMask BlendMasks(BitmapMask bottom, BitmapMask top, BlendMode mode) => new BitmapMask(new BlendEffect(bottom, mode, 1).ApplyTo(top));
 

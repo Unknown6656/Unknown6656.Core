@@ -7,18 +7,160 @@ using System.Linq;
 using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
-using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Mathematics;
-using Unknown6656.IO;
+using Unknown6656.Common;
 
 namespace Unknown6656.Imaging
 {
+    public interface IColor
+    {
+        /// <summary>
+        /// The average of all color channels as a value in the range of [0..1].
+        /// </summary>
+        double Average { get; }
+        double CIEGray { get; }
+        (double L, double a, double b) CIELAB94 { get; }
+        (double Hue, double Saturation, double Luminosity) HSL { get; }
+        (double Hue, double Saturation, double Value) HSV { get; }
+        (double C, double M, double Y, double K) CMYK { get; }
+        (double Y, double U, double V) YUV { get; }
+
+        Scalar CIALAB94DistanceTo(IColor other);
+        /// <summary>
+        /// Exports the HSL-color channels.
+        /// </summary>
+        (double H, double S, double L) ToHSL();
+        (double H, double S, double V) ToHSV();
+        (double L, double a, double b) ToCIELAB94();
+        (double C, double M, double Y, double K) ToCMYK();
+        (double Y, double U, double V) ToYUV();
+        (double Y, double Cb, double Cr) ToYCbCr();
+        DiscreteSpectrum ToSpectrum();
+        double GetIntensity(Wavelength wavelength, double tolerance = 1e-1);
+    }
+
+    public interface IColor<Color>
+        : IColor
+        where Color : IColor<Color>
+    {
+        (Color @this, Color Triadic1, Color Triadic2) Triadic { get; }
+        Color[] Analogous { get; }
+        Color[] Neutrals { get; }
+        Color Normalized { get; }
+        Color Complement { get; }
+
+        Color Rotate(Scalar φ);
+        Color CorrectGamma(Scalar gamma);
+        Color[] GetNeutrals(Scalar φ_step, int count);
+    }
+
+    public interface IColor<Color, Channel>
+        : IColor<Color>
+        where Color : unmanaged, IColor<Color, Channel>
+        where Channel : unmanaged
+    {
+        /// <summary>
+        /// The color's red channel.
+        /// </summary>
+        Channel R { get; }
+        /// <summary>
+        /// The color's green channel.
+        /// </summary>
+        Channel G { get; }
+        /// <summary>
+        /// The color's blue channel.
+        /// </summary>
+        Channel B { get; }
+        /// <summary>
+        /// The color's alpha channel.
+        /// </summary>
+        Channel A { get; }
+        public Channel this[BitmapChannel channel] { get; }
+
+        void Deconstruct(out Channel r, out Channel g, out Channel b);
+        void Deconstruct(out Channel r, out Channel g, out Channel b, out Channel α);
+    }
+
     /// <summary>
-    /// Represents a native pixel 32-bit color information structure
+    /// Represents a color information structure consisting of 4x64Bit floating-point structures for the channels
+    /// red (<see cref="R"/>), green (<see cref="G"/>), blue (<see cref="B"/>), and opacity (<see cref="A"/>).
     /// </summary>
-    [NativeCppClass, Serializable, StructLayout(LayoutKind.Explicit)]
+    [NativeCppClass, Serializable, StructLayout(LayoutKind.Sequential)]
+    public partial struct HDRColor
+        : IColor<HDRColor, double>
+        , IComparable<HDRColor>
+    {
+        private double _α, _r, _g, _b;
+
+
+        /// <inheritdoc/>
+        public double R
+        {
+            readonly get => _r;
+            set => _r = value.Clamp();
+        }
+
+        /// <inheritdoc/>
+        public double G
+        {
+            readonly get => _g;
+            set => _g = value.Clamp();
+        }
+
+        /// <inheritdoc/>
+        public double B
+        {
+            readonly get => _b;
+            set => _b = value.Clamp();
+        }
+
+        /// <inheritdoc/>
+        public double A
+        {
+            readonly get => _α;
+            set => _α = value.Clamp();
+        }
+
+        public double this[BitmapChannel channel]
+        {
+            readonly get => channel switch
+            {
+                BitmapChannel.A => A,
+                BitmapChannel.R => R,
+                BitmapChannel.G => G,
+                BitmapChannel.B => B,
+                _ => throw new ArgumentOutOfRangeException(nameof(channel)),
+            };
+            set
+            {
+                if (channel == BitmapChannel.A)
+                    A = value;
+                else if (channel == BitmapChannel.R)
+                    R = value;
+                else if (channel == BitmapChannel.G)
+                    G = value;
+                else if (channel == BitmapChannel.B)
+                    B = value;
+                else
+                    throw new ArgumentOutOfRangeException(nameof(channel));
+            }
+        }
+
+        public readonly HDRColor Complement => new HDRColor(1 - R, 1 - G, 1 - B, A);
+
+
+        public int CompareTo(HDRColor other) => throw new NotImplementedException();
+
+        public readonly override string ToString() => $"(R:{Math.Round(R, 6)}, G:{Math.Round(G, 6)}, B:{Math.Round(B, 6)}, α:{Math.Round(A, 6)})";
+    }
+
+/// <summary>
+/// Represents a native pixel 32-bit color information structure.
+/// </summary>
+[NativeCppClass, Serializable, StructLayout(LayoutKind.Explicit)]
     public unsafe partial struct RGBAColor
-        : IComparable<RGBAColor>
+        : IColor<RGBAColor, byte>
+        , IComparable<RGBAColor>
     {
         #region STATIC FIELDS AND PROPERTIES
 
@@ -67,26 +209,28 @@ namespace Unknown6656.Imaging
         #endregion
         #region PROPERTIES AND FIELDS
 
+        //////////////////////////// DO NOT CHANGE THE ORDER OF THE FOLLOWING FIELDS ! NATIVE CODE DEPENDS ON THIS ORDER ! ////////////////////////////
+
         /// <summary>
-        /// The pixel's blue channel
+        /// The color's blue channel.
         /// </summary>
         [FieldOffset(0)]
         public byte B;
 
         /// <summary>
-        /// The pixel's green channel
+        /// The color's green channel.
         /// </summary>
         [FieldOffset(1)]
         public byte G;
-        
+
         /// <summary>
-        /// The pixel's red channel
+        /// The color's red channel.
         /// </summary>
         [FieldOffset(2)]
         public byte R;
         
         /// <summary>
-        /// The pixel's alpha channel
+        /// The color's alpha channel.
         /// </summary>
         [FieldOffset(3)]
         public byte A;
@@ -94,7 +238,7 @@ namespace Unknown6656.Imaging
 
         public byte this[BitmapChannel channel]
         {
-            get => (byte)((ARGB >> (int)channel) & 0xff);
+            readonly get => (byte)((ARGB >> (int)channel) & 0xff);
             set
             {
                 int mask = ARGB & ~(0xff << (int)channel);
@@ -109,7 +253,7 @@ namespace Unknown6656.Imaging
         public int ARGB
         {
             set => ARGBu = (uint)value;
-            get => (int)ARGBu;
+            readonly get => (int)ARGBu;
         }
 
         /// <summary>
@@ -119,7 +263,7 @@ namespace Unknown6656.Imaging
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
-            {
+        {
                 if (value <= 0xffff)
                     value = ((value & 0xf000) << 16)
                           | ((value & 0xff00) << 12)
@@ -133,7 +277,7 @@ namespace Unknown6656.Imaging
                 B = (byte)((value >> (int)BitmapChannel.B) & 0xff);
             }
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => (uint)((A << (int)BitmapChannel.A)
+            readonly get => (uint)((A << (int)BitmapChannel.A)
                         | (R << (int)BitmapChannel.R)
                         | (G << (int)BitmapChannel.G)
                         | (B << (int)BitmapChannel.B));
@@ -147,7 +291,7 @@ namespace Unknown6656.Imaging
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set => A = (byte)Math.Round(value.Clamp() * 255);
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => A / 255.0;
+            readonly get => A / 255.0;
         }
 
         /// <summary>
@@ -158,7 +302,7 @@ namespace Unknown6656.Imaging
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set => R = (byte)Math.Round(value.Clamp() * 255);
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => R / 255.0;
+            readonly get => R / 255.0;
         }
 
         /// <summary>
@@ -169,7 +313,7 @@ namespace Unknown6656.Imaging
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set => G = (byte)Math.Round(value.Clamp() * 255);
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => G / 255.0;
+            readonly get => G / 255.0;
         }
 
         /// <summary>
@@ -180,98 +324,27 @@ namespace Unknown6656.Imaging
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set => B = (byte)Math.Round(value.Clamp() * 255);
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => B / 255.0;
+            readonly get => B / 255.0;
         }
 
-        public double Average => (Rf + Gf + Bf) / 3;
+        /// <inheritdoc/>
+        readonly byte IColor<RGBAColor, byte>.R => R;
 
-        public double EucledianLength => Math.Sqrt(Rf * Rf + Gf * Gf + Bf * Bf);
+        /// <inheritdoc/>
+        readonly byte IColor<RGBAColor, byte>.G => G;
 
-        public double CIEGray => (.299 * Rf) + (.587 * Gf) + (.114 * Bf);
+        /// <inheritdoc/>
+        readonly byte IColor<RGBAColor, byte>.B => B;
 
-        public (double L, double a, double b) CIELAB
-        {
-            get
-            {
-                ToCIELAB(out double L, out double a, out double b);
+        /// <inheritdoc/>
+        readonly byte IColor<RGBAColor, byte>.A => A;
 
-                return (L, a, b);
-            }
-        }
+        public readonly double EucledianLength => Math.Sqrt(Rf * Rf + Gf * Gf + Bf * Bf);
 
-        public (double Hue, double Saturation, double Luminosity) HSL
-        {
-            get
-            {
-                ToHSL(out double h, out double s, out double l);
-
-                return (h, l, s);
-            }
-        }
-
-        public RGBAColor Complement => new RGBAColor((byte)(255 - R), (byte)(255 - G), (byte)(255 - B), A);
-
-        public (RGBAColor @this, RGBAColor t1, RGBAColor t2) Triadic
-        {
-            get
-            {
-                ToHSL(out double h, out double s, out double l);
-
-                return (
-                    this,
-                    FromHSL(h + Math.PI * 2 / 3, s, l, Af),
-                    FromHSL(h + Math.PI * 4 / 3, s, l, Af)
-                );
-            }
-        }
-
-        public RGBAColor[] Tetradic
-        {
-            get
-            {
-                RGBAColor sec = Rotate(Math.PI / 3);
-
-                return new[]
-                {
-                    this,
-                    sec,
-                    this.Complement,
-                    sec.Complement
-                };
-            }
-        }
-
-        public RGBAColor[] Analogous
-        {
-            get
-            {
-                RGBAColor c = this;
-
-                return Enumerable.Range(-3, 7).Select(i => c.Rotate(i * Math.PI / 6)).ToArray();
-            }
-        }
-
-        public RGBAColor[] Neutrals
-        {
-            get
-            {
-                RGBAColor c = this;
-
-                return Enumerable.Range(-3, 7).Select(i => c.Rotate(i * Math.PI / 12)).ToArray();
-            }
-        }
+        public readonly RGBAColor Complement => new RGBAColor((byte)(255 - R), (byte)(255 - G), (byte)(255 - B), A);
 
         #endregion
         #region CONSTRUCTORS
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public RGBAColor(uint argb)
-            : this((int)argb)
-        {
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public RGBAColor(int argb) : this() => ARGB = argb;
 
         /// <summary>
         /// Creates a new instance
@@ -301,79 +374,15 @@ namespace Unknown6656.Imaging
             B = b;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public RGBAColor(double r, double g, double b)
-            : this(r, g, b, 1d)
-        {
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public RGBAColor(double r, double g, double b, double α)
-            : this()
-        {
-            Af = α;
-            Rf = r;
-            Gf = g;
-            Bf = b;
-        }
-
         #endregion
         #region INSTANCE METHODS
 
-        public override string ToString() => $"#{ARGB:x8}";
+        public readonly override string ToString() => $"#{ARGB:x8}";
 
-        public RGBAColor Rotate(Scalar φ)
-        {
-            φ += Scalar.Tau;
-            φ %= Scalar.Tau;
+        public readonly Scalar EucledianDistanceTo(RGBAColor other) => ((Vector4)this).DistanceTo(other);
 
-            if (φ.IsZero)
-                return this;
-            else if (φ.Is(Scalar.Pi))
-                return Complement;
 
-            ToHSL(out double h, out double s, out double l);
-
-            return FromHSL(h + φ, s, l, Af);
-        }
-
-        public RGBAColor[] GetNeutrals(double φ_step, int count)
-        {
-            RGBAColor c = this;
-
-            return Enumerable.Range(-count / 2, count).Select(i => c.Rotate(i * φ_step)).ToArray();
-        }
-
-        public Scalar EucledianDistanceTo(RGBAColor other) => ((Vector4)this).DistanceTo(other);
-
-        public Scalar CIALAB94DistanceTo(RGBAColor other)
-        {
-            ToCIELAB(out double L1, out double a1, out double b1);
-            other.ToCIELAB(out double L2, out double a2, out double b2);
-
-            double δL = L1 - L2;
-            double δa = a1 - a2;
-            double δb = b1 - b2;
-
-            double c1 = Math.Sqrt(a1 * a1 + b1 *b1);
-            double c2 = Math.Sqrt(a2 * a2 + b2 * b2);
-            double δC = c1 - c2;
-            double δH = δa * δa + δb * δb - δC * δC;
-
-            δH = δH < 0 ? 0 : Math.Sqrt(δH);
-
-            double sc = 1.0 + 0.045 * c1;
-            double sh = 1.0 + 0.015 * c1;
-
-            double δCkcsc = δC / sc;
-            double δHkhsh = δH / sh;
-
-            double i = δL * δL + δCkcsc * δCkcsc + δHkhsh * δHkhsh;
-
-            return i < 0 ? 0 : Math.Sqrt(i);
-        }
-
-        public int CompareTo([AllowNull] RGBAColor other)
+        public readonly int CompareTo([AllowNull] RGBAColor other)
         {
             int dist = ((Vector3)this).Length.CompareTo(((Vector3)other).Length);
 
@@ -381,78 +390,7 @@ namespace Unknown6656.Imaging
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Deconstruct(out double r, out double g, out double b, out double α)
-        {
-            r = Rf;
-            g = Gf;
-            b = Bf;
-            α = Af;
-        }
-
-        /// <summary>
-        /// Exports the HSL-color channels.
-        /// </summary>
-        /// <param name="h">The HSL-color's hue channel</param>
-        /// <param name="s">The HSL-color's saturation channel</param>
-        /// <param name="l">The HSL-color's luminosity channel</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToHSL(out double h, out double s, out double l)
-        {
-            double _R = Rf;
-            double _G = Gf;
-            double _B = Bf;
-            double α = Math.Min(Math.Min(_R, _G), _B);
-            double β = Math.Max(Math.Max(_R, _G), _B);
-            double δ = β - α;
-
-            l = (β + α) / 2;
-
-            if (δ < 1e-5)
-                s = h = 0;
-            else
-            {
-                s = δ / (l < .5 ? β + α : 2 - β - α);
-
-                var δr = (β - _R) / δ;
-                var δg = (β - _G) / δ;
-                var δb = (β - _B) / δ;
-
-                h = _R == β ? δb - δg :
-                    _G == β ? 2 + δr - δb :
-                              4 + δg - δr;
-
-                h *= 60;
-
-                if (h < 0)
-                    h += 360;
-
-                h = h / 180 * Math.PI;
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToCIELAB(out double L, out double a, out double b)
-        {
-            double pre(double channel) => channel > 0.04045 ? Math.Pow((channel + 0.055) / 1.055, 2.4) : channel / 12.92;
-            double post(double channel) => channel > 0.008856 ? Math.Pow(channel, 1 / 3) : (7.787 * channel) + 16 / 116;
-
-            double rf = pre(Rf);
-            double gf = pre(Gf);
-            double bf = pre(Bf);
-            double x = (rf * 0.4124 + gf * 0.3576 + bf * 0.1805) / 0.95047;
-            double y = (rf * 0.2126 + gf * 0.7152 + bf * 0.0722) / 1.00000;
-            double z = (rf * 0.0193 + gf * 0.1192 + bf * 0.9505) / 1.08883;
-
-            x = post(x);
-            y = post(y);
-            z = post(z);
-            L = (116 * y) - 16;
-            a = 500 * (x - y);
-            b = 200 * (y - z);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ConsoleColor ToConsoleColor(ConsoleColorScheme color_scheme)
+        public readonly ConsoleColor ToConsoleColor(ConsoleColorScheme color_scheme)
         {
             RGBAColor @this = this;
             Scalar norm = Scalar.Sqrt(3);
@@ -463,12 +401,43 @@ namespace Unknown6656.Imaging
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public string ToVT100ForegroundString() => $"\x1b[38;2;{R};{G};{B}m";
+        public readonly string ToVT100ForegroundString() => $"\x1b[38;2;{R};{G};{B}m";
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public string ToVT100BackgroundString() => $"\x1b[48;2;{R};{G};{B}m";
+        public readonly string ToVT100BackgroundString() => $"\x1b[48;2;{R};{G};{B}m";
+
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public (double X, double Y, double Z) ToXYZ()
+        //{
+        //}
+
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public (double U, double Y) ToUV()
+        //{
+        //    (double X, double Y, double Z) = ToXYZ();
+        //
+        //    return (
+        //        (4 * x) / ((-2 * x) + (12 * y) + 3),
+        //        (9 * y) / ((-2 * x) + (12 * y) + 3)
+        //    );
+        //}
+
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly void Deconstruct(out byte r, out byte g, out byte b) => Deconstruct(out r, out g, out b, out _);
+
+        /// <inheritdoc/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly void Deconstruct(out byte r, out byte g, out byte b, out byte α)
+        {
+            r = R;
+            g = G;
+            b = B;
+            α = A;
+        }
 
         #endregion
+
 
         // TODO : Adobe color space
         // TODO : CIE76
@@ -480,127 +449,6 @@ namespace Unknown6656.Imaging
         // TODO : https://en.wikipedia.org/wiki/Color_difference
 
         #region STATIC METHODS
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RGBAColor FromConsoleColor(ConsoleColor color, ConsoleColorScheme color_scheme) => _console_colors[(int)color_scheme][color];
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RGBAColor FromARGB(int argb) => new RGBAColor(argb);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RGBAColor FromARGB(uint argb) => new RGBAColor(argb);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RGBAColor FromComplexWrapped(Complex c) => FromComplexWrapped(c, Scalar.One);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RGBAColor FromComplexWrapped(Complex c, Scalar α)
-        {
-            Scalar l = c.Length;
-            Scalar i = 1L << (int)Math.Log2(l);
-
-            if (l < 1)
-                return FromHSL(c.Argument, 1, l / 2, α);
-
-            l %= i;
-            l /= (long)i << 1;
-            l *= 4 / 5d;
-            l += 1 / 5d;
-
-            return FromHSL(c.Argument, 1, l, α);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RGBAColor FromComplexSmooth(Complex c) => FromComplexSmooth(c, Scalar.One);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RGBAColor FromComplexSmooth(Complex c, Scalar α) => FromComplexSmooth(c, α, .95);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RGBAColor FromComplexSmooth(Complex c, Scalar α, Scalar white_shift) => FromHSL(c.Argument, 1, 1 - white_shift.Clamp().Power(c.Length), α);
-
-        /// <summary>
-        /// Converts the given HSL-color to a RGBA-color instance.
-        /// </summary>
-        /// <param name="h">The HSL-color's hue channel [0..2π]</param>
-        /// <param name="s">The HSL-color's saturation channel [0..1]</param>
-        /// <param name="l">The HSL-color's luminosity channel [0..1]</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RGBAColor FromHSL(double h, double s, double l) => FromHSL(h, s, l, 1);
-
-        /// <summary>
-        /// Converts the given HSL-color to a RGBA-color instance.
-        /// </summary>
-        /// <param name="h">The HSL-color's hue channel [0..2π]</param>
-        /// <param name="s">The HSL-color's saturation channel [0..1]</param>
-        /// <param name="l">The HSL-color's luminosity channel [0..1]</param>
-        /// <param name="α">The color's α-channel (opacity) [0..1]</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RGBAColor FromHSL(double h, double s, double l, double α)
-        {
-            if (s.IsZero())
-            {
-                byte gray = (byte)Math.Round(l * 255);
-
-                return new RGBAColor(gray, gray, gray)
-                {
-                    Af = α
-                };
-            }
-            else
-            {
-                double t2 = l < .5 ? l * (1 + s) : l + s - (l * s);
-                double t1 = (2 * l) - t2;
-
-                h *= 180 / Math.PI;
-
-                return new RGBAColor
-                {
-                    Rf = calc(h + 120, t1, t2),
-                    Gf = calc(h, t1, t2),
-                    Bf = calc(h - 120, t1, t2),
-                    Af = α,
-                };
-
-                static double calc(double h, double t1, double t2)
-                {
-                    h = (h + 360) % 360;
-
-                    return h < 60 ? t1 + ((t2 - t1) * h / 60)
-                        : h < 180 ? t2
-                        : h < 240 ? t1 + ((t2 - t1) * (240 - h) / 60)
-                        : t1;
-                }
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RGBAColor FromCIELAB(double L, double a, double b) => FromCIELAB(L, a, b, 1);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RGBAColor FromCIELAB(double L, double a, double b, double α)
-        {
-            double y = (L + 16) / 116;
-            double x = a / 500 + y;
-            double z = y - b / 200;
-            void pre(double fac, ref double channel)
-            {
-                double c3 = channel * channel * channel;
-
-                channel = fac * ((c3 > 0.008856) ? c3 : (channel - 16 / 116) / 7.787);
-            }
-            double post(double channel) => ((channel > 0.0031308) ? (1.055 * Math.Pow(channel, 1 / 2.4) - 0.055) : 12.92 * channel).Clamp();
-
-            pre(0.95047, ref x);
-            pre(1.00000, ref y);
-            pre(1.08883, ref z);
-
-            double rf = post(x * 3.2406 + y * -1.5372 + z * -0.4986);
-            double gf = post(x * -0.9689 + y * 1.8758 + z * 0.0415);
-            double bf = post(x * 0.0557 + y * -0.2040 + z * 1.0570);
-
-            return new RGBAColor(rf, gf, bf, α);
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static RGBAColor Blend(RGBAColor bottom, RGBAColor top, BlendMode mode)
@@ -647,63 +495,26 @@ namespace Unknown6656.Imaging
             return new Vector4(cout, α);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RGBAColor LinearInterpolate(RGBAColor px1, RGBAColor px2, double amount)
-        {
-            RGBAColor res = default;
-
-            res.Rf = px1.Rf * (1 - amount) + px2.Rf * amount;
-            res.Gf = px1.Gf * (1 - amount) + px2.Gf * amount;
-            res.Bf = px1.Bf * (1 - amount) + px2.Bf * amount;
-            res.Af = px1.Af * (1 - amount) + px2.Af * amount;
-
-            return res;
-        }
-
         #endregion
         #region OPERATORS
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator int(RGBAColor px) => px.ARGB;
+        public static implicit operator int(RGBAColor color) => color.ARGB;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator uint(RGBAColor px) => px.ARGBu;
+        public static implicit operator uint(RGBAColor color) => color.ARGBu;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator RGBAColor(int argb) => new RGBAColor { ARGB = argb };
+        public static implicit operator (byte r, byte g, byte b, byte α)(RGBAColor color) => (color.R, color.G, color.B, color.A);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator RGBAColor(uint argb) => new RGBAColor { ARGBu = argb };
+        public static implicit operator Color(RGBAColor color) => Color.FromArgb(color.ARGB);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator (byte r, byte g, byte b, byte α)(RGBAColor px) => (px.R, px.G, px.B, px.A);
+        public static implicit operator RGBAColor(Color color) => new RGBAColor(color.ToArgb());
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator Vector3(RGBAColor px) => new Vector3(px.Rf, px.Gf, px.Bf);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator Vector4(RGBAColor px) => new Vector4(px.Rf, px.Gf, px.Bf, px.Af);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator Color(RGBAColor px) => Color.FromArgb(px.ARGB);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator RGBAColor(Vector3 px) => new RGBAColor(px.X, px.Y, px.Z, 1d);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator RGBAColor(Vector4 px) => new RGBAColor(px.X, px.Y, px.Z, px.W);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator RGBAColor(Color px) => new RGBAColor(px.ToArgb());
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator RGBAColor((double r, double g, double b) px) => new RGBAColor(px.r, px.g, px.b, 1);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator RGBAColor((byte r, byte g, byte b, byte α) px) => new RGBAColor(px.r, px.g, px.b, px.α);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator RGBAColor((double r, double g, double b, double α) px) => new RGBAColor(px.r, px.g, px.b, px.α);
+        public static implicit operator RGBAColor((byte r, byte g, byte b, byte α) color) => new RGBAColor(color.r, color.g, color.b, color.α);
 
         #endregion
     }
@@ -1251,4 +1062,49 @@ namespace Unknown6656.Imaging
         Legacy,
         Windows10
     }
+}
+
+
+//////////// TODO ////////////
+internal struct CIEColorSystem 
+{
+    public static (double x, double y) XY_RED { get; } = (0.7355, 0.2645);
+    public static (double x, double y) XY_GREEN { get; } = (0.2658, 0.7243);
+    public static (double x, double y) XY_BLUE { get; } = (0.1669, 0.0085);
+    public static (double x, double y) XY_WHITE { get; } = (1.0 / 3, 1.0 / 3);
+
+
+    void UVtoXY(double up, double vp, out double xc, out double yc)
+    {
+        xc = (9 * up) / ((6 * up) - (16 * vp) + 12);
+        yc = (4 * vp) / ((6 * up) - (16 * vp) + 12);
+    }
+
+    void XYtoUV(double xc, double yc, out double up, out double vp)
+    {
+        up = (4 * xc) / ((-2 * xc) + (12 * yc) + 3);
+        vp = (9 * yc) / ((-2 * xc) + (12 * yc) + 3);
+    }
+
+    bool inside_gamut(double r, double g, double b) => (r >= 0) && (g >= 0) && (b >= 0);
+
+
+
+    bool constrain_rgb(ref double r, ref double g, ref double b)
+    {
+        double w = -Math.Min(0, Math.Min(r, Math.Min(g, b)));
+
+        if (w > 0)
+        {
+            r += w;
+            g += w;
+            b += w;
+
+            return true;
+        }
+        else
+            return false;
+    }
+
+
 }

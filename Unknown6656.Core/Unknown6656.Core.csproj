@@ -38,6 +38,9 @@
         <!--<UserSecretsId>e25c8605-a6b4-42e1-9806-2eb3ebe4aa4a</UserSecretsId>-->
     </PropertyGroup>
     <ItemGroup>
+      <None Remove="Computation\ParticleSwarmOptimization.cs~RFd507203.TMP" />
+    </ItemGroup>
+    <ItemGroup>
         <None Include="C:/Users/unknown6656/Pictures/unknown6656/unknown6656-logo-1024.png">
           <Pack>True</Pack>
           <PackagePath></PackagePath>

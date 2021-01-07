@@ -436,9 +436,6 @@ namespace Unknown6656.Imaging
 
         // TODO : Adobe color space
         // TODO : CIE76
-        // TODO : CIE94
-        // TODO : CMYK
-        // TODO : CIEXYZ
         // TODO : CIELUV
         // TODO : chroma
         // TODO : https://en.wikipedia.org/wiki/Color_difference

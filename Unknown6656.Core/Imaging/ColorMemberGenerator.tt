@@ -639,17 +639,6 @@ namespace Unknown6656.Imaging
     public partial struct <#=name#>
     {
 <#
-        foreach (var color in colors)
-        {
-#>
-        /// <summary>
-        /// Represents the HTML color '<#=color.name#>' (#<#=color.hex#>).
-        /// </summary>
-        public static RGBAColor <#=color.name#> { get; } = 0x<#=color.hex#>;
-
-<#
-        }
-
         foreach (string member in members)
         {
             string content = process(member).Replace("$type", name);
@@ -665,6 +654,17 @@ namespace Unknown6656.Imaging
                 WriteLine("        [MethodImpl(MethodImplOptions.AggressiveInlining)]");
 
             WriteLine($"        {content}\r\n");
+        }
+        
+        foreach (var color in colors)
+        {
+#>
+
+        /// <summary>
+        /// Represents the HTML color '<#=color.name#>' (#<#=color.hex#>).
+        /// </summary>
+        public static RGBAColor <#=color.name#> { get; } = 0x<#=color.hex#>;
+<#
         }
 #>
     }

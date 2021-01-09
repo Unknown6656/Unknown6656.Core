@@ -4,14 +4,17 @@ using System.Drawing;
 using System.Linq.Expressions;
 using System.Linq;
 using System.Text;
+using System.IO;
 using System;
 
+using Unknown6656.Computation.ParticleSwarmOptimization;
 using Unknown6656.Mathematics.Graphs.Computation;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Mathematics.Graphs;
 using Unknown6656.Mathematics.Numerics;
 using Unknown6656.Mathematics.Geometry;
+using Unknown6656.Mathematics.Cryptography;
 using Unknown6656.Mathematics;
 using Unknown6656.Controls.Console;
 using Unknown6656.Imaging.Effects;
@@ -20,9 +23,6 @@ using Unknown6656.Common;
 using Unknown6656.IO;
 
 using Random = Unknown6656.Mathematics.Numerics.Random;
-using Microsoft.VisualBasic;
-using Unknown6656.Mathematics.Cryptography;
-using System.IO;
 
 namespace MathLibrary.Tester
 {
@@ -32,6 +32,7 @@ namespace MathLibrary.Tester
         {
             // Console.OutputEncoding = Encoding.UTF8;
 
+            Main_PSO();
             return;
             Main_Math();
             Main_BMP1();
@@ -41,6 +42,23 @@ namespace MathLibrary.Tester
             Main_LinearAlgebra();
             Main_Automaton();
             Main_Graph();
+        }
+
+        class pso_problem : PSOProblem<Scalar>
+        {
+            public override int Dimensionality => 1;
+            public override Scalar GetValue(VectorN position) { Scalar x = position[0]; return (x - 3).Tanh() + x * x - x * x * x; }
+            public override bool IsValidSearchPosition(VectorN position) => true;
+        }
+        private static void Main_PSO()
+        {
+            var p = new pso_problem();
+            var c = new PSOSolverConfiguration
+            {
+            };
+            var s = p.CreateSolver(c);
+            var o = s.Solve();
+            var v = o.OptimalValue;
         }
 
         private static void Main_Statistics()

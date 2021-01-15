@@ -34,9 +34,7 @@ namespace MathLibrary.Tester
         {
             // Console.OutputEncoding = Encoding.UTF8;
 
-            Complex c = 2 + 5 * i;
-
-            //Main_PSO();
+            Main_PSO();
             return;
             Main_Math();
             Main_BMP1();

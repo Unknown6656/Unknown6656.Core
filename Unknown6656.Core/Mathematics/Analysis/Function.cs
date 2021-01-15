@@ -272,7 +272,6 @@ namespace Unknown6656.Mathematics.Analysis
     //     where Scalar : unmanaged, IField<Scalar>
     //     where VectorField : Algebra<Scalar>.IVectorSpace<VectorField>
     // {
-    // 
     // }
 
     public abstract class ContinuousFunction<DerivativeFunc, IntegralFunc, Domain, Codomain>

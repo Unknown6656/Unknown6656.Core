@@ -78,7 +78,7 @@ namespace Unknown6656.Mathematics.Analysis
         /// <summary>
         /// The polynomial's derivative
         /// </summary>
-        public override Function Derivative
+        public override Polynomial<Function, T> Derivative
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
@@ -104,7 +104,7 @@ namespace Unknown6656.Mathematics.Analysis
             }
         }
 
-        public override Function Integral
+        public override Polynomial<Function, T> Integral
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
@@ -223,7 +223,7 @@ namespace Unknown6656.Mathematics.Analysis
             return res;
         }
 
-        public override Function Negate() => _create(_coefficients.Select(c => c.AdditiveInverse));
+        public override Polynomial<Function, T> Negate() => _create(_coefficients.Select(c => c.AdditiveInverse));
 
         public Function Add(Polynomial<Function, T> second) => _create(_coefficients.ZipOuter(second._coefficients, (c1, c2) => c1.Add(c2)));
 

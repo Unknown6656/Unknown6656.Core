@@ -11,29 +11,13 @@ using Random = Unknown6656.Mathematics.Numerics.Random;
 
 namespace Unknown6656.Computation.ParticleSwarmOptimization
 {
-    public abstract class PSOProblem<Codomain, Problem>
-        where Codomain : IComparable<Codomain>
-        where Problem : PSOProblem<Codomain, Problem>
-    {
-        public abstract int Dimensionality { get; }
-
-        /// <summary>
-        /// Returns whether the given candidate solution is a valid search position.
-        /// </summary>
-        /// <param name="position">Candidate solution.</param>
-        /// <returns>Boolean value.</returns>
-        internal protected abstract bool IsValidSearchPosition(VectorN position);
-        public abstract Codomain GetValue(VectorN position);
-
-        public PSOSolver<Codomain, Problem> CreateSolver(PSOSolverConfiguration configuration) => new PSOSolver<Codomain, Problem>((Problem)this, configuration);
-    }
-
-    public sealed record PSOSolverConfiguration(int ParticleCount, int MaxIterationCount, PSOSolverWeightsConfiguration Weights, VectorN? InitialPosition = null)
+    public sealed record PSOSolverConfiguration<Domain>(int ParticleCount, int MaxIterationCount, PSOSolverWeightsConfiguration Weights, Domain InitialPosition)
     {
         public ParallelOptions ParallelOptions { get; init; } = new ParallelOptions { MaxDegreeOfParallelism = 128 };
         public Random RandomNumberGenerator { get; init; } = new XorShift();
+        public Scalar ResultPrecision { get; init; } = Scalar.ComputationalEpsilon;
 
-        public static PSOSolverConfiguration Default { get; } = new(64, 1000, PSOSolverWeightsConfiguration.Default);
+        public static PSOSolverConfiguration<Domain> CreateDefault(Domain initial_pos) => new(64, 1000, PSOSolverWeightsConfiguration.Default, initial_pos);
     }
 
     public sealed record PSOSolverWeightsConfiguration
@@ -58,35 +42,57 @@ namespace Unknown6656.Computation.ParticleSwarmOptimization
         };
     }
 
-    public sealed class PSOSolver<Codomain, Problem>
+    public abstract class PSOProblem<Domain, Codomain, Problem>
+        where Domain : Algebra<Scalar>.IMetricVectorSpace<Domain>
         where Codomain : IComparable<Codomain>
-        where Problem : PSOProblem<Codomain, Problem>
+        where Problem : PSOProblem<Domain, Codomain, Problem>
     {
-        internal readonly VectorN _null;
+        /// <summary>
+        /// Returns whether the given candidate solution is a valid search position.
+        /// </summary>
+        /// <param name="position">Candidate solution.</param>
+        /// <returns>Boolean value.</returns>
+        internal protected abstract bool IsValidSearchPosition(Domain position);
+
+        public abstract Domain GetZeroVector();
+
+        public abstract Codomain GetValue(Domain position);
+
+        public PSOSolver<Domain, Codomain, Problem> CreateSolver(PSOSolverConfiguration<Domain> configuration) =>
+            new PSOSolver<Domain, Codomain, Problem>((Problem)this, configuration);
+    }
+
+    public sealed class PSOSolver<Domain, Codomain, Problem>
+        where Domain : Algebra<Scalar>.IMetricVectorSpace<Domain>
+        where Codomain : IComparable<Codomain>
+        where Problem : PSOProblem<Domain, Codomain, Problem>
+    {
+        internal readonly Domain _null;
 
         private readonly object _mutex = new();
-        private readonly VectorN _init_pos;
-        private readonly PSOParticle<Codomain, Problem>[] _particles;
+        private readonly Domain _init_pos;
+        private readonly PSOParticle<Domain, Codomain, Problem>[] _particles;
 
         public Problem PSOProblem { get; }
-        public PSOSolverConfiguration Configuration { get; }
-        public (VectorN Position, Codomain Value)? HistoricBest { get; private set; }
-        public ImmutableArray<PSOParticle<Codomain, Problem>> Particles => _particles.ToImmutableArray();
+        public PSOSolverConfiguration<Domain> Configuration { get; }
+        public (Domain Position, Codomain Value)? HistoricBest { get; private set; }
+
+        public ImmutableArray<PSOParticle<Domain, Codomain, Problem>> Particles => _particles.ToImmutableArray();
 
 
-        internal PSOSolver(Problem problem, PSOSolverConfiguration configuration)
+        internal PSOSolver(Problem problem, PSOSolverConfiguration<Domain> configuration)
         {
             PSOProblem = problem;
             Configuration = configuration;
-            _particles = new PSOParticle<Codomain, Problem>[configuration.ParticleCount];
-            _null = VectorN.ZeroVector(problem.Dimensionality);
-            _init_pos = configuration.InitialPosition ?? _null;
+            _particles = new PSOParticle<Domain, Codomain, Problem>[configuration.ParticleCount];
+            _null = problem.GetZeroVector();
+            _init_pos = configuration.InitialPosition;
             HistoricBest = null;
 
             Reset();
         }
 
-        public IEnumerable<PSOParticle<Codomain, Problem>> GetNearest(PSOParticle<Codomain, Problem> particle, double max_distance) =>
+        public IEnumerable<PSOParticle<Domain, Codomain, Problem>> GetNearest(PSOParticle<Domain, Codomain, Problem> particle, double max_distance) =>
             from p in _particles
             where p.Solver == this
             let dist = p.Position.DistanceTo(particle.Position)
@@ -100,12 +106,12 @@ namespace Unknown6656.Computation.ParticleSwarmOptimization
 
             Parallel.For(0, _particles.Length, Configuration.ParallelOptions, i =>
             {
-                _particles[i] ??= new PSOParticle<Codomain, Problem>(this, _init_pos);
+                _particles[i] ??= new PSOParticle<Domain, Codomain, Problem>(this, _init_pos);
                 _particles[i].Reset();
             });
         }
 
-        public PSOSolution<Codomain, Problem> Solve()
+        public PSOSolution<Domain, Codomain, Problem> Solve()
         {
             Random random = Configuration.RandomNumberGenerator;
             PSOSolverWeightsConfiguration weights = Configuration.Weights;
@@ -113,95 +119,97 @@ namespace Unknown6656.Computation.ParticleSwarmOptimization
             int iter = 0;
 
             lock (_mutex)
-            {
                 for (int max = Configuration.MaxIterationCount; iter < max; ++iter)
                 {
-                    VectorN global_pos = Configuration.InitialPosition ?? _null;
-                    VectorN global_vel = _null;
+                    Domain global_pos = Configuration.InitialPosition ?? _null;
+                    Domain global_vel = _null;
                     Scalar factor = 1d / _particles.Length;
 
-                    foreach (PSOParticle<Codomain, Problem> particle in _particles)
+                    foreach (PSOParticle<Domain, Codomain, Problem> particle in _particles)
                     {
-                        global_pos += particle.Position * factor;
-                        global_vel += particle.Velocity * factor;
+                        global_pos = global_pos.Add(particle.Position.Multiply(factor));
+                        global_vel = global_vel.Add(particle.Velocity.Multiply(factor));
                     }
 
-                    Parallel.For(0, _particles.Length, Configuration.ParallelOptions, (Action<int>)(i =>
+                    Parallel.For(0, _particles.Length, Configuration.ParallelOptions, i =>
                     {
-                        VectorN position, velocity;
+                        Domain position, velocity;
 
                         do
                         {
                             position = _particles[i].Position;
-                            velocity = randomized_weight(weights.SwarmPositionAttraction) * (global_pos - position)
-                                     + randomized_weight(weights.SwarmVelocityAttraction) * global_vel
-                                     + randomized_weight(weights.ParticleInteria) * _particles[i].Velocity;
+                            velocity = global_pos.Subtract(in position).Multiply(randomized_weight(weights.SwarmPositionAttraction))
+                                  .Add(global_vel.Multiply(randomized_weight(weights.SwarmVelocityAttraction)))
+                                  .Add(_particles[i].Velocity.Multiply(randomized_weight(weights.ParticleInteria)));
 
-                            if (_particles[i].HistoricBest?.Position is VectorN part_best)
-                                velocity += randomized_weight(weights.SwarmHistoricBestAttraction) * part_best;
+                            if (_particles[i].HistoricBest is { Position: Domain part_best })
+                                velocity = velocity.Add(part_best.Multiply(randomized_weight(weights.ParticleHistoricBestAttraction)));
 
-                            if (HistoricBest?.Position is VectorN swarm_best)
-                                velocity += randomized_weight(weights.SwarmHistoricBestAttraction) * swarm_best;
+                            if (HistoricBest is { Position: Domain swarm_best })
+                                velocity = velocity.Add(swarm_best.Multiply(randomized_weight(weights.SwarmHistoricBestAttraction)));
 
-                            position += weights.ParticleInverseDrag * velocity;
+                            position = position.Add(velocity.Multiply(weights.ParticleInverseDrag));
                         }
                         while (PSOProblem.IsValidSearchPosition(position));
 
                         Codomain value = _particles[i].UpdateParticle(position, velocity);
 
-                        if (_particles[i].HistoricBest is null || _particles[(int)i].HistoricBest!.Value.Value.CompareTo(value) > 0)
+                        if (_particles[i].HistoricBest is null || _particles[i].HistoricBest!.Value.Value.CompareTo(value) > 0)
                             _particles[i].HistoricBest = (position, value);
-                    }));
+                    });
 
-                    foreach (PSOParticle<Codomain, Problem> particle in _particles)
+                    foreach (PSOParticle<Domain, Codomain, Problem> particle in _particles)
                         if (particle.HistoricBest is { } p_best)
                             if (HistoricBest is null || HistoricBest!.Value.Value.CompareTo(p_best.Value) > 0)
                                 HistoricBest = particle.HistoricBest;
                 }
-            }
 
-            VectorN solution = HistoricBest?.Position ?? Configuration.InitialPosition ?? _null;
+            Domain? solution = HistoricBest.HasValue ? HistoricBest.Value.Position : Configuration.InitialPosition;
 
-            return new PSOSolution<Codomain, Problem>(this, solution, HistoricBest.HasValue ? HistoricBest.Value.Value : default, iter);
+            return new PSOSolution<Domain, Codomain, Problem>(this, solution, HistoricBest.HasValue ? HistoricBest.Value.Value : default, iter);
         }
     }
 
-    public class PSOParticle<Codomain, Problem>
+    public class PSOParticle<Domain, Codomain, Problem>
+        where Domain : Algebra<Scalar>.IMetricVectorSpace<Domain>
         where Codomain : IComparable<Codomain>
-        where Problem : PSOProblem<Codomain, Problem>
+        where Problem : PSOProblem<Domain, Codomain, Problem>
     {
-        private readonly List<(VectorN Position, VectorN Velocity, Codomain Value)> _history = new();
+        private readonly List<(Domain Position, Domain Velocity, Codomain Value)> _history = new();
 
-        public PSOSolver<Codomain, Problem> Solver { get; }
+        public PSOSolver<Domain, Codomain, Problem> Solver { get; }
         public Codomain? CachedValue { get; private set; }
-        public VectorN InitialPosition { get; }
-        public VectorN Position { get; private set; }
-        public VectorN Velocity { get; private set; }
-        public (VectorN Position, Codomain Value)? HistoricBest { get; internal set; } = null;
-        public ImmutableArray<(VectorN Position, VectorN Velocity, Codomain Value)> History => _history.ToImmutableArray();
+        public Domain InitialPosition { get; }
+        public Domain Position { get; private set; }
+        public Domain Velocity { get; private set; }
+        public (Domain Position, Codomain Value)? HistoricBest { get; internal set; } = null;
 
-        public PSOParticle<Codomain, Problem>? Nearest => Solver.GetNearest(this, double.MaxValue).FirstOrDefault();
-        public Scalar DistanceToHistoricBest => Position.DistanceTo(HistoricBest?.Position ?? Solver._null);
-        public Scalar DistanceToSwarmHistoricBest => Position.DistanceTo(Solver.HistoricBest?.Position ?? Solver._null);
+        public ImmutableArray<(Domain Position, Domain Velocity, Codomain Value)> History => _history.ToImmutableArray();
+
+        public PSOParticle<Domain, Codomain, Problem>? Nearest => Solver.GetNearest(this, double.MaxValue).FirstOrDefault();
+
+        public Scalar DistanceToHistoricBest => Position.DistanceTo(HistoricBest is null ? Solver._null : HistoricBest.Value.Position);
+
+        public Scalar DistanceToSwarmHistoricBest => Position.DistanceTo(HistoricBest is null ? Solver._null : HistoricBest.Value.Position);
 
 
-        internal PSOParticle(PSOSolver<Codomain, Problem> solver, VectorN init_pos)
+        internal PSOParticle(PSOSolver<Domain, Codomain, Problem> solver, Domain init_pos)
         {
             Solver = solver;
             InitialPosition = init_pos;
             Position = init_pos;
-            Velocity = VectorN.ZeroVector(Solver.PSOProblem.Dimensionality);
+            Velocity = Solver._null;
             CachedValue = Solver.PSOProblem.GetValue(Position);
         }
 
         internal void Reset()
         {
-            UpdateParticle(InitialPosition, VectorN.ZeroVector(Solver.PSOProblem.Dimensionality));
+            UpdateParticle(InitialPosition, Solver._null);
             HistoricBest = null;
             _history.Clear();
         }
 
-        internal Codomain UpdateParticle(VectorN position, VectorN velocity)
+        internal Codomain UpdateParticle(Domain position, Domain velocity)
         {
             Position = position;
             Velocity = velocity;
@@ -212,18 +220,19 @@ namespace Unknown6656.Computation.ParticleSwarmOptimization
         }
     }
 
-    public sealed class PSOSolution<Codomain, Problem>
+    public sealed class PSOSolution<Domain, Codomain, Problem>
+        where Domain : Algebra<Scalar>.IMetricVectorSpace<Domain>
         where Codomain : IComparable<Codomain>
-        where Problem : PSOProblem<Codomain, Problem>
+        where Problem : PSOProblem<Domain, Codomain, Problem>
     {
-        public PSOSolver<Codomain, Problem> Solver { get; }
-        public VectorN OptimalSolution { get; }
+        public PSOSolver<Domain, Codomain, Problem> Solver { get; }
+        public Domain OptimalSolution { get; }
         public Codomain? OptimalValue { get; }
         public int IterationCount { get; }
-        public ImmutableArray<(PSOParticle<Codomain, Problem> Particle, ImmutableArray<(VectorN Position, VectorN Velocity, Codomain Value)> History)> Histories { get; }
+        public ImmutableArray<(PSOParticle<Domain, Codomain, Problem> Particle, ImmutableArray<(Domain Position, Domain Velocity, Codomain Value)> History)> Histories { get; }
 
 
-        internal PSOSolution(PSOSolver<Codomain, Problem> solver, VectorN solution, Codomain? value, int iterations)
+        internal PSOSolution(PSOSolver<Domain, Codomain, Problem> solver, Domain solution, Codomain? value, int iterations)
         {
             Solver = solver;
             OptimalValue = value;

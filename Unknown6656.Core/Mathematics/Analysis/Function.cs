@@ -1,605 +1,305 @@
 ﻿#nullable enable
 
 using System.Runtime.CompilerServices;
+using System.Diagnostics.CodeAnalysis;
+using System.Collections;
 using System.Linq;
 using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
-using System.Collections;
 
 namespace Unknown6656.Mathematics.Analysis
 {
-    public interface IRelation<Function, Index, Value>
-        : IGroup<Function>
-        where Function : IRelation<Function, Index, Value>
-        where Index : IEquatable<Index>
+    public abstract class Function<Func, Domain, Codomain>
+        : IGroup<Func>
+        , IStructuralEquatable
+        where Func : Function<Func, Domain, Codomain>
+        where Domain : IEquatable<Domain>
     {
-        /// <inheritdoc cref="Evaluate(Index)"/>
-        Value this[Index x] { get; }
+        /// <inheritdoc cref="Evaluate(Domain)"/>
+        public Codomain this[Domain x] => Evaluate(x);
+
         /// <summary>
         /// Returns the cached variant of this function instance
         /// </summary>
-        FunctionCache<Function, Index, Value> Cached { get; }
+        public abstract FunctionCache<Func, Domain, Codomain> Cached { get; }
+
+        /// <inheritdoc/>
+        public Func AdditiveInverse => Negate();
+
+        /// <inheritdoc/>
+        public virtual bool IsZero => false;
+
+        /// <inheritdoc/>
+        public bool IsNonZero => !IsZero;
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual bool Is([MaybeNull] Func? other) => Equals(other);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual bool IsNot([MaybeNull] Func? other) => !Is(other);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public abstract bool Equals(Func? other);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        int IStructuralEquatable.GetHashCode(IEqualityComparer comparer) => GetHashCode();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        bool IStructuralEquatable.Equals(object? other, IEqualityComparer comparer) => Equals(other);
+
         /// <summary>
         /// Evaluates the current function at the given X value
         /// </summary>
         /// <param name="x">X value</param>
         /// <returns>Function evaluated at X</returns>
-        Value Evaluate(Index x);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public abstract Codomain Evaluate(Domain x);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public abstract Func Negate();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public abstract Func Add(in Func second);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual Func Add(params Func[] others) => others.Aggregate((Func)this, (x, y) => x.Add(in y));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual Func Subtract(in Func second) => Add(second.Negate());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual Func Subtract(params Func[] others) => others.Aggregate((Func)this, (x, y) => x.Subtract(in y));
     }
 
-    public interface IRelation<Function, Value>
-        : IRelation<Function, Value, Value>
-        where Function : IRelation<Function, Value>
-        where Value : IEquatable<Value>
+    public class Function<Domain, Codomain>
+        : Function<Function<Domain, Codomain>, Domain, Codomain>
+        where Domain : IEquatable<Domain>
+        where Codomain : IGroup<Codomain>
     {
-    }
-
-    public interface IVectorFieldFunction<Function, VectorField, Scalar>
-        : IRelation<Function, VectorField>
-        , IGroup<Function>
-        where Function : IVectorFieldFunction<Function, VectorField, Scalar>
-        where VectorField : unmanaged, Algebra<Scalar>.IVectorSpace<VectorField>
-        where Scalar : unmanaged, IField<Scalar>
-    {
-    }
-
-    public interface IFieldFunction<Function, Value>
-        : IRelation<Function, Value>
-        , IGroup<Function>
-        , Algebra<Value>.IVectorSpace<Function>
-        where Function : IFieldFunction<Function, Value>
-        where Value : unmanaged, IField<Value>
-    {
-    }
-
-    public interface IContinuousFieldFunction<Function, DerivativeFunc, IntegralFunc, Value>
-        : IFieldFunction<Function, Value>
-        , IField<Function>
-        where Function : IContinuousFieldFunction<Function, DerivativeFunc, IntegralFunc, Value>
-        where DerivativeFunc : IFieldFunction<DerivativeFunc, Value>
-        where IntegralFunc : IFieldFunction<IntegralFunc, Value>
-        where Value : unmanaged, IField<Value>
-    {
-        DerivativeFunc Derivative { get; }
-        IntegralFunc Integral { get; }
-    }
-
-    public class Relation<Value>
-        : IRelation<Relation<Value>, Value>
-        , IEquality<Relation<Value>>
-        where Value : IGroup<Value>
-    {
-        private readonly Func<Value, Value> _func;
+        private readonly Func<Domain, Codomain> _func;
 
 
-        public Value this[Value x] => Evaluate(x);
+        public override FunctionCache<Function<Domain, Codomain>, Domain, Codomain> Cached => new(this);
 
-        public FunctionCache<Relation<Value>, Value, Value> Cached => new FunctionCache<Relation<Value>, Value, Value>(this);
-        
-        public virtual Relation<Value> AdditiveInverse => Negate();
+        public override bool IsZero => Is(Zero!);
 
-        public virtual bool IsZero => false;
-        
-        public bool IsNonZero => !IsZero;
+        public static Function<Domain, Codomain> Zero { get; } = new(_ => default!);
 
 
-        public Relation(Func<Value, Value> function) => _func = function ?? throw new ArgumentNullException(nameof(function));
+        public Function(Func<Domain, Codomain> func) => _func = func;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(Relation<Value>? other) => _func == other?._func;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool Equals(object? obj) => obj is Relation<Value> o && Equals(o);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int GetHashCode() => _func.GetHashCode();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Value Evaluate(Value x) => _func(x);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual bool Is(Relation<Value>? o) => Equals(o);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual bool IsNot(Relation<Value>? o) => !Is(o);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Relation<Value> Add(in Relation<Value> second)
-        {
-            Func<Value, Value> f = second._func;
-
-            return new Relation<Value>(v => _func(v).Add(f(v)));
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Relation<Value> Add(params Relation<Value>[] others) => others.Aggregate(this, (x, y) => x.Add(y));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Relation<Value> Negate() => new Relation<Value>(v => Evaluate(v).AdditiveInverse);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Relation<Value> Subtract(in Relation<Value> second) => Add(second.Negate());
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Relation<Value> Subtract(params Relation<Value>[] others) => others.Aggregate(this, (x, y) => x.Subtract(y));
-
-
-        public static Relation<Value> FromDelegate(Func<Value, Value> f) => new Relation<Value>(f);
-
-
-        public static implicit operator Relation<Value>(Func<Value, Value> f) => new Relation<Value>(f);
-
-        public static implicit operator Func<Value, Value>(Relation<Value> r) => r._func;
-    }
-
-    public abstract class VectorFieldFunction<Func, VectorField, Scalar>
-        : Relation<VectorField>
-        , IVectorFieldFunction<Func, VectorField, Scalar>
-        where Func : VectorFieldFunction<Func, VectorField, Scalar>
-        where VectorField : unmanaged, Algebra<Scalar>.IVectorSpace<VectorField>
-        where Scalar : unmanaged, IField<Scalar>
-    {
-        #region PROPERTIES + FIELDS
-
-        public new FunctionCache<Func, VectorField, VectorField> Cached => new FunctionCache<Func, VectorField, VectorField>((Func)this);
-
-        public override Func AdditiveInverse => Negate();
-
-        #endregion
-        #region CONSTRUCTORS
-
-        public VectorFieldFunction(Func<VectorField, VectorField> function)
-            : base(function)
-        {
-        }
-
-        public VectorFieldFunction(VectorFieldFunction<Func, VectorField, Scalar> function)
-            : this(function.Evaluate)
-        {
-        }
-
-        public VectorFieldFunction(Func function)
-            : this(function.Evaluate)
-        {
-        }
-
-        public VectorFieldFunction(VectorField constant)
+        public Function(Codomain constant)
             : this(_ => constant)
         {
         }
 
-        #endregion
-        #region METHODS
+        public override Codomain Evaluate(Domain x) => _func(x);
 
-        public override abstract Func Negate();
+        public override Function<Domain, Codomain> Negate() => new(x => Evaluate(x).Negate());
 
-        public abstract Func Add(Func second);
+        public override Function<Domain, Codomain> Add(in Function<Domain, Codomain> second)
+        {
+            Func<Domain, Codomain> other = second.Evaluate;
 
-        public abstract Func Add(VectorField constant);
+            return new(x => Evaluate(x).Add(other(x)));
+        }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        Func INumericIGroup<Func>.Add(in Func second) => Add(second);
+        public Function<Domain, Codomain> Add(Codomain constant) => Add(new Function<Domain, Codomain>(constant));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        Func IGroup<Func>.Subtract(in Func second) => Subtract(second);
+        public Function<Domain, Codomain> Subtract(Codomain constant) => Subtract(new Function<Domain, Codomain>(constant));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Func Subtract(Func second) => Add(second.Negate());
+        public override bool Equals(Function<Domain, Codomain>? other) => throw new NotImplementedException();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Func Subtract(VectorField constant) => Add(constant.Negate());
+        public static Function<Domain, Codomain> FromDelegate(Func<Domain, Codomain> f) => new(f);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Func Add(params Func[] others) => others.Aggregate((Func)this, (x, y) => x.Add(y));
+        public static implicit operator Function<Domain, Codomain>(Func<Domain, Codomain> f) => FromDelegate(f);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Func Add(params VectorField[] constants) => constants.Aggregate((Func)this, (x, y) => x.Add(y));
+        public static implicit operator Func<Domain, Codomain>(Function<Domain, Codomain> r) => r._func;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Func Subtract(params Func[] others) => others.Aggregate((Func)this, (x, y) => x.Subtract(y));
+        public static implicit operator Function<Domain, Codomain>(Codomain s) => new(s);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Func Subtract(params VectorField[] constants) => constants.Aggregate((Func)this, (x, y) => x.Subtract(y));
+        public static Function<Domain, Codomain> operator +(Function<Domain, Codomain> f) => f;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract Func Multiply(Scalar factor);
+        public static Function<Domain, Codomain> operator -(Function<Domain, Codomain> f) => f.Negate();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract Func Divide(Scalar factor);
+        public static Function<Domain, Codomain> operator +(Function<Domain, Codomain> f, Codomain c) => f.Add(c);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Func Multiply(params Scalar[] factors) => factors.Aggregate((Func)this, (x, y) => x.Multiply(y));
+        public static Function<Domain, Codomain> operator +(Codomain c, Function<Domain, Codomain> f) => new Function<Domain, Codomain>(c).Add(f);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Func Divide(params Scalar[] factors) => factors.Aggregate((Func)this, (x, y) => x.Divide(y));
+        public static Function<Domain, Codomain> operator +(Function<Domain, Codomain> f1, Function<Domain, Codomain> f2) => f1.Add(f2);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Func LinearInterpolate(Func other, Scalar factor) => Multiply(default(Scalar).Increment().Subtract(factor)).Add(other.Multiply(factor));
+        public static Function<Domain, Codomain> operator -(Function<Domain, Codomain> f, Codomain c) => f.Subtract(c);
 
-        bool IEquality<Func>.Is(Func? o) => Is(o);
+        public static Function<Domain, Codomain> operator -(Codomain c, Function<Domain, Codomain> f) => new Function<Domain, Codomain>(c).Subtract(f);
 
-        bool IEquality<Func>.IsNot(Func? o) => IsNot(o);
-
-        bool IEquatable<Func>.Equals(Func? other) => Equals(other);
-
-#pragma warning disable IDE0004
-        bool IStructuralEquatable.Equals(object? other, IEqualityComparer comparer) => ((IStructuralEquatable)(Relation<VectorField>)this).Equals(other, comparer);
-
-        int IStructuralEquatable.GetHashCode(IEqualityComparer comparer) => ((IStructuralEquatable)(Relation<VectorField>)this).GetHashCode(comparer);
-#pragma warning restore IDE0004
-
-        #endregion
-        #region OPERATORS
-
-        public static implicit operator Func<VectorField, VectorField>(VectorFieldFunction<Func, VectorField, Scalar> f) => f.Evaluate;
-
-        #endregion
+        public static Function<Domain, Codomain> operator -(Function<Domain, Codomain> f1, Function<Domain, Codomain> f2) => f1.Subtract(f2);
     }
 
-    public class VectorFieldFunction<VectorField, Scalar>
-        : VectorFieldFunction<VectorFieldFunction<VectorField, Scalar>, VectorField, Scalar>
-        where VectorField : unmanaged, Algebra<Scalar>.IVectorSpace<VectorField>
-        where Scalar : unmanaged, IField<Scalar>
+    public class Function<Domain>
+        : Function<Domain, Domain>
+        where Domain : IEquatable<Domain>, IGroup<Domain>
     {
-        public VectorFieldFunction(VectorField constant)
+        public Function(Domain constant)
             : base(constant)
         {
         }
 
-        public VectorFieldFunction(Func<VectorField, VectorField> function)
-            : base(function)
+        public Function(Func<Domain, Domain> func)
+            : base(func)
         {
         }
-
-        public VectorFieldFunction(VectorFieldFunction<VectorField, Scalar> function)
-            : base(function)
-        {
-        }
-
-
-        public override VectorFieldFunction<VectorField, Scalar> Negate() => new(x => this[x].Negate());
-
-        public override VectorFieldFunction<VectorField, Scalar> Add(VectorFieldFunction<VectorField, Scalar> second) => new(x => this[x].Add(second[x]));
-
-        public override VectorFieldFunction<VectorField, Scalar> Subtract(VectorFieldFunction<VectorField, Scalar> second) => new(x => this[x].Subtract(second[x]));
-
-        public override VectorFieldFunction<VectorField, Scalar> Add(VectorField constant) => new(x => this[x].Add(constant));
-
-        public override VectorFieldFunction<VectorField, Scalar> Subtract(VectorField constant) => new(x => this[x].Subtract(constant));
-
-        public override VectorFieldFunction<VectorField, Scalar> Divide(Scalar factor) => new(x => this[x].Divide(factor));
-
-        public override VectorFieldFunction<VectorField, Scalar> Multiply(Scalar factor) => new(x => this[x].Multiply(factor));
-
-
-        public static implicit operator VectorFieldFunction<VectorField, Scalar>(Func<VectorField, VectorField> func) => new(func);
     }
 
-    public abstract class AbstractFieldFunction<Func, Value>
-        : Relation<Value>
-        , IFieldFunction<Func, Value>
-        where Func : AbstractFieldFunction<Func, Value>
-        where Value : unmanaged, IField<Value>
+    public class FieldFunction<Scalar>
+        : Function<Scalar>
+        , Algebra<Scalar>.IVectorSpace<FieldFunction<Scalar>>
+        where Scalar : unmanaged, IField<Scalar>
     {
-        #region PROPERTIES + FIELDS
+        FieldFunction<Scalar> IGroup<FieldFunction<Scalar>>.AdditiveInverse => (FieldFunction<Scalar>)Negate();
 
-        public new FunctionCache<Func, Value, Value> Cached => new FunctionCache<Func, Value, Value>((Func)this);
 
-        public override Func AdditiveInverse => Negate();
-
-        public override abstract bool IsZero { get; }
-
-        #endregion
-        #region CONSTRUCTORS
-
-        public AbstractFieldFunction(AbstractFieldFunction<Func, Value> function)
-            : this(function.Evaluate)
+        public FieldFunction(Scalar constant)
+            : base(constant)
         {
         }
 
-        public AbstractFieldFunction(Func<Value, Value> function)
-            : base(function)
+        public FieldFunction(Func<Scalar, Scalar> func)
+            : base(func)
         {
         }
 
-        public AbstractFieldFunction(Func function)
-            : this(function as AbstractFieldFunction<Func, Value>)
+        FieldFunction<Scalar> IGroup<FieldFunction<Scalar>>.Negate() => (FieldFunction<Scalar>)Negate();
+
+        public virtual FieldFunction<Scalar> Add(in FieldFunction<Scalar> second) => (FieldFunction<Scalar>)base.Add(this);
+
+        public FieldFunction<Scalar> Add(params FieldFunction<Scalar>[] others) => (FieldFunction<Scalar>)base.Add(others); //.ToArray(f => f as Function<Scalar, Scalar>));
+
+        public virtual FieldFunction<Scalar> Subtract(in FieldFunction<Scalar> second) => (FieldFunction<Scalar>)base.Subtract(this);
+
+        public FieldFunction<Scalar> Subtract(params FieldFunction<Scalar>[] others) => (FieldFunction<Scalar>)base.Subtract(others); // .ToArray(f => f as Function<Scalar, Scalar>));
+
+        public virtual FieldFunction<Scalar> Divide(Scalar factor) => new(x => Evaluate(x).Divide(in factor));
+
+        public virtual FieldFunction<Scalar> Multiply(Scalar factor) => new(x => Evaluate(x).Multiply(in factor));
+
+        public bool Equals(FieldFunction<Scalar>? other) => base.Equals(other);
+        
+        public bool Is([MaybeNull] FieldFunction<Scalar> other) => base.Is(other);
+
+        public bool IsNot([MaybeNull] FieldFunction<Scalar> other) => !Is(other);
+
+        public virtual bool IsLinearDependant(in FieldFunction<Scalar> other, out Scalar? factor) => throw new InvalidOperationException("Linear dependency is not defined for arbitrary functions.");
+
+        public virtual FieldFunction<Scalar> LinearInterpolate(in FieldFunction<Scalar> other, Scalar factor)
         {
+            Func<Scalar, Scalar> _s = other.Evaluate;
+
+            return new(x => _s(x).Multiply(in factor).Add(Evaluate(x).Multiply(factor.Negate().Add(default(Scalar).Increment()))));
         }
 
-        public AbstractFieldFunction(Value constant)
-            : this(_ => constant)
-        {
-        }
+        public static FieldFunction<Scalar> operator *(FieldFunction<Scalar> f, Scalar s) => f.Multiply(s);
 
-        #endregion
-        #region METHODS
+        public static FieldFunction<Scalar> operator *(Scalar s, FieldFunction<Scalar> f) => f.Multiply(s);
 
-        public abstract override Func Negate();
-
-        public abstract Func Add(Func second);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        Func INumericIGroup<Func>.Add(in Func second) => Add(second);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        Func IGroup<Func>.Subtract(in Func second) => Subtract(second);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Func Subtract(Func second) => Add(second.Negate());
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Func Add(params Func[] others) => others.Aggregate((Func)this, (x, y) => x.Add(y));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Func Subtract(params Func[] others) => others.Aggregate((Func)this, (x, y) => x.Subtract(y));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract Func Multiply(Value factor);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract Func Divide(Value factor);
-
-        bool Algebra<Value>.IVectorSpace<Func>.IsLinearDependant(in Func other, out Value? factor) =>
-            throw new InvalidOperationException("Linear dependency is not defined for arbitrary functions.");
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        Func Algebra<Value>.IVectorSpace<Func>.LinearInterpolate(in Func other, Value factor) => LinearInterpolate(other, factor);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Func LinearInterpolate(Func other, Value factor) => Multiply(default(Value).Increment().Subtract(factor)).Add(other.Multiply(factor));
-
-        bool IEquality<Func>.Is(Func? o) => Is(o);
-
-        bool IEquality<Func>.IsNot(Func? o) => IsNot(o);
-
-        bool IEquatable<Func>.Equals(Func? other) => Equals(other);
-
-#pragma warning disable IDE0004
-        bool IStructuralEquatable.Equals(object? other, IEqualityComparer comparer) => ((IStructuralEquatable)(Relation<Value>)this).Equals(other, comparer);
-
-        int IStructuralEquatable.GetHashCode(IEqualityComparer comparer) => ((IStructuralEquatable)(Relation<Value>)this).GetHashCode(comparer);
-#pragma warning restore IDE0004
-
-        #endregion
-        #region OPERATORS
-
-        public static implicit operator Func<Value, Value>(AbstractFieldFunction<Func, Value> f) => f.Evaluate;
-
-        public static explicit operator Func(AbstractFieldFunction<Func, Value> f) => (Func)f;
-
-        #endregion
+        public static FieldFunction<Scalar> operator /(FieldFunction<Scalar> f, Scalar s) => f.Divide(s);
     }
 
-    public abstract class ContinuousFieldFunction<Function, DerivativeFunc, IntegralFunc, Value>
-        : AbstractFieldFunction<Function, Value>
-        , IContinuousFieldFunction<Function, DerivativeFunc, IntegralFunc, Value>
-        where Function : ContinuousFieldFunction<Function, DerivativeFunc, IntegralFunc, Value>
-        where DerivativeFunc : IFieldFunction<DerivativeFunc, Value>
-        where IntegralFunc : IFieldFunction<IntegralFunc, Value>
-        where Value : unmanaged, IField<Value>
+    public class ScalarFunction
+        : FieldFunction<Scalar>
     {
-        #region PROPERTIES
+        public static new ScalarFunction Zero { get; } = new(_ => Scalar.Zero);
 
+        public override bool IsZero => Is(Zero);
+
+
+        public ScalarFunction(Scalar constant)
+            : base(constant)
+        {
+        }
+
+        public ScalarFunction(Func<Scalar, Scalar> func)
+            : base(func)
+        {
+        }
+
+        public override FieldFunction<Scalar> Negate() => new ScalarFunction(x => Evaluate(x).Negate());
+
+        public override FieldFunction<Scalar> Add(in FieldFunction<Scalar> second)
+        {
+            Func<Scalar, Scalar> _other = second.Evaluate;
+
+            return new ScalarFunction(x => Evaluate(x).Add(_other(x)));
+        }
+
+        public override FieldFunction<Scalar> Subtract(in FieldFunction<Scalar> second)
+        {
+            Func<Scalar, Scalar> _other = second.Evaluate;
+
+            return new ScalarFunction(x => Evaluate(x).Subtract(_other(x)));
+        }
+        
+        public override FieldFunction<Scalar> Multiply(Scalar factor) => new ScalarFunction(x => Evaluate(x).Multiply(factor));
+
+        public override FieldFunction<Scalar> Divide(Scalar factor) => new ScalarFunction(x => Evaluate(x).Divide(factor));
+
+        public override FieldFunction<Scalar> LinearInterpolate(in FieldFunction<Scalar> other, Scalar factor)
+        {
+            Func<Scalar, Scalar> _other = other.Evaluate;
+
+            return new ScalarFunction(x => Evaluate(x) * (1 - factor) + _other(x) * factor);
+        }
+    }
+
+    public class ComplexFunction
+        : FieldFunction<Complex>
+    {
+        public ComplexFunction(Complex constant)
+            : base(constant)
+        {
+        }
+
+        public ComplexFunction(Func<Complex, Complex> func)
+            : base(func)
+        {
+        }
+    }
+
+    // public class VectorFieldFunction<VectorField, Scalar>
+    //     : Function<VectorField, Scalar>
+    //     , Algebra<Scalar>.IVectorSpace<VectorFieldFunction<VectorField, Scalar>>
+    //     where Scalar : unmanaged, IField<Scalar>
+    //     where VectorField : Algebra<Scalar>.IVectorSpace<VectorField>
+    // {
+    // 
+    // }
+
+    public abstract class ContinuousFunction<DerivativeFunc, IntegralFunc, Domain, Codomain>
+        : Function<Domain, Codomain> //, IField<Function>
+        //where Func : ContinuousFunction<DerivativeFunc, IntegralFunc, Domain, Codomain>
+        where DerivativeFunc : ContinuousFunction<DerivativeFunc, IntegralFunc, Domain, Codomain>
+        where IntegralFunc : ContinuousFunction<DerivativeFunc, IntegralFunc, Domain, Codomain>
+        where Domain : IEquatable<Domain>
+        where Codomain : IGroup<Codomain>
+    {
         public abstract DerivativeFunc Derivative { get; }
-
         public abstract IntegralFunc Integral { get; }
 
-        public abstract Function MultiplicativeInverse { get; }
 
-        public abstract bool IsInvertible { get; }
-
-        public virtual bool IsOne => Decrement().IsZero;
-
-        #endregion
-        #region CONSTRUCTORS
-
-        public ContinuousFieldFunction(Func<Value, Value> function)
-            : base(function)
+        public ContinuousFunction(Func<Domain, Codomain> func)
+            : base(func)
         {
         }
 
-        public ContinuousFieldFunction(AbstractFieldFunction<Function, Value> function)
-            : base(function)
-        {
-        }
-
-        public ContinuousFieldFunction(Function function)
-            : base(function)
-        {
-        }
-
-        public ContinuousFieldFunction(Value constant)
+        public ContinuousFunction(Codomain constant)
             : base(constant)
         {
         }
-
-        #endregion
-        #region METHODS
-
-        public override abstract Value Evaluate(Value x);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract Function Increment();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract Function Decrement();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        Function IRing<Function>.Multiply(in Function second) => Multiply(second);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract Function Multiply(Function second);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Function Multiply(params Function[] others) => others.Aggregate((Function)this, (x, y) => x.Multiply(y));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        Function IField<Function>.Divide(in Function second) => Divide(second);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Function Divide(Function second) => Multiply(second.MultiplicativeInverse);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual Function Power(int e) => e >= 0 ? Multiply(Enumerable.Repeat((Function)this, e - 1).ToArray()) : Power(-e).MultiplicativeInverse;
-
-        #endregion
     }
 
-    public abstract class ScalarMap<Function, Scalar>
-        : AbstractFieldFunction<Function, Scalar>
-        where Function : ScalarMap<Function, Scalar>
-        where Scalar : unmanaged, IField<Scalar>
-    {
-        #region PROPERTIES + FIELDS
 
-        private static readonly Func<Func<Scalar, Scalar>, Function> _create;
 
-        public static ScalarMap<Function, Scalar> Zero { get; }
-
-        public override bool IsZero => Is((Function)Zero);
-
-        #endregion
-        #region CONSTRUCTORS
-
-        static ScalarMap()
-        {
-            Type F = typeof(Function);
-
-            if (F.GetConstructor(new[] { typeof(Func<Scalar, Scalar>) }) is { } ctor)
-                _create = f => (Function)ctor.Invoke(new object[] { f });
-            else
-                throw new InvalidOperationException($"The type parameter '{F}' cannot be used as function type, as it has no constructor accepting an function of the type '{typeof(Scalar)} -> {typeof(Scalar)}'  ('{typeof(Func<Scalar, Scalar>)}').");
-
-            Zero = default(Scalar);
-        }
-
-        public ScalarMap(Func<Scalar, Scalar> function)
-            : base(function)
-        {
-        }
-
-        public ScalarMap(ScalarMap<Function, Scalar> function)
-            : base(function)
-        {
-        }
-
-        public ScalarMap(Function function)
-            : this((ScalarMap<Function, Scalar>)function)
-        {
-        }
-
-        public ScalarMap(Scalar constant)
-            : this(constant.IsZero ? Zero : (ScalarMap<Function, Scalar>)(_ => constant))
-        {
-        }
-
-        #endregion
-        #region METHODS
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override Function Negate() => _create(x => Evaluate(x).Negate());
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override Function Add(Function second) => _create(x => Evaluate(x).Add(second.Evaluate(x)));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override Function Subtract(Function second) => _create(x => Evaluate(x).Subtract(second.Evaluate(x)));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override Function Multiply(Scalar factor) => _create(x => Evaluate(x).Multiply(factor));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override Function Divide(Scalar factor) => _create(x => Evaluate(x).Divide(factor));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override Function LinearInterpolate(Function other, Scalar factor) => _create(x => Evaluate(x).Multiply(default(Scalar).Increment().Subtract(factor)).Add(other.Evaluate(x).Multiply(factor)));
-
-        #endregion
-        #region OPERATORS
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ScalarMap<Function, Scalar>(Scalar s) => _create(_ => s);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ScalarMap<Function, Scalar>(Func<Scalar, Scalar> f) => _create(f);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator Func<Scalar, Scalar>(ScalarMap<Function, Scalar> f) => f.Evaluate;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator Function(ScalarMap<Function, Scalar> f) => _create(f.Evaluate);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScalarMap<Function, Scalar> operator +(ScalarMap<Function, Scalar> f) => f;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Function operator -(ScalarMap<Function, Scalar> f) => f.Negate();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Function operator +(ScalarMap<Function, Scalar> f1, ScalarMap<Function, Scalar> f2) => f1.Add(f2);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Function operator -(ScalarMap<Function, Scalar> f1, ScalarMap<Function, Scalar> f2) => f1.Subtract(f2);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Function operator *(ScalarMap<Function, Scalar> f, Scalar s) => f.Multiply(s);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Function operator *(Scalar s, ScalarMap<Function, Scalar> f) => f.Multiply(s);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Function operator /(ScalarMap<Function, Scalar> f, Scalar s) => f.Divide(s);
-
-        #endregion
-    }
-
-    //public class LambdaFunction<T>
-    //    : AbstractFieldFunction<LambdaFunction<T>, T>
-    //    where T : unmanaged, IField<T>
-    //{
-    //    public Func<T, T> Lambda { get; }
-    //
-    //    public override bool IsZero { get; } = false;
-    //
-    //
-    //    public LambdaFunction(Func<T, T> lambda) : base(lambda) => Lambda = lambda;
-    //
-    //    public override LambdaFunction<T> Add(LambdaFunction<T> second) => new(v => this[v].Add(second[v]));
-    //
-    //    public override LambdaFunction<T> Divide(T factor) => new(v => this[v].Divide(factor));
-    //
-    //    public override LambdaFunction<T> Multiply(T factor) => new(v => this[v].Multiply(factor));
-    //
-    //    public override LambdaFunction<T> Negate() => new(v => this[v].Negate());
-    //}
-
-    public class ScalarMap
-        : ScalarMap<ScalarMap, Scalar>
-    {
-        public ScalarMap(Func<Scalar, Scalar> function)
-            : base(function)
-        {
-        }
-    }
-
-    public class ScalarMap<T>
-        : ScalarMap<ScalarMap<T>, Scalar<T>>
-        where T : unmanaged, IComparable<T>
-    {
-        public ScalarMap(Func<Scalar<T>, Scalar<T>> function)
-            : base(function)
-        {
-        }
-    }
-
-    public class ComplexMap
-        : ScalarMap<ComplexMap, Complex>
-    {
-        public ComplexMap(Func<Complex, Complex> function)
-            : base(function)
-        {
-        }
-    }
+    // https://github.com/dotnet/runtime/issues/45344
+    // https://github.com/dotnet/runtime/issues/47007
 }

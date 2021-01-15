@@ -17,8 +17,8 @@ namespace Unknown6656.Mathematics.Analysis
     public unsafe readonly /* ref */ struct Complex
         : IScalar<Complex>
         , Algebra<Scalar>.IVector<Complex>
-        , Algebra<Scalar, Polynomial, ScalarMap>.IComposite1D
-     // , Algebra<Complex, ComplexPolynomial, ComplexMap>.IComposite1D
+        , Algebra<Scalar, Polynomial>.IComposite1D
+     // , Algebra<Complex, ComplexPolynomial>.IComposite1D
         , IReadonlyNative<Complex>
     {
         #region PRIVATE FIELDS
@@ -289,7 +289,7 @@ namespace Unknown6656.Mathematics.Analysis
         public readonly int CompareTo(Complex other) => SignedModulus.CompareTo(other.SignedModulus);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        Polynomial Algebra<Scalar, Polynomial, ScalarMap>.IComposite1D.ToPolynomial() => new Polynomial(_re, _im);
+        Polynomial Algebra<Scalar, Polynomial>.IComposite1D.ToPolynomial() => new Polynomial(_re, _im);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         readonly Scalar Algebra<Scalar>.IEucledianVectorSpace<Complex>.Dot(in Complex other) => ComponentwiseMultiply(in other).Sum;

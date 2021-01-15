@@ -24,6 +24,7 @@
 
 using Unknown6656.Computation.ParticleSwarmOptimization;
 using Unknown6656.Mathematics.LinearAlgebra;
+using Unknown6656.Mathematics.Analysis;
 
 
 namespace Unknown6656.Computation.ParticleSwarmOptimization
@@ -40,13 +41,8 @@ namespace Unknown6656.Computation.ParticleSwarmOptimization
     /// A Particle Swarm Optimization (PSO) based solver for <#=dim#>-dimensional linear equations of the form Ax=b.
     /// </summary>
     public class <#=typename#>
-        : PSOProblem<Scalar, <#=typename#>>
+        : YValueFinder<<#=vecname#>>
     {
-        /// <inheritdoc/>
-        /// <summary>
-        /// The dimensionality of the linear equations (<#=dim#>).
-        /// </summary>
-        public override int Dimensionality { get; } = <#=dim#>;
         /// <summary>
         /// The <#=dim#>x<#=dim#>-matrix A.
         /// </summary>
@@ -62,18 +58,10 @@ namespace Unknown6656.Computation.ParticleSwarmOptimization
         /// </summary>
         /// <param name="A">The <#=dim#>x<#=dim#>-matrix A.</param>
         /// <param name="b">The <#=dim#>-dimensional vector b.</param>
-        public <#=typename#>(<#=matname#> A, <#=vecname#> b) => (this.A, this.b) = (A, b);
+        public <#=typename#>(<#=matname#> A, <#=vecname#> b) : base(new Function<<#=vecname#>, <#=vecname#>>(x => A.Multiply(x)), b) => (this.A, this.b) = (A, b);
 
         /// <inheritdoc/>
-        /// <summary>
-        /// Returns the value of |Ax-b|.
-        /// </summary>
-        /// <param name="x">Candidate solution x.</param>
-        /// <returns>|Ax-b|</returns>
-        public override Scalar GetValue(VectorN x) => A.Multiply(new <#=vecname#>(x)).DistanceTo(b);
-        
-        /// <inheritdoc/>
-        internal protected override bool IsValidSearchPosition(VectorN position) => true;
+        internal protected override bool IsValidSearchPosition(<#=vecname#> position) => true;
     }
 
 <#
@@ -90,12 +78,15 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         string solname = $"LinearEquation{dim}Solver";
         string matname = "Matrix" + dim;
         string vecname = "Vector" + dim;
+        string retname = $"PSOSolver<{vecname}, Scalar, YValueFinder<Function<{vecname}, {vecname}>, {vecname}, {vecname}>>";
 #>
     public readonly partial struct <#=matname#>
     {
-        public readonly PSOSolver<Scalar, <#=solname#>> CreatePSOSolver(<#=vecname#> b) => CreatePSOSolver(b, PSOSolverConfiguration.Default);
+        public readonly <#=retname#> CreatePSOSolver(<#=vecname#> b) =>
+            CreatePSOSolver(b, PSOSolverConfiguration<<#=vecname#>>.CreateDefault(<#=vecname#>.Zero));
 
-        public readonly PSOSolver<Scalar, <#=solname#>> CreatePSOSolver(<#=vecname#> b, PSOSolverConfiguration configuration) => new <#=solname#>(this, b).CreateSolver(configuration);
+        public readonly <#=retname#> CreatePSOSolver(<#=vecname#> b, PSOSolverConfiguration<<#=vecname#>> configuration) =>
+            new <#=solname#>(this, b).CreateSolver(configuration);
     }
 
 <#

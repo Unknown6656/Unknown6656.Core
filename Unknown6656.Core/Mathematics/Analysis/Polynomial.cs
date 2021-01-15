@@ -1,6 +1,7 @@
 ﻿#nullable enable 
 
 using System.Runtime.CompilerServices;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
@@ -11,12 +12,12 @@ using System.Diagnostics;
 using System.Linq;
 using System;
 
+using Unknown6656.Computation.ParticleSwarmOptimization;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Numerics;
 using Unknown6656.Common;
 
 using static System.Math;
-
 
 namespace Unknown6656.Mathematics.Analysis
 {
@@ -25,16 +26,13 @@ namespace Unknown6656.Mathematics.Analysis
     /// <para/>
     /// All derived classes must have a constructor accepting a coefficient array of the type <typeparamref name="T"/>[] as single parameter.
     /// </summary>
-    public abstract class Polynomial<Function, ScalarMap, T>
-        : ContinuousFieldFunction<Function, Function, Function, T>
+    public class Polynomial<Function, T>
+        : ContinuousFunction<Polynomial<Function, T>, Polynomial<Function, T>, T, T>
         , IEnumerable<T>
         , ICloneable
-        where Function : Polynomial<Function, ScalarMap, T>
-        where ScalarMap : ScalarMap<ScalarMap, T>
+        where Function : Polynomial<Function, T>
         where T : unmanaged, IField<T>, INumericRing<T>
     {
-        #region PRIVATE FIELDS
-
         private static readonly Func<IEnumerable<T>, Function> _create;
 
         /// <summary>
@@ -42,7 +40,6 @@ namespace Unknown6656.Mathematics.Analysis
         /// </summary>
         private protected readonly T[] _coefficients;
 
-        #endregion
         #region STATIC PROPERTIES
 
         /// <summary>
@@ -129,21 +126,15 @@ namespace Unknown6656.Mathematics.Analysis
             }
         }
 
-#pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
-        [Obsolete("The multiplicative inverse of a polynomial cannot be represented by a polynomial.", true)]
-        [DebuggerHidden, DebuggerNonUserCode, DebuggerBrowsable(DebuggerBrowsableState.Never), EditorBrowsable(EditorBrowsableState.Never)]
-        public override Function MultiplicativeInverse => throw new InvalidOperationException("The multiplicative inverse of a polynomial cannot be represented by a polynomial.");
-#pragma warning restore CS0809
+        public Function<T, T> Inverse { get; }
 
-        public ScalarMap Inverse { get; }
-
-        public override bool IsInvertible => !IsZero;
+        public bool IsInvertible => !IsZero;
 
         public bool IsConstant => Degree == 0;
 
         public override bool IsZero => Is(Zero);
 
-        public override bool IsOne => Is(One);
+        public bool IsOne => Is(One);
 
         public bool IsX => Is(X);
 
@@ -174,7 +165,7 @@ namespace Unknown6656.Mathematics.Analysis
         {
         }
 
-        public Polynomial(Polynomial<Function, ScalarMap, T> polynomial)
+        public Polynomial(Polynomial<Function, T> polynomial)
             : this(polynomial._coefficients)
         {
         }
@@ -201,7 +192,7 @@ namespace Unknown6656.Mathematics.Analysis
             : base(x => coefficients.Reverse().Aggregate((acc, c) => acc.Multiply(x).Add(c)))
         {
             _coefficients = coefficients;
-            Inverse = (ScalarMap)typeof(ScalarMap).GetConstructor(new[] { typeof(Func<T, T>) }).Invoke(new object[] { new Func<T, T>(x => Evaluate(x).MultiplicativeInverse) });
+            Inverse = new Function<T, T>(x => Evaluate(x).MultiplicativeInverse);
         }
 
         private static T[] SanitizeCoefficients(T[] coefficients)
@@ -217,38 +208,50 @@ namespace Unknown6656.Mathematics.Analysis
         #endregion
         #region INSTANCE METHODS
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override T Evaluate(T x)
+        {
+            int i = _coefficients.Length;
+            T res = default;
+            T acc = res.Increment();
+
+            while (i-- > 0)
+            {
+                res = res.Add(_coefficients[i].Multiply(acc));
+                acc = acc.Multiply(x);
+            }
+
+            return res;
+        }
+
         public override Function Negate() => _create(_coefficients.Select(c => c.AdditiveInverse));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override Function Add(Function second) => _create(_coefficients.ZipOuter(second._coefficients, (c1, c2) => c1.Add(c2)));
+        public Function Add(Polynomial<Function, T> second) => _create(_coefficients.ZipOuter(second._coefficients, (c1, c2) => c1.Add(c2)));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override Function Subtract(Function second) => _create(_coefficients.ZipOuter(second._coefficients, (c1, c2) => c1.Subtract(c2)));
+        public Function Add(params Polynomial<Function, T>[] others) => others.Aggregate(this, (x, y) => x.Add(y));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override Function Increment() => Add(One);
+        public Function Subtract(Polynomial<Function, T> second) => _create(_coefficients.ZipOuter(second._coefficients, (c1, c2) => c1.Subtract(c2)));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override Function Decrement() => Subtract(One);
+        public Function Subtract(params Polynomial<Function, T>[] others) => others.Aggregate(this, (x, y) => x.Subtract(y));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override Function Multiply(Function second) => _coefficients.Select((c, i) => second.Multiply(c).IncreaseDegree(i)).Aggregate(Zero, (p, a) => p.Add(a));
+        public Function Increment() => Add(One);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override Function Multiply(T factor) => _create(_coefficients.Select(c => c.Multiply(factor)));
+        public Function Decrement() => Subtract(One);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override Function Divide(Function second) => second.IsConstant ? Divide(second.LeadingCoefficient) : PolynomialDivision(this, second).Quotient;
+        public Function Multiply(Polynomial<Function, T> second) => _create(_coefficients.Select((c, i) => second.Multiply(c).IncreaseDegree(i)).Aggregate(Zero, (p, a) => p.Add(a)));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override Function Divide(T factor) => Multiply(factor.MultiplicativeInverse);
+        public Function Multiply(params Polynomial<Function, T>[] others) => others.Aggregate(this, (x, y) => x.Multiply(y));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Function Multiply(T factor) => _create(_coefficients.Select(c => c.Multiply(factor)));
+
+        public Function Divide(Polynomial<Function, T> second) => second.IsConstant ? Divide(second.LeadingCoefficient) : PolynomialDivision(this, second).Quotient;
+
+        public Function Divide(params Polynomial<Function, T>[] others) => others.Aggregate(this, (x, y) => x.Divide(y));
+
+        public Function Divide(T factor) => Multiply(factor.MultiplicativeInverse);
+
         public Function Modulus(Function second) => Is(second) ? Zero : PolynomialDivision(this, second).Remainder;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override Function Power(int e)
+        public Function Power(int e)
         {
             if (e < 0)
                 throw new ArgumentOutOfRangeException(nameof(e));
@@ -271,29 +274,36 @@ namespace Unknown6656.Mathematics.Analysis
             return r;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Function IncreaseDegree(int count) => count switch
         {
-            0 => _create(_coefficients),
-            > 0 => _create(Enumerable.Repeat(default(T), count).Concat(_coefficients)),
+            0 => new Polynomial<Function, T>(_coefficients),
+            > 0 => new Polynomial<Function, T>(Enumerable.Repeat(default(T), count).Concat(_coefficients)),
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Function DecreaseDegree(int count) => count switch
         {
-            0 => _create(_coefficients),
-            > 0 => _create(_coefficients.Skip(count)),
+            0 => new Polynomial<Function, T>(_coefficients),
+            > 0 => new Polynomial<Function, T>(_coefficients.Skip(count)),
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract IEnumerable<T> Solve(T y);
+        /// <summary>
+        /// Solves the polynomial for the given Y value.
+        /// <para/>
+        /// WARNING: This function is not implemented by <see cref="Polynomial{Function, T}"/>!
+        /// </summary>
+        /// <param name="y">Y value.</param>
+        /// <returns>Enumeration of possible X values.</returns>
+        public virtual IEnumerable<T> Solve(T y) => Array.Empty<T>();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object Clone() => (Function)this;
 
-        public override bool Equals(object? obj) => obj is Polynomial<Function, ScalarMap, T> p && Is(p);
+        public bool Equals(Polynomial<Function, T>? other) => Is(other);
+
+        public override bool Equals(Function<T, T>? other) => Is(other);
+
+        public override bool Equals(object? obj) => Equals(obj as Polynomial<Function, T>);
 
         /// <summary>
         /// Compares the given polynomial with the current instance and returns whether both are equal.
@@ -301,7 +311,7 @@ namespace Unknown6656.Mathematics.Analysis
         /// <param name="o">Second polynomial</param>
         /// <returns>Comparison result</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool Is(Relation<T>? o) => Is(o as Polynomial<Function, ScalarMap, T>);
+        public override bool Is(Function<T, T>? o) => Is(o as Polynomial<Function, T>);
 
         /// <summary>
         /// Compares the given polynomial with the current instance and returns whether both are equal.
@@ -309,7 +319,7 @@ namespace Unknown6656.Mathematics.Analysis
         /// <param name="o">Second polynomial</param>
         /// <returns>Comparison result</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Is(Polynomial<Function, ScalarMap, T>? o) => o is { } && _coefficients.Are(o._coefficients, (c1, c2) => c1.Is(c2));
+        public bool Is(Polynomial<Function, T>? o) => o is { } && _coefficients.Are(o._coefficients, (c1, c2) => c1.Is(c2));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() => LINQ.GetHashCode(_coefficients);
@@ -353,7 +363,7 @@ namespace Unknown6656.Mathematics.Analysis
         /// <param name="n">First polynomial</param>
         /// <param name="d">Second polynomial</param>
         /// <returns>Divison quotient and remainder</returns>
-        public static (Function Quotient, Function Remainder) PolynomialDivision(Polynomial<Function, ScalarMap, T> n, Polynomial<Function, ScalarMap, T> d)
+        public static (Function Quotient, Function Remainder) PolynomialDivision(Polynomial<Function, T> n, Polynomial<Function, T> d)
         {
             int nd = n.Degree;
             int dd = d.Degree;
@@ -434,23 +444,20 @@ namespace Unknown6656.Mathematics.Analysis
         /// </summary>
         /// <param name="f">Scalar</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator Polynomial<Function, ScalarMap, T>(T f) => _create(new[] { f });
+        public static implicit operator Polynomial<Function, T>(T f) => new Polynomial<Function, T>(new[] { f });
 
         /// <summary>
         /// Implicitly converts the given array of scalar coefficients to their respective polynomial representation.
         /// </summary>
         /// <param name="c">Scalar coefficients</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator Polynomial<Function, ScalarMap, T>(T[] c) => _create(c);
+        public static implicit operator Polynomial<Function, T>(T[] c) => new Polynomial<Function, T>(c);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static explicit operator T[](Polynomial<Function, ScalarMap, T> p) => p.Coefficients.ToArray();
+        public static explicit operator T[](Polynomial<Function, T> p) => p.Coefficients.ToArray();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator Function(Polynomial<Function, ScalarMap, T> p) => _create(p._coefficients);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ScalarMap(Polynomial<Function, ScalarMap, T> p) => (ScalarMap)p.Evaluate;
+        public static implicit operator Function(Polynomial<Function, T> p) => _create(p._coefficients);
 
         /// <summary>
         /// Compares the two given polynomials and returns whether both are equal.
@@ -459,7 +466,7 @@ namespace Unknown6656.Mathematics.Analysis
         /// <param name="p2">Second polynomial</param>
         /// <returns>Comparison result</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator ==(Polynomial<Function, ScalarMap, T> p1, Polynomial<Function, ScalarMap, T> p2) => p1.Is(p2);
+        public static bool operator ==(Polynomial<Function, T> p1, Polynomial<Function, T> p2) => p1.Is(p2);
 
         /// <summary>
         /// Compares the two given polynomials and returns whether both are not equal to each other.
@@ -468,7 +475,7 @@ namespace Unknown6656.Mathematics.Analysis
         /// <param name="p2">Second polynomial</param>
         /// <returns>Comparison result</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(Polynomial<Function, ScalarMap, T> p1, Polynomial<Function, ScalarMap, T> p2) => !p1.Is(p2);
+        public static bool operator !=(Polynomial<Function, T> p1, Polynomial<Function, T> p2) => !p1.Is(p2);
 
         /// <summary>
         /// Represents the identity-function
@@ -476,7 +483,7 @@ namespace Unknown6656.Mathematics.Analysis
         /// <param name="p">Polynomial</param>
         /// <returns>Unchanged polynomial</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Function operator +(Polynomial<Function, ScalarMap, T> p) => p;
+        public static Function operator +(Polynomial<Function, T> p) => p;
 
         /// <summary>
         /// Negates the given polynomial by negating each coefficient
@@ -484,13 +491,13 @@ namespace Unknown6656.Mathematics.Analysis
         /// <param name="p">Polynomial</param>
         /// <returns>Negated polynomial</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Function operator -(Polynomial<Function, ScalarMap, T> p) => p.Negate();
+        public static Function operator -(Polynomial<Function, T> p) => p.Negate();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Function operator ++(Polynomial<Function, ScalarMap, T> p) => p.Increment();
+        public static Function operator ++(Polynomial<Function, T> p) => p.Increment();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Function operator --(Polynomial<Function, ScalarMap, T> p) => p.Decrement();
+        public static Function operator --(Polynomial<Function, T> p) => p.Decrement();
 
         /// <summary>
         /// Performs the addition of two polynomials by adding their respective coefficients.
@@ -499,7 +506,7 @@ namespace Unknown6656.Mathematics.Analysis
         /// <param name="p2">Second polynomial</param>
         /// <returns>Addition result</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Function operator +(Polynomial<Function, ScalarMap, T> p1, Polynomial<Function, ScalarMap, T> p2) => p1.Add(p2);
+        public static Function operator +(Polynomial<Function, T> p1, Polynomial<Function, T> p2) => p1.Add(p2);
 
         /// <summary>
         /// Performs the subtraction of two polynomials by subtracting their respective coefficients.
@@ -508,7 +515,7 @@ namespace Unknown6656.Mathematics.Analysis
         /// <param name="p2">Second polynomial</param>
         /// <returns>Subtraction result</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Function operator -(Polynomial<Function, ScalarMap, T> p1, Polynomial<Function, ScalarMap, T> p2) => p1.Subtract(p2);
+        public static Function operator -(Polynomial<Function, T> p1, Polynomial<Function, T> p2) => p1.Subtract(p2);
 
         /*
         /// <summary>
@@ -535,7 +542,7 @@ namespace Unknown6656.Mathematics.Analysis
         /// <param name="p2">Second polynomial</param>
         /// <returns>Multiplication result</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Function operator *(Polynomial<Function, ScalarMap, T> p1, Polynomial<Function, ScalarMap, T> p2) => p1.Multiply(p2);
+        public static Function operator *(Polynomial<Function, T> p1, Polynomial<Function, T> p2) => p1.Multiply(p2);
 
         /// <summary>
         /// Raises the given polynomial to the given (non-negative) power
@@ -544,7 +551,7 @@ namespace Unknown6656.Mathematics.Analysis
         /// <param name="e">Exponent</param>
         /// <returns>Result</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Function operator ^(Polynomial<Function, ScalarMap, T> p, int e) => p.Power(e);
+        public static Function operator ^(Polynomial<Function, T> p, int e) => p.Power(e);
 
         /// <summary>
         /// Performs the scalar division by dividing each of the given polynomial's coefficient by the given scalar value.
@@ -553,7 +560,7 @@ namespace Unknown6656.Mathematics.Analysis
         /// <param name="f">Scalar divisor</param>
         /// <returns>Division result</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Function operator /(Polynomial<Function, ScalarMap, T> p, T f) => p.Divide(f);
+        public static Function operator /(Polynomial<Function, T> p, T f) => p.Divide(f);
 
         /// <summary>
         /// Performs the polynomial long division and returns the quotient
@@ -562,7 +569,7 @@ namespace Unknown6656.Mathematics.Analysis
         /// <param name="p2">Second polynomial</param>
         /// <returns>Quotient</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Function operator /(Polynomial<Function, ScalarMap, T> p1, Polynomial<Function, ScalarMap, T> p2) => p1.Divide(p2);
+        public static Function operator /(Polynomial<Function, T> p1, Polynomial<Function, T> p2) => p1.Divide(p2);
 
         /// <summary>
         /// Performs the polynomial long division and returns the remainder
@@ -571,7 +578,7 @@ namespace Unknown6656.Mathematics.Analysis
         /// <param name="p2">Second polynomial</param>
         /// <returns>Remainder</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Function operator %(Polynomial<Function, ScalarMap, T> p1, Polynomial<Function, ScalarMap, T> p2) => p1.Modulus(p2);
+        public static Function operator %(Polynomial<Function, T> p1, Polynomial<Function, T> p2) => p1.Modulus(p2);
 
         /// <summary>
         /// <b>Increaces</b> the polynomial's degree by the given amount <paramref name="a"/> (equivalent to multiplying it with X^a). This is NOT equal to computing the polynomial's integral.
@@ -580,7 +587,7 @@ namespace Unknown6656.Mathematics.Analysis
         /// <param name="a">Increacement 'amount'</param>
         /// <returns>Output polynomial</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Function operator >>(Polynomial<Function, ScalarMap, T> p, int a) => a switch
+        public static Function operator >>(Polynomial<Function, T> p, int a) => a switch
         {
             0 => (Function)p,
             < 0 => p.DecreaseDegree(-a),
@@ -594,7 +601,7 @@ namespace Unknown6656.Mathematics.Analysis
         /// <param name="a">Decreacement 'amount'</param>
         /// <returns>Output polynomial</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Function operator <<(Polynomial<Function, ScalarMap, T> p, int a) => a switch
+        public static Function operator <<(Polynomial<Function, T> p, int a) => a switch
         {
             0 => (Function)p,
             < 0 => p.IncreaseDegree(-a),
@@ -605,15 +612,19 @@ namespace Unknown6656.Mathematics.Analysis
     }
 
     public class ComplexPolynomial
-        : Polynomial<ComplexPolynomial, ComplexMap, Complex>
+        : Polynomial<ComplexPolynomial, Complex>
     {
         public ComplexPolynomial(params Complex[] coefficients)
             : base(coefficients)
         {
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override IEnumerable<Complex> Solve(Complex y) => throw new NotImplementedException(); // TODO : solve complexpolynomial
+        public virtual YValueFinder<Complex> CreateZeroPointFinder() => new YValueFinder<Complex>(this, Complex.Zero);
+
+        public override IEnumerable<Complex> Solve(Complex y) => Solve(y, PSOSolverConfiguration<Complex>.CreateDefault(Complex.Zero));
+
+        public IEnumerable<Complex> Solve(Complex y, PSOSolverConfiguration<Complex> configuration) =>
+            new[] { CreateZeroPointFinder().CreateSolver(configuration).Solve().OptimalSolution };
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override Complex Evaluate(Complex x)
@@ -633,16 +644,13 @@ namespace Unknown6656.Mathematics.Analysis
     }
 
     public class Polynomial<T>
-        : Polynomial<Polynomial<T>, ScalarMap<T>, Scalar<T>>
+        : Polynomial<Polynomial<T>, Scalar<T>>
         where T : unmanaged, IComparable<T>
     {
         public Polynomial(params Scalar<T>[] coefficients)
             : base(coefficients)
         {
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override IEnumerable<Scalar<T>> Solve(Scalar<T> y) => throw new NotImplementedException(); // TODO : solve polynomial<T>
 
         // TODO : parse
 
@@ -664,7 +672,7 @@ namespace Unknown6656.Mathematics.Analysis
     }
 
     public partial class Polynomial
-        : Polynomial<Polynomial, ScalarMap, Scalar>
+        : Polynomial<Polynomial, Scalar>
     {
         public Polynomial(params Scalar[] coefficients)
             : base(coefficients)
@@ -694,8 +702,8 @@ namespace Unknown6656.Mathematics.Analysis
             //if (Degree < 3)
             //    return ZeroPoints.OrderBy(p => Abs(p - x)).First();
 
-            FunctionCache<Polynomial, Scalar, Scalar> f = Cached;
-            FunctionCache<Polynomial, Scalar, Scalar> δ = Derivative.Cached;
+            var f = Cached;
+            var δ = Derivative.Cached;
             int iterations = 0;
             double epsilon;
 
@@ -769,24 +777,26 @@ namespace Unknown6656.Mathematics.Analysis
                             if (c.IsReal)
                                 yield return c.Real;
                         }
-                    else if (deg == 4)
-                    {
-                        // solve for 
-                        // 0 = ax⁴ + bx³ + cx² + dx + e
-                        //   = (((ax + b)x + c)x + d)x + e
-
-                        throw new NotImplementedException(); // TODO
-                    }
+                    // else if (deg == 4)
+                    //      solve for 
+                    //      0 = ax⁴ + bx³ + cx² + dx + e
+                    //        = (((ax + b)x + c)x + d)x + e
                     else
-                    {
-                        throw new NotImplementedException(); // TODO
-                    }
+                        foreach (Scalar s in SolvePSO(y))
+                            yield return s;
                 }
             }
 
             foreach (Scalar x in __solve().Distinct())
                 yield return x;
         }
+
+        public virtual YValueFinder<Scalar> CreateZeroPointFinder() => new YValueFinder<Scalar>(this, Scalar.Zero);
+
+        public IEnumerable<Scalar> SolvePSO(Scalar y) => SolvePSO(y, PSOSolverConfiguration<Scalar>.CreateDefault(Scalar.Zero));
+
+        public IEnumerable<Scalar> SolvePSO(Scalar y, PSOSolverConfiguration<Scalar> configuration) =>
+            new[] { CreateZeroPointFinder().CreateSolver(configuration).Solve().OptimalSolution };
 
         /// <summary>
         /// Solves a cubic polynomials of the form 'AX³ + BX² + CX + D'.
@@ -856,7 +866,7 @@ namespace Unknown6656.Mathematics.Analysis
         }
 
         public static Polynomial GetChebychevInterpolationPolynomial<Func>(Func function, int degree)
-            where Func : AbstractFieldFunction<Func, Scalar>
+            where Func : Function<Func, Scalar, Scalar>
         {
             (Scalar x, Scalar y)[] points = new (Scalar, Scalar)[degree + 1];
             Scalar c = Scalar.Pi / (2 * points.Length + 2);
@@ -980,7 +990,7 @@ namespace Unknown6656.Mathematics.Analysis
             if (str.Length > 0)
                 throw new ArgumentException($"Unparsable symbol sequence '{str}'.");
 
-            return Polynomial.Zero.Add(terms.ToArray());
+            return Zero.Add(terms.ToArray());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1004,56 +1014,56 @@ namespace Unknown6656.Mathematics.Analysis
         public static explicit operator Polynomial(string str) => Parse(str);
     }
 
-//  public class BernsteinPolynomial
-//      : Polynomial
-//  {
-//      private readonly long _c, _n, _v;
-//
-//
-//      public override BernsteinPolynomial Derivative
-//      {
-//          get
-//          {
-//              BernsteinPolynomial bs1 = new BernsteinPolynomial(_v - 1, _n - 1);
-//              BernsteinPolynomial bs2 = new BernsteinPolynomial(_v, _n - 1);
-//
-//              return new DoubleFunction(x => _n * (bs1[x] - bs2[x]));
-//          }
-//      }
-//
-//      public IDoubleFunction Integral
-//      {
-//          get
-//          {
-//              List<BernsteinPolynomial> polynomials = new List<BernsteinPolynomial>();
-//
-//              for (long j = _v + 1; j < _n + 1; ++j)
-//                  polynomials.Add(new BernsteinPolynomial(j, _n + 1));
-//
-//              return new DoubleFunction(x => polynomials.Select(b => b[x]).Sum() / (_n + 1));
-//          }
-//      }
-//
-//      FunctionCache<BernsteinPolynomial, scalar, scalar> IContinuousFunction<BernsteinPolynomial>.Cached => new FunctionCache<BernsteinPolynomial, scalar, scalar>(this);
-//
-//
-//      private BernsteinPolynomial(long v, long n, long c)
-//      {
-//          if (n < 0)
-//              throw new ArgumentException($"The parameter {nameof(n)} must be equal to or greater than zero.");
-//          else if (v > n)
-//              throw new ArgumentException($"The parameter {nameof(v)} must be smaller or equal to the parameter {nameof(n)}.");
-//
-//          _v = v;
-//          _n = n;
-//          _c = c;
-//      }
-//
-//      public BernsteinPolynomial(long v, long n)
-//          : this(v, n, MathExtensions.BinomialCoefficient(n, v))
-//      {
-//      }
-//
-//      public override double Evaluate(double x) => _c * x.FastPow(_v) * (1 - x).FastPow(_n - _v);
-//  }
+    //  public class BernsteinPolynomial
+    //      : Polynomial
+    //  {
+    //      private readonly long _c, _n, _v;
+    //
+    //
+    //      public override BernsteinPolynomial Derivative
+    //      {
+    //          get
+    //          {
+    //              BernsteinPolynomial bs1 = new BernsteinPolynomial(_v - 1, _n - 1);
+    //              BernsteinPolynomial bs2 = new BernsteinPolynomial(_v, _n - 1);
+    //
+    //              return new DoubleFunction(x => _n * (bs1[x] - bs2[x]));
+    //          }
+    //      }
+    //
+    //      public IDoubleFunction Integral
+    //      {
+    //          get
+    //          {
+    //              List<BernsteinPolynomial> polynomials = new List<BernsteinPolynomial>();
+    //
+    //              for (long j = _v + 1; j < _n + 1; ++j)
+    //                  polynomials.Add(new BernsteinPolynomial(j, _n + 1));
+    //
+    //              return new DoubleFunction(x => polynomials.Select(b => b[x]).Sum() / (_n + 1));
+    //          }
+    //      }
+    //
+    //      FunctionCache<BernsteinPolynomial, scalar, scalar> IContinuousFunction<BernsteinPolynomial>.Cached => new FunctionCache<BernsteinPolynomial, scalar, scalar>(this);
+    //
+    //
+    //      private BernsteinPolynomial(long v, long n, long c)
+    //      {
+    //          if (n < 0)
+    //              throw new ArgumentException($"The parameter {nameof(n)} must be equal to or greater than zero.");
+    //          else if (v > n)
+    //              throw new ArgumentException($"The parameter {nameof(v)} must be smaller or equal to the parameter {nameof(n)}.");
+    //
+    //          _v = v;
+    //          _n = n;
+    //          _c = c;
+    //      }
+    //
+    //      public BernsteinPolynomial(long v, long n)
+    //          : this(v, n, MathExtensions.BinomialCoefficient(n, v))
+    //      {
+    //      }
+    //
+    //      public override double Evaluate(double x) => _c * x.FastPow(_v) * (1 - x).FastPow(_n - _v);
+    //  }
 }

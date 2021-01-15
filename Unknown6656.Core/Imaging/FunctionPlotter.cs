@@ -57,7 +57,7 @@ namespace Unknown6656.Imaging
 
     public abstract class FunctionPlotter<Func, Value>
         : FunctionPlotter
-        where Func : IRelation<Func, Value>
+        where Func : FieldFunction<Value>
         where Value : unmanaged, IField<Value>, IComparable<Value>
     {
         #region PROPERTIES / FIELDS
@@ -426,7 +426,7 @@ namespace Unknown6656.Imaging
 
     public abstract class MultiFunctionPlotter<Func, Value>
         : FunctionPlotter<Func, Value>
-        where Func : IRelation<Func, Value>
+        where Func : FieldFunction<Value>
         where Value : unmanaged, IField<Value>, IComparable<Value>
     {
         private int? _selidx = null;
@@ -452,7 +452,7 @@ namespace Unknown6656.Imaging
 
     public class CartesianFunctionPlotter<Func>
         : MultiFunctionPlotter<Func, Scalar>
-        where Func : IRelation<Func, Scalar>
+        where Func : FieldFunction<Scalar>
     {
         public CartesianFunctionPlotter(params (Func Function, RGBAColor Color)[] functions)
             : base(functions)
@@ -506,7 +506,7 @@ namespace Unknown6656.Imaging
 
     public class PolarFunctionPlotter<Func>
         : MultiFunctionPlotter<Func, Scalar>
-        where Func : IRelation<Func, Scalar>
+        where Func : FieldFunction<Scalar>
     {
         public Scalar MinAngle { set; get; } = Scalar.Zero;
         public Scalar MaxAngle { set; get; } = Scalar.Tau * 4;
@@ -575,7 +575,7 @@ namespace Unknown6656.Imaging
 
     public class ComplexFunctionPlotter<Func>
         : FunctionPlotter<Func, Complex>
-        where Func : IRelation<Func, Complex>
+        where Func : FieldFunction<Complex>
     {
         public ComplexColorStyle Style { set; get; } = ComplexColorStyle.Wrapped;
         public bool PhaseLinesVisible { set; get; } = false;
@@ -663,14 +663,14 @@ namespace Unknown6656.Imaging
     }
 
     public class Transformation2DPlotter<Func>
-        : ComplexFunctionPlotter<ComplexMap>
-        where Func : IRelation<Func, Vector2>
+        : ComplexFunctionPlotter<ComplexFunction>
+        where Func : Function<Vector2>
     {
         public new Func Function { get; }
 
 
         public Transformation2DPlotter(Func function)
-            : base(new ComplexMap(c => function[c])) => Function = function;
+            : base(new ComplexFunction(c => function[c])) => Function = function;
     }
 
     public enum AxisType

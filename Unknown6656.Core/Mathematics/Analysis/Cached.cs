@@ -12,9 +12,9 @@ using static System.Math;
 namespace Unknown6656.Mathematics.Analysis
 {
     public class FunctionCache<F, I, V>
-        : IRelation<F, I, V>
+        : Function<F, I, V>
         , IDisposable
-        where F : IRelation<F, I, V>
+        where F : Function<F, I, V>
         where I : IEquatable<I>
     {
         public const uint DEFAULT_CACHE_SIZE = 1024 * 1024 * 256;
@@ -27,20 +27,16 @@ namespace Unknown6656.Mathematics.Analysis
 
         public int UsedCacheEntries => _valdic.Count;
 
-        public V this[I x] => Evaluate(x);
-
         public int CacheSize { get; }
 
         public F Function { get; }
 
+#pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
         [Obsolete("Use the variable directly instead.", true)]
-        public FunctionCache<F, I, V> Cached => throw new InvalidOperationException("A function cache cannot be further cached.");
+        public override FunctionCache<F, I, V> Cached => throw new InvalidOperationException("A function cache cannot be further cached.");
+#pragma warning restore CS0809
 
-        public F AdditiveInverse => Negate();
-
-        public bool IsZero => Function.IsZero;
-
-        public bool IsNonZero => !IsZero;
+        public override bool IsZero => Function.IsZero;
 
 
         ~FunctionCache() => Dispose();
@@ -80,7 +76,7 @@ namespace Unknown6656.Mathematics.Analysis
                 _valdic.Clear();
         }
 
-        public virtual V Evaluate(I x)
+        public override V Evaluate(I x)
         {
             if (_valdic.TryGetValue(x, out V v))
                 return v;
@@ -101,23 +97,19 @@ namespace Unknown6656.Mathematics.Analysis
             }
         }
 
-        public F Negate() => Function.Negate().Cached;
+        public override F Negate() => Function.Negate().Cached;
 
-        public F Add(in F second) => Function.Add(in second).Cached;
+        public override F Add(in F second) => Function.Add(in second).Cached;
 
-        public F Add(params F[] others) => others.Aggregate(this, (x, y) => x.Add(in y));
+        public override F Add(params F[] others) => others.Aggregate(this, (x, y) => x.Add(in y));
 
-        public F Subtract(in F second) => Function.Subtract(in second).Cached;
+        public override F Subtract(in F second) => Function.Subtract(in second).Cached;
 
-        public F Subtract(params F[] others) => others.Aggregate(this, (x, y) => x.Subtract(in y));
+        public override F Subtract(params F[] others) => others.Aggregate(this, (x, y) => x.Subtract(in y));
 
-        public bool Is(F o) => Function.Is(o);
+        public override bool Equals(F other) => Function.Is(other);
 
-        public bool IsNot(F o) => !Is(o);
-
-        public bool Equals(F other) => Is(other);
-
-        public override bool Equals(object? other) => other is F o && Equals(o);
+        //public override bool Equals(object? other) => other is F o && Equals(o);
 
         public override int GetHashCode() => Function.GetHashCode();
 

@@ -10,7 +10,6 @@ using Unknown6656.Mathematics.Analysis;
 
 
 // TODO : implement from Unknown6656.Mathematics.Analysis.DensityFunction<T>
-// TODO : implement from Unknown6656.Mathematics.*.ScalarMap
 
 
 namespace Unknown6656.Mathematics.Statistics

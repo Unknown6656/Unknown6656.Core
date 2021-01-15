@@ -29,8 +29,8 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         : IScalar<Scalar>
         , Algebra<Scalar>.IMatrix<Scalar, Scalar>
         , Algebra<Scalar>.IVector<Scalar, Scalar>
-        , Algebra<Scalar, Polynomial, ScalarMap>.IComposite1D
-        , Algebra<Scalar, Polynomial, ScalarMap>.IMatrix<Scalar, MatrixNM>
+        , Algebra<Scalar, Polynomial>.IComposite1D
+        , Algebra<Scalar, Polynomial>.IMatrix<Scalar, MatrixNM>
         , IReadonlyNative<Scalar>
         , IComparable<Scalar>
         , IEquatable<Scalar>
@@ -43,7 +43,12 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// <inheritdoc cref="IMatrix{M,S}.Size"/>
         public const int Dimension = 1;
 
-        private static Scalar _cepsilon = 1e-9;
+        /// <summary>
+        /// The default value for <see cref="ComputationalEpsilon"/> (1e-9).
+        /// </summary>
+        public const double DefaultComputationalEpsilon = 1e-9;
+
+        private static Scalar _cepsilon = DefaultComputationalEpsilon;
 
         #endregion
         #region STATIC PROPERTIES
@@ -601,10 +606,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         readonly Scalar Algebra<Scalar>.IMatrix<Scalar, Scalar>.SetRow(int row, in Scalar vector) => this[0, row, vector];
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        readonly MatrixNM Algebra<Scalar, Polynomial, ScalarMap>.IMatrix<Scalar, MatrixNM>.GetRows(Range rows) => (this as Algebra<Scalar, Polynomial, ScalarMap>.IMatrix<Scalar, MatrixNM>).GetRegion(0..1, rows);
+        readonly MatrixNM Algebra<Scalar, Polynomial>.IMatrix<Scalar, MatrixNM>.GetRows(Range rows) => (this as Algebra<Scalar, Polynomial>.IMatrix<Scalar, MatrixNM>).GetRegion(0..1, rows);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        readonly Scalar Algebra<Scalar, Polynomial, ScalarMap>.IMatrix<Scalar, MatrixNM>.SetRows(Range rows, in MatrixNM values) => (this as Algebra<Scalar, Polynomial, ScalarMap>.IMatrix<Scalar, MatrixNM>).SetRegion(0..1, rows, values);
+        readonly Scalar Algebra<Scalar, Polynomial>.IMatrix<Scalar, MatrixNM>.SetRows(Range rows, in MatrixNM values) => (this as Algebra<Scalar, Polynomial>.IMatrix<Scalar, MatrixNM>).SetRegion(0..1, rows, values);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         readonly Scalar Algebra<Scalar>.IMatrix<Scalar, Scalar>.GetColumn(int column) => this[column];
@@ -613,13 +618,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         readonly Scalar Algebra<Scalar>.IMatrix<Scalar, Scalar>.SetColumn(int column, in Scalar vector) => this[column, vector];
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        readonly MatrixNM Algebra<Scalar, Polynomial, ScalarMap>.IMatrix<Scalar, MatrixNM>.GetColumns(Range columns) => (this as Algebra<Scalar, Polynomial, ScalarMap>.IMatrix<Scalar, MatrixNM>).GetRegion(columns, 0..1);
+        readonly MatrixNM Algebra<Scalar, Polynomial>.IMatrix<Scalar, MatrixNM>.GetColumns(Range columns) => (this as Algebra<Scalar, Polynomial>.IMatrix<Scalar, MatrixNM>).GetRegion(columns, 0..1);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        readonly Scalar Algebra<Scalar, Polynomial, ScalarMap>.IMatrix<Scalar, MatrixNM>.SetColumns(Range columns, in MatrixNM values) => (this as Algebra<Scalar, Polynomial, ScalarMap>.IMatrix<Scalar, MatrixNM>).SetRegion(columns, 0..1, values);
+        readonly Scalar Algebra<Scalar, Polynomial>.IMatrix<Scalar, MatrixNM>.SetColumns(Range columns, in MatrixNM values) => (this as Algebra<Scalar, Polynomial>.IMatrix<Scalar, MatrixNM>).SetRegion(columns, 0..1, values);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        readonly MatrixNM Algebra<Scalar, Polynomial, ScalarMap>.IMatrix<Scalar, MatrixNM>.GetRegion(Range columns, Range rows)
+        readonly MatrixNM Algebra<Scalar, Polynomial>.IMatrix<Scalar, MatrixNM>.GetRegion(Range columns, Range rows)
         {
             if (columns.GetOffsetAndLength(1) is (0, 1))
                 if (rows.GetOffsetAndLength(1) is (0, 1))
@@ -631,7 +636,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        readonly Scalar Algebra<Scalar, Polynomial, ScalarMap>.IMatrix<Scalar, MatrixNM>.SetRegion(Range columns, Range rows, in MatrixNM values)
+        readonly Scalar Algebra<Scalar, Polynomial>.IMatrix<Scalar, MatrixNM>.SetRegion(Range columns, Range rows, in MatrixNM values)
         {
             if (columns.GetOffsetAndLength(1) is (0, 1))
                 if (rows.GetOffsetAndLength(1) is (0, 1))
@@ -1014,8 +1019,8 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         : IScalar<Scalar<T>>
         , Algebra<Scalar<T>>.IMatrix<Scalar<T>, Scalar<T>>
         , Algebra<Scalar<T>>.IVector<Scalar<T>, Scalar<T>>
-        , Algebra<Scalar<T>, Polynomial<T>, ScalarMap<T>>.IComposite1D
-        , Algebra<Scalar<T>, Polynomial<T>, ScalarMap<T>>.IMatrix<Scalar<T>, MatrixNM<T>>
+        , Algebra<Scalar<T>, Polynomial<T>>.IComposite1D
+        , Algebra<Scalar<T>, Polynomial<T>>.IMatrix<Scalar<T>, MatrixNM<T>>
         , IComparable<Scalar<T>>
         , IEquatable<Scalar<T>>
         , IComparable
@@ -1157,7 +1162,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         readonly bool Algebra<Scalar<T>>.IMatrix.IsSignatureMatrix => Abs().IsOne;
 
-        readonly Polynomial<T> Algebra<Scalar<T>, Polynomial<T>, ScalarMap<T>>.IMatrix.CharacteristicPolynomial => new Polynomial<T>(this, NegativeOne);
+        readonly Polynomial<T> Algebra<Scalar<T>, Polynomial<T>>.IMatrix.CharacteristicPolynomial => new Polynomial<T>(this, NegativeOne);
 
         readonly Scalar<T>[] Algebra<Scalar<T>>.IMatrix.Eigenvalues => IsZero ? Array.Empty<Scalar<T>>() : new[] { this };
 
@@ -1529,12 +1534,12 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         readonly Scalar<T> Algebra<Scalar<T>>.IMatrix<Scalar<T>, Scalar<T>>.SetRow(int row, in Scalar<T> vector) => (this as Algebra<Scalar<T>>.IMatrix<Scalar<T>, Scalar<T>>)[0, row, vector];
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        readonly MatrixNM<T> Algebra<Scalar<T>, Polynomial<T>, ScalarMap<T>>.IMatrix<Scalar<T>, MatrixNM<T>>.GetRows(Range rows) =>
-            (this as Algebra<Scalar<T>, Polynomial<T>, ScalarMap<T>>.IMatrix<Scalar<T>, MatrixNM<T>>).GetRegion(0..1, rows);
+        readonly MatrixNM<T> Algebra<Scalar<T>, Polynomial<T>>.IMatrix<Scalar<T>, MatrixNM<T>>.GetRows(Range rows) =>
+            (this as Algebra<Scalar<T>, Polynomial<T>>.IMatrix<Scalar<T>, MatrixNM<T>>).GetRegion(0..1, rows);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        readonly Scalar<T> Algebra<Scalar<T>, Polynomial<T>, ScalarMap<T>>.IMatrix<Scalar<T>, MatrixNM<T>>.SetRows(Range rows, in MatrixNM<T> values) =>
-            (this as Algebra<Scalar<T>, Polynomial<T>, ScalarMap<T>>.IMatrix<Scalar<T>, MatrixNM<T>>).SetRegion(0..1, rows, values);
+        readonly Scalar<T> Algebra<Scalar<T>, Polynomial<T>>.IMatrix<Scalar<T>, MatrixNM<T>>.SetRows(Range rows, in MatrixNM<T> values) =>
+            (this as Algebra<Scalar<T>, Polynomial<T>>.IMatrix<Scalar<T>, MatrixNM<T>>).SetRegion(0..1, rows, values);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         readonly Scalar<T> Algebra<Scalar<T>>.IMatrix<Scalar<T>, Scalar<T>>.GetColumn(int column) => (this as Algebra<Scalar<T>>.IMatrix<Scalar<T>, Scalar<T>>)[column];
@@ -1543,15 +1548,15 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         readonly Scalar<T> Algebra<Scalar<T>>.IMatrix<Scalar<T>, Scalar<T>>.SetColumn(int column, in Scalar<T> vector) => (this as Algebra<Scalar<T>>.IMatrix<Scalar<T>, Scalar<T>>)[column, vector];
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        readonly MatrixNM<T> Algebra<Scalar<T>, Polynomial<T>, ScalarMap<T>>.IMatrix<Scalar<T>, MatrixNM<T>>.GetColumns(Range columns) =>
-            (this as Algebra<Scalar<T>, Polynomial<T>, ScalarMap<T>>.IMatrix<Scalar<T>, MatrixNM<T>>).GetRegion(columns, 0..1);
+        readonly MatrixNM<T> Algebra<Scalar<T>, Polynomial<T>>.IMatrix<Scalar<T>, MatrixNM<T>>.GetColumns(Range columns) =>
+            (this as Algebra<Scalar<T>, Polynomial<T>>.IMatrix<Scalar<T>, MatrixNM<T>>).GetRegion(columns, 0..1);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        readonly Scalar<T> Algebra<Scalar<T>, Polynomial<T>, ScalarMap<T>>.IMatrix<Scalar<T>, MatrixNM<T>>.SetColumns(Range columns, in MatrixNM<T> values) =>
-            (this as Algebra<Scalar<T>, Polynomial<T>, ScalarMap<T>>.IMatrix<Scalar<T>, MatrixNM<T>>).SetRegion(columns, 0..1, values);
+        readonly Scalar<T> Algebra<Scalar<T>, Polynomial<T>>.IMatrix<Scalar<T>, MatrixNM<T>>.SetColumns(Range columns, in MatrixNM<T> values) =>
+            (this as Algebra<Scalar<T>, Polynomial<T>>.IMatrix<Scalar<T>, MatrixNM<T>>).SetRegion(columns, 0..1, values);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        readonly MatrixNM<T> Algebra<Scalar<T>, Polynomial<T>, ScalarMap<T>>.IMatrix<Scalar<T>, MatrixNM<T>>.GetRegion(Range columns, Range rows)
+        readonly MatrixNM<T> Algebra<Scalar<T>, Polynomial<T>>.IMatrix<Scalar<T>, MatrixNM<T>>.GetRegion(Range columns, Range rows)
         {
             if (columns.GetOffsetAndLength(1) is (0, 1))
                 if (rows.GetOffsetAndLength(1) is (0, 1))
@@ -1563,7 +1568,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        readonly Scalar<T> Algebra<Scalar<T>, Polynomial<T>, ScalarMap<T>>.IMatrix<Scalar<T>, MatrixNM<T>>.SetRegion(Range columns, Range rows, in MatrixNM<T> values)
+        readonly Scalar<T> Algebra<Scalar<T>, Polynomial<T>>.IMatrix<Scalar<T>, MatrixNM<T>>.SetRegion(Range columns, Range rows, in MatrixNM<T> values)
         {
             if (columns.GetOffsetAndLength(1) is (0, 1))
                 if (rows.GetOffsetAndLength(1) is (0, 1))

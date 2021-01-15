@@ -58,10 +58,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
     [StructLayout(LayoutKind.Sequential), NativeCppClass, Serializable, CLSCompliant(false)]
     public unsafe readonly /* ref */ partial struct <#=typename#>
         : Algebra<Scalar>.IMatrix<<#=vecname#>, <#=typename#>>
-        , Algebra<Scalar, Polynomial, ScalarMap>.IMatrix<<#=typename#>, MatrixNM>
+        , Algebra<Scalar, Polynomial>.IMatrix<<#=typename#>, MatrixNM>
         , IReadonlyNative<<#=typename#>>
         , IEnumerable<<#=vecname#>>
-        , IRelation<<#=typename#>, <#=vecname#>>
+        // , Function<<#=typename#>, <#=vecname#>>
         , IEnumerable<Scalar>
         , IComparable<<#=typename#>>
         , IComparable
@@ -106,8 +106,6 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         #endregion
         #region INDEXERS
-
-        readonly <#=vecname#> IRelation<<#=typename#>, <#=vecname#>, <#=vecname#>>.this[<#=vecname#> x] => ((IRelation<<#=typename#>, <#=vecname#>, <#=vecname#>>)this).Evaluate(x);
 
         /// <summary>
         /// Gets the matrix' column vector at the given index.
@@ -254,8 +252,6 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 <#
         }
 #>
-
-        readonly FunctionCache<<#=typename#>, <#=vecname#>, <#=vecname#>> IRelation<<#=typename#>, <#=vecname#>, <#=vecname#>>.Cached => new FunctionCache<<#=typename#>, <#=vecname#>, <#=vecname#>>(this);
 
         #endregion
         #region INSTANCE PROPERTIES : TRANSFORMATIONS
@@ -963,9 +959,6 @@ namespace Unknown6656.Mathematics.LinearAlgebra
             return true;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        readonly <#=vecname#> IRelation<<#=typename#>, <#=vecname#>, <#=vecname#>>.Evaluate(<#=vecname#> x) => Multiply(x);
-
         /// <summary>
         /// Returns a set of the first <#=dim-2#> principal submatrices.
         /// </summary>
@@ -1590,11 +1583,11 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// </summary>
         /// <returns>The isomorphism.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly VectorFieldFunction<<#=vecname#>, Scalar> ToIsomorphism()
+        public readonly Function<<#=vecname#>> ToIsomorphism()
         {
             <#=typename#> copy = this;
 
-            return new(v => copy.Multiply(v));
+            return new Function<<#=vecname#>>(v => copy.Multiply(v));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2074,7 +2067,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public static implicit operator CompressedStorageFormat<Scalar>(in <#=typename#> m) => CompressedStorageFormat<Scalar>.FromMatrix<<#=typename#>>(m);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator Relation<<#=vecname#>>(in <#=typename#> m) => m.ToIsomorphism();
+        public static implicit operator Function<<#=vecname#>>(in <#=typename#> m) => m.ToIsomorphism();
 
         #endregion
 
@@ -2118,7 +2111,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
     public partial class MatrixNM
     {
-        public Algebra<Scalar, Polynomial, ScalarMap>.IMatrix Cast() => Size switch
+        public Algebra<Scalar, Polynomial>.IMatrix Cast() => Size switch
         {
             (1, 1) => this[0, 0],
          // (_, 1) => this[0],
@@ -2130,7 +2123,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 <#
     }
 #>
-            _ => new MatrixNM(this) as Algebra<Scalar, Polynomial, ScalarMap>.IMatrix
+            _ => new MatrixNM(this) as Algebra<Scalar, Polynomial>.IMatrix
         };
     }
 

@@ -26,13 +26,17 @@ using Random = Unknown6656.Mathematics.Numerics.Random;
 
 namespace MathLibrary.Tester
 {
+    using static Complex;
+
     public static class Program
     {
         public static void Main(string[] args)
         {
             // Console.OutputEncoding = Encoding.UTF8;
 
-            Main_PSO();
+            Complex c = 2 + 5 * i;
+
+            //Main_PSO();
             return;
             Main_Math();
             Main_BMP1();
@@ -44,22 +48,24 @@ namespace MathLibrary.Tester
             Main_Graph();
         }
 
-        class pso_problem : PSOProblem<Scalar>
-        {
-            public override int Dimensionality => 1;
-            public override Scalar GetValue(VectorN position) { Scalar x = position[0]; return (x - 3).Tanh() + x * x - x * x * x; }
-            public override bool IsValidSearchPosition(VectorN position) => true;
-        }
-        private static void Main_PSO()
-        {
-            var p = new pso_problem();
-            var c = new PSOSolverConfiguration
-            {
-            };
-            var s = p.CreateSolver(c);
-            var o = s.Solve();
-            var v = o.OptimalValue;
-        }
+        //class pso_problem : PSOProblem<Scalar>
+        //{
+        //    public override int Dimensionality => 1;
+        //    public override Scalar GetValue(VectorN position) { Scalar x = position[0]; return (x - 3).Tanh() + x * x - x * x * x; }
+        //    public override bool IsValidSearchPosition(VectorN position) => true;
+        //}
+        //private static void Main_PSO()
+        //{
+        //    var pp = new Unknown6656.Computation.ParticleSwarmOptimization.
+
+        //    var p = new pso_problem();
+        //    var c = new PSOSolverConfiguration
+        //    {
+        //    };
+        //    var s = p.CreateSolver(c);
+        //    var o = s.Solve();
+        //    var v = o.OptimalValue;
+        //}
 
         private static void Main_Statistics()
         {
@@ -187,8 +193,8 @@ namespace MathLibrary.Tester
                     double time = index / total;
                     using Graphics g = Graphics.FromImage(frame);
 
-                    new ComplexFunctionPlotter<ComplexMap>(
-                        new ComplexMap(c =>
+                    new ComplexFunctionPlotter<ComplexFunction>(
+                        new ComplexFunction(c =>
                         {
                             return (c * c - time) * ((c - (2, 1 - 2 * time)) ^ 2) / (c * c + (2 * time, 2 * time)) + time;
                         })

@@ -126,7 +126,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         if (crossable)
             WriteLine($"        , Algebra<Scalar>.ICrossableVector<{typename}>");
 #>
-        , Algebra<Scalar, Polynomial, ScalarMap>.IComposite1D
+        , Algebra<Scalar, Polynomial>.IComposite1D
         , IReadonlyNative<<#=typename#>>
         , IEnumerable<Scalar>
         , IComparable<<#=typename#>>

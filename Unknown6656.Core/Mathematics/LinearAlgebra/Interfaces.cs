@@ -18,6 +18,7 @@ using System;
 using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Common;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 namespace Unknown6656.Mathematics.LinearAlgebra
 {
@@ -164,19 +165,18 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         , IEquality<Group>
         where Group : INumericIGroup<Group>
     {
-#if DEFAULT_IMPL
         /// <summary>
         /// Returns the groups's zero instance based upon the presence of a static member "Zero" or "Null".
         /// <br/>
         /// This is therefore euqal to "<see cref="Group"/>.Zero" or "<see cref="Group"/>.Null".
         /// </summary>
-        [DebuggerHidden, DebuggerNonUserCode, DebuggerBrowsable(DebuggerBrowsableState.Never), EditorBrowsable(EditorBrowsableState.Never)]
-        Group ZeroElement => (from p in GetType().GetProperties(BindingFlags.Public | BindingFlags.Static)
-                              where p.Name == "Zero"
-                                 || p.Name == "Null"
-                              where typeof(INumericIGroup<Group>).IsAssignableFrom(p.PropertyType)
-                              select (Group)p.GetValue(null)).FirstOrDefault();
+        public static Group? ZeroElement { get; } = (from p in typeof(Group).GetProperties(BindingFlags.Public | BindingFlags.Static)
+                                                     where p.DeclaringType != typeof(INumericIGroup<Group>)
+                                                     where p.Name.ToLowerInvariant() is "zero" or "null" or "nullelement" or "zeroelement"
+                                                     where typeof(INumericIGroup<Group>).IsAssignableFrom(p.PropertyType)
+                                                     select (Group)p.GetValue(null)).FirstOrDefault();
 
+#if DEFAULT_IMPL
         /// <summary>
         /// <i>[AUTO-IMPLEMENTED]</i><br/>
         /// Indicates whether the current instance is equal to the zero element.
@@ -1350,12 +1350,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
     /// Represents a set of algebraic interfaces based on the given generic scalar value type and a given generic polynomial type.
     /// </summary>
     /// <typeparam name="Scalar">Generic Scalar value type</typeparam>
-    /// <typeparam name="Polynomial">Generic polynomial type</typeparam>
-    /// <typeparam name="ScalarMap">Generic scalar map type used to construct the generic <typeparamref name="Polynomial"/>-type</typeparam>
+    /// <typeparam name="Poly">Generic polynomial type</typeparam>
     /// <typeparam name="raw">The underlying generic scalar value data type</typeparam>
-    public static class Algebra<Scalar, Polynomial, ScalarMap>
-        where Polynomial : Polynomial<Polynomial, ScalarMap, Scalar>
-        where ScalarMap : ScalarMap<ScalarMap, Scalar>
+    public static class Algebra<Scalar, Poly>
+        where Poly : Polynomial<Poly, Scalar>
         where Scalar : unmanaged, IField<Scalar>, INumericRing<Scalar>
     {
         public interface IComposite1D
@@ -1367,13 +1365,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
             /// The vector <code>(a,b,c,d, ...)</code> will be translated to the polynomial <code>a + bx + cx² + dx³ + ...</code>.
             /// </summary>
             /// <returns>Polynomial</returns>
-            Polynomial ToPolynomial();
+            Poly ToPolynomial();
         }
 
         public interface IMatrix
             : Algebra<Scalar>.IMatrix
         {
-            Polynomial CharacteristicPolynomial { get; }
+            Poly CharacteristicPolynomial { get; }
         }
 
         public interface IMatrix<Matrix, SubMatrix>

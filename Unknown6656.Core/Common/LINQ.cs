@@ -13,7 +13,7 @@ using static System.Math;
 
 namespace Unknown6656.Common
 {
-    public static class LINQ
+    public static partial class LINQ
     {
 #pragma warning disable IDE1006 // naming style
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -28,12 +28,6 @@ namespace Unknown6656.Common
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static V trd<T, U, V>((T, U, V v) x) => x.v;
 #pragma warning restore IDE1006
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (T, U) Tuple<T, U>(T t, U u) => (t, u);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static (T, U, V) Tuple<T, U, V>(T t, U u, V v) => (t, u, v);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] GetEnumValues<T>() where T : Enum => Enum.GetValues(typeof(T)).Cast<object>().ToArray(v => (T)v!);
@@ -220,7 +214,7 @@ namespace Unknown6656.Common
         public static IEnumerable<U> SelectWhere<T, U>(this IEnumerable<T> coll, Func<T, bool> pred, Func<T, U> func) => coll.Where(pred).Select(func);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IEnumerable<(T Item, int Index)> WithIndex<T>(this IEnumerable<T> coll) => coll.Select(Tuple);
+        public static IEnumerable<(T Item, int Index)> WithIndex<T>(this IEnumerable<T> coll) => coll.Select(Join);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Dictionary<T, U> ToDictionary<T, U>(this IEnumerable<(T key, U value)> pairs) where T : notnull => pairs.ToDictionary(fst, snd);

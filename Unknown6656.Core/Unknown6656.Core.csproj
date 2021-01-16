@@ -34,8 +34,8 @@
         <RepositoryUrl>https://github.com/Unknown6656/Unknown6656.Core</RepositoryUrl>
         <RepositoryType>Git</RepositoryType>
         <PackageTags>unknown6656;core;library</PackageTags>
-        <Version>1.0.9.1</Version>
-        <AssemblyVersion>1.0.9.1</AssemblyVersion>
+        <Version>1.0.10</Version>
+        <AssemblyVersion>1.0.10</AssemblyVersion>
         <!--<UserSecretsId>e25c8605-a6b4-42e1-9806-2eb3ebe4aa4a</UserSecretsId>-->
     </PropertyGroup>
     <ItemGroup>
@@ -80,7 +80,7 @@
     <ItemGroup>
         <None Update="Common/Currying.tt">
             <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>Currying.cs</LastGenOutput>
+            <LastGenOutput>LINQExtensions.cs</LastGenOutput>
         </None>
         <None Update="Common/Indexer.tt">
             <Generator>TextTemplatingFileGenerator</Generator>
@@ -89,6 +89,10 @@
         <None Update="Common/DiscriminatedUnions.tt">
             <Generator>TextTemplatingFileGenerator</Generator>
             <LastGenOutput>DiscriminatedUnions.cs</LastGenOutput>
+        </None>
+        <None Update="Common\LINQExtensions.tt">
+          <LastGenOutput>LINQExtensions.cs</LastGenOutput>
+          <Generator>TextTemplatingFileGenerator</Generator>
         </None>
         <None Update="Computation\LinearEquationSolvers.tt">
           <Generator>TextTemplatingFileGenerator</Generator>
@@ -132,15 +136,20 @@
         </None>
     </ItemGroup>
     <ItemGroup>
-        <Compile Update="Common/Currying.cs">
+        <Compile Update="Common\LINQExtensions.cs">
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
-            <DependentUpon>Currying.tt</DependentUpon>
+            <DependentUpon>LINQExtensions.tt</DependentUpon>
         </Compile>
         <Compile Update="Common/DiscriminatedUnions.cs">
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
             <DependentUpon>DiscriminatedUnions.tt</DependentUpon>
+        </Compile>
+        <Compile Update="Common\Currying - Copy.cs">
+          <DependentUpon>Currying.tt</DependentUpon>
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
         </Compile>
         <Compile Update="Computation\LinearEquationSolvers.cs">
           <DesignTime>True</DesignTime>

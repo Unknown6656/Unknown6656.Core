@@ -79,6 +79,9 @@ namespace Unknown6656.Common
         public static string[] SplitIntoLines(this string input, string newline = "\n") => input.Split(newline);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string Remove(this string input, string search) => input.Replace(search, string.Empty);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ToSubScript(this string input) => input.Select(ToSubScript).StringConcat();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

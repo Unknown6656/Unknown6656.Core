@@ -15,6 +15,8 @@ using Unknown6656.Mathematics.Numerics;
 using Unknown6656.Common;
 
 using bint = System.Numerics.BigInteger;
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 namespace Unknown6656.Mathematics.LinearAlgebra
 {
@@ -64,7 +66,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         public static Scalar Sqrt2 { get; } = Math.Sqrt(2);
 
-        public static Scalar GoldenRatio { get; } = 1.6180339887498948482;
+        public static Scalar GoldenRatio { get; } = 1.618033988749894848204586834;
 
         public static Scalar IEEE754Epsilon { get; } = __scalar.Epsilon;
 
@@ -432,21 +434,21 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly bool IsBetween(Scalar min_inclusive, Scalar max_inclusive) => this >= min_inclusive && this <= max_inclusive;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly bool Is(Scalar o, Scalar tolerance)
+        public readonly bool Is(Scalar other, Scalar tolerance)
         {
-            if ((IsPositiveInfinity && o.IsPositiveInfinity) ||
-                (IsNegativeInfinity && o.IsNegativeInfinity) ||
-                (IsNaN && o.IsNaN))
+            if ((IsPositiveInfinity && other.IsPositiveInfinity) ||
+                (IsNegativeInfinity && other.IsNegativeInfinity) ||
+                (IsNaN && other.IsNaN))
                 return true;
 
-            return Subtract(o).Abs().CompareTo(tolerance) <= 0;
+            return Subtract(other).Abs().CompareTo(tolerance) <= 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly bool Is(Scalar o) => Is(o, ComputationalEpsilon);
+        public readonly bool Is([MaybeNull] Scalar other) => Is(other, ComputationalEpsilon);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly bool IsNot(Scalar o) => !Is(o);
+        public readonly bool IsNot([MaybeNull] Scalar other) => !Is(other);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly bool Equals(Scalar other) => Is(other);
@@ -482,11 +484,58 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly string ToString(string? format, IFormatProvider? prov) => Determinant.ToString(format, prov);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public string ToShortString() => ToShortString(null);
+        public readonly string ToHexString(int digits = 18) => ToString(16, digits);
+
+        public readonly string ToString(int @base, int digits = 18)
+        {
+            if (IsInteger)
+                if (@base == 16)
+                    return $"{(ulong)this:X}";
+
+            string chars = "0123456789ABCDEF"[..@base];
+            StringBuilder acc = new();
+            Scalar place = 1;
+            Scalar scalar = this;
+            bool dot = false;
+
+            if (!IsFinite)
+                return ToString();
+            else if (IsNegative)
+            {
+                acc.Append('-');
+                scalar = Abs();
+            }
+
+            while (scalar >= @base)
+            {
+                scalar /= @base;
+                place *= @base;
+            }
+
+            for (int i = 0; i < digits || place > 1; ++i)
+            {
+                if (scalar.IsZero && (dot || place < 1))
+                    break;
+                else if (place < 1 && !dot)
+                {
+                    acc.Append('.');
+                    dot = true;
+                }
+
+                acc.Append(chars[(int)scalar]);
+
+                scalar = scalar.DecimalPlaces * @base;
+                place /= @base;
+            }
+
+            return acc.ToString();
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public string ToShortString(string? format)
+        public readonly string ToShortString() => ToShortString(null);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly string ToShortString(string? format)
         {
             Scalar abs = Abs();
             string s;

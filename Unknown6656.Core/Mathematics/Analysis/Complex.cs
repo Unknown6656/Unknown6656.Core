@@ -18,7 +18,7 @@ namespace Unknown6656.Mathematics.Analysis
         : IScalar<Complex>
         , Algebra<Scalar>.IVector<Complex>
         , Algebra<Scalar, Polynomial>.IComposite1D
-     // , Algebra<Complex, ComplexPolynomial>.IComposite1D
+        // , Algebra<Complex, ComplexPolynomial>.IComposite1D
         , IReadonlyNative<Complex>
     {
         #region PRIVATE FIELDS
@@ -349,6 +349,32 @@ namespace Unknown6656.Mathematics.Analysis
             return x.Subtract(y).Multiply(i / 2);
         }
 
+        public readonly Complex Asinh() => Add(Sqrt(Power(2).Increment())[0]).Log();
+
+        public readonly Complex Acosh() => Add(Sqrt(Increment())[0] * Sqrt(Decrement())[0]).Log();
+
+        public readonly Complex Atanh() => Increment().Divide(1 - this).Log().Multiply(.5);
+
+        public readonly Complex Acot() => Scalar.PiHalf - Atan();
+
+        public readonly Complex Acoth() => Increment().Divide(Decrement()).Log().Multiply(.5);
+
+        public readonly Complex Sec() => Cos().MultiplicativeInverse;
+
+        public readonly Complex Asec() => MultiplicativeInverse.Acos();
+
+        public readonly Complex Sech() => Multiply(i).Sec();
+
+        public readonly Complex Asech() => MultiplicativeInverse.Add(MultiplicativeInverse.Increment().Sqrt()[0] * MultiplicativeInverse.Decrement().Sqrt()[0]).Log();
+
+        public readonly Complex Csc() => Sin().MultiplicativeInverse;
+
+        public readonly Complex Acsc() => MultiplicativeInverse.Asin();
+
+        public readonly Complex Csch() => Multiply(i).Csc().Multiply(i);
+
+        public readonly Complex Acsch() => MultiplicativeInverse.Add(MultiplicativeInverse.Power(2).Increment().Sqrt()[0]).Log();
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Complex Cis() => Cis(Imaginary).Multiply(Real.Exp());
 
@@ -357,6 +383,15 @@ namespace Unknown6656.Mathematics.Analysis
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Complex Log() => new Complex(Length.Log(), Argument);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Complex Log10() => Log(10);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Complex Log2() => Log(2);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Complex Log(Complex @base) => Log().Divide(@base.Log());
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Complex Abs() => new Complex(_re.Abs(), _im);
@@ -468,7 +503,7 @@ namespace Unknown6656.Mathematics.Analysis
         public static Complex Exp(Complex c) => c.Exp();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Complex Log(Complex c) => c.Log();
+        public static Complex LogE(Complex c) => c.Log();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Complex Abs(Complex c) => c.Abs();

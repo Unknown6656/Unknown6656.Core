@@ -285,12 +285,18 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar Min => Coefficients.Min();
 
         public readonly Scalar Max => Coefficients.Max();
+        
+        public readonly Scalar MaximumNorm => Coefficients.Select(Scalar.Abs).Max();
+
+        public readonly Scalar TaxicabNorm => Coefficients.Select(Scalar.Abs).Sum();
 
         public readonly Scalar SquaredNorm => Dot(this);
 
         public readonly Scalar SquaredLength => SquaredNorm;
 
         public readonly Scalar Length => SquaredNorm.Sqrt();
+
+        public readonly Scalar EucledianNorm => Length;
 
         public readonly <#=typename#> Normalized => Length is Scalar l && l.IsZero ? Zero : Divide(l);
 
@@ -463,6 +469,20 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly <#=typename#> Divide(params Scalar[] factors) => factors.Aggregate(this, (v, f) => v.Divide(f));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar ComputeNorm(VectorNorm norm) => norm switch
+        {
+            VectorNorm.EucledianNorm => EucledianNorm,
+            VectorNorm.TaxicabNorm => TaxicabNorm,
+            VectorNorm.MaximumNorm => MaximumNorm,
+        };
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar ComputePNorm(Scalar p) => Coefficients.Select(c => c.Abs().Power(p)).Sum().Power(p.MultiplicativeInverse);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar ComputeMatrixNorm(<#=matname#> matrix) => Dot(matrix.Multiply(this)).Sqrt();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly <#=typename#> ComponentwiseMultiply(in <#=typename#> second) => (<#=string.Join(", ", comps.Select(s => $"{s} * second.{s}"))#>);

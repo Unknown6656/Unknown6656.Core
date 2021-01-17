@@ -27,6 +27,8 @@ using Unknown6656.IO;
 using static System.Math;
 
 
+// TODO: schatten-p-norm
+
 namespace Unknown6656.Mathematics.LinearAlgebra
 {
 <#
@@ -228,6 +230,14 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// The matrix' trace.
         /// </summary>
         public readonly Scalar Trace => MainDiagonal.Sum;
+
+        public readonly Scalar FrobeniusNorm => Multiply(this).Trace;
+
+        public readonly Scalar SpectralNorm => Transposed.Multiply(this).Eigenvalues.Max().Sqrt();
+
+        public readonly Scalar ColumnSumNorm => Columns.Select(c => c.Select(Scalar.Abs).Sum()).Max();
+
+        public readonly Scalar RowSumNorm => Rows.Select(c => c.Select(Scalar.Abs).Sum()).Max();
 
         public readonly <#=typename#> AdditiveInverse => Negate();
 
@@ -918,6 +928,31 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly <#=typename#> Divide(Scalar factor) => Multiply(factor.Inverse);
 
+        public readonly Scalar ComputeNorm(MatrixNorm norm) => norm switch
+        {
+            MatrixNorm.EucledianNorm => FrobeniusNorm,
+            MatrixNorm.L21_Norm => ComputePQNorm(1, 2),
+            // MatrixNorm.MaxNorm => ,
+            MatrixNorm.L1_Norm => ColumnSumNorm,
+            MatrixNorm.Linf_Norm => RowSumNorm,
+            MatrixNorm.L2_Norm => SpectralNorm,
+        };
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar ComputePNorm(Scalar p) => ToArray().Select(c => c.Abs().Power(p)).Sum().Power(p.MultiplicativeInverse);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar ComputePQNorm(Scalar p, Scalar q) => Columns.Select(c => c.Select(v => v.Abs().Power(p)).Sum().Power(q / p)).Sum().Power(q.MultiplicativeInverse);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar ComputeMatrixCondition(MatrixNorm norm) => ComputeNorm(norm) * MultiplicativeInverse.ComputeNorm(norm);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar ComputePMatrixCondition(Scalar p) => ComputePNorm(p) * MultiplicativeInverse.ComputePNorm(p);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar ComputePQMatrixCondition(Scalar p, Scalar q) => ComputePQNorm(p, q) * MultiplicativeInverse.ComputePQNorm(p, q);
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly <#=typename#> ComponentwiseDivide(in <#=typename#> second) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}.ComponentwiseDivide(second._c{i})"))#>);
 
@@ -1053,9 +1088,9 @@ namespace Unknown6656.Mathematics.LinearAlgebra
             }
 
             (<#=typename#> P, <#=typename#> L, <#=typename#> U) = PLUDecompose();
-            <#=vecspace#> y = L | P * vector;
+            <#=vecspace#> y = L.Solve(P * vector);
 
-            return U | y;
+            return U.Solve(y);
 
             if (IsSymmetric && IsPositiveDefinite)
                 return new <#=vecspace#>(SolveCG(vector));
@@ -1221,6 +1256,20 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly int GetAlgebraicMulticiplity(Scalar eigenvalue) => GetEigenspace(eigenvalue).Dimension;
+
+        /// <summary>
+        /// Computes the matrices P, S, and Pn, such that the equation Pn*A*P=S is fulfilled (with A being the current matrix).
+        /// </summary>
+        /// <param name="tolerance"></param>
+        /// <returns>The matrices P, S, and Pn</returns>
+        public readonly (<#=typename#> P, <#=typename#> S, <#=typename#> Pn) Diagonalize(Scalar tolerance)
+        {
+            (<#=vecname#> v, Scalar λ)[] pairs = GetEigenpairs(tolerance);
+            <#=typename#> P = new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"pairs[{i}].v"))#>);
+            <#=typename#> S = new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"pairs[{i}].λ"))#>);
+
+            return (P, S, P.MultiplicativeInverse);
+        }
 
         /// <summary>
         /// Decomposes the current matrix (in a non-destructive fashion) into three matrices: A permutation-matrix P, an upper-triangular matrix U, and a lower-triangular matrix L.
@@ -1556,7 +1605,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 #>
 
         /// <summary>
-        /// Returns the upper-left <#=i#>x<#=i#> sub-matrix by copying all respective coefficients
+        /// Returns the upper-left <#=i#>x<#=i#> sub-matrix by copying all respective coefficients.
         /// </summary>
         /// <returns><#=i#>x<#=i#> sub-matrix</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1565,6 +1614,25 @@ namespace Unknown6656.Mathematics.LinearAlgebra
             for (int j = 0; j < i; ++j)
                 WriteLine("            " + string.Join(", ", r(0, i).Select(k => $"_c{k}[{j}]")) + (j < i - 1 ? "," : ""));
 #>
+        );
+<#
+        }
+
+        if (dim < maxdim - 1)
+        {
+#>
+
+        /// <summary>
+        /// Creates the homogeneous <#=dim+1#>x<#=dim+1#> transformation matrix from the current matrix.
+        /// </summary>
+        /// <returns>Homogeneous <#=dim+1#>x<#=dim+1#> transformation matrix.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Matrix<#=dim+1#> ToHomogeneousTransformationMatrix() => (
+<#
+            for (int i = 0; i < dim; ++i)
+                WriteLine($"            _c{i}.ToHomogeneousCoordinates(),");
+#>
+            Vector<#=dim+1#>.UnitVectors[<#=dim#>]
         );
 <#
         }

@@ -10,50 +10,44 @@ namespace Unknown6656.Common
 {
     public static class StringExtensions
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining), Obsolete]
+        [Obsolete]
         public static bool Match(this string input, string pattern, out Match match, RegexOptions options = RegexOptions.IgnoreCase | RegexOptions.Compiled) => input.Match(new Regex(pattern, options), out match);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Match(this string input, Regex regex, out Match match) => (match = regex.Match(input)).Success;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining), Obsolete]
+        [Obsolete]
         public static bool Match(this string input, string pattern, [MaybeNullWhen(false), NotNullWhen(true)] out ReadOnlyIndexer<string, string>? groups, RegexOptions options = RegexOptions.IgnoreCase | RegexOptions.Compiled) =>
             input.Match(new Regex(pattern, options), out groups);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Match(this string input, Regex regex, [MaybeNullWhen(false), NotNullWhen(true)] out ReadOnlyIndexer<string, string>? groups) =>
-            (groups = input.Match(regex, out Match m) ? new ReadOnlyIndexer<string, string>(k => m.Groups[k].ToString()) : null) is { };
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining), Obsolete]
+        [Obsolete]
         public static bool Match(this string input, Dictionary<string, Action<Match>> patterns) => input.Match(patterns.ToArray(kvp => (kvp.Key, kvp.Value)));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Match(this string input, Dictionary<Regex, Action<Match>> patterns) => input.Match(patterns.ToArray(kvp => (kvp.Key, kvp.Value)));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining), Obsolete]
+        [Obsolete]
         public static bool Match(this string input, params (string pattern, Action<Match> action)[] patterns) =>
             input.Match(patterns.ToArray(p => (new Regex(p.pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled), p.action)));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Match(this string input, params (Regex pattern, Action<Match> action)[] patterns) =>
-            input.Match(false, patterns.ToArray(p => (p.pattern, new Func<Match, bool>(m => { p.action(m); return true; }))));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining), Obsolete]
+        [Obsolete]
         [return: MaybeNull]
         public static T Match<T>(this string input, [MaybeNull] T @default, Dictionary<string, Func<Match, T>> patterns) =>
             Match(input, @default, patterns.ToArray(kvp => (kvp.Key, kvp.Value)));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [return: MaybeNull]
-        public static T Match<T>(this string input, [MaybeNull] T @default, Dictionary<Regex, Func<Match, T>> patterns) =>
-            Match(input, @default, patterns.ToArray(kvp => (kvp.Key, kvp.Value)));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining), Obsolete]
+        [Obsolete]
         [return: MaybeNull]
         public static T Match<T>(this string input, [MaybeNull] T @default, params (string pattern, Func<Match, T> action)[] patterns) =>
             input.Match(@default, patterns.ToArray(p => (new Regex(p.pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled), p.action)));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Match(this string input, Regex regex, out Match match) => (match = regex.Match(input)).Success;
+
+        public static bool Match(this string input, Regex regex, [MaybeNullWhen(false), NotNullWhen(true)] out ReadOnlyIndexer<string, string>? groups) =>
+            (groups = input.Match(regex, out Match m) ? new ReadOnlyIndexer<string, string>(k => m.Groups[k].ToString()) : null) is { };
+
+        public static bool Match(this string input, Dictionary<Regex, Action<Match>> patterns) => input.Match(patterns.ToArray(kvp => (kvp.Key, kvp.Value)));
+
+        public static bool Match(this string input, params (Regex pattern, Action<Match> action)[] patterns) =>
+            input.Match(false, patterns.ToArray(p => (p.pattern, new Func<Match, bool>(m => { p.action(m); return true; }))));
+
+        [return: MaybeNull]
+        public static T Match<T>(this string input, [MaybeNull] T @default, Dictionary<Regex, Func<Match, T>> patterns) =>
+            Match(input, @default, patterns.ToArray(kvp => (kvp.Key, kvp.Value)));
+
         [return: MaybeNull]
         public static T Match<T>(this string input, [MaybeNull] T @default, params (Regex pattern, Func<Match, T> action)[] patterns)
         {
@@ -64,27 +58,20 @@ namespace Unknown6656.Common
             return @default;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string RegexReplace(this string input, string pattern, string repl, RegexOptions options = RegexOptions.IgnoreCase | RegexOptions.Compiled) =>
             Regex.Replace(input, pattern, repl, options);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string RegexReplace(this string input, string pattern, MatchEvaluator repl, RegexOptions options = RegexOptions.IgnoreCase | RegexOptions.Compiled) =>
             Regex.Replace(input, pattern, repl, options);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int CountOccurences(this string input, string search) => (input.Length - input.Replace(search, "").Length) / search.Length;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string[] SplitIntoLines(this string input, string newline = "\n") => input.Split(newline);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string Remove(this string input, string search) => input.Replace(search, string.Empty);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ToSubScript(this string input) => input.Select(ToSubScript).StringConcat();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ToSuperScript(this string input) => input.Select(ToSuperScript).StringConcat();
 
         /* TODO : implement text conversions

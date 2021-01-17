@@ -99,6 +99,62 @@ namespace Unknown6656.Mathematics.LinearAlgebra
                 0, 0, 1
             );
         }
+
+        /// <summary
+        /// Creates a homogeneous matrix for a 4-corner-pin transformation for 2D vectors using the given corner pin mappings.
+        /// </summary>
+        /// <param name="corner1">The transformed position of the first corner [x=0,y=0].</param>
+        /// <param name="corner2">The transformed position of the second corner [x=1,y=0].</param>
+        /// <param name="corner3">The transformed position of the third corner [x=1,y=1].</param>
+        /// <param name="corner4">The transformed position of the fourth corner [x=0,y=1].</param>
+        /// <returns>The homogeneous transformation matrix</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Matrix3 Create4CornerPinTransform(Vector2 corner1, Vector2 corner2, Vector2 corner3, Vector2 corner4) => Create4CornerPinTransform(
+            (Vector2.Zero, corner1),
+            (Vector2.UnitX, corner2),
+            (new Vector2(1), corner3),
+            (Vector2.UnitY, corner4)
+        );
+
+        /// <summary
+        /// Creates a homogeneous matrix for a 4-corner-pin transformation for 2D vectors using the given corner pin mappings.
+        /// </summary>
+        /// <param name="corner1">A mapping for the first corner pin consisting of the original vector and target vector.</param>
+        /// <param name="corner2">A mapping for the second corner pin consisting of the original vector and target vector.</param>
+        /// <param name="corner3">A mapping for the third corner pin consisting of the original vector and target vector.</param>
+        /// <param name="corner4">A mapping for the fourth corner pin consisting of the original vector and target vector.</param>
+        /// <returns>The homogeneous transformation matrix</returns>
+        public static Matrix3 Create4CornerPinTransform((Vector2 from, Vector2 to) corner1, (Vector2 from, Vector2 to) corner2, (Vector2 from, Vector2 to) corner3, (Vector2 from, Vector2 to) corner4)
+        {
+            Matrix8 A = (
+                corner1.from.X, corner1.from.Y, 1, 0, 0, 0, -corner1.from.X * corner1.to.X, -corner1.from.Y * corner1.to.X,
+                0, 0, 0, corner1.from.X, corner1.from.Y, 1, -corner1.from.X * corner1.to.Y, -corner1.from.Y * corner1.to.Y,
+                corner2.from.X, corner2.from.Y, 1, 0, 0, 0, -corner2.from.X * corner2.to.X, -corner2.from.Y * corner2.to.X,
+                0, 0, 0, corner2.from.X, corner2.from.Y, 1, -corner2.from.X * corner2.to.Y, -corner2.from.Y * corner2.to.Y,
+                corner3.from.X, corner3.from.Y, 1, 0, 0, 0, -corner3.from.X * corner3.to.X, -corner3.from.Y * corner3.to.X,
+                0, 0, 0, corner3.from.X, corner3.from.Y, 1, -corner3.from.X * corner3.to.Y, -corner3.from.Y * corner3.to.Y,
+                corner4.from.X, corner4.from.Y, 1, 0, 0, 0, -corner4.from.X * corner4.to.X, -corner4.from.Y * corner4.to.X,
+                0, 0, 0, corner4.from.X, corner4.from.Y, 1, -corner4.from.X * corner4.to.Y, -corner4.from.Y * corner4.to.Y
+            );
+            Vector8 b = (
+                corner1.to.X,
+                corner1.to.Y,
+                corner2.to.X,
+                corner2.to.Y,
+                corner3.to.X,
+                corner3.to.Y,
+                corner4.to.X,
+                corner4.to.Y
+            );
+            VectorSpace8 s = A | b;
+            Vector8 x = s.Basis[0];
+
+            return new Matrix3(
+                x[0], x[1], x[2],
+                x[3], x[4], x[5],
+                x[6], x[7], 1
+            );
+        }
     }
 
     public partial struct Matrix4

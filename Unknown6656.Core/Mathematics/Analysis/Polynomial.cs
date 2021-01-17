@@ -983,7 +983,7 @@ namespace Unknown6656.Mathematics.Analysis
                 if (e.Length == 0)
                     e = match.ToString().ToLower().Contains('x') ? "1" : "0";
 
-                terms.Add(new Polynomial(Scalar.Parse(c)) >> int.Parse(e));
+                terms.Add(new Polynomial(Scalar.TryParse(c, out Scalar s) ? s : Scalar.Zero) >> int.Parse(e));
                 str = str[match.Length..];
             }
 

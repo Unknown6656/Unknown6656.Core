@@ -34,8 +34,8 @@
         <RepositoryUrl>https://github.com/Unknown6656/Unknown6656.Core</RepositoryUrl>
         <RepositoryType>Git</RepositoryType>
         <PackageTags>unknown6656;core;library</PackageTags>
-        <Version>1.0.10</Version>
-        <AssemblyVersion>1.0.10</AssemblyVersion>
+        <Version>1.0.11</Version>
+        <AssemblyVersion>1.0.11</AssemblyVersion>
         <!--<UserSecretsId>e25c8605-a6b4-42e1-9806-2eb3ebe4aa4a</UserSecretsId>-->
     </PropertyGroup>
     <ItemGroup>

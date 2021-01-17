@@ -32,9 +32,11 @@ namespace MathLibrary.Tester
     {
         public static void Main(string[] args)
         {
-            // Console.OutputEncoding = Encoding.UTF8;
 
-            Main_PSO();
+
+            Console.OutputEncoding = Encoding.UTF8;
+            
+            //Main_PSO();
             return;
             Main_Math();
             Main_BMP1();

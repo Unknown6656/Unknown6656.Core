@@ -17,6 +17,7 @@ using Unknown6656.Common;
 using bint = System.Numerics.BigInteger;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Unknown6656.Mathematics.LinearAlgebra
 {
@@ -51,6 +52,12 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public const double DefaultComputationalEpsilon = 1e-9;
 
         private static Scalar _cepsilon = DefaultComputationalEpsilon;
+
+        internal static readonly Regex REGEX_BIN = new Regex(@"^[+\-]?(?<num>0b[01]+|[01]+b)$", RegexOptions.Compiled);
+        internal static readonly Regex REGEX_OCT = new Regex(@"^[+\-]?(?<num>0o[0-7]+|[0-7]+o)$", RegexOptions.Compiled);
+        internal static readonly Regex REGEX_HEX = new Regex(@"^[+\-]?(?<num>0x[0-9a-f]+|[0-9a-f]+h)$", RegexOptions.Compiled);
+        internal static readonly Regex REGEX_DEC1 = new Regex(@"^[+\-]?((?<const>π|pi|τ|tau|φ|phi|e)\*?)?(?<factor>(\d*\.)?\d+(e[+\-]?\d+)?)$", RegexOptions.Compiled);
+        internal static readonly Regex REGEX_DEC2 = new Regex(@"^[+\-]?((?<factor>(\d*\.)?\d+(e[+\-]?\d+)?)\*?)?(?<const>π|pi|τ|tau|φ|phi|e)$", RegexOptions.Compiled);
 
         #endregion
         #region STATIC PROPERTIES
@@ -534,20 +541,26 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly string ToShortString() => ToShortString(null);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly string ToShortString(string? format)
         {
+            if (IsInfinity)
+                return "∞";
+            else if (IsNegativeInfinity)
+                return "-∞";
+            else if (IsNaN)
+                return "NaN";
+
             Scalar abs = Abs();
             string s;
 
             if (abs.Is(Pi))
                 s = "π";
-            else if (abs.Divide(Pi) is { IsInteger: true, IsZero: false } f)
-                s = $"{f}π";
             else if (abs.Is(e))
                 s = "e";
             else if (abs.Is(Tau))
                 s = "τ";
+            else if (abs.Divide(Pi) is { IsInteger: true, IsZero: false } f)
+                s = $"{f}π";
             else if (abs.Is(GoldenRatio))
                 s = "φ";
             else if (abs.IsPositive && abs < 2 * ComputationalEpsilon)
@@ -794,47 +807,47 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Scalar Modulus(Scalar s1, Scalar s2) => s1.Modulus(s2);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Scalar Parse(string str)
+        public static bool TryParse(string str, out Scalar scalar)
         {
-            str = str.ToLower();
+            bool success = true;
 
-            switch (str)
+            str = str.Remove("_").ToLowerInvariant().Trim();
+            scalar = Zero;
+
+            if (str.Match(REGEX_BIN, out ReadOnlyIndexer<string, string>? groups))
+                scalar = (Scalar)Convert.ToUInt64(groups["num"].Remove("0b").Remove("b"), 2);
+            else if (str.Match(REGEX_OCT, out groups))
+                scalar = (Scalar)Convert.ToUInt64(groups["num"].Remove("0o").Remove("o"), 8);
+            else if (str.Match(REGEX_HEX, out groups))
+                scalar = (Scalar)Convert.ToUInt64(groups["num"].Remove("0x").Remove("x"), 16);
+            else if (str.Match(REGEX_DEC1, out groups) || str.Match(REGEX_DEC2, out groups))
             {
-                case "e":
-                    return e;
-                case "pi" or "π":
-                    return Pi;
-                case "tau" or "τ":
-                    return Tau;
-                case "phi" or "φ":
-                    return GoldenRatio;
-                default:
-                    try
+                string @const = groups["const"];
+                string factor = groups["factor"];
+                Scalar f = One;
+
+                if (!string.IsNullOrEmpty(factor))
+                    f = (Scalar)decimal.Parse(factor, NumberStyles.Any);
+
+                if (string.IsNullOrEmpty(@const))
+                    scalar = string.IsNullOrEmpty(factor) ? Zero : f;
+                else
+                    scalar = f * (@const switch
                     {
-                        return (Scalar)decimal.Parse(str, NumberStyles.Any);
-                    }
-                    catch
-                    {
-                        return (Scalar)decimal.Parse(str, NumberStyles.HexNumber);
-                    }
+                        "" => One,
+                        "e" => e,
+                        "pi" or "π" => Pi,
+                        "tau" or "τ" => Tau,
+                        "phi" or "φ" => GoldenRatio,
+                    });
             }
-        }
+            else
+                success = false;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryParse(string str, out Scalar? s)
-        {
-            s = null;
+            if (str.StartsWith("-"))
+                scalar = scalar.Negate();
 
-            try
-            {
-                s = Parse(str);
-            }
-            catch
-            {
-            }
-
-            return s is null;
+            return success;
         }
 
         #endregion
@@ -959,7 +972,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public static explicit operator Scalar(VectorN m) => m[0];
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static explicit operator Scalar(string str) => Parse(str);
+        public static explicit operator Scalar(string str) => TryParse(str, out Scalar scalar) ? scalar : Zero;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator bint(Scalar m) => new bint(m.Determinant);

@@ -1,11 +1,13 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
+using Unknown6656.Mathematics.Numerics;
 using Unknown6656.Common;
 
 using numcplx = System.Numerics.Complex;
@@ -22,6 +24,16 @@ namespace Unknown6656.Mathematics.Analysis
         , IReadonlyNative<Complex>
     {
         #region PRIVATE FIELDS
+
+        internal static readonly string REGEX_FLOATING_NUMBER = /*lang=regex*/ @"(\d*\.)?\d+(e[+\-]?\d+)?";
+        internal static readonly string REGEX_UNSIGNED_NUMBER = /*lang=regex*/ $@"({REGEX_FLOATING_NUMBER}(\*?(π|pi|τ|tau|φ|phi|e))?|(π|pi|τ|tau|φ|phi|e)(\*?{REGEX_FLOATING_NUMBER})?|0b[01]+|[01]+b|0o[0-7]+|[0-7]+o|0x[0-9a-f]+|[0-9a-f]+h)";
+        internal static readonly string REGEX_OSIGNED_NUMBER = /*lang=regex*/ $@"([+\-]?{REGEX_UNSIGNED_NUMBER})";
+        internal static readonly string REGEX_FSIGNED_NUMBER = /*lang=regex*/ $@"([+\-]{REGEX_UNSIGNED_NUMBER})";
+
+        internal static readonly Regex REGEX_COMPLEX_1 = new Regex($@"^(?<im>{REGEX_OSIGNED_NUMBER})\*?(?<hasi>i)(?<re>{REGEX_FSIGNED_NUMBER})?$", RegexOptions.Compiled);
+        internal static readonly Regex REGEX_COMPLEX_2 = new Regex($@"^(?<imsig>[+\-]?)(?<hasi>i)((\*?(?<im>{REGEX_UNSIGNED_NUMBER}))?(?<re>{REGEX_FSIGNED_NUMBER})?)?$", RegexOptions.Compiled);
+        internal static readonly Regex REGEX_COMPLEX_3 = new Regex($@"^(?<re>{REGEX_OSIGNED_NUMBER})(?<im>{REGEX_FSIGNED_NUMBER})\*?(?<hasi>i)$", RegexOptions.Compiled);
+        internal static readonly Regex REGEX_COMPLEX_4 = new Regex($@"^(?<re>{REGEX_OSIGNED_NUMBER})(?<imsig>[+\-]?)(?<hasi>i)(\*?(?<im>{REGEX_FSIGNED_NUMBER}))?$", RegexOptions.Compiled);
 
 #pragma warning disable IDE0032
         private readonly Scalar _re;
@@ -110,6 +122,8 @@ namespace Unknown6656.Mathematics.Analysis
         public readonly bool IsNaN => _re.IsNaN && _im.IsNaN;
 
         public readonly bool IsReal => Imaginary.IsZero;
+
+        public readonly bool IsImaginary => Real.IsZero && Imaginary.IsNonZero;
 
         public readonly bool IsNormalized => Length.IsOne;
 
@@ -284,6 +298,23 @@ namespace Unknown6656.Mathematics.Analysis
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly override string ToString() => IsReal ? _re.ToString() : _re.IsZero ? $"{_im}i" : $"{_re}{(_im < 0 ? '-' : '+')}{_im.AbsoluteValue}i";
+
+        public readonly string ToShortString()
+        {
+            string re = _re.ToShortString();
+
+            if (IsReal)
+                return re;
+
+            string im = _im.IsOne ? "i" : _im.Is(Scalar.NegativeOne) ? "-i" : _im.ToShortString() + 'i';
+
+            if (IsImaginary)
+                return im;
+            else if (!_im.IsNegative)
+                im = "+" + im;
+
+            return re + im;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly int CompareTo(Complex other) => SignedModulus.CompareTo(other.SignedModulus);
@@ -565,7 +596,47 @@ namespace Unknown6656.Mathematics.Analysis
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Complex FromPolarCoordinates(Scalar r, Scalar φ) => new Complex(r * φ.Cos(), r * φ.Sin());
 
-        // TODO : parse
+        public static bool TryParse(string str, out Complex complex)
+        {
+            str = str.Remove("_").ToLowerInvariant().Trim();
+            complex = Zero;
+
+            if (Scalar.TryParse(str, out Scalar s))
+            {
+                complex = s;
+
+                return true;
+            }
+            else if (str.Match(REGEX_COMPLEX_1, out Match match) ||
+                     str.Match(REGEX_COMPLEX_2, out match) ||
+                     str.Match(REGEX_COMPLEX_3, out match) ||
+                     str.Match(REGEX_COMPLEX_4, out match))
+            {
+                string reval = match.Groups["re"].Value;
+                string imval = match.Groups["im"].Value;
+                string imsig = match.Groups["imsig"].Value;
+                bool hasim = !string.IsNullOrEmpty(match.Groups["hasi"].Value);
+                Scalar re = 0;
+                Scalar im = 0;
+
+                if (!string.IsNullOrEmpty(reval))
+                    Scalar.TryParse(reval, out re);
+
+                if (!string.IsNullOrEmpty(imval))
+                    Scalar.TryParse(imval, out im);
+                else if (hasim)
+                    im = 1;
+
+                if (imsig == "-")
+                    im = im.Negate();
+
+                complex = (re, im);
+
+                return true;
+            }
+
+            return false;
+        }
 
         #endregion
         #region OPERATORS
@@ -625,6 +696,9 @@ namespace Unknown6656.Mathematics.Analysis
         public static implicit operator Complex(numcplx c) => new Complex(c.Real, c.Imaginary);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator Complex(Fraction f) => new Complex((Scalar)f);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator Complex(Scalar s) => new Complex(s);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -635,6 +709,9 @@ namespace Unknown6656.Mathematics.Analysis
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator Vector2(Complex c) => c.ToVector();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static explicit operator Fraction(Complex c) => (Fraction)c._re;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static explicit operator Scalar(Complex c) => c._re;

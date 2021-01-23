@@ -1,4 +1,4 @@
-publish.bat
+publish.ps1
 produced-data/
 /tests
 

@@ -7,8 +7,6 @@ using System.Linq;
 using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
-using Unknown6656.Mathematics.Statistics;
-using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Common;
 
 namespace Unknown6656.Imaging
@@ -667,86 +665,6 @@ namespace Unknown6656.Imaging
                 destination[y * w + x] = ca ? (RGBAColor)c : (RGBAColor)c.XYZ;
             });
         }
-    }
-
-    public static unsafe class BitmapExtensions
-    {
-        /// <summary>
-        /// Converts the given bitmap to an 32-Bit ARGB (alpha, red, green and blue) bitmap
-        /// </summary>
-        /// <param name="bmp">Input bitmap (any pixel format)</param>
-        /// <returns>32-Bit bitmap</returns>
-        public static Bitmap ToARGB32(this Bitmap bmp)
-        {
-            Bitmap res = new Bitmap(bmp.Width, bmp.Height, PixelFormat.Format32bppArgb);
-
-            using (Graphics g = Graphics.FromImage(res))
-                g.DrawImage(bmp, 0, 0, bmp.Width, bmp.Height);
-
-            return res;
-        }
-
-        public static RGBAColor[] ToPixelArray(this Bitmap bmp) => new BitmapLocker(bmp).ToRGBAPixels();
-
-        public static void LockRGBAPixels(this Bitmap bmp, BitmapLockerCallback<RGBAColor> callback) => new BitmapLocker(bmp).LockRGBAPixels(callback);
-
-        public static HDRBitmap ToHDR(this Bitmap bmp) => new HDRBitmap(bmp);
-
-        public static BitmapMask ToMask(this Bitmap bmp, Func<RGBAColor, Scalar> func, bool ignore_alpha = false) => BitmapMask.FromBitmap(bmp, func, ignore_alpha);
-
-        public static BitmapMask ToApproximationMask(this Bitmap bmp, ColorMap colormap) => BitmapMask.FromApproximation(bmp, colormap);
-
-        public static BitmapMask ToLumaMask(this Bitmap bmp) => BitmapMask.FromLuma(bmp);
-
-        public static BitmapMask ToLumaInvertedMask(this Bitmap bmp) => BitmapMask.FromLumaInverted(bmp);
-
-        public static BitmapMask ToAlphaMask(this Bitmap bmp) => BitmapMask.FromAlpha(bmp);
-
-        public static BitmapMask ToAlphaInvertedMask(this Bitmap bmp) => BitmapMask.FromAlphaInverted(bmp);
-
-        public static BitmapMask ToSaturationMask(this Bitmap bmp) => BitmapMask.FromSaturation(bmp);
-
-        public static BitmapMask ToHueMask(this Bitmap bmp) => BitmapMask.FromHue(bmp);
-
-        public static BitmapMask ToChannelMask(this Bitmap bmp, params BitmapChannel[] channels) => BitmapMask.FromChannels(bmp, channels);
-
-        public static DensityFunction<RGBAColor> GetHistogram(this Bitmap bmp) => bmp.ToPixelArray().GenerateDensityFunction();
-
-        public static RegressionDataSet1D GetHistogram(this Bitmap bmp, params BitmapChannel[] channels) => bmp.ToChannelMask(channels).GetHistogram();
-
-        public static RegressionDataSet1D GetLumaHistogram(this Bitmap bmp) => bmp.ToLumaMask().GetHistogram();
-
-        public static RegressionDataSet1D GetAlphaHistogram(this Bitmap bmp) => bmp.ToAlphaMask().GetHistogram();
-
-        public static RegressionDataSet1D GetSaturationHistogram(this Bitmap bmp) => bmp.ToSaturationMask().GetHistogram();
-
-        public static Shape2DRasterizer GetShape2DRasterizer(this Bitmap bmp) => new Shape2DRasterizer(bmp);
-
-        // TODO : scale up/down
-        // TODO : cut image
-
-        public static Bitmap ApplyEffect<T>(this Bitmap bmp) where T : BitmapEffect, new() => bmp.ApplyEffect(new T());
-
-        public static Bitmap ApplyEffect(this Bitmap bmp, BitmapEffect effect) => effect.ApplyTo(bmp);
-
-        /// <summary>
-        /// Applies the given bitmap effect to a given region of the given bitmap.
-        /// </summary>
-        /// <param name="bmp">Bitmap, to which the effect shall be (partially) applied</param>
-        /// <param name="effect">Bitmap effect</typeparam>
-        /// <param name="region">Region, in which the effect shall be applied.</param>
-        /// <returns>Processed bitmap bitmap</returns>
-        public static Bitmap ApplyEffect(this Bitmap bmp, PartialBitmapEffect effect, Rectangle region) => effect.ApplyTo(bmp, region);
-
-        public static Bitmap ApplyEffect(this Bitmap bmp, PartialBitmapEffect effect, Rectangle region, Scalar intensity) => effect.ApplyTo(bmp, region, intensity);
-
-        public static Bitmap ApplyEffect(this Bitmap bmp, PartialBitmapEffect effect, Scalar intensity) => effect.ApplyTo(bmp, intensity);
-
-        public static Bitmap ApplyEffect(this Bitmap bmp, PartialBitmapEffect effect, (Range Horizontal, Range Vertical) region, Scalar intensity) => effect.ApplyTo(bmp, region, intensity);
-
-        public static Bitmap ApplyEffect(this Bitmap bmp, PartialBitmapEffect effect, (Range Horizontal, Range Vertical) region) => effect.ApplyTo(bmp, region);
-
-        public static Bitmap ApplyEffect(this Bitmap bmp, PartialBitmapEffect effect, BitmapMask mask) => effect.ApplyTo(bmp, mask);
     }
 
     public enum PixelInterpolationMode

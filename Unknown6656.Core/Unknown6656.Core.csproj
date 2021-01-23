@@ -15,10 +15,12 @@
         <PublishTrimmed>true</PublishTrimmed>
         <!--<TrimMode>Link</TrimMode>-->
         <Deterministic>true</Deterministic>
+        <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
         <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
         <NoWarn>1701;1702;8652</NoWarn>
         <RootNamespace>Unknown6656</RootNamespace>
         <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <Authors>unknown6656</Authors>
         <Company>unknown6656</Company>
         <Copyright>Copyright © 2014-$([System.DateTime]::Today.ToString(yyyy)), unknown6656</Copyright>
@@ -34,13 +36,10 @@
         <RepositoryUrl>https://github.com/Unknown6656/Unknown6656.Core</RepositoryUrl>
         <RepositoryType>Git</RepositoryType>
         <PackageTags>unknown6656;core;library</PackageTags>
-        <Version>1.0.11</Version>
-        <AssemblyVersion>1.0.11</AssemblyVersion>
+        <Version>$([System.IO.File]::ReadAllText("$(SolutionDir)/version.txt"))</Version>
+        <AssemblyVersion>$([System.IO.File]::ReadAllText("$(SolutionDir)/version.txt"))</AssemblyVersion>
         <!--<UserSecretsId>e25c8605-a6b4-42e1-9806-2eb3ebe4aa4a</UserSecretsId>-->
     </PropertyGroup>
-    <ItemGroup>
-      <None Remove="Computation\ParticleSwarmOptimization.cs~RFd507203.TMP" />
-    </ItemGroup>
     <ItemGroup>
         <None Include="C:/Users/unknown6656/Pictures/unknown6656/unknown6656-logo-1024.png">
           <Pack>True</Pack>

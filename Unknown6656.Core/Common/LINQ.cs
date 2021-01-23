@@ -166,6 +166,12 @@ namespace Unknown6656.Common
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool None<T>(this IEnumerable<T> coll) => !coll.Any();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool None<T>(this IEnumerable<T> coll, Func<T, bool> func) => !coll.Any(func);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerable<T> Slice<T>(this IEnumerable<T> coll, int start, int count) => coll.Skip(start).Take(count);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

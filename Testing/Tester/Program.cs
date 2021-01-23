@@ -32,8 +32,6 @@ namespace MathLibrary.Tester
     {
         public static void Main(string[] args)
         {
-
-
             Console.OutputEncoding = Encoding.UTF8;
             
             //Main_PSO();

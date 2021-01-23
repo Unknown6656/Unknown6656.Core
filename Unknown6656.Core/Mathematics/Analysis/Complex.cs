@@ -25,15 +25,23 @@ namespace Unknown6656.Mathematics.Analysis
     {
         #region PRIVATE FIELDS
 
-        internal static readonly string REGEX_FLOATING_NUMBER = /*lang=regex*/ @"(\d*\.)?\d+(e[+\-]?\d+)?";
-        internal static readonly string REGEX_UNSIGNED_NUMBER = /*lang=regex*/ $@"({REGEX_FLOATING_NUMBER}(\*?(π|pi|τ|tau|φ|phi|e))?|(π|pi|τ|tau|φ|phi|e)(\*?{REGEX_FLOATING_NUMBER})?|0b[01]+|[01]+b|0o[0-7]+|[0-7]+o|0x[0-9a-f]+|[0-9a-f]+h)";
-        internal static readonly string REGEX_OSIGNED_NUMBER = /*lang=regex*/ $@"([+\-]?{REGEX_UNSIGNED_NUMBER})";
-        internal static readonly string REGEX_FSIGNED_NUMBER = /*lang=regex*/ $@"([+\-]{REGEX_UNSIGNED_NUMBER})";
+        internal static readonly string REGEX_PATTERN_FLOATING_NUMBER = /*lang=regex*/ @"(\d*\.)?\d+(e[+\-]?\d+)?";
+        internal static readonly string REGEX_PATTERN_UNSIGNED_NUMBER = /*lang=regex*/ $@"({REGEX_PATTERN_FLOATING_NUMBER}(\*?(π|pi|τ|tau|φ|phi|e))?|(π|pi|τ|tau|φ|phi|e)(\*?{REGEX_PATTERN_FLOATING_NUMBER})?|0b[01]+|[01]+b|0o[0-7]+|[0-7]+o|0x[0-9a-f]+|[0-9a-f]+h)";
+        internal static readonly string REGEX_PATTERN_OSIGNED_NUMBER = /*lang=regex*/ $@"([+\-]?{REGEX_PATTERN_UNSIGNED_NUMBER})";
+        internal static readonly string REGEX_PATTERN_FSIGNED_NUMBER = /*lang=regex*/ $@"([+\-]{REGEX_PATTERN_UNSIGNED_NUMBER})";
 
-        internal static readonly Regex REGEX_COMPLEX_1 = new Regex($@"^(?<im>{REGEX_OSIGNED_NUMBER})\*?(?<hasi>i)(?<re>{REGEX_FSIGNED_NUMBER})?$", RegexOptions.Compiled);
-        internal static readonly Regex REGEX_COMPLEX_2 = new Regex($@"^(?<imsig>[+\-]?)(?<hasi>i)((\*?(?<im>{REGEX_UNSIGNED_NUMBER}))?(?<re>{REGEX_FSIGNED_NUMBER})?)?$", RegexOptions.Compiled);
-        internal static readonly Regex REGEX_COMPLEX_3 = new Regex($@"^(?<re>{REGEX_OSIGNED_NUMBER})(?<im>{REGEX_FSIGNED_NUMBER})\*?(?<hasi>i)$", RegexOptions.Compiled);
-        internal static readonly Regex REGEX_COMPLEX_4 = new Regex($@"^(?<re>{REGEX_OSIGNED_NUMBER})(?<imsig>[+\-]?)(?<hasi>i)(\*?(?<im>{REGEX_FSIGNED_NUMBER}))?$", RegexOptions.Compiled);
+        internal static readonly string REGEX_PATTERN_COMPLEX_1 = $@"(?<im>{REGEX_PATTERN_OSIGNED_NUMBER})\*?(?<hasi>i)(?<re>{REGEX_PATTERN_FSIGNED_NUMBER})?";
+        internal static readonly string REGEX_PATTERN_COMPLEX_2 = $@"(?<imsig>[+\-]?)(?<hasi>i)((\*?(?<im>{REGEX_PATTERN_UNSIGNED_NUMBER}))?(?<re>{REGEX_PATTERN_FSIGNED_NUMBER})?)?";
+        internal static readonly string REGEX_PATTERN_COMPLEX_3 = $@"(?<re>{REGEX_PATTERN_OSIGNED_NUMBER})(?<im>{REGEX_PATTERN_FSIGNED_NUMBER})\*?(?<hasi>i)";
+        internal static readonly string REGEX_PATTERN_COMPLEX_4 = $@"(?<re>{REGEX_PATTERN_OSIGNED_NUMBER})(?<imsig>[+\-]?)(?<hasi>i)(\*?(?<im>{REGEX_PATTERN_FSIGNED_NUMBER}))?";
+
+        internal static readonly Regex REGEX_COMPLEX_1 = new Regex($"^{REGEX_PATTERN_COMPLEX_1}$", RegexOptions.Compiled);
+        internal static readonly Regex REGEX_COMPLEX_2 = new Regex($"^{REGEX_PATTERN_COMPLEX_2}$", RegexOptions.Compiled);
+        internal static readonly Regex REGEX_COMPLEX_3 = new Regex($"^{REGEX_PATTERN_COMPLEX_3}$", RegexOptions.Compiled);
+        internal static readonly Regex REGEX_COMPLEX_4 = new Regex($"^{REGEX_PATTERN_COMPLEX_4}$", RegexOptions.Compiled);
+
+        public static readonly Regex REGEX_COMPLEX = new Regex($"^({REGEX_PATTERN_COMPLEX_1}|{REGEX_PATTERN_COMPLEX_2}|{REGEX_PATTERN_COMPLEX_3}|{REGEX_PATTERN_COMPLEX_4})$", RegexOptions.Compiled);
+
 
 #pragma warning disable IDE0032
         private readonly Scalar _re;

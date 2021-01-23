@@ -1,12 +1,15 @@
 ﻿#nullable enable
 
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Diagnostics;
 using System.Reflection;
+using System.Text;
 using System.Linq;
 using System;
 
@@ -15,9 +18,6 @@ using Unknown6656.Mathematics.Numerics;
 using Unknown6656.Common;
 
 using bint = System.Numerics.BigInteger;
-using System.Diagnostics.CodeAnalysis;
-using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Unknown6656.Mathematics.LinearAlgebra
 {
@@ -53,11 +53,15 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         private static Scalar _cepsilon = DefaultComputationalEpsilon;
 
-        internal static readonly Regex REGEX_BIN = new Regex(@"^[+\-]?(?<num>0b[01]+|[01]+b)$", RegexOptions.Compiled);
-        internal static readonly Regex REGEX_OCT = new Regex(@"^[+\-]?(?<num>0o[0-7]+|[0-7]+o)$", RegexOptions.Compiled);
-        internal static readonly Regex REGEX_HEX = new Regex(@"^[+\-]?(?<num>0x[0-9a-f]+|[0-9a-f]+h)$", RegexOptions.Compiled);
-        internal static readonly Regex REGEX_DEC1 = new Regex(@"^[+\-]?((?<const>π|pi|τ|tau|φ|phi|e)\*?)?(?<factor>(\d*\.)?\d+(e[+\-]?\d+)?)$", RegexOptions.Compiled);
-        internal static readonly Regex REGEX_DEC2 = new Regex(@"^[+\-]?((?<factor>(\d*\.)?\d+(e[+\-]?\d+)?)\*?)?(?<const>π|pi|τ|tau|φ|phi|e)$", RegexOptions.Compiled);
+
+        internal static readonly Regex REGEX_BIN = new Regex(@"[+\-]?(?<num>0b[01]+|[01]+b)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        internal static readonly Regex REGEX_OCT = new Regex(@"[+\-]?(?<num>0o[0-7]+|[0-7]+o)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        internal static readonly Regex REGEX_HEX = new Regex(@"[+\-]?(?<num>0x[0-9a-f]+|[0-9a-f]+h)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        internal static readonly Regex REGEX_DEC1 = new Regex(@"[+\-]?((?<const>π|pi|τ|tau|φ|phi|e)\*?)?(?<factor>(\d*\.)?\d+(e[+\-]?\d+)?)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        internal static readonly Regex REGEX_DEC2 = new Regex(@"[+\-]?((?<factor>(\d*\.)?\d+(e[+\-]?\d+)?)\*?)?(?<const>π|pi|τ|tau|φ|phi|e)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+        public static readonly Regex REGEX_SCALAR = new Regex(@"^[+\-]?(0b[01]+|[01]+b|0o[0-7]+|[0-7]+o|0x[0-9a-f]+|[0-9a-f]+h|((π|pi|τ|tau|φ|phi|e)\*?)?((\d*\.)?\d+(e[+\-]?\d+)?)|(((\d*\.)?\d+(e[+\-]?\d+)?)\*?)?(π|pi|τ|tau|φ|phi|e))$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
 
         #endregion
         #region STATIC PROPERTIES
@@ -815,11 +819,11 @@ namespace Unknown6656.Mathematics.LinearAlgebra
             scalar = Zero;
 
             if (str.Match(REGEX_BIN, out ReadOnlyIndexer<string, string>? groups))
-                scalar = (Scalar)Convert.ToUInt64(groups["num"].Remove("0b").Remove("b"), 2);
+                scalar = Convert.ToUInt64(groups["num"].Remove("0b").Remove("b"), 2);
             else if (str.Match(REGEX_OCT, out groups))
-                scalar = (Scalar)Convert.ToUInt64(groups["num"].Remove("0o").Remove("o"), 8);
+                scalar = Convert.ToUInt64(groups["num"].Remove("0o").Remove("o"), 8);
             else if (str.Match(REGEX_HEX, out groups))
-                scalar = (Scalar)Convert.ToUInt64(groups["num"].Remove("0x").Remove("x"), 16);
+                scalar = Convert.ToUInt64(groups["num"].Remove("0x").Remove("x"), 16);
             else if (str.Match(REGEX_DEC1, out groups) || str.Match(REGEX_DEC2, out groups))
             {
                 string @const = groups["const"];

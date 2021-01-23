@@ -9,6 +9,8 @@ namespace Unknown6656.Imaging
 {
     public unsafe delegate void BitmapLockerCallback<T>(T* pixels, int width, int height) where T : unmanaged;
 
+    public unsafe delegate U BitmapLockerCallback<T, U>(T* pixels, int width, int height) where T : unmanaged;
+
     public unsafe class BitmapLocker
     {
         public Bitmap Bitmap { get; }
@@ -58,6 +60,16 @@ namespace Unknown6656.Imaging
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void LockRGBAPixels(BitmapLockerCallback<RGBAColor> callback) => LockPixels(callback);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T LockRGBAPixels<T>(BitmapLockerCallback<RGBAColor, T> callback)
+        {
+            T value = default!;
+
+            LockRGBAPixels((ptr, w, h) => value = callback(ptr, w, h));
+
+            return value;
+        }
 
         public RGBAColor[] ToRGBAPixels()
         {

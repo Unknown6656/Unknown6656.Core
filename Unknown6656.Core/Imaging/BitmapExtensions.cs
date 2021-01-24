@@ -7,7 +7,6 @@ using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Statistics;
 using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Common;
-using Unknown6656.Imaging.Effects;
 
 namespace Unknown6656.Imaging
 {
@@ -118,8 +117,100 @@ namespace Unknown6656.Imaging
 
         public static Shape2DRasterizer GetShape2DRasterizer(this Bitmap bmp) => new Shape2DRasterizer(bmp);
 
-        // TODO : scale up/down
-        // TODO : cut image
+        /// <summary>
+        /// Crops or extends the bitmap to the given dimensions.
+        /// The extended regions will be filled with the color <see cref="RGBAColor.Transparent"/>.
+        /// This is a non-destructive operation.
+        /// </summary>
+        /// <param name="bmp">Input bitmap.</param>
+        /// <param name="width">New bitmap width. This value must be greater than zero.</param>
+        /// <param name="height">New bitmap height. This value must be greater than zero.</param>
+        /// <returns>Cropped/Extended bitmap.</returns>
+        public static Bitmap CropBitmap(this Bitmap bmp, int width, int height) => CropBitmap(bmp, 0, 0, width - bmp.Width, height - bmp.Width);
+
+        /// <summary>
+        /// Crops or extends the bitmap bounds by the given offsets.
+        /// The extended regions will be filled with the color <see cref="RGBAColor.Transparent"/>.
+        /// This is a non-destructive operation.
+        /// </summary>
+        /// <param name="bmp">Input bitmap.</param>
+        /// <param name="left">The left offset. A negative amount crops the bitmap on the left side by the given value. A positive amount extends the bound by the given value. The extended region will be filled with the color <see cref="RGBAColor.Transparent"/>.</param>
+        /// <param name="top">The top offset. A negative amount crops the bitmap on the top side by the given value. A positive amount extends the bound by the given value. The extended region will be filled with the color <see cref="RGBAColor.Transparent"/>.</param>
+        /// <param name="right">The right offset. A negative amount crops the bitmap on the right side by the given value. A positive amount extends the bound by the given value. The extended region will be filled with the color <see cref="RGBAColor.Transparent"/>.</param>
+        /// <param name="bottom">The bottom offset. A negative amount crops the bitmap on the bottom side by the given value. A positive amount extends the bound by the given value. The extended region will be filled with the color <see cref="RGBAColor.Transparent"/>.</param>
+        /// <returns>Cropped/Extended bitmap.</returns>
+        public static Bitmap CropBitmap(this Bitmap bmp, int left, int top, int right, int bottom)
+        {
+            int width = bmp.Width + left + right;
+            int height = bmp.Height + top + bottom;
+
+            if (width < 0)
+                throw new ArgumentException($"The sum of the left ({left}) and right ({right}) values must be greater than {1 - bmp.Width}.");
+            else if (height < 0)
+                throw new ArgumentException($"The sum of the top ({top}) and bottom ({bottom}) values must be greater than {1 - bmp.Height}.");
+
+            Bitmap result = new Bitmap(width, height, bmp.PixelFormat);
+            using Graphics g = Graphics.FromImage(result);
+
+            g.DrawImageUnscaled(bmp, left, right);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Scales the bitmap uniformly by the given scaling factors. This is a non-destructive operation.
+        /// </summary>
+        /// <param name="bmp">Input bitmap.</param>
+        /// <param name="factor">The scaling factor. This value must be greater than zero.</param>
+        /// <returns>The scaled/resized bitmap.</returns>
+        public static Bitmap ScaleBitmap(this Bitmap bmp, Scalar factor) => ScaleBitmap(bmp, factor, factor);
+
+        /// <summary>
+        /// Scales the bitmap by the given X- and Y-dimension factors. This is a non-destructive operation.
+        /// </summary>
+        /// <param name="bmp">Input bitmap.</param>
+        /// <param name="factor">A composite of the X and Y scaling factors. These values must be greater than zero.</param>
+        /// <returns>The scaled/resized bitmap.</returns>
+        public static Bitmap ScaleBitmap(this Bitmap bmp, Vector2 factor) => ScaleBitmap(bmp, factor.X, factor.Y);
+
+        /// <summary>
+        /// Scales the bitmap by the given X- and Y-dimension factors. This is a non-destructive operation.
+        /// </summary>
+        /// <param name="bmp">Input bitmap.</param>
+        /// <param name="xfactor">Scaling factor in X-dimension. This value must be greater than zero.</param>
+        /// <param name="yfactor">Scaling factor in Y-dimension. This value must be greater than zero.</param>
+        /// <returns>The scaled/resized bitmap.</returns>
+        public static Bitmap ScaleBitmap(this Bitmap bmp, Scalar xfactor, Scalar yfactor) => 
+            xfactor <= 0 ? throw new ArgumentOutOfRangeException(nameof(xfactor)) :
+            yfactor <= 0 ? throw new ArgumentOutOfRangeException(nameof(yfactor)) :
+            ResizeBitmap(bmp, (int)(bmp.Width * xfactor), (int)(bmp.Height * yfactor));
+
+        /// <summary>
+        /// Resizes the bitmap to match the given new dimensions. This is a non-destructive operation.
+        /// </summary>
+        /// <param name="bmp">Input bitmap.</param>
+        /// <param name="width">The new bitmap width.</param>
+        /// <param name="height">The new bitmap height.</param>
+        /// <returns>The resized bitmap.</returns>
+        public static Bitmap ResizeBitmap(this Bitmap bmp, int width, int height) => new Bitmap(bmp, width, height);
+
+        /// <summary>
+        /// Resizes the bitmap to match the given new aspect ratio. This is a non-destructive operation.
+        /// </summary>
+        /// <param name="bmp">Input bitmap.</param>
+        /// <param name="aspect_ratio">New aspect ratio (width/height).</param>
+        /// <returns>The resized bitmap.</returns>
+        public static Bitmap ChangeAspectRatio(this Bitmap bmp, Scalar aspect_ratio)
+        {
+            Scalar r = aspect_ratio.MultiplicativeInverse * bmp.Width / bmp.Height;
+
+            if (r.IsOne)
+                return bmp;
+            else if (r < 1)
+                return ScaleBitmap(bmp, r, 1);
+            else
+                return ScaleBitmap(bmp, 1, r.MultiplicativeInverse);
+        }
 
         public static Bitmap ApplyEffect<T>(this Bitmap bmp) where T : BitmapEffect, new() => bmp.ApplyEffect(new T());
 

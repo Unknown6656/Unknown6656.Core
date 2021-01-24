@@ -56,8 +56,10 @@ namespace Unknown6656.Testing.Tests
             Assert.AreEqual<Scalar>((Scalar)"+.14", .14);
             Assert.AreEqual<Scalar>((Scalar)"-3.14e-1", -.314);
             Assert.AreEqual<Scalar>((Scalar)"+.1e1", 1);
-            Assert.AreEqual<Scalar>((Scalar)"π", Scalar.Pi);
+            Assert.AreEqual<Scalar>((Scalar)"+π", Scalar.Pi);
             Assert.AreEqual<Scalar>((Scalar)"τ", Scalar.Tau);
+            Assert.AreEqual<Scalar>((Scalar)"-2pi", -2 * Scalar.Pi);
+            Assert.AreEqual<Scalar>((Scalar)"3.1π", 3.1 * Scalar.Pi);
         }
 
         [TestMethod]
@@ -80,5 +82,7 @@ namespace Unknown6656.Testing.Tests
             Assert.AreEqual(s1 * s2, s2 * s1);
             Assert.AreEqual(s1 * s2.Inverse, s1 / s2);
         }
+
+
     }
 }

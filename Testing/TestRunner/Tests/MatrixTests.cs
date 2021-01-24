@@ -167,7 +167,7 @@ namespace Unknown6656.Testing.Tests
                 6, 7, 8
             });
 
-            Algebra<Scalar, Polynomial, ScalarMap>.IMatrix m5 = m.Cast();
+            Algebra<Scalar, Polynomial>.IMatrix m5 = m.Cast();
             MatrixNM m6 = (Matrix3)m5;
 
             Assert.IsInstanceOfType(m5, typeof(Matrix3));

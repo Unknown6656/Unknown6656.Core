@@ -90,6 +90,8 @@ using num = System.Numerics;
 
 #>
 
+// TODO : fix coefficient naming 'XYZWVU'
+
 namespace Unknown6656.Mathematics.LinearAlgebra
 {
 <#
@@ -221,8 +223,9 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         if (dim <= comp.Length)
             foreach (char[] comb in PowerSet<char>(comp.Take(dim).ToArray()).Where(a => a.Length > 0).OrderBy(a => a.Length))
                 foreach (string p in use_permutations ? Permutations(comb) : new[] { new string(comb) })
-                    if (p.Length == 1)
-                    {
+                    if (p != comp.Substring(0, dim))
+                        if (p.Length == 1)
+                        {
 #>
 
         /// <summary>
@@ -230,9 +233,9 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// </summary>
         public readonly Scalar <#=p#> => <#=comps[comp.IndexOf(p)]#>;
 <#
-                    }
-                    else
-                    {
+                        }
+                        else
+                        {
 #>
 
         /// <summary>
@@ -241,7 +244,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         [DebuggerHidden, DebuggerNonUserCode, DebuggerBrowsable(DebuggerBrowsableState.Never) /* EditorBrowsable(EditorBrowsableState.Never) */]
         public readonly Vector<#=p.Length + " " + p #> => (<#=string.Join(", ", p as IEnumerable<char>)#>);
 <#
-                    }
+                        }
 #>
 
         [DebuggerHidden, DebuggerNonUserCode, DebuggerBrowsable(DebuggerBrowsableState.Never), EditorBrowsable(EditorBrowsableState.Never)]

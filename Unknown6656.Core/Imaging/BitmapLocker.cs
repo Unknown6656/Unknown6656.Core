@@ -66,7 +66,7 @@ namespace Unknown6656.Imaging
         {
             T value = default!;
 
-            LockRGBAPixels((ptr, w, h) => value = callback(ptr, w, h));
+            LockPixels<RGBAColor>((ptr, w, h) => value = callback(ptr, w, h));
 
             return value;
         }

@@ -53,15 +53,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         private static Scalar _cepsilon = DefaultComputationalEpsilon;
 
-
-        internal static readonly Regex REGEX_BIN = new Regex(@"[+\-]?(?<num>0b[01]+|[01]+b)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        internal static readonly Regex REGEX_OCT = new Regex(@"[+\-]?(?<num>0o[0-7]+|[0-7]+o)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        internal static readonly Regex REGEX_HEX = new Regex(@"[+\-]?(?<num>0x[0-9a-f]+|[0-9a-f]+h)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        internal static readonly Regex REGEX_DEC1 = new Regex(@"[+\-]?((?<const>π|pi|τ|tau|φ|phi|e)\*?)?(?<factor>(\d*\.)?\d+(e[+\-]?\d+)?)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        internal static readonly Regex REGEX_DEC2 = new Regex(@"[+\-]?((?<factor>(\d*\.)?\d+(e[+\-]?\d+)?)\*?)?(?<const>π|pi|τ|tau|φ|phi|e)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        internal static readonly Regex REGEX_BIN = new Regex(@"^[+\-]?(?<num>0b[01]+|[01]+b)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        internal static readonly Regex REGEX_OCT = new Regex(@"^[+\-]?(?<num>0o[0-7]+|[0-7]+o)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        internal static readonly Regex REGEX_HEX = new Regex(@"^[+\-]?(?<num>0x[0-9a-f]+|[0-9a-f]+h)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        internal static readonly Regex REGEX_DEC1 = new Regex(@"^[+\-]?((?<const>π|pi|τ|tau|φ|phi|e)\*?)?(?<factor>(\d*\.)?\d+(e[+\-]?\d+)?)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        internal static readonly Regex REGEX_DEC2 = new Regex(@"^[+\-]?((?<factor>(\d*\.)?\d+(e[+\-]?\d+)?)\*?)?(?<const>π|pi|τ|tau|φ|phi|e)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public static readonly Regex REGEX_SCALAR = new Regex(@"^[+\-]?(0b[01]+|[01]+b|0o[0-7]+|[0-7]+o|0x[0-9a-f]+|[0-9a-f]+h|((π|pi|τ|tau|φ|phi|e)\*?)?((\d*\.)?\d+(e[+\-]?\d+)?)|(((\d*\.)?\d+(e[+\-]?\d+)?)\*?)?(π|pi|τ|tau|φ|phi|e))$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
 
         #endregion
         #region STATIC PROPERTIES

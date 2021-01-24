@@ -40,7 +40,7 @@ namespace Unknown6656.Mathematics.Analysis
         internal static readonly Regex REGEX_COMPLEX_3 = new Regex($"^{REGEX_PATTERN_COMPLEX_3}$", RegexOptions.Compiled);
         internal static readonly Regex REGEX_COMPLEX_4 = new Regex($"^{REGEX_PATTERN_COMPLEX_4}$", RegexOptions.Compiled);
 
-        public static readonly Regex REGEX_COMPLEX = new Regex($"^({REGEX_PATTERN_COMPLEX_1}|{REGEX_PATTERN_COMPLEX_2}|{REGEX_PATTERN_COMPLEX_3}|{REGEX_PATTERN_COMPLEX_4})$", RegexOptions.Compiled);
+        public static readonly Regex REGEX_COMPLEX = new Regex($"({Scalar.REGEX_SCALAR}|^({REGEX_PATTERN_COMPLEX_1}|{REGEX_PATTERN_COMPLEX_2}|{REGEX_PATTERN_COMPLEX_3}|{REGEX_PATTERN_COMPLEX_4})$)", RegexOptions.Compiled);
 
 
 #pragma warning disable IDE0032

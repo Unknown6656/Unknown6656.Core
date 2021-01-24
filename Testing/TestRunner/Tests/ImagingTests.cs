@@ -30,15 +30,12 @@ namespace Unknown6656.Testing.Tests
         {
             WritableMatrixNM<Vector4> mat = new HDRBitmap(IMG_1);
 
-            // mat = mat[100..200, 100..200];
-            // mat = mat(mat);
-            mat = mat * mat.Transposed;
-            mat = mat.NormalizeMinMax();
+            mat = mat.Transposed;
+            mat = mat[100..200, 100..200];
+            //mat = mat.NormalizeMinMax();
 
             HDRBitmap bmp2 = new HDRBitmap(mat);
             Bitmap outp = bmp2.ToBitmap();
-
-            outp.Save("temp.png");
         }
 
         [TestMethod]

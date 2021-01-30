@@ -13,7 +13,6 @@ using static System.Math;
 
 using bint = System.Numerics.BigInteger;
 
-
 namespace Unknown6656.Mathematics
 {
     public static partial class MathExtensions
@@ -92,28 +91,35 @@ namespace Unknown6656.Mathematics
         public static Scalar Radians(this Scalar degrees) => degrees * 0.01745329251994329576923690768489;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static long ROL(this long l, int i) => i < 0 ? ROR(l, -i) : i == 0 ? l : (i << (i % 64)) | (i >> (64 - i % 64));
+        public static unsafe T BitRotateLeft<T>(this T value, int offset) where T : unmanaged => BitRotateLeft(value, offset, sizeof(T));
+
+        public static unsafe T BitRotateLeft<T>(this T value, int offset, int bit_size) where T : unmanaged
+        {
+            if (bit_size == 0)
+                return value;
+            else if (bit_size > sizeof(ulong))
+                throw new ArgumentException($"The input type {typeof(T)} has a size of {sizeof(T)} bytes, however only {sizeof(ulong)} bytes are supported.", nameof(value));
+
+            offset %= bit_size;
+
+            ulong result = 0UL;
+
+            *(T*)&result = value;
+            result = offset switch
+            {
+                0 => result,
+                > 0 => (result << offset) | (result >> (bit_size - offset)),
+                < 0 => (result >> -offset) | (result >> (bit_size + offset)),
+            };
+
+            return *(T*)&result;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static long ROR(this long l, int i) => i < 0 ? ROL(l, -i) : i == 0 ? l : (i >> (i % 64)) | (i << (64 - i % 64));
+        public static unsafe T ROL<T>(this T value, int offset) where T : unmanaged => BitRotateLeft(value, offset);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ulong ROL(this ulong l, int i) => i < 0 ? ROR(l, -i) : i == 0 ? l : (ulong)(i << (i % 64)) | (ulong)(i >> (64 - i % 64));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ulong ROR(this ulong l, int i) => i < 0 ? ROL(l, -i) : i == 0 ? l : (ulong)(i >> (i % 64)) | (ulong)(i << (64 - i % 64));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ROL(this int l, int i) => i < 0 ? ROR(l, -i) : i == 0 ? l : (i << (i % 32)) | (i >> (32 - i % 32));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ROR(this int l, int i) => i < 0 ? ROL(l, -i) : i == 0 ? l : (i >> (i % 32)) | (i << (32 - i % 32));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static uint ROL(this uint l, int i) => i < 0 ? ROR(l, -i) : i == 0 ? l : (uint)(i << (i % 32)) | (uint)(i >> (32 - i % 32));
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static uint ROR(this uint l, int i) => i < 0 ? ROL(l, -i) : i == 0 ? l : (uint)(i >> (i % 32)) | (uint)(i << (32 - i % 32));
+        public static unsafe T ROR<T>(this T value, int offset) where T : unmanaged => ROL(value, -offset);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte[] XOR(this byte[] arr1, byte[] arr2)
@@ -123,6 +129,42 @@ namespace Unknown6656.Mathematics
             Parallel.For(0, res.Length, i => res[i] = (byte)(arr1[i] ^ arr2[i]));
 
             return res;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe T* ToPointer<T>(this ref T value) where T : unmanaged => (T*)Unsafe.AsPointer(ref value);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe ref T ToRef<T>(T* pointer) where T : unmanaged => ref Unsafe.AsRef<T>(pointer);
+
+        public static unsafe void SetLeastSignificantBit<T>(this ref T value, int bit_position, bool bit) where T : unmanaged => value.SetMostSignificantBit(sizeof(T) - 1 - bit_position, bit);
+
+        public static unsafe void SetMostSignificantBit<T>(this ref T value, int bit_position, bool bit) where T : unmanaged
+        {
+            if (bit_position < 0 || bit_position >= sizeof(T))
+                throw new ArgumentOutOfRangeException(nameof(bit_position));
+
+            byte* ptr = (byte*)value.ToPointer() + bit_position / 8;
+            int mask = 1 << (7 - bit_position % 8);
+
+            if (bit)
+                *ptr |= (byte)mask;
+            else
+                *ptr &= (byte)~mask;
+        }
+
+        public static unsafe bool GetLeastSignificantBit<T>(this ref T value, int bit_position) where T : unmanaged => value.GetMostSignificantBit(sizeof(T) - 1 - bit_position);
+
+        public static unsafe bool GetMostSignificantBit<T>(this ref T value, int bit_position) where T : unmanaged
+        {
+            if (bit_position < 0 || bit_position >= sizeof(T))
+                throw new ArgumentOutOfRangeException(nameof(bit_position));
+
+            byte* ptr = (byte*)value.ToPointer() + bit_position / 8;
+            int mask = 1 << (7 - bit_position % 8);
+            int bit = *ptr & mask;
+
+            return bit != 0;
         }
 
         public static ulong BinomialCoefficient(ulong n, ulong k)

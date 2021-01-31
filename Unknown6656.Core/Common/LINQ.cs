@@ -428,24 +428,35 @@ namespace Unknown6656.Common
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static U AggregateNonEmpty<T, U>(this IEnumerable<T> coll, Func<T, U, U> accumulator, U init = default)
+        public static T AggregateNonEmpty<T>(this IEnumerable<T> coll, Func<T, T, T> accumulator/*, U init = default*/)
         {
-            if (coll is null)
+            List<T>? list = coll?.ToList();
+
+            if (list is null)
                 throw new ArgumentNullException(nameof(coll));
+            else if (list.Count < 2)
+                throw new ArgumentException("The given collection must have more than one element.", nameof(coll));
 
-            bool empty = true;
+            T result = accumulator(list[0], list[1]);
 
-            foreach (T t in coll)
-            {
-                init = accumulator(t, init);
-                empty = false;
-            }
+            foreach (T t in list.Skip(2))
+                result = accumulator(result, t);
 
-            if (empty)
-                throw new ArgumentException("The given collection must not be empty.", nameof(coll));
-
-            return init;
+            return result;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T AggregateNonEmpty<T>(this IEnumerable<T> coll, Func<T, T, T> accumulator, T init) => coll?.ToList() switch
+        {
+            null => throw new ArgumentNullException(nameof(coll)),
+            { Count: 0 } => init,
+            List<T> list => FunctionExtensions.Do(() =>
+            {
+                list.Insert(0, init);
+
+                return AggregateNonEmpty(list, accumulator);
+            })
+        };
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerable<T> Propagate<T>(this T start, Func<T, (T next, bool @continue)> next)

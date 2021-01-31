@@ -380,6 +380,28 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar Power(Scalar e) => new Scalar(Math.Pow(Determinant, e.Determinant));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar Factorial()
+        {
+            if (IsZero)
+                return One;
+            else if (IsInteger && IsPositive)
+            {
+                double result = 1;
+                ulong num = (ulong)this;
+
+                while (num > 1)
+                {
+                    result *= num;
+                    --num;
+                }
+
+                return result;
+            }
+            else
+                return ScalarFunction.Gamma[this];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar Sqrt() => new Scalar(Math.Sqrt(Determinant));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -398,7 +420,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar Tan() => new Scalar(Math.Tan(Determinant));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar Cot() => Tan().Inverse;
+        public readonly Scalar Cot() => Tan().MultiplicativeInverse;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar Sec() => Cos().MultiplicativeInverse;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar Csc() => Sin().MultiplicativeInverse;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Complex Cis() => Complex.Cis(this);
@@ -413,6 +441,15 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar Atan() => new Scalar(Math.Atan(Determinant));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar Acot() => MultiplicativeInverse.Atan();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar Asec() => MultiplicativeInverse.Acos();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar Acsc() => MultiplicativeInverse.Asin();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar Sinh() => new Scalar(Math.Sinh(Determinant));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -422,7 +459,31 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar Tanh() => new Scalar(Math.Tanh(Determinant));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar Coth() => Tanh().Inverse;
+        public readonly Scalar Coth() => Tanh().MultiplicativeInverse;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar Sech() => Cosh().MultiplicativeInverse;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar Csch() => Sinh().MultiplicativeInverse;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar Asinh() => Power(2).Increment().Sqrt().Add(this).Log();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar Acosh() => Add(Decrement().Sqrt().Multiply(Increment().Sqrt())).Log();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar Atanh() => Increment().Log().Subtract(One.Subtract(this).Log()).Divide(Two);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar Acoth() => MultiplicativeInverse.Atanh();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar Asech() => MultiplicativeInverse.Acosh();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar Acsch() => MultiplicativeInverse.Asinh();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar Clamp() => Clamp(Zero, One);
@@ -745,6 +806,9 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Scalar Random() => Numerics.Random.XorShift.NextScalar();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Scalar Factorial(Scalar s) => s.Factorial();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Scalar Negate(Scalar s) => s.Negate();
@@ -1479,6 +1543,15 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar<T> Tan() => MathFunction(Math.Tan);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar<T> Cot() => Tan().MultiplicativeInverse;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar<T> Sec() => Cos().MultiplicativeInverse;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar<T> Csc() => Sin().MultiplicativeInverse;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar<T> Asin() => MathFunction(Math.Asin);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1488,6 +1561,15 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar<T> Atan() => MathFunction(Math.Atan);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar<T> Acot() => MultiplicativeInverse.Atan();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar<T> Asec() => MultiplicativeInverse.Acos();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar<T> Acsc() => MultiplicativeInverse.Asec();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar<T> Sinh() => MathFunction(Math.Sinh);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1495,6 +1577,33 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar<T> Tanh() => MathFunction(Math.Tanh);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar<T> Coth() => Tanh().MultiplicativeInverse;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar<T> Sech() => Cosh().MultiplicativeInverse;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar<T> Csch() => Sinh().MultiplicativeInverse;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar<T> Asinh() => Power(2).Increment().Sqrt().Add(this).Log();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar<T> Acosh() => Add(Decrement().Sqrt().Multiply(Increment().Sqrt())).Log();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar<T> Atanh() => Increment().Log().Subtract(One.Subtract(this).Log()).Divide(Two);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar<T> Acoth() => MultiplicativeInverse.Atanh();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar<T> Asech() => MultiplicativeInverse.Acosh();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar<T> Acsch() => MultiplicativeInverse.Asinh();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly bool Is(Scalar<T> o, Scalar<T> tolerance) => Subtract(o).Abs() <= tolerance;

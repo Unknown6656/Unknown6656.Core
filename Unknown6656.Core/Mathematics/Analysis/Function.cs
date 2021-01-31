@@ -7,6 +7,7 @@ using System.Linq;
 using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
+using Unknown6656.Common;
 
 namespace Unknown6656.Mathematics.Analysis
 {
@@ -141,6 +142,9 @@ namespace Unknown6656.Mathematics.Analysis
         : Function<Domain, Domain>
         where Domain : IEquatable<Domain>, IGroup<Domain>
     {
+        public static Function<Domain> Identity { get; } = new(LINQ.id);
+
+
         public Function(Domain constant)
             : base(constant)
         {
@@ -206,10 +210,12 @@ namespace Unknown6656.Mathematics.Analysis
         public static FieldFunction<Scalar> operator /(FieldFunction<Scalar> f, Scalar s) => f.Divide(s);
     }
 
-    public class ScalarFunction
+    public partial class ScalarFunction
         : FieldFunction<Scalar>
     {
         public static new ScalarFunction Zero { get; } = new(_ => Scalar.Zero);
+
+        public static new ScalarFunction Identity { get; } = new(LINQ.id);
 
         public override bool IsZero => Is(Zero);
 
@@ -252,9 +258,12 @@ namespace Unknown6656.Mathematics.Analysis
         }
     }
 
-    public class ComplexFunction
+    public partial class ComplexFunction
         : FieldFunction<Complex>
     {
+        public static new ComplexFunction Identity { get; } = new(LINQ.id);
+
+
         public ComplexFunction(Complex constant)
             : base(constant)
         {

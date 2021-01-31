@@ -13,7 +13,10 @@ namespace Unknown6656.Mathematics.Analysis
         public static ScalarFunction Logarithm10 { get; } = new(c => Scalar.Log(c, 10));
         public static ScalarFunction Logarithm2 { get; } = new(c => Scalar.Log(c, 2));
         public static ScalarFunction Exponential { get; } = new(c => c.Exp());
+        public static ScalarFunction Logistic { get; } = new(c => c.MultiplicativeInverse.Exp().Increment().MultiplicativeInverse);
+        public static ScalarFunction Logit { get; } = new(c => Scalar.One.Subtract(c).MultiplicativeInverse.Log());
 
+        public static ScalarFunction Sinc { get; } = new(c => c.Sinc());
         public static ScalarFunction Sine { get; } = new(c => c.Sin());
         public static ScalarFunction Cosine { get; } = new(c => c.Cos());
         public static ScalarFunction Tangent { get; } = new(c => c.Tan());
@@ -82,7 +85,10 @@ namespace Unknown6656.Mathematics.Analysis
         public static ComplexFunction Logarithm10 { get; } = new(c => c.Log10());
         public static ComplexFunction Logarithm2 { get; } = new(c => c.Log2());
         public static ComplexFunction Exponential { get; } = new(c => c.Exp());
+        public static ComplexFunction Logistic { get; } = new(c => c.MultiplicativeInverse.Exp().Increment().MultiplicativeInverse);
+        public static ComplexFunction Logit { get; } = new(c => Complex.One.Subtract(c).MultiplicativeInverse.Log());
 
+        public static ComplexFunction Sinc { get; } = new(c => c.Sinc());
         public static ComplexFunction Sine { get; } = new(c => c.Sin());
         public static ComplexFunction Cosine { get; } = new(c => c.Cos());
         public static ComplexFunction Tangent { get; } = new(c => c.Tan());

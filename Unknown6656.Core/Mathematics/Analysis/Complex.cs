@@ -55,7 +55,12 @@ namespace Unknown6656.Mathematics.Analysis
         public static Complex i { get; } = new Complex(0, 1);
 
         public static Complex π { get; } = new Complex(Math.PI, 0);
+
+        public static Complex τ { get; } = new Complex(Math.Tau, 0);
 #pragma warning restore IDE1006
+        public static Complex Pi { get; } = π;
+
+        public static Complex Tau { get; } = τ;
 
         public static Complex One { get; } = new Complex(1, 0);
 
@@ -334,6 +339,9 @@ namespace Unknown6656.Mathematics.Analysis
         readonly Scalar Algebra<Scalar>.IEucledianVectorSpace<Complex>.Dot(in Complex other) => ComponentwiseMultiply(in other).Sum;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Complex Factorial() => IsReal ? Real.Factorial() : ComplexFunction.Gamma[this];
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Complex Cos() => Multiply(i).Cosh();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -522,6 +530,9 @@ namespace Unknown6656.Mathematics.Analysis
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Complex Random() => new Complex(Scalar.Random(), Scalar.Random());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Complex Factorial(Complex c) => c.Factorial();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Complex Cos(Complex c) => c.Cos();

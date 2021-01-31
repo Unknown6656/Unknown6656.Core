@@ -536,17 +536,47 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         Field Atan();
 
+        Field Acot();
+
+        Field Asec();
+
+        Field Acsc();
+
         Field Sinh();
 
         Field Cosh();
 
         Field Tanh();
 
+        Field Coth();
+
+        Field Sech();
+
+        Field Csch();
+
+        Field Asinh();
+
+        Field Acosh();
+
+        Field Atanh();
+
+        Field Acoth();
+
+        Field Asech();
+
+        Field Acsch();
+
         Field Sin();
 
         Field Cos();
 
         Field Tan();
+
+        Field Cot();
+
+        Field Sec();
+
+        Field Csc();
 
         Field Exp();
 
@@ -1450,25 +1480,47 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public static T ConstrainMap<T>(this T scalar, (T lower, T upper) from, (T lower, T upper) to) where T : unmanaged, IField<T>, INumericRing<T> => scalar.Constrain(from.lower, from.upper).Map(from, to);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T Product<T>(this IEnumerable<T>? scalars) where T : unmanaged, IRing<T> => scalars?.Aggregate(default(T).Increment(), (s1, s2) => s1.Multiply(s2)) ?? default;
+        public static T Product<T>(this IEnumerable<T> scalars) where T : unmanaged, IRing<T> => scalars.Aggregate(default(T).Increment(), (s1, s2) => s1.Multiply(s2));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T Sum<T>(this IEnumerable<T>? scalars) where T : unmanaged, IRing<T> => scalars?.Aggregate(default(T), (s1, s2) => s1.Add(s2)) ?? default;
+        public static T Sum<T>(this IEnumerable<T>? scalars) where T : unmanaged, IRing<T> => scalars?.Aggregate(default(T), (s1, s2) => s1.Add(s2)) ?? IRing<T>.ZeroElement;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T Min<T>(this IEnumerable<T> scalars) where T : unmanaged, INumericRing<T> => scalars.AggregateNonEmpty((s, a) => s.Min(a), default(T));
+        public static T Min<T>(this IEnumerable<T> scalars) where T : unmanaged, INumericRing<T> => scalars.AggregateNonEmpty((s, a) => s.Min(a));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T Max<T>(this IEnumerable<T> scalars) where T : unmanaged, INumericRing<T> => scalars.AggregateNonEmpty((s, a) => s.Max(a), default(T));
+        public static T Max<T>(this IEnumerable<T> scalars) where T : unmanaged, INumericRing<T> => scalars.AggregateNonEmpty((s, a) => s.Max(a));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T Average<T>(this IEnumerable<T>? scalars) where T : unmanaged, IField<T> => scalars?.ToArray() is T[] arr ? arr.Sum().Divide(arr.Length.ToRing<T>()) : default;
+        public static T Average<T>(this IEnumerable<T>? scalars) where T : unmanaged, IField<T> => scalars?.ToArray() is T[] arr ? arr.Sum().Divide(arr.Length.ToRing<T>()) : IRing<T>.ZeroElement;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static U Product<T, U>(this IEnumerable<T>? scalars, Func<T, U> selector) where U : unmanaged, IRing<U> => scalars.Select(selector).Product();
+        [return: MaybeNull]
+        public static T Median<T>(this IEnumerable<T> scalars)
+            where T : IComparable<T>
+        {
+            T[] ordered = scalars.OrderBy(LINQ.id).ToArray();
+
+            return ordered.Length == 0 ? default : ordered[ordered.Length / 2];
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static U Sum<T, U>(this IEnumerable<T>? scalars, Func<T, U> selector) where U : unmanaged, IRing<U> => scalars.Select(selector).Sum();
+        public static T Variance<T>(this IEnumerable<T>? scalars)
+            where T : unmanaged, IField<T>
+        {
+            T avg = scalars.Average();
+
+            return scalars.Sum(x => x.Subtract(avg).Power(2));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T StandardDeviation<T>(this IEnumerable<T>? scalars) where T : unmanaged, IScalar<T> => scalars.Variance().Sqrt();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static U Product<T, U>(this IEnumerable<T> scalars, Func<T, U> selector) where U : unmanaged, IRing<U> => scalars.Select(selector).Product();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static U Sum<T, U>(this IEnumerable<T>? scalars, Func<T, U> selector) where U : unmanaged, IRing<U> => scalars?.Select(selector).Sum() ?? IRing<U>.ZeroElement;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static U Min<T, U>(this IEnumerable<T> scalars, Func<T, U> selector) where U : unmanaged, INumericRing<U> => scalars.Select(selector).Min();
@@ -1477,17 +1529,17 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public static U Max<T, U>(this IEnumerable<T> scalars, Func<T, U> selector) where U : unmanaged, INumericRing<U> => scalars.Select(selector).Max();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static U Average<T, U>(this IEnumerable<T>? scalars, Func<T, U> selector) where U : unmanaged, IField<U> => scalars.Select(selector).Average();
+        public static U Average<T, U>(this IEnumerable<T>? scalars, Func<T, U> selector) where U : unmanaged, IField<U> => scalars?.Select(selector)?.Average() ?? IRing<U>.ZeroElement;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static U Median<T, U>(this IEnumerable<T> scalars, Func<T, U> selector) where U : unmanaged, IComparable<U> => scalars.Select(selector).Median();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static U Variance<T, U>(this IEnumerable<T> scalars, Func<T, U> selector) where U : unmanaged, IField<U> => scalars.Select(selector).Variance();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static U StandardDeviation<T, U>(this IEnumerable<T> scalars, Func<T, U> selector) where U : unmanaged, IScalar<U> => scalars.Select(selector).StandardDeviation();
     }
-
-
-
-
-
-
-
-
-
 
 
 

@@ -411,6 +411,9 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar Log() => new Scalar(Math.Log(Determinant));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar Sinc() => Sin(Multiply(Pi)).Divide(Tau);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar Sin() => new Scalar(Math.Sin(Determinant));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -827,6 +830,9 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Scalar Log(Scalar s, Scalar basis) => new Scalar(Math.Log(s.Determinant, basis.Determinant));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Scalar Sinc(Scalar s) => s.Sinc();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Scalar Sin(Scalar s) => s.Sin();

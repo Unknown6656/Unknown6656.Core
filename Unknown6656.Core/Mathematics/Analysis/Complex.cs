@@ -345,6 +345,9 @@ namespace Unknown6656.Mathematics.Analysis
         public readonly Complex Cos() => Multiply(i).Cosh();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Complex Sinc() => Sin(Multiply(Pi)).Divide(Tau);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Complex Sin() => Multiply(i).Sinh().Divide(i);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -533,6 +536,9 @@ namespace Unknown6656.Mathematics.Analysis
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Complex Factorial(Complex c) => c.Factorial();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Complex Sinc(Complex s) => s.Sinc();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Complex Cos(Complex c) => c.Cos();

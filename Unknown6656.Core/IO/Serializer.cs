@@ -266,38 +266,19 @@ namespace Unknown6656.IO
             }
         }
 
-        public T[][] ToJaggedArray2D<T>() where T : unmanaged => ToBinaryReader().ReadJaggedCollection<T>();
+        public T[][] ToJaggedArray2D<T>() where T : unmanaged => ToBinaryReader().ReadJaggedCollection2D<T>();
 
-        public T[][][] ToJaggedArray3D<T>()
-            where T : unmanaged
-        {
-            BinaryReader reader = ToBinaryReader();
-            int size = reader.ReadInt32();
-            T[][][] arrays = new T[size][][];
-
-            for (int i = 0; i < size; ++i)
-                arrays[i] = reader.ReadJaggedCollection<T>();
-
-            return arrays;
-        }
+        public T[][][] ToJaggedArray3D<T>() where T : unmanaged => ToBinaryReader().ReadJaggedCollection3D<T>();
 
         public T[][][][] ToJaggedArray4D<T>()
             where T : unmanaged
         {
             BinaryReader reader = ToBinaryReader();
-            int size3 = reader.ReadInt32();
-            T[][][][] arrays = new T[size3][][][];
+            int size = reader.ReadInt32();
+            T[][][][] arrays = new T[size][][][];
 
-            for (int i3 = 0; i3 < size3; ++i3)
-            {
-                int size2 = reader.ReadInt32();
-                T[][][] array2 = new T[size2][][];
-
-                for (int i = 0; i < size2; ++i)
-                    array2[i] = reader.ReadJaggedCollection<T>();
-
-                arrays[i3] = array2;
-            }
+            for (int i = 0; i < size; ++i)
+                arrays[i] = reader.ReadJaggedCollection3D<T>();
 
             return arrays;
         }
@@ -361,6 +342,8 @@ namespace Unknown6656.IO
 
             return array;
         }
+
+        public From[] ToArrayOfSources() => ToJaggedArray2D<byte>().ToArray(bytes => new From(bytes));
 
         public Span<T> ToSpan<T>() where T : unmanaged => ToArray<T>().AsSpan();
 
@@ -474,6 +457,10 @@ namespace Unknown6656.IO
 
             return Bytes(arr);
         }
+
+        public static From ArrayOfSources(IEnumerable<From> sources) => ArrayOfSources(sources.ToArray());
+
+        public static From ArrayOfSources(params From[] sources) => JaggedArray(sources.ToArray(s => s.Data));
 
         public static From JaggedArray<T>(T[][] array)
             where T : unmanaged

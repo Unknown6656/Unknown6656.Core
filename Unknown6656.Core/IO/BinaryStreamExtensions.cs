@@ -91,6 +91,15 @@ namespace Unknown6656.IO
                 writer.WriteCollection(collecion);
         }
 
+        public static unsafe void WriteCollection<T>(this BinaryWriter writer, IEnumerable<IEnumerable<IEnumerable<T>>> data)
+            where T : unmanaged
+        {
+            IEnumerable<IEnumerable<T>>[] array = data as IEnumerable<IEnumerable<T>>[] ?? data.ToArray();
+
+            foreach (IEnumerable<IEnumerable<T>> collecion in array)
+                writer.WriteCollection(collecion);
+        }
+
         public static unsafe T[] ReadCollection<T>(this BinaryReader reader)
             where T : unmanaged
         {
@@ -102,13 +111,24 @@ namespace Unknown6656.IO
             return array;
         }
 
-        public static unsafe T[][] ReadJaggedCollection<T>(this BinaryReader reader)
+        public static unsafe T[][] ReadJaggedCollection2D<T>(this BinaryReader reader)
             where T : unmanaged
         {
             T[][] array = new T[reader.ReadInt32()][];
 
             for (int i = 0; i < array.Length; ++i)
                 array[i] = reader.ReadCollection<T>();
+
+            return array;
+        }
+
+        public static unsafe T[][][] ReadJaggedCollection3D<T>(this BinaryReader reader)
+            where T : unmanaged
+        {
+            T[][][] array = new T[reader.ReadInt32()][][];
+
+            for (int i = 0; i < array.Length; ++i)
+                array[i] = reader.ReadJaggedCollection2D<T>();
 
             return array;
         }

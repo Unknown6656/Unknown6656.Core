@@ -72,7 +72,7 @@ namespace MathLibrary.Tester
 
             while (i --> 0)
             {
-                string s = From.Bytes(sh.NextBytes(512)).To.DrunkBishop(100, 50, " .,-~+=´'*\"/!?lI$#&%@BGWO", false);
+                string s = From.Bytes(sh.NextBytes(512)).ToDrunkBishop(100, 50, " .,-~+=´'*\"/!?lI$#&%@BGWO", false);
                 Console.Clear();
                 Console.WriteLine(s);
                 System.Threading.Thread.Sleep(200);
@@ -499,8 +499,8 @@ namespace MathLibrary.Tester
                 π, 0, 0,-τ, 0, 0,-e
             );
             var ccs = m.ToCompressedStorageFormat();
-            var b64 = From.Bytes(ccs).Compress(CompressionFunction.GZip).To.Base64();
-            var bts = From.Base64(b64).Uncompress(CompressionFunction.GZip).To.Bytes;
+            var b64 = From.Bytes(ccs).Compress(CompressionFunction.GZip).ToBase64();
+            var bts = From.Base64(b64).Uncompress(CompressionFunction.GZip).ToBytes();
             var ccsx = CompressedStorageFormat<Scalar>.FromBytes(bts);
             var m2 = Matrix7.FromCompressedStorageFormat(ccsx);
 
@@ -508,7 +508,7 @@ namespace MathLibrary.Tester
 
             Console.WriteLine(m.ToShortString());
             Console.WriteLine();
-            Console.WriteLine(From.Unmanaged(m).To.Base64());
+            Console.WriteLine(From.Unmanaged(m).ToBase64());
             Console.WriteLine();
             Console.WriteLine(b64);
             Console.WriteLine();

@@ -41,7 +41,7 @@ namespace Unknown6656.IO
 
         public From this[Index start, Index end] => Slice(start, end);
 
-        public byte this[Index index] => Data[index];
+        public ref byte this[Index index] => ref Data[index];
 
         public byte[] Data { get; }
 
@@ -93,6 +93,7 @@ namespace Unknown6656.IO
         public IEnumerator<byte> GetEnumerator() => ((IEnumerable<byte>)Data).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
 
         public override string ToString() => ToString(BytewiseEncoding.Instance);
 

@@ -20,13 +20,14 @@ using Unknown6656.Mathematics.Cryptography;
 using Unknown6656.Controls.Console;
 using Unknown6656.Common;
 using Unknown6656.Imaging;
+using System.Threading.Tasks;
 
 namespace Unknown6656.IO
 {
     public unsafe sealed class From
         : IEnumerable<byte>
     {
-        public static From Empty { get; } = new byte[0];
+        public static From Empty { get; } = new(System.Array.Empty<byte>());
 
 
         public From this[Range range] => Slice(range);
@@ -148,6 +149,69 @@ namespace Unknown6656.IO
             }
 
             return Bytes(arr);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static From JaggedArray<T>(T[][] array)
+            where T : unmanaged
+        {
+            From[] arrays = array.ToArray(Array);
+
+            return Unmanaged(arrays.Length).Append(arrays);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static From JaggedArray<T>(T[][][] array)
+            where T : unmanaged
+        {
+            From[] arrays = array.ToArray(JaggedArray);
+
+            return Unmanaged(arrays.Length).Append(arrays);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static From JaggedArray<T>(T[][][][] array)
+            where T : unmanaged
+        {
+            From[] arrays = array.ToArray(JaggedArray);
+
+            return Unmanaged(arrays.Length).Append(arrays);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static From MultiDimensionalArray<T>(T[,] array)
+            where T : unmanaged
+        {
+            int dim0 = array.GetLength(0);
+            int dim1 = array.GetLength(1);
+
+            fixed (T* ptr = array)
+                return Array(new[] { dim0, dim1 }).Append(Pointer(ptr, sizeof(T) * dim0 * dim1));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static From MultiDimensionalArray<T>(T[,,] array)
+            where T : unmanaged
+        {
+            int dim0 = array.GetLength(0);
+            int dim1 = array.GetLength(1);
+            int dim2 = array.GetLength(2);
+
+            fixed (T* ptr = array)
+                return Array(new[] { dim0, dim1, dim2 }).Append(Pointer(ptr, sizeof(T) * dim0 * dim1 * dim2));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static From MultiDimensionalArray<T>(T[,,,] array)
+            where T : unmanaged
+        {
+            int dim0 = array.GetLength(0);
+            int dim1 = array.GetLength(1);
+            int dim2 = array.GetLength(2);
+            int dim3 = array.GetLength(3);
+
+            fixed (T* ptr = array)
+                return Array(new[] { dim0, dim1, dim2, dim3 }).Append(Pointer(ptr, sizeof(T) * dim0 * dim1 * dim2 * dim3));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -374,6 +438,9 @@ namespace Unknown6656.IO
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator From(byte[] bytes) => new From(bytes);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator To(From from) => from.To;
     }
 
     public unsafe sealed class To
@@ -382,10 +449,20 @@ namespace Unknown6656.IO
         private static readonly Regex INI_REGEX_PROPERTY = new Regex(@"^\s*(?<prop>[\w\-]+)\s*\=\s*(?<val>.*)\s*$", RegexOptions.Compiled);
 
 
+        public To this[Range range] => Slice(range);
+
+        public To this[Index start, Index end] => Slice(start, end);
+
+        public byte this[Index index] => Bytes[index];
+
         public byte[] Bytes { get; }
 
 
         internal To(byte[] data) => Bytes = data;
+
+        public To Slice(Index start, Index end) => Slice(start..end);
+
+        public To Slice(Range range) => new To(Bytes[range]);
 
         public override string ToString() => String();
 
@@ -593,6 +670,108 @@ namespace Unknown6656.IO
 
                 return res;
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T[][] JaggedArray2D<T>() where T : unmanaged => BinaryReader().ReadJaggedCollection<T>();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T[][][] JaggedArray3D<T>()
+            where T : unmanaged
+        {
+            BinaryReader reader = BinaryReader();
+            int size = reader.ReadInt32();
+            T[][][] arrays = new T[size][][];
+
+            for (int i = 0; i < size; ++i)
+                arrays[i] = reader.ReadJaggedCollection<T>();
+
+            return arrays;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T[][][][] JaggedArray4D<T>()
+            where T : unmanaged
+        {
+            BinaryReader reader = BinaryReader();
+            int size3 = reader.ReadInt32();
+            T[][][][] arrays = new T[size3][][][];
+
+            for (int i3 = 0; i3 < size3; ++i3)
+            {
+                int size2 = reader.ReadInt32();
+                T[][][] array2 = new T[size2][][];
+
+                for (int i = 0; i < size2; ++i)
+                    array2[i] = reader.ReadJaggedCollection<T>();
+
+                arrays[i3] = array2;
+            }
+
+            return arrays;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T[,] MultiDimensionalArray2D<T>()
+            where T : unmanaged
+        {
+            BinaryReader reader = BinaryReader();
+            int dim0 = reader.ReadInt32();
+            int dim1 = reader.ReadInt32();
+            T[,] array = new T[dim0, dim1];
+            byte[] bytes = reader.ReadBytes(sizeof(T) * dim0 * dim1);
+
+            fixed (T* ptr = array)
+            {
+                byte* dst = (byte*)ptr;
+
+                Parallel.For(0, bytes.Length, i => dst[i] = bytes[i]);
+            }
+
+            return array;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T[,,] MultiDimensionalArray3D<T>()
+            where T : unmanaged
+        {
+            BinaryReader reader = BinaryReader();
+            int dim0 = reader.ReadInt32();
+            int dim1 = reader.ReadInt32();
+            int dim2 = reader.ReadInt32();
+            T[,,] array = new T[dim0, dim1, dim2];
+            byte[] bytes = reader.ReadBytes(sizeof(T) * dim0 * dim1 * dim2);
+
+            fixed (T* ptr = array)
+            {
+                byte* dst = (byte*)ptr;
+
+                Parallel.For(0, bytes.Length, i => dst[i] = bytes[i]);
+            }
+
+            return array;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T[,,,] MultiDimensionalArray4D<T>()
+            where T : unmanaged
+        {
+            BinaryReader reader = BinaryReader();
+            int dim0 = reader.ReadInt32();
+            int dim1 = reader.ReadInt32();
+            int dim2 = reader.ReadInt32();
+            int dim3 = reader.ReadInt32();
+            T[,,,] array = new T[dim0, dim1, dim2, dim3];
+            byte[] bytes = reader.ReadBytes(sizeof(T) * dim0 * dim1 * dim2 * dim3);
+
+            fixed (T* ptr = array)
+            {
+                byte* dst = (byte*)ptr;
+
+                Parallel.For(0, bytes.Length, i => dst[i] = bytes[i]);
+            }
+
+            return array;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

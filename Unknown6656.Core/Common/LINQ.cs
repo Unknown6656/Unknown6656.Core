@@ -385,10 +385,10 @@ namespace Unknown6656.Common
         public static unsafe byte[] BinaryCast<T>(this T value) where T : unmanaged => BinaryCast(&value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe byte[] BinaryCast<T>(T* pointer) where T : unmanaged => From.Pointer(pointer).To.Bytes;
+        public static unsafe byte[] BinaryCast<T>(T* pointer) where T : unmanaged => From.Pointer(pointer).ToBytes();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe T BinaryCast<T>(this byte[] source) where T : unmanaged => From.Bytes(source).To.Unmanaged<T>();
+        public static unsafe T BinaryCast<T>(this byte[] source) where T : unmanaged => From.Bytes(source).ToUnmanaged<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe U BinaryCast<T, U>(this T value) where T : unmanaged where U : unmanaged => *(U*)&value;

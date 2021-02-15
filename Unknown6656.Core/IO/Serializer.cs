@@ -24,6 +24,9 @@ using Unknown6656.Common;
 
 namespace Unknown6656.IO
 {
+    /// <summary>
+    /// A class containing serialization/deserialization functions.
+    /// </summary>
     public unsafe sealed class From
         : IEnumerable<byte>
     {
@@ -231,6 +234,8 @@ namespace Unknown6656.IO
             for (int i = 0, l = Data.Length; i < l; ++i)
                 dst[i] = Data[i];
         }
+
+        public byte[] ToBytes() => Data;
 
         public T ToUnmanaged<T>()
             where T : unmanaged

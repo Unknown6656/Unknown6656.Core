@@ -35,7 +35,7 @@ namespace Unknown6656.IO
             public VarInt? Codepoint { set; get; }
             public int Occurrence { get; set; }
 
-            public override string ToString() => $"{Occurrence}x {Codepoint}: {From.Bytes(Sequence).To.Hex()}";
+            public override string ToString() => $"{Occurrence}x {Codepoint}: {From.Bytes(Sequence).ToHexString()}";
         }
 
         public override byte[] CompressData(byte[] data)

@@ -718,10 +718,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar DistanceTo(in <#=typename#> second) => Subtract(second).Length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).To.Array<T>();
+        public T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).ToArray<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).To.Pointer(dst);
+        public void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).ToPointer(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar[] ToArray() => Coefficients;

@@ -1662,10 +1662,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix(this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).To.Array<T>();
+        public readonly T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).ToArray<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).To.Pointer(dst);
+        public readonly void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).ToPointer(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly IEnumerator<<#=vecname#>> GetEnumerator() => ((IEnumerable<<#=vecname#>>)Columns).GetEnumerator();

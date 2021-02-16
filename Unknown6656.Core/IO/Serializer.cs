@@ -32,6 +32,9 @@ namespace Unknown6656.IO
     {
         private static readonly Regex INI_REGEX_SECTION = new Regex(@"^\s*\[\s*(?<sec>[\w\-]+)\s*\]", RegexOptions.Compiled);
         private static readonly Regex INI_REGEX_PROPERTY = new Regex(@"^\s*(?<prop>[\w\-]+)\s*\=\s*(?<val>.*)\s*$", RegexOptions.Compiled);
+        private static readonly Regex FTP_PROTOCOL_REGEX = new Regex(@"^(?<protocol>ftps?):\/\/(?<uname>[^:]+)(:(?<passw>[^@]+))?@(?<url>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex SSH_PROTOCOL_REGEX = new Regex(@"^(sftp|ssh|s?scp):\/\/(?<uname>[^:]+)(:(?<passw>[^@]+))?@(?<host>[^:\/]+|\[[0-9a-f\:]+\])(:(?<port>[0-9]{1,6}))?(\/|\\)(?<path>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex BASE64_REGEX = new Regex(@"^.\s*data:\s*[^\w\/\-\+]+\s*;(\s*base64\s*,)?(?<data>(?:[a-z0-9+/]{4})*(?:[a-z0-9+/]{2}==|[a-z0-9+/]{3}=)?)$", RegexOptions.Compiled | RegexOptions.Compiled);
 
 
         public static From Empty { get; } = new(System.Array.Empty<byte>());
@@ -286,18 +289,13 @@ namespace Unknown6656.IO
         public T[,] ToMultiDimensionalArray2D<T>()
             where T : unmanaged
         {
-            BinaryReader reader = ToBinaryReader();
-            int dim0 = reader.ReadInt32();
-            int dim1 = reader.ReadInt32();
+            From[] sources = ToArrayOfSources();
+            int dim0 = sources[0].ToUnmanaged<int>();
+            int dim1 = sources[1].ToUnmanaged<int>();
+            T[] flat = sources[2].ToArray<T>();
             T[,] array = new T[dim0, dim1];
-            byte[] bytes = reader.ReadBytes(sizeof(T) * dim0 * dim1);
 
-            fixed (T* ptr = array)
-            {
-                byte* dst = (byte*)ptr;
-
-                Parallel.For(0, bytes.Length, i => dst[i] = bytes[i]);
-            }
+            Parallel.For(0, flat.Length, i => array[i / dim0, i % dim0] = flat[i]);
 
             return array;
         }
@@ -305,19 +303,14 @@ namespace Unknown6656.IO
         public T[,,] ToMultiDimensionalArray3D<T>()
             where T : unmanaged
         {
-            BinaryReader reader = ToBinaryReader();
-            int dim0 = reader.ReadInt32();
-            int dim1 = reader.ReadInt32();
-            int dim2 = reader.ReadInt32();
+            From[] sources = ToArrayOfSources();
+            int dim0 = sources[0].ToUnmanaged<int>();
+            int dim1 = sources[1].ToUnmanaged<int>();
+            int dim2 = sources[2].ToUnmanaged<int>();
+            T[] flat = sources[3].ToArray<T>();
             T[,,] array = new T[dim0, dim1, dim2];
-            byte[] bytes = reader.ReadBytes(sizeof(T) * dim0 * dim1 * dim2);
 
-            fixed (T* ptr = array)
-            {
-                byte* dst = (byte*)ptr;
-
-                Parallel.For(0, bytes.Length, i => dst[i] = bytes[i]);
-            }
+            Parallel.For(0, flat.Length, i => array[i / (dim2 * dim1), i / dim2 % dim1, i % dim2] = flat[i]);
 
             return array;
         }
@@ -325,20 +318,15 @@ namespace Unknown6656.IO
         public T[,,,] ToMultiDimensionalArray4D<T>()
             where T : unmanaged
         {
-            BinaryReader reader = ToBinaryReader();
-            int dim0 = reader.ReadInt32();
-            int dim1 = reader.ReadInt32();
-            int dim2 = reader.ReadInt32();
-            int dim3 = reader.ReadInt32();
+            From[] sources = ToArrayOfSources();
+            int dim0 = sources[0].ToUnmanaged<int>();
+            int dim1 = sources[1].ToUnmanaged<int>();
+            int dim2 = sources[2].ToUnmanaged<int>();
+            int dim3 = sources[3].ToUnmanaged<int>();
+            T[] flat = sources[4].ToArray<T>();
             T[,,,] array = new T[dim0, dim1, dim2, dim3];
-            byte[] bytes = reader.ReadBytes(sizeof(T) * dim0 * dim1 * dim2 * dim3);
 
-            fixed (T* ptr = array)
-            {
-                byte* dst = (byte*)ptr;
-
-                Parallel.For(0, bytes.Length, i => dst[i] = bytes[i]);
-            }
+            Parallel.For(0, flat.Length, i => array[i / (dim3 * dim2 * dim1), i / (dim3 * dim2) % dim1, i / dim3 % dim2, i % dim3] = flat[i]);
 
             return array;
         }
@@ -418,6 +406,8 @@ namespace Unknown6656.IO
                 if (source is { })
                     s.Write(source.Data, 0, source.ByteCount);
 
+            s.Seek(0, SeekOrigin.Begin);
+
             return Stream(s);
         }
 
@@ -491,9 +481,15 @@ namespace Unknown6656.IO
         {
             int dim0 = array.GetLength(0);
             int dim1 = array.GetLength(1);
+            T[] flat = new T[dim0 * dim1];
 
-            fixed (T* ptr = array)
-                return Array(new[] { dim0, dim1 }).Append(Pointer(ptr, sizeof(T) * dim0 * dim1));
+            Parallel.For(0, flat.Length, i => flat[i] = array[i / dim0, i % dim0]);
+
+            return ArrayOfSources(
+                Unmanaged(dim0),
+                Unmanaged(dim1),
+                Array(flat)
+            );
         }
 
         public static From MultiDimensionalArray<T>(T[,,] array)
@@ -502,9 +498,16 @@ namespace Unknown6656.IO
             int dim0 = array.GetLength(0);
             int dim1 = array.GetLength(1);
             int dim2 = array.GetLength(2);
+            T[] flat = new T[dim0 * dim1 * dim2];
 
-            fixed (T* ptr = array)
-                return Array(new[] { dim0, dim1, dim2 }).Append(Pointer(ptr, sizeof(T) * dim0 * dim1 * dim2));
+            Parallel.For(0, flat.Length, i => flat[i] = array[i / (dim2 * dim1), i / dim2 % dim1, i % dim2]);
+
+            return ArrayOfSources(
+                Unmanaged(dim0),
+                Unmanaged(dim1),
+                Unmanaged(dim2),
+                Array(flat)
+            );
         }
 
         public static From MultiDimensionalArray<T>(T[,,,] array)
@@ -514,9 +517,26 @@ namespace Unknown6656.IO
             int dim1 = array.GetLength(1);
             int dim2 = array.GetLength(2);
             int dim3 = array.GetLength(3);
+            T[] flat = new T[dim0 * dim1 * dim2 * dim3];
 
-            fixed (T* ptr = array)
-                return Array(new[] { dim0, dim1, dim2, dim3 }).Append(Pointer(ptr, sizeof(T) * dim0 * dim1 * dim2 * dim3));
+            Parallel.For(0, flat.Length, i => flat[i] = array[i / (dim3 * dim2 * dim1), i / (dim3 * dim2) % dim1, i / dim3 % dim2, i % dim3]);
+
+            return ArrayOfSources(
+                Unmanaged(dim0),
+                Unmanaged(dim1),
+                Unmanaged(dim2),
+                Unmanaged(dim3),
+                Array(flat)
+            );
+        }
+
+        public static From MultiDimensionalArray<T>(Array array, int dimensions)
+        {
+            int[] dims = Enumerable.Range(0, dimensions).ToArray(array.GetLength);
+
+            // Todo
+
+            throw new NotImplementedException();
         }
 
         public static From RGBAEncodedBitmap(Bitmap bitmap) => Array(bitmap.ToPixelArray());
@@ -531,9 +551,12 @@ namespace Unknown6656.IO
             return Stream(ms);
         }
 
-        public static From Stream(Stream stream)
+        public static From Stream(Stream stream, bool seek_beginning = true)
         {
             using MemoryStream ms = new MemoryStream();
+
+            if (seek_beginning && stream.CanSeek)
+                stream.Seek(0, SeekOrigin.Begin);
 
             stream.CopyTo(ms);
             ms.Seek(0, SeekOrigin.Begin);
@@ -622,7 +645,7 @@ namespace Unknown6656.IO
             FtpWebRequest req;
             byte[] content;
 
-            if (uri.Match(@"^(?<protocol>ftps?):\/\/(?<uname>[^:]+)(:(?<passw>[^@]+))?@(?<url>.+)$", out ReadOnlyIndexer<string, string>? g))
+            if (uri.Match(FTP_PROTOCOL_REGEX, out ReadOnlyIndexer<string, string>? g))
             {
                 req = (FtpWebRequest)WebRequest.Create($"{g["protocol"]}://{g["url"]}");
                 req.Method = WebRequestMethods.Ftp.DownloadFile;
@@ -641,7 +664,7 @@ namespace Unknown6656.IO
 
         public static From SSH(string uri)
         {
-            if (uri.Match(@"^(sftp|ssh|scp):\/\/(?<uname>[^:]+)(:(?<passw>[^@]+))?@(?<host>[^:\/]+|\[[0-9a-f\:]+\])(:(?<port>[0-9]{1,6}))?(\/|\\)(?<path>.+)$", out ReadOnlyIndexer<string, string>? g))
+            if (uri.Match(SSH_PROTOCOL_REGEX, out ReadOnlyIndexer<string, string>? g))
             {
                 string host = g["host"];
                 string uname = g["uname"];
@@ -668,7 +691,7 @@ namespace Unknown6656.IO
 
         public static From DataURI(string uri)
         {
-            if (uri.Match(/*lang=regex*/@"^.\s*data:\s*[^\w\/\-\+]+\s*;(\s*base64\s*,)?(?<data>(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?)$", out ReadOnlyIndexer<string, string>? groups))
+            if (uri.Match(BASE64_REGEX, out ReadOnlyIndexer<string, string>? groups))
                 return Base64(groups!["data"]);
 
             throw new ArgumentException("Invalid data URI.");

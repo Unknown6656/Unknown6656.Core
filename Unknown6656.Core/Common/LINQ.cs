@@ -199,6 +199,24 @@ namespace Unknown6656.Common
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static List<U> ToList<T, U>(this IEnumerable<T> coll, Func<T, U> func) => coll.Select(func).ToList();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static List<U> ToList<T, U>(this IEnumerable<T> coll, Func<T, int, U> func) => coll.Select(func).ToList();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static List<T> ToListWhere<T>(this IEnumerable<T> coll, Func<T, bool> func) => coll.Where(func).ToList();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static List<T> ToListWhere<T>(this IEnumerable<T> coll, Func<T, int, bool> func) => coll.Where(func).ToList();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static List<U> ToListWhere<T, U>(this IEnumerable<T> coll, Func<T, bool> func, Func<T, U> map) => coll.Where(func).ToList(map);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static List<U> ToListWhere<T, U>(this IEnumerable<T> coll, Func<T, int, bool> func, Func<T, int, U> map) => coll.Where(func).ToList(map);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static U[] ToArray<T, U>(this IEnumerable<T> coll, Func<T, U> func) => coll.Select(func).ToArray();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

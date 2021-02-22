@@ -104,6 +104,10 @@
           <Generator>TextTemplatingFileGenerator</Generator>
           <LastGenOutput>LinearEquationSolvers.cs</LastGenOutput>
         </None>
+        <None Update="Imaging\PhysicalSpectrums.tt">
+          <LastGenOutput>PhysicalSpectrums.cs</LastGenOutput>
+          <Generator>TextTemplatingFileGenerator</Generator>
+        </None>
         <None Update="Imaging\ColorMemberGenerator.tt">
           <Generator>TextTemplatingFileGenerator</Generator>
           <LastGenOutput>ColorMemberGenerator.cs</LastGenOutput>
@@ -176,6 +180,11 @@
           <DesignTime>True</DesignTime>
           <AutoGen>True</AutoGen>
           <DependentUpon>ColorMemberGenerator.tt</DependentUpon>
+        </Compile>
+        <Compile Update="Imaging\PhysicalSpectrums.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>PhysicalSpectrums.tt</DependentUpon>
         </Compile>
         <Compile Update="IO/CompressionFunctions.cs">
           <DesignTime>True</DesignTime>

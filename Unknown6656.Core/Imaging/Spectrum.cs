@@ -4,6 +4,7 @@ using System.Collections;
 using System.Linq;
 using System;
 
+using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics;
 using Unknown6656.Common;
 
@@ -79,9 +80,9 @@ namespace Unknown6656.Imaging
         /// <returns>Black body emittance (in Watt per square meters).</returns>
         public readonly double GetBlackBodyEmittance(double temperature) => 3.74183e-16 * Math.Pow(InMeters, -5.0) / Math.Exp(1.4388e-2 / (InMeters * temperature) - 1.0);
 
-        public readonly RGBAColor ToRGBAColor() => RGBAColor.FromWavelength(in this);
+        public readonly HDRColor ToColor() => HDRColor.FromWavelength(in this);
 
-        public readonly RGBAColor ToRGBAColor(double α) => RGBAColor.FromWavelength(in this, α);
+        public readonly HDRColor ToColor(double α) => HDRColor.FromWavelength(in this, α);
 
         /// <inheritdoc/>
         public override string ToString() => $"{InNanometers} nm / {Frequency} Hz ({(IsVisible ? "" : "in")}visible)";
@@ -105,6 +106,21 @@ namespace Unknown6656.Imaging
         /// <returns>Wavelength</returns>
         public static Wavelength FromFrequency(double frequency) => new Wavelength((C / 1e9) / frequency);
 
+        public static Wavelength FromAngstrom(double ångström) => new Wavelength(ångström * .1);
+
+
+        public static Wavelength operator +(Wavelength wavelength) => wavelength;
+
+        public static Wavelength operator -(Wavelength wavelength) => -wavelength.InNanometers;
+
+        public static Wavelength operator +(Wavelength first, Wavelength second) => first.InNanometers + second.InNanometers;
+
+        public static Wavelength operator -(Wavelength first, Wavelength second) => first.InNanometers - second.InNanometers;
+
+        public static Wavelength operator *(Wavelength wavelength, double factor) => wavelength.InNanometers * factor;
+
+        public static Wavelength operator /(Wavelength wavelength, double factor) => wavelength.InNanometers / factor;
+
         public static bool operator <(Wavelength left, Wavelength right) => left.CompareTo(right) < 0;
 
         public static bool operator <=(Wavelength left, Wavelength right) => left.CompareTo(right) <= 0;
@@ -114,13 +130,36 @@ namespace Unknown6656.Imaging
         public static bool operator >=(Wavelength left, Wavelength right) => left.CompareTo(right) >= 0;
 
         public static implicit operator Wavelength(double nm) => new Wavelength(nm);
+
+        public static implicit operator HDRColor(Wavelength wavelength) => wavelength.ToColor();
     }
 
-    public abstract class Spectrum
+    public abstract partial class Spectrum
     {
         public abstract double GetIntensity(Wavelength wavelength);
 
-        public ContinousSpectrum InvertSpectrum() => new ContinousSpectrum(λ => 1 - GetIntensity(λ).Clamp());
+        public virtual Spectrum InvertSpectrum() => new ContinousSpectrum(λ => 1 - GetIntensity(λ).Clamp());
+
+        public virtual ContinousSpectrum ToContinous() => new ContinousSpectrum(GetIntensity);
+
+        public HDRColor ToVisibleColor(Wavelength lowest, Wavelength highest, double wavelength_resolution_in_nm) =>
+            ToVisibleColor(lowest, highest, wavelength_resolution_in_nm, 1);
+
+        public virtual HDRColor ToVisibleColor(Wavelength lowest, Wavelength highest, double wavelength_resolution_in_nm, double α)
+        {
+            if (lowest > highest)
+                (lowest, highest) = (highest, lowest);
+
+            wavelength_resolution_in_nm = Math.Max(wavelength_resolution_in_nm, Scalar.ComputationalEpsilon);
+
+            HDRColor color = new HDRColor();
+
+            for (Wavelength nm = lowest; nm <= highest; nm += wavelength_resolution_in_nm)
+                if (nm.IsVisible)
+                    color += GetIntensity(nm) * nm.ToColor();
+
+            return color;
+        }
     }
 
     public class DiscreteSpectrum
@@ -145,13 +184,66 @@ namespace Unknown6656.Imaging
         public DiscreteSpectrum(IDictionary<Wavelength, double> intensities) =>
             Intensities = intensities.ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Value.Clamp());
 
+        public DiscreteSpectrum Normalize()
+        {
+            double max = Intensities.Values.Max();
+
+            return new(Intensities.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / max));
+        }
+
+        public DiscreteSpectrum NormalizeVisible()
+        {
+            List<(Wavelength, double)> intensities = new();
+            double max = 0;
+
+            foreach (KeyValuePair<Wavelength, double> kvp in Intensities)
+            {
+                intensities.Add((kvp.Key, kvp.Value));
+
+                if (kvp.Key.IsVisible)
+                    max = Math.Max(max, kvp.Value);
+            }
+
+            if (max is 0)
+                max = 1;
+            
+            return new(intensities.ToDictionary(t => t.Item1, t => t.Item2 / max));
+        }
+
+        public DiscreteSpectrum ToVisibleSpectrum() => new(Intensities.Where(kvp => kvp.Key.IsVisible).ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
+
+        public override DiscreteSpectrum InvertSpectrum() => new(Intensities.ToDictionary(kvp => kvp.Key, kvp => 1 - GetIntensity(kvp.Value).Clamp()));
+
         public override double GetIntensity(Wavelength wavelength) => Intensities.TryGetValue(wavelength, out double intensity) ? intensity : 0;
+
+        public HDRColor ToVisibleColor() => ToVisibleColor(1);
+
+        public HDRColor ToVisibleColor(double α) => ToVisibleColor(Wavelength.HighestVisibleFrequency, Wavelength.LowestVisibleFrequency, 0, α);
+
+        public override HDRColor ToVisibleColor(Wavelength lowest, Wavelength highest, double _ignored_, double α)
+        {
+            if (lowest > highest)
+                (lowest, highest) = (highest, lowest);
+
+            HDRColor color = new HDRColor();
+
+            foreach (KeyValuePair<Wavelength, double> kvp in Intensities)
+                if (kvp.Key.IsVisible && kvp.Key >= lowest && kvp.Key <= highest)
+                    color += kvp.Value * kvp.Key.ToColor();
+
+            return color;
+        }
 
         public override string ToString() => $"{Intensities.Count} Wavelengths: [{string.Join(", ", Intensities.Select(kvp => $"{kvp.Key.InNanometers}nm:{kvp.Value}"))}]";
 
         public IEnumerator<(Wavelength Wavelength, double Intensity)> GetEnumerator() => Intensities.Select(kvp => (kvp.Key, kvp.Value)).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+
+        public static implicit operator ContinousSpectrum(DiscreteSpectrum spectrum) => spectrum.ToContinous();
+
+        public static implicit operator HDRColor(DiscreteSpectrum spectrum) => spectrum.ToVisibleColor();
     }
 
     public class ContinousSpectrum

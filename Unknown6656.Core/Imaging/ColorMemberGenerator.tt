@@ -117,6 +117,22 @@
             : this(r, g, b, 1)
         {
         }",
+        @"public $type($type color)
+            : this(color, color.$A)
+        {
+        }",
+        @"public $type($type color, double α)
+            : this(color.$R, color.$G, color.$B, α)
+        {
+        }",
+        @"public $type($type* ptr)
+            : this(*ptr)
+        {
+        }",
+        @"public $type($type** ptr)
+            : this(**ptr)
+        {
+        }",
         @"public $type(double r, double g, double b, double α)
             : this()
         {
@@ -270,13 +286,13 @@
         @"public readonly double GetIntensity(Wavelength wavelength, double tolerance = 1e-1)
         {
             (Wavelength lo, Wavelength hi) = (wavelength.InNanometers + tolerance, wavelength.InNanometers - tolerance);
-            double dist_mid = (($type)wavelength).CIALAB94DistanceTo(this);
+            double dist_mid = wavelength.ToColor().CIALAB94DistanceTo(this);
 
             if (tolerance < Scalar.ComputationalEpsilon)
                 return dist_mid;
 
-            double dist_lo = (($type)lo).CIALAB94DistanceTo(this);
-            double dist_hi = (($type)hi).CIALAB94DistanceTo(this);
+            double dist_lo = lo.ToColor().CIALAB94DistanceTo(this);
+            double dist_hi = hi.ToColor().CIALAB94DistanceTo(this);
 
             return (dist_lo * .2 + dist_mid * .6 + dist_hi * .2).Clamp();
         }",
@@ -588,6 +604,13 @@
         }",
         @"public static $type FromARGB(int argb) => new $type(argb);",
         @"public static $type FromARGB(uint argb) => new $type(argb);",
+        @"public static $type operator +($type color) => color;",
+        @"public static $type operator -($type color) => new(-color.$R, -color.$G, -color.$B, -color.$A);",
+        @"public static $type operator +($type first, $type second) => new(first.$R + second.$R, first.$G + second.$G, first.$B + second.$B, first.$A + second.$A);",
+        @"public static $type operator -($type first, $type second) => new(first.$R - second.$R, first.$G - second.$G, first.$B - second.$B, first.$A - second.$A);",
+        @"public static $type operator *(double factor, $type color) => color * factor;",
+        @"public static $type operator *($type color, double factor) => new(color.$R * factor, color.$G * factor, color.$B * factor, color.$A * factor);",
+        @"public static $type operator /($type color, double factor) => new(color.$R / factor, color.$G / factor, color.$B / factor, color.$A / factor);",
         @"public static implicit operator $type(int argb) => FromARGB(argb);",
         @"public static implicit operator $type(uint argb) => FromARGB(argb);",
         @"public static implicit operator (double r, double g, double b)($type color) => (color.$R, color.$G, color.$B);",
@@ -636,7 +659,7 @@ namespace Unknown6656.Imaging
     {
 #>
 
-    public partial struct <#=name#>
+    public unsafe partial struct <#=name#>
     {
 <#
         foreach (string member in members)

@@ -780,6 +780,16 @@ namespace Unknown6656.IO
 
             GC.SuppressFinalize(this);
         }
+
+        public static UnsafeFunctionPointer FromBuffer(Span<byte> buffer) => From.Span(buffer).ToFunctionPointer();
+
+        public static UnsafeFunctionPointer FromBuffer(ReadOnlySpan<byte> buffer) => From.Span(buffer).ToFunctionPointer();
+
+        public static UnsafeFunctionPointer FromBuffer(Memory<byte> buffer) => From.Memory(buffer).ToFunctionPointer();
+
+        public static UnsafeFunctionPointer FromBuffer(ReadOnlyMemory<byte> buffer) => From.Memory(buffer).ToFunctionPointer();
+
+        public static UnsafeFunctionPointer FromBuffer(IEnumerable<byte> bytes) => FromBuffer(new Span<byte>(bytes.ToArray()));
     }
 
 

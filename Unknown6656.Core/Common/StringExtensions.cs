@@ -68,6 +68,16 @@ namespace Unknown6656.Common
 
         public static string[] SplitIntoLines(this string input, string newline = "\n") => input.Split(newline);
 
+        public static string Replace(this string input, params (char from, char to)[] replacements) => input.Replace(replacements as IEnumerable<(char, char)>);
+
+        public static string Replace(this string input, params (string from, string to)[] replacements) => input.Replace(replacements as IEnumerable<(string, string)>);
+
+        public static string Replace(this string input, IEnumerable<(char from, char to)> replacements) =>
+            replacements.Aggregate(input, (str, repl) => str.Replace(repl.from, repl.to));
+
+        public static string Replace(this string input, IEnumerable<(string from, string to)> replacements) =>
+            replacements.Aggregate(input, (str, repl) => str.Replace(repl.from, repl.to));
+
         public static string Remove(this string input, string search) => input.Replace(search, string.Empty);
 
         public static string ToSubScript(this string input) => input.Select(ToSubScript).StringConcat();

@@ -35,12 +35,11 @@ namespace MathLibrary.Tester
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-            var spec = Spectrum.HeliumAirSpectrum;
-            var lol = spec.ToVisibleColor();
-            ConsoleExtensions.RGBForegroundColor = lol;
-            Console.WriteLine("████████");
-            Console.WriteLine(lol);
-            Console.WriteLine(spec.ToVisibleSpectrum());
+            for (Wavelength w = Wavelength.HighestVisibleFrequency; w <= Wavelength.LowestVisibleFrequency; w += 2.0)
+            {
+                ConsoleExtensions.RGBForegroundColor = w.ToColor();
+                Console.Write("█");
+            }
 
 
             //Main_PSO();

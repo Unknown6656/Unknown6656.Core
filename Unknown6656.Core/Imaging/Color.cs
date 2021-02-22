@@ -1019,7 +1019,7 @@ namespace Unknown6656.Imaging
         public Scalar Approximate(RGBAColor color)
         {
             (Scalar x, Scalar fac)[] factors = (from pairs in _colors
-                                                let dist = ((Vector3)pairs.Color - color).SquaredLength
+                                                let dist = ((Vector3)pairs.Color).Subtract(color).SquaredLength
                                                 let fac = (1 - dist).Clamp()
                                                 select (pairs.X, fac)).ToArray();
             Scalar total = 0;

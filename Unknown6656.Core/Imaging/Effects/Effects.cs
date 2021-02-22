@@ -1634,7 +1634,7 @@ namespace Unknown6656.Imaging.Effects
 
                 return c =>
                 {
-                    Scalar α = ((Vector3)c - key).Length - tolerance;
+                    Scalar α = ((Vector3)c).Subtract(key).Length - tolerance;
                     Scalar s = 1 - (20 * α).Exp().Increment().Inverse;
 
                     return new Vector4(1, 1, 1, s).ComponentwiseMultiply(c);

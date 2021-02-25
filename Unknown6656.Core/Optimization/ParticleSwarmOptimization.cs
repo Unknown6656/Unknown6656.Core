@@ -9,7 +9,7 @@ using Unknown6656.Mathematics.Numerics;
 
 using Random = Unknown6656.Mathematics.Numerics.Random;
 
-namespace Unknown6656.Computation.ParticleSwarmOptimization
+namespace Unknown6656.Optimization.ParticleSwarmOptimization
 {
     public sealed record PSOSolverConfiguration<Domain>(int ParticleCount, int MaxIterationCount, PSOSolverWeightsConfiguration Weights, Domain InitialPosition)
     {

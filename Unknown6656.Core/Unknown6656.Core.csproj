@@ -100,7 +100,7 @@
           <LastGenOutput>LINQExtensions.cs</LastGenOutput>
           <Generator>TextTemplatingFileGenerator</Generator>
         </None>
-        <None Update="Computation\LinearEquationSolvers.tt">
+        <None Update="Optimization\LinearEquationSolvers.tt">
           <Generator>TextTemplatingFileGenerator</Generator>
           <LastGenOutput>LinearEquationSolvers.cs</LastGenOutput>
         </None>
@@ -161,7 +161,7 @@
           <DesignTime>True</DesignTime>
           <AutoGen>True</AutoGen>
         </Compile>
-        <Compile Update="Computation\LinearEquationSolvers.cs">
+        <Compile Update="Optimization\LinearEquationSolvers.cs">
           <DesignTime>True</DesignTime>
           <AutoGen>True</AutoGen>
           <DependentUpon>LinearEquationSolvers.tt</DependentUpon>

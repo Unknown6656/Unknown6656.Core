@@ -12,7 +12,7 @@ using System.Diagnostics;
 using System.Linq;
 using System;
 
-using Unknown6656.Computation.ParticleSwarmOptimization;
+using Unknown6656.Optimization.ParticleSwarmOptimization;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Numerics;
 using Unknown6656.Common;

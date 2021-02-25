@@ -7,7 +7,7 @@ using System.Text;
 using System.IO;
 using System;
 
-using Unknown6656.Computation.ParticleSwarmOptimization;
+using Unknown6656.Optimization.ParticleSwarmOptimization;
 using Unknown6656.Mathematics.Graphs.Computation;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Analysis;

@@ -280,6 +280,8 @@ namespace Unknown6656.Imaging
             });
         }
 
+        public static Delegated FromDelegate(Func<RGBAColor, RGBAColor> @delegate) => FromDelegate(@delegate);
+
 
         public class Delegated
             : ColorEffect

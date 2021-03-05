@@ -89,7 +89,7 @@ namespace Unknown6656.Imaging
 
         public static BitmapMask ToMask(this Bitmap bmp, Func<RGBAColor, Scalar> func, bool ignore_alpha = false) => BitmapMask.FromBitmap(bmp, func, ignore_alpha);
 
-        public static BitmapMask ToApproximationMask(this Bitmap bmp, ColorMap colormap) => BitmapMask.FromApproximation(bmp, colormap);
+        public static BitmapMask ToApproximationMask(this Bitmap bmp, DiscreteColorMap colormap) => BitmapMask.FromApproximation(bmp, colormap);
 
         public static BitmapMask ToLumaMask(this Bitmap bmp) => BitmapMask.FromLuma(bmp);
 

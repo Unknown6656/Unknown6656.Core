@@ -103,7 +103,7 @@ namespace Unknown6656.Imaging
         // TODO:
         //public static BitmapMask FromShape<T>(T shape) where T : Shape2D<T> => ;
 
-        public static BitmapMask FromApproximation(Bitmap bitmap, ColorMap colormap) => FromBitmap(bitmap, colormap.Approximate);
+        public static BitmapMask FromApproximation(Bitmap bitmap, DiscreteColorMap colormap) => FromBitmap(bitmap, colormap.Approximate);
 
         public static BitmapMask FromChannels(Bitmap bitmap, params BitmapChannel[] channels)
         {

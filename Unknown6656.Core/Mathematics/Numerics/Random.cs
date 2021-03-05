@@ -48,16 +48,30 @@ namespace Unknown6656.Mathematics.Numerics
         public ushort NextUShort() => (ushort)(NextInt() & 0xffff);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public float NextFloat() => (float)NextUInt() / uint.MaxValue;
+        public float NextFloat() => (float)NextDouble();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public double NextDouble() => (double)NextULong() / ulong.MaxValue;
+        public double NextDouble() => ((double)NextULong() / long.MaxValue) % 1d;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public decimal NextDecimal() => (decimal)NextDouble();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Scalar NextScalar() => NextDouble();
+
+        public float NextGaussian(float mean, float deviation) => (float)NextGaussian((double)mean, deviation);
+
+        public decimal NextGaussian(decimal mean, decimal deviation) => (decimal)NextGaussian((double)mean, (double)deviation);
+
+        public Scalar NextGaussian(Scalar mean, Scalar deviation) => NextGaussian(mean.Determinant, deviation.Determinant);
+
+        public double NextGaussian(double mean, double deviation)
+        {
+            double u1 = 1 - NextDouble();
+            double u2 = 1 - NextDouble();
+
+            return mean + deviation * Math.Sqrt(-2 * Math.Log(u1)) * Math.Sin(Math.Tau * u2);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Scalar NextScalar(Scalar max) => NextScalar() * max;

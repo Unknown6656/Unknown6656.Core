@@ -2286,6 +2286,13 @@ namespace Unknown6656.Imaging
             else
                 B = 1;
 
+            if (temperature <= 1000)
+            {
+                R *= temperature / 1000;
+                G *= temperature / 1000;
+                B *= temperature / 1000;
+            }
+
             return new RGBAColor(R, G, B, α);
         }
 

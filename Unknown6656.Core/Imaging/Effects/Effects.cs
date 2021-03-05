@@ -304,6 +304,18 @@ namespace Unknown6656.Imaging.Effects
         }
     }
 
+    public sealed class Colorize
+        : ColorEffect
+    {
+        public ColorMap Map { get; }
+
+
+        public Colorize(ColorMap map) => Map = map;
+
+        protected override RGBAColor ProcessColor(RGBAColor input) => Map[input.Average];
+    }
+
+
     #endregion
     #region INSTAGRAM CSS COLOR FILTERS
 

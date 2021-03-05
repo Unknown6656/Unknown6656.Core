@@ -29,20 +29,15 @@ namespace Unknown6656.Imaging
 
         public static ImmutableList<Wavelength> VisibleWavelengths { get; }
 
-        public static Wavelength LowestVisibleFrequency { get; } = 720;
+        public static Wavelength LowestVisibleWavelength { get; } = 380;
 
-        public static Wavelength HighestVisibleFrequency { get; } = 380;
+        public static Wavelength HighestVisibleWavelength { get; } = 720;
 
+        [Obsolete("Use '" + nameof(HighestVisibleWavelength) + "' instead.")]
+        public static Wavelength LowestVisibleFrequency => HighestVisibleWavelength;
 
-        static Wavelength()
-        {
-            List<Wavelength> wavelengths = new();
-
-            for (Wavelength w = Wavelength.HighestVisibleFrequency; w < Wavelength.LowestVisibleFrequency; w = w.InNanometers + 1)
-                wavelengths.Add(w);
-
-            VisibleWavelengths = wavelengths.ToImmutableList();
-        }
+        [Obsolete("Use '" + nameof(LowestVisibleWavelength) + "' instead.")]
+        public static Wavelength HighestVisibleFrequency => LowestVisibleWavelength;
 
 
         /// <summary>
@@ -68,8 +63,18 @@ namespace Unknown6656.Imaging
         /// <summary>
         /// Indicates whether the light with the current wavelength is visible to the human eye.
         /// </summary>
-        public readonly bool IsVisible => InNanometers >= HighestVisibleFrequency && InNanometers <= LowestVisibleFrequency;
+        public readonly bool IsVisible => InNanometers >= LowestVisibleWavelength && InNanometers <= HighestVisibleWavelength;
 
+
+        static Wavelength()
+        {
+            List<Wavelength> wavelengths = new();
+
+            for (Wavelength w = LowestVisibleWavelength; w < HighestVisibleWavelength; w = w.InNanometers + 1)
+                wavelengths.Add(w);
+
+            VisibleWavelengths = wavelengths.ToImmutableList();
+        }
 
         public Wavelength(double wavelength_in_nm) => InNanometers = wavelength_in_nm;
 
@@ -136,11 +141,37 @@ namespace Unknown6656.Imaging
 
     public abstract partial class Spectrum
     {
+        public static ContinuousSpectrum EmptySpectrum { get; } = new(_ => 0d);
+
+        public static ContinuousSpectrum ConstantOneSpectrum { get; } = new(_ => 1d);
+
+        public static ContinuousSpectrum ConstantOneVisibleSpectrum { get; } = new(λ => λ.IsVisible ? 1d : 0d);
+
+
         public abstract double GetIntensity(Wavelength wavelength);
 
-        public virtual Spectrum InvertSpectrum() => new ContinousSpectrum(λ => 1 - GetIntensity(λ).Clamp());
+        public virtual Spectrum InvertSpectrum() => NegateSpectrum().ApplyIntensityOffset(1);
 
-        public virtual ContinousSpectrum ToContinous() => new ContinousSpectrum(GetIntensity);
+        public virtual Spectrum NegateSpectrum() => new ContinuousSpectrum(λ => -GetIntensity(λ));
+
+        public virtual Spectrum ApplyIntensityOffset(double intensity_offset) => new ContinuousSpectrum(λ => GetIntensity(λ) + intensity_offset);
+
+        public virtual Spectrum ScaleSpectrumIntensities(double factor) => new ContinuousSpectrum(λ => GetIntensity(λ) * factor);
+
+        public virtual ContinuousSpectrum ToContinuous() => new ContinuousSpectrum(GetIntensity);
+
+        //public virtual ContinuousColorMap ToColorMap(Wavelength lowest, Wavelength highest)
+        //{
+        //    if (lowest > highest)
+        //        (lowest, highest) = (highest, lowest);
+        //
+        //    double dist = (highest - lowest).InNanometers;
+        //
+        //    return new(s => GetIntensity(s * dist + lowest.InNanometers));
+        //
+        //}
+        //
+        //public ContinuousColorMap ToVisibleColorMap() => ToColorMap(Wavelength.LowestVisibleWavelength, Wavelength.HighestVisibleWavelength);
 
         public HDRColor ToVisibleColor(Wavelength lowest, Wavelength highest, double wavelength_resolution_in_nm) =>
             ToVisibleColor(lowest, highest, wavelength_resolution_in_nm, 1);
@@ -160,6 +191,27 @@ namespace Unknown6656.Imaging
 
             return color;
         }
+
+
+        public static implicit operator Func<Wavelength, double>(Spectrum spectrum) => spectrum.GetIntensity;
+
+        public static Spectrum operator +(Spectrum spectrum) => spectrum.ToContinuous();
+
+        public static Spectrum operator -(Spectrum spectrum) => spectrum.NegateSpectrum();
+
+        public static Spectrum operator +(Spectrum spectrum, double intensity_offset) => spectrum.ApplyIntensityOffset(intensity_offset);
+
+        public static Spectrum operator +(double intensity_offset, Spectrum spectrum) => spectrum.ApplyIntensityOffset(intensity_offset);
+
+        public static Spectrum operator -(Spectrum spectrum, double intensity_offset) => spectrum.ApplyIntensityOffset(-intensity_offset);
+
+        public static Spectrum operator -(double intensity_offset, Spectrum spectrum) => spectrum.NegateSpectrum().ApplyIntensityOffset(intensity_offset);
+
+        public static Spectrum operator *(Spectrum spectrum, double factor) => spectrum.ScaleSpectrumIntensities(factor);
+
+        public static Spectrum operator *(double factor, Spectrum spectrum) => spectrum.ScaleSpectrumIntensities(factor);
+
+        public static Spectrum operator /(Spectrum spectrum, double factor) => spectrum.ScaleSpectrumIntensities(1d / factor);
     }
 
     public class DiscreteSpectrum
@@ -212,13 +264,19 @@ namespace Unknown6656.Imaging
 
         public DiscreteSpectrum ToVisibleSpectrum() => new(Intensities.Where(kvp => kvp.Key.IsVisible).ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
 
-        public override DiscreteSpectrum InvertSpectrum() => new(Intensities.ToDictionary(kvp => kvp.Key, kvp => 1 - GetIntensity(kvp.Value).Clamp()));
+        public override DiscreteSpectrum NegateSpectrum() => new(Intensities.ToDictionary(kvp => kvp.Key, kvp => -GetIntensity(kvp.Value)));
+
+        public override DiscreteSpectrum ApplyIntensityOffset(double intensity_offset) => new(Intensities.ToDictionary(kvp => kvp.Key, kvp => GetIntensity(kvp.Value) + intensity_offset));
+
+        public override DiscreteSpectrum ScaleSpectrumIntensities(double factor) => new(Intensities.ToDictionary(kvp => kvp.Key, kvp => GetIntensity(kvp.Value) * factor));
+
+        public override DiscreteSpectrum InvertSpectrum() => new(Intensities.ToDictionary(kvp => kvp.Key, kvp => 1 - GetIntensity(kvp.Value)));
 
         public override double GetIntensity(Wavelength wavelength) => Intensities.TryGetValue(wavelength, out double intensity) ? intensity : 0;
 
         public HDRColor ToVisibleColor() => ToVisibleColor(1);
 
-        public HDRColor ToVisibleColor(double α) => ToVisibleColor(Wavelength.HighestVisibleFrequency, Wavelength.LowestVisibleFrequency, 0, α);
+        public HDRColor ToVisibleColor(double α) => ToVisibleColor(Wavelength.LowestVisibleWavelength, Wavelength.HighestVisibleWavelength, 0, α);
 
         public override HDRColor ToVisibleColor(Wavelength lowest, Wavelength highest, double _ignored_, double α)
         {
@@ -241,19 +299,22 @@ namespace Unknown6656.Imaging
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
 
-        public static implicit operator ContinousSpectrum(DiscreteSpectrum spectrum) => spectrum.ToContinous();
+        public static implicit operator ContinuousSpectrum(DiscreteSpectrum spectrum) => spectrum.ToContinuous();
 
         public static implicit operator HDRColor(DiscreteSpectrum spectrum) => spectrum.ToVisibleColor();
     }
 
-    public class ContinousSpectrum
+    public class ContinuousSpectrum
         : Spectrum
     {
         public Func<Wavelength, double> IntensityFunction { get; }
 
 
-        public ContinousSpectrum(Func<Wavelength, double> intensity_function) => IntensityFunction = intensity_function;
+        public ContinuousSpectrum(Func<Wavelength, double> intensity_function) => IntensityFunction = intensity_function;
 
         public override double GetIntensity(Wavelength wavelength) => IntensityFunction(wavelength);
+
+
+        public static implicit operator ContinuousSpectrum(Func<Wavelength, double> intensity_function) => new(intensity_function);
     }
 }

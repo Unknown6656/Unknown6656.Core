@@ -6,8 +6,8 @@ using System.Collections;
 using System.Threading.Tasks;
 using System.Drawing.Imaging;
 using System.Globalization;
-using System.Drawing;
 using System.Net.Http;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Net;
@@ -22,6 +22,10 @@ using Unknown6656.Controls.Console;
 using Unknown6656.Imaging;
 using Unknown6656.Common;
 
+
+// TODO : obj file format
+
+
 namespace Unknown6656.IO
 {
     /// <summary>
@@ -30,8 +34,6 @@ namespace Unknown6656.IO
     public unsafe sealed class From
         : IEnumerable<byte>
     {
-        private static readonly Regex INI_REGEX_SECTION = new Regex(@"^\s*\[\s*(?<sec>[\w\-]+)\s*\]", RegexOptions.Compiled);
-        private static readonly Regex INI_REGEX_PROPERTY = new Regex(@"^\s*(?<prop>[\w\-]+)\s*\=\s*(?<val>.*)\s*$", RegexOptions.Compiled);
         private static readonly Regex FTP_PROTOCOL_REGEX = new Regex(@"^(?<protocol>ftps?):\/\/(?<uname>[^:]+)(:(?<passw>[^@]+))?@(?<url>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex SSH_PROTOCOL_REGEX = new Regex(@"^(sftp|ssh|s?scp):\/\/(?<uname>[^:]+)(:(?<passw>[^@]+))?@(?<host>[^:\/]+|\[[0-9a-f\:]+\])(:(?<port>[0-9]{1,6}))?(\/|\\)(?<path>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex BASE64_REGEX = new Regex(@"^.\s*data:\s*[^\w\/\-\+]+\s*;(\s*base64\s*,)?(?<data>(?:[a-z0-9+/]{4})*(?:[a-z0-9+/]{2}==|[a-z0-9+/]{3}=)?)$", RegexOptions.Compiled | RegexOptions.Compiled);
@@ -370,30 +372,9 @@ namespace Unknown6656.IO
             return new UnsafeFunctionPointer(buffer, bytes.Length);
         }
 
-        public IDictionary<string, IDictionary<string, string>> ToINI() => ToINI(BytewiseEncoding.Instance);
+        public INIFile ToINI() => ToINI(BytewiseEncoding.Instance);
 
-        public IDictionary<string, IDictionary<string, string>> ToINI(Encoding encoding)
-        {
-            Dictionary<string, IDictionary<string, string>> ini = new();
-            string section = "";
-
-            foreach (string line in ToLines(encoding))
-            {
-                string ln = (line.Contains('#') ? line[..line.LastIndexOf('#')] : line).Trim();
-
-                if (ln.Match(INI_REGEX_SECTION, out Match m))
-                    section = m.Groups["sec"].ToString();
-                else if (ln.Match(INI_REGEX_PROPERTY, out m))
-                {
-                    if (!ini.ContainsKey(section))
-                        ini[section] = new Dictionary<string, string>();
-
-                    ini[section][m.Groups["prop"].ToString()] = m.Groups["val"].ToString();
-                }
-            }
-
-            return ini;
-        }
+        public INIFile ToINI(Encoding encoding) => INIFile.ParseFile(ToString(encoding));
 
 
         public static From Multiple(params From?[]? sources) => Multiple(sources as IEnumerable<From?>);
@@ -572,22 +553,13 @@ namespace Unknown6656.IO
 
         public static From String(string str, Encoding enc) => Bytes(enc.GetBytes(str));
 
-        public static From INI(IDictionary<string, IDictionary<string, string>> ini) => INI(ini, BytewiseEncoding.Instance);
+        public static From INI(INISection ini_section) => INI(ini_section, BytewiseEncoding.Instance);
 
-        public static From INI(IDictionary<string, IDictionary<string, string>> ini, Encoding enc)
-        {
-            StringBuilder sb = new StringBuilder();
+        public static From INI(INISection ini_section, Encoding enc) => INI(new INIFile() { [string.Empty] = ini_section }, enc);
 
-            foreach (string section in ini.Keys)
-            {
-                sb.AppendLine($"[{section}]");
+        public static From INI(INIFile ini) => INI(ini, BytewiseEncoding.Instance);
 
-                foreach (string property in ini[section].Keys)
-                    sb.AppendLine($"{property}={ini[section][property]}");
-            }
-
-            return StringBuilder(sb, enc);
-        }
+        public static From INI(INIFile ini, Encoding enc) => String(ini.Serialize(), enc);
 
         public static From StringBuilder(StringBuilder sb) => StringBuilder(sb, BytewiseEncoding.Instance);
 

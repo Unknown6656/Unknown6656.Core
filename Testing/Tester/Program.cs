@@ -24,6 +24,7 @@ using Unknown6656.IO;
 
 using Random = Unknown6656.Mathematics.Numerics.Random;
 using System.Threading.Tasks;
+using System.Reflection;
 
 namespace MathLibrary.Tester
 {
@@ -35,23 +36,30 @@ namespace MathLibrary.Tester
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-            for (Wavelength w = Wavelength.HighestVisibleFrequency; w <= Wavelength.LowestVisibleFrequency; w += 2.0)
-            {
-                ConsoleExtensions.RGBForegroundColor = w.ToColor();
-                Console.Write("█");
-            }
-
-
+            Main_BMP_effects();
             //Main_PSO();
             return;
             Main_Math();
             Main_BMP1();
-            Main_BMP2();
             Main_ConsoleUI();
             Main_Statistics();
             Main_LinearAlgebra();
             Main_Automaton();
             Main_Graph();
+        }
+
+        private static void evaluate_random<random>()
+            where random : Random, new()
+        {
+            int runs = 30_000_000;
+            int[] buckets = new int[50];
+            var rng = new random();
+            for (int i = 0; i < runs; ++i)
+                ++buckets[(int)(rng.NextDouble() * buckets.Length)];
+            int total = buckets.Sum();
+
+            Console.WriteLine($"{typeof(random)}:\n-------------------------\n bucket       variation from expected probability");
+            Console.WriteLine(buckets.Select((v, i) => $"{i,3} => {((double)v / total * buckets.Length - 1) * 100,20:F4} %").StringJoin("\n"));
         }
 
         //class pso_problem : PSOProblem<Scalar>
@@ -78,7 +86,7 @@ namespace MathLibrary.Tester
             XorShift sh = new XorShift();
             int i = 20;
 
-            while (i --> 0)
+            while (i-- > 0)
             {
                 string s = From.Bytes(sh.NextBytes(512)).ToDrunkBishop(100, 50, " .,-~+=´'*\"/!?lI$#&%@BGWO", false);
                 Console.Clear();
@@ -113,7 +121,7 @@ namespace MathLibrary.Tester
                 {
                     c.Text = "topkek jej";
                     c.RelativeTabIndex = 1;
-                    c.Clicked += _ => c.Text = c.Text.Length > 20 ? "topkek jej" : c.Text + "_"; 
+                    c.Clicked += _ => c.Text = c.Text.Length > 20 ? "topkek jej" : c.Text + "_";
                 });
                 p.AddNewChild<Button>(c =>
                 {
@@ -145,7 +153,7 @@ namespace MathLibrary.Tester
                 p.AddNewChild<OptionBox>(c =>
                 {
                     c.Text = "Select lel";
-                    c.Options = new[] { "top", "kaikokek","jej !null", "ebin h4x" };
+                    c.Options = new[] { "top", "kaikokek", "jej !null", "ebin h4x" };
                 });
                 p.AddNewChild<ProgressBar>(c =>
                 {
@@ -219,10 +227,8 @@ namespace MathLibrary.Tester
             );
         }
 
-        private static void Main_BMP2()
+        private static void Main_complex_plotter_ui()
         {
-            #region
-
             //using var f = new Form
             //{
             //    Width = 500,
@@ -245,80 +251,100 @@ namespace MathLibrary.Tester
             //    },
             //});
             //f.ShowDialog();
+        }
 
-            #endregion
-            #region
+        private static void Main_complex_plotter_bmp()
+        {
+            new ComplexFunctionPlotter<ComplexFunction>(
+                new ComplexFunction(c =>
+                {
+                    var z = c;
 
-            //new ComplexFunctionPlotter<ComplexMap>(
-            //    new ComplexMap(c =>
-            //    {
-            //        var z = c;
+                    c *= (0, 1);
 
-            //        c *= (0, 1);
+                    var c2 = c * c;
+                    var c3 = c2 * c;
 
-            //        var c2 = c * c;
-            //        var c3 = c2 * c;
+                    var y = (c2 - 2) * (c - 3) * (-c2) / (c3 - Complex.i);
+                    var x = y;
 
-            //        var y = (c2 - 2) * (c - 3) * (-c2) / (c3 - Complex.i);
-            //        var x = y;
+                    x /= c.Sin() - (1, 1) + c3;
+                    x *= (0, 1);
+                    x += c.Sin() * .3
+                       + (c * (0, -1)).Cos();
+                    x += y / 4;
 
-            //        x /= c.Sin() - (1, 1) + c3;
-            //        x *= (0, 1);
-            //        x += c.Sin() * .3
-            //           + (c * (0, -1)).Cos();
-            //        x += y / 4;
+                    x -= (z * z - 2) * (z - 3) * (-z * z) / (z * z * z - Complex.i);
 
-            //        x -= (z * z - 2) * (z - 3) * (-z * z) / (z * z * z - Complex.i);
+                    return x;
+                })
+            )
+            {
+                Scale = 7,
+                AxisType = AxisType.Polar,
+                AxisVisible = false,
+                AxisColor = RGBAColor.White,
+                GridVisible = false,
+            }
+            .Plot(1920 * 2, 1080 * 2)
+            .Save("conv.png");
+        }
 
-            //        return x;
-            //    })
-            //)
-            //{
-            //    Scale = 7,
-            //    AxisType = AxisType.Polar,
-            //    AxisVisible = false,
-            //    AxisColor = RGBAColor.White,
-            //    GridVisible = false,
-            //}
-            //.Plot(1920*2, 1080*2)
-            //.Save("conv.png");
+        private static void Main_BMP_complex_function_plotter_animation()
+        {
+            for (int i = 0; i <= 800; ++i)
+            {
+                var (c, s) = i switch
+                {
+                    int _ when i < 200 => (i / 20d, 0d),
+                    int _ when i < 400 => (10d, (i - 200) / 20d),
+                    int _ when i < 600 => ((600 - i) / 20d, 10d),
+                    _ => (0d, (800 - i) / 20d)
+                };
+                new ComplexFunctionPlotter<ComplexFunction>(
+                    new(x => x.Acos().Multiply(c).Cos() + x.Asin().Multiply(s).Sin())
+                )
+                {
+                    Scale = 12,
+                    AxisType = AxisType.Cartesian,
+                    AxisVisible = true,
+                    GridVisible = false,
+                    CursorVisible = false,
+                    CursorPosition = (-2, -2),
+                    CursorColor = RGBAColor.Blue,
+                    OptionalComment = ($"cos({c:F2} * arccos(c)) + sin({s:F2} * arcsin(c))", RGBAColor.Black)
+                }
+                .Plot(1920, 1080)
+                .Save($"anim-5/frame-{i:D4}.png");
+            }
+        }
 
-            #endregion
+        private static void Main_BMP_mandelbrot_plotter()
+        {
+            int i = 0;
 
+            for (double f = -2; f <= 2; f += 5e-3)
+                new ComplexFunctionPlotter<ComplexFunction>(
+                    new(c => c.ApplyRecursively(z => z.Power(f) + c, 5))
+                )
+                {
+                    Scale = 15,
+                    AxisType = AxisType.Polar,
+                    AxisVisible = true,
+                    GridVisible = false,
+                    OptionalComment = ($"(z, c) -> z^{f:F3} + c", RGBAColor.Black)
+                }
+                .Plot(1920, 1080)
+                .Save($"mandelbrot-3/frame-{++i:D4}.png");
+        }
+
+        private static void Main_BMP_draw_triangles()
+        {
             var sw = new Stopwatch();
             sw.Start();
 
-            var reg = (360..1560, 200..880);
-            // reg = (960.., ..);
-            var im1 = ((Bitmap)Image.FromFile("img1.png")).ToARGB32();
-            var im2 = ((Bitmap)Image.FromFile("img2.png")).ToARGB32();
-            var im3 = ((Bitmap)Image.FromFile("img3.png")).ToARGB32();
-            // var res = BitmapMask.FromLuma(im1).ApplyTo(im1).ApplyEffect(new BlendEffect(im2, BlendMode.Screen, 1));
-            // var res = im2.ApplyEffect(new ChainedPartialBitmapEffect(
-            //     new ColorKey(0xf000, 0)
-            //     new MultiPointGradient(
-            //         ((500, 200), 0xff00),
-            //         ((1000, 200), 0xf00f),
-            //         ((700, 900), 0xf0f0)
-            //     ),
-            //     new PerlinNoiseEffect(new PerlinNoiseSettings(new System.Random(0x12345678))
-            //     {
-            //     })
-            //     new HexagonalPixelation(10)
-            //      new SobelEdgeDetection()
-            // ), reg, .5);
-
-            var res = // im2.ApplyEffect(new HexagonalPixelation(5), .5)
-                      //    .ApplyEffect(new HexagonalPixelation(10), .5)
-                      //    .ApplyEffect(new HexagonalPixelation(30), .25);
-                      im2.ApplyEffect(new HexagonalPixelation(10), reg, .6);
-
-            sw.Stop();
-            Console.WriteLine($"{sw.ElapsedMilliseconds:F2} ms");
-            sw.Restart();
-
-
-            var s2dr = res.GetShape2DRasterizer();
+            var img = ((Bitmap)Image.FromFile("img2.png")).ToARGB32();
+            var s2dr = img.GetShape2DRasterizer();
             var tri =
             (
                 .5, 0, .3,
@@ -345,91 +371,104 @@ namespace MathLibrary.Tester
             });
             s2dr.Draw(tri.Sides.SelectMany(s => Enumerable.Range(0, 11).Select(i => tri.GetNormalAt(s.Interpolate(i / 10d)))), new ShapeDrawingSettings { LineColor = RGBAColor.Blue });
 
-            //res = res.ToLumaInvertedMask().Colorize(ColorMap.Spectral);
-
-
-
-
-            #region
-
-            //int i = 0;
-            //for (double f = -2; f <= 2; f += 5e-3)
-            //    new ComplexFunctionPlotter<ComplexMap>(
-            //        new ComplexMap(c => Generics.ApplyRecursively(c, z => z.Power(f) + c, 5))
-            //    )
-            //    {
-            //        Scale = 15,
-            //        AxisType = AxisType.Polar,
-            //        AxisVisible = true,
-            //        GridVisible = false,
-            //        OptionalComment = ($"(z, c) -> z^{f:F3} + c", RGBAColor.Black)
-            //    }
-            //    .Plot(1920, 1080)
-            //    .Save($"mandelbrot-3/frame-{++i:D4}.png");
-
-            #endregion
-            #region
-
-            //for (int i = 0; i <= 800; ++i)
-            //{
-            //    var (c, s) = i switch
-            //    {
-            //        int _ when i < 200 => (i / 20d, 0d),
-            //        int _ when i < 400 => (10d, (i - 200) / 20d),
-            //        int _ when i < 600 => ((600 - i) / 20d, 10d),
-            //        _                  => (0d, (800 - i) / 20d)
-            //    };
-            //    new ComplexFunctionPlotter<ComplexMap>(
-            //        new ComplexMap(x => x.Acos().Multiply(c).Cos() + x.Asin().Multiply(s).Sin())
-            //    )
-            //    {
-            //        Scale = 12,
-            //        AxisType = AxisType.Cartesian,
-            //        AxisVisible = true,
-            //        GridVisible = false,
-            //        CursorVisible = false,
-            //        CursorPosition = (-2, -2),
-            //        CursorColor = RGBAColor.Blue,
-            //        OptionalComment = ($"cos({c:F2} * arccos(c)) + sin({s:F2} * arcsin(c))", RGBAColor.Black)
-            //    }
-            //    .Plot(1920, 1080)
-            //    .Save($"anim-5/frame-{i:D4}.png");
-            //}
-
-            #endregion
-            #region
-
-            //var res = new Transformation2DPlotter<Relation<Vector2>>(
-            //    // (Polynomial.Parse(".1x^2-5"), RGBAColor.Green),
-            //    // (Polynomial.Parse(".01x³-.2x²+3"), RGBAColor.Firebrick)
-            //    new Relation<Vector2>(v => new Matrix2(1, 0, 0, -1).Multiply(v).Normalized - v.Normalized)
-            //)
-            //{
-            //    Scale = 5,
-            //    AxisType = AxisType.Cartesian,
-            //    AxisVisible = true,
-            //    GridVisible = false,
-            //    CursorVisible = false,
-            //    CursorPosition = (-2, -2),
-            //    CursorColor = RGBAColor.Blue,
-            //    // SelectedFunctionIndex = 0
-            //}
-            //.Plot(1920, 1080)
-            ////.ToMask(c =>
-            ////{
-            ////    c.ToHSL(out double h, out _, out _);
-            ////
-            ////    return Scalar.Cos(h + Scalar.Pi).Divide(Scalar.Two) + .5;
-            ////})
-            ////.Colorize(ColorMap.Spectral)
-            //;
-
-            #endregion
-
-            res.Save("conv.png");
+            img.Save("conv.png");
             sw.Stop();
 
             Console.WriteLine($"{sw.ElapsedMilliseconds:F2} ms");
+        }
+
+        private static void Main_BMP_plot_transformation_function()
+        {
+            new Transformation2DPlotter<Function<Vector2>>(
+                // (Polynomial.Parse(".1x^2-5"), RGBAColor.Green),
+                // (Polynomial.Parse(".01x³-.2x²+3"), RGBAColor.Firebrick)
+                new(v => new Matrix2(1, 0, 0, -1).Multiply(v).Normalized - v.Normalized)
+            )
+            {
+                Scale = 5,
+                AxisType = AxisType.Cartesian,
+                AxisVisible = true,
+                GridVisible = false,
+                CursorVisible = false,
+                CursorPosition = (-2, -2),
+                CursorColor = RGBAColor.Blue,
+                // SelectedFunctionIndex = 0
+            }
+            .Plot(1920, 1080)
+            //.ToMask(c =>
+            //{
+            //    c.ToHSL(out double h, out _, out _);
+            //
+            //    return Scalar.Cos(h + Scalar.Pi).Divide(Scalar.Two) + .5;
+            //})
+            //.Colorize(ColorMap.Spectral)
+            .Save("conv.png");
+        }
+
+        private static void Main_BMP_colormaps()
+        {
+            ColorMap[] maps = typeof(ColorMap).GetMembers(BindingFlags.Public | BindingFlags.Static | BindingFlags.GetProperty)
+                                              .Select(p => (p as PropertyInfo)?.GetValue(null) as ColorMap)
+                                              .Where(m => m is { })
+                                              .ToArray()!;
+            Bitmap img = new Bitmap(1920, 1080, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
+                .ApplyEffect(new LinearGradient((Vector2.Zero, RGBAColor.Black), ((0, 1080), RGBAColor.White)));
+            int width = img.Width / maps.Length;
+
+            for (int i = 0; i < maps.Length; ++i)
+                img = img.ApplyEffect(new Colorize(maps[i]), ((i * width)..((i + 1) * width), ..));
+
+            img.Save("conv.png");
+        }
+
+        private static void Main_BMP_effects()
+        {
+            var sw = new Stopwatch();
+            sw.Start();
+
+
+            var reg = /*(360..1560, 200..880); */(960.., ..);
+
+            var im1 = ((Bitmap)Image.FromFile("img1.png")).ToARGB32();
+            var im2 = ((Bitmap)Image.FromFile("img2.png")).ToARGB32();
+            var im3 = ((Bitmap)Image.FromFile("img3.png")).ToARGB32();
+            Bitmap img = im2;
+
+            // img = BitmapMask.FromLuma(im1).ApplyTo(im1).ApplyEffect(new BlendEffect(im2, BlendMode.Screen, 1));
+            // img = im2.ApplyEffect(new ChainedPartialBitmapEffect(
+            //     new ColorKey(0xf000, 0)
+            //     new MultiPointGradient(
+            //         ((500, 200), 0xff00),
+            //         ((1000, 200), 0xf00f),
+            //         ((700, 900), 0xf0f0)
+            //     ),
+            //     new PerlinNoiseEffect(new PerlinNoiseSettings(new System.Random(0x12345678))
+            //     {
+            //     })
+            //     new HexagonalPixelation(10)
+            //      new SobelEdgeDetection()
+            // ), reg, .5);
+
+            //img = img
+            //    .ApplyEffect(new HexagonalPixelation(10), reg, .6)
+            //    .ApplyEffect(new HexagonalPixelation(20), (1440.., ..), .6)
+            //    ;
+
+            img = img.ApplyEffect(new ChainedBitmapEffect(
+                    new BoxBlur(5),
+                    new Colorize(ColorMap.BlackbodyHeat)
+                ));
+
+
+            //res = res.ToLumaInvertedMask().Colorize(ColorMap.Spectral);
+
+
+            sw.Stop();
+            Console.WriteLine($"effects: {sw.ElapsedMilliseconds:F2} ms");
+            sw.Restart();
+            img.Save("conv.png");
+            sw.Stop();
+            Console.WriteLine($"saving: {sw.ElapsedMilliseconds:F2} ms");
         }
 
         private static void Main_Automaton()

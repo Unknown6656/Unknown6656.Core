@@ -6,11 +6,17 @@ using System.Linq;
 using System;
 
 using Unknown6656.Common;
+using System.Dynamic;
+using System.Linq.Expressions;
+using System.Diagnostics;
+using System.ComponentModel;
 
 namespace Unknown6656.IO
 {
     public sealed class INIFile
-        : IDictionary<string, INISection>
+        : DynamicObject
+        , IDictionary<string, INISection>
+        , ICloneable
     {
         private static readonly Regex INI_REGEX_SECTION = new Regex(@"^\s*\[\s*(?<sec>[\w\-]+)\s*\]", RegexOptions.Compiled);
         private static readonly Regex INI_REGEX_PROPERTY = new Regex(@"^\s*(?<prop>[\w\-]+)\s*\=\s*(?<val>.*)\s*$", RegexOptions.Compiled);
@@ -110,6 +116,71 @@ namespace Unknown6656.IO
 
         public bool TryDeleteSection(string key) => _sections.Remove(key);
 
+        public INIFile Clone()
+        {
+            INIFile cloned = new(_case_insensitive);
+
+            foreach (KeyValuePair<string, INISection> kvp in this)
+                cloned.Add(kvp.Key, kvp.Value.Clone());
+
+            return cloned;
+        }
+
+        #region DYNAMIC
+
+        private bool DynDelete(object? key)
+        {
+            TryDeleteSection(key?.ToString() ?? "");
+
+            return true;
+        }
+
+        private bool DynGet(object? key, out object? value)
+        {
+            TryGetSection(key?.ToString() ?? "", out INISection? val);
+
+            value = val;
+
+            return true;
+        }
+
+        private bool DynSet(object? key, object? value)
+        {
+            if (value is INISection sec)
+            {
+                SetOrOverwrite(key?.ToString() ?? "", sec);
+
+                return true;
+            }
+            else
+                return false;
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override IEnumerable<string> GetDynamicMemberNames() => SectionKeys;
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool TryDeleteIndex(DeleteIndexBinder binder, object[] indexes) => DynDelete(indexes?.FirstOrDefault());
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool TryDeleteMember(DeleteMemberBinder binder) => DynDelete(binder.Name);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool TryGetIndex(GetIndexBinder binder, object[] indexes, out object? result) => DynGet(indexes?.FirstOrDefault(), out result);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool TryGetMember(GetMemberBinder binder, out object? result) => DynGet(binder.Name, out result);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool TrySetIndex(SetIndexBinder binder, object[] indexes, object? value) => DynSet(indexes?.FirstOrDefault(), value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool TrySetMember(SetMemberBinder binder, object? value) => DynSet(binder.Name, value);
+
+        #endregion
+        #region EXPLICITS
+
+        object ICloneable.Clone() => Clone();
 
         void ICollection<KeyValuePair<string, INISection>>.Add(KeyValuePair<string, INISection> item) => SetOrOverwrite(item.Key, item.Value);
 
@@ -127,6 +198,8 @@ namespace Unknown6656.IO
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_sections).GetEnumerator();
 
+        #endregion
+        #region STATICS
 
         public static INIFile ParseFile(string ini_string) => ParseFile(ini_string, false);
 
@@ -154,10 +227,14 @@ namespace Unknown6656.IO
 
             return ini;
         }
+
+        #endregion
     }
 
     public sealed class INISection
-        : IDictionary<string, string>
+        : DynamicObject
+        , IDictionary<string, string>
+        , ICloneable
     {
         private readonly Dictionary<string, string> _dictionary;
         private readonly bool _case_insensitive;
@@ -225,10 +302,71 @@ namespace Unknown6656.IO
 
         public bool Remove(KeyValuePair<string, string> item) => _dictionary.Contains(item) && _dictionary.Remove(item.Key);
 
+        public INISection Clone()
+        {
+            INISection cloned = new(_case_insensitive);
+
+            foreach (KeyValuePair<string, string> kvp in this)
+                cloned.Add(kvp);
+
+            return cloned;
+        }
+
+        object ICloneable.Clone() => Clone();
+
         void ICollection<KeyValuePair<string, string>>.CopyTo(KeyValuePair<string, string>[] array, int arrayIndex) => Array.Copy(_dictionary.ToArray(), 0, array, arrayIndex, Count);
 
         IEnumerator<KeyValuePair<string, string>> IEnumerable<KeyValuePair<string, string>>.GetEnumerator() => ((IEnumerable<KeyValuePair<string, string>>)_dictionary).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_dictionary).GetEnumerator();
+
+
+        #region DYNAMIC
+
+        private bool DynDelete(object? key)
+        {
+            Remove(key?.ToString() ?? "");
+
+            return true;
+        }
+
+        private bool DynGet(object? key, out object? value)
+        {
+            TryGetValue(key?.ToString() ?? "", out string? val);
+
+            value = val;
+
+            return true;
+        }
+
+        private bool DynSet(object? key, object? value)
+        {
+            SetOrOverwrite(key?.ToString() ?? "", value?.ToString() ?? "");
+
+            return true;
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override IEnumerable<string> GetDynamicMemberNames() => Keys;
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool TryDeleteIndex(DeleteIndexBinder binder, object[] indexes) => DynDelete(indexes?.FirstOrDefault());
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool TryDeleteMember(DeleteMemberBinder binder) => DynDelete(binder.Name);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool TryGetIndex(GetIndexBinder binder, object[] indexes, out object? result) => DynGet(indexes?.FirstOrDefault(), out result);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool TryGetMember(GetMemberBinder binder, out object? result) => DynGet(binder.Name, out result);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool TrySetIndex(SetIndexBinder binder, object[] indexes, object? value) => DynSet(indexes?.FirstOrDefault(), value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool TrySetMember(SetMemberBinder binder, object? value) => DynSet(binder.Name, value);
+
+        #endregion
     }
 }

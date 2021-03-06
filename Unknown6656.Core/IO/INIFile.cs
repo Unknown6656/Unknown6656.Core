@@ -1,15 +1,14 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
+using System.Text.Json;
 using System.Collections.Generic;
 using System.Collections;
+using System.ComponentModel;
+using System.Dynamic;
 using System.Linq;
 using System;
 
 using Unknown6656.Common;
-using System.Dynamic;
-using System.Linq.Expressions;
-using System.Diagnostics;
-using System.ComponentModel;
 
 namespace Unknown6656.IO
 {
@@ -82,6 +81,8 @@ namespace Unknown6656.IO
 
         public void Add(string key, INISection value) => SetOrOverwrite(key, value);
 
+        public string ToJSONString(JsonSerializerOptions? options = null) => JsonSerializer.Serialize(ToExpandoObject(), options);
+
         public override string ToString() => _sections.SelectWhere(kvp => !kvp.Value.IsEmpty, kvp => $"[{kvp.Key}]{Environment.NewLine}{kvp.Value}").StringJoin(Environment.NewLine + Environment.NewLine);
 
         public string Serialize() => ToString();
@@ -127,6 +128,17 @@ namespace Unknown6656.IO
         }
 
         #region DYNAMIC
+
+        public ExpandoObject ToExpandoObject()
+        {
+            ExpandoObject expando = new();
+            IDictionary<string, object?> dic = expando;
+
+            foreach (KeyValuePair<string, INISection> kvp in this)
+                dic[kvp.Key] = kvp.Value.ToExpandoObject();
+
+            return expando;
+        }
 
         private bool DynDelete(object? key)
         {
@@ -276,6 +288,8 @@ namespace Unknown6656.IO
             _case_insensitive = case_insensitive;
         }
 
+        public string ToJSONString(JsonSerializerOptions? options = null) => JsonSerializer.Serialize(ToExpandoObject(), options);
+
         public override string ToString() => _dictionary.Select(kvp => $"{kvp.Key}={kvp.Value}").StringJoin(Environment.NewLine);
 
         public string Serialize() => ToString();
@@ -322,6 +336,17 @@ namespace Unknown6656.IO
 
 
         #region DYNAMIC
+
+        public ExpandoObject ToExpandoObject()
+        {
+            ExpandoObject expando = new();
+            IDictionary<string, object?> dic = expando;
+
+            foreach (KeyValuePair<string, string> kvp in this)
+                dic[kvp.Key] = kvp.Value;
+
+            return expando;
+        }
 
         private bool DynDelete(object? key)
         {

@@ -57,6 +57,7 @@
         <PackageReference Include="SSH.NET" Version="2020.0.1" />
         <PackageReference Include="System.Drawing.Common" Version="6.0.0-preview.1.21102.12" />
         <PackageReference Include="System.Drawing.Primitives" Version="4.3.0" />
+        <PackageReference Include="Unknown6656.DiscriminatedUnions" Version="1.0.0" />
     </ItemGroup>
     <ItemGroup>
         <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
@@ -91,10 +92,6 @@
         <None Update="Common/Indexer.tt">
             <Generator>TextTemplatingFileGenerator</Generator>
             <LastGenOutput>Indexer.cs</LastGenOutput>
-        </None>
-        <None Update="Common/DiscriminatedUnions.tt">
-            <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>DiscriminatedUnions.cs</LastGenOutput>
         </None>
         <None Update="Common\LINQExtensions.tt">
           <LastGenOutput>LINQExtensions.cs</LastGenOutput>
@@ -150,11 +147,6 @@
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
             <DependentUpon>LINQExtensions.tt</DependentUpon>
-        </Compile>
-        <Compile Update="Common/DiscriminatedUnions.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>DiscriminatedUnions.tt</DependentUpon>
         </Compile>
         <Compile Update="Common\Currying - Copy.cs">
           <DependentUpon>Currying.tt</DependentUpon>

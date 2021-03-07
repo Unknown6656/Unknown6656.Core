@@ -25,6 +25,7 @@ using Unknown6656.IO;
 using Random = Unknown6656.Mathematics.Numerics.Random;
 using System.Threading.Tasks;
 using System.Reflection;
+using Unknown6656;
 
 namespace MathLibrary.Tester
 {
@@ -36,9 +37,10 @@ namespace MathLibrary.Tester
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-            Main_BMP_effects();
+
             //Main_PSO();
             return;
+            Main_BMP_effects();
             Main_Math();
             Main_BMP1();
             Main_ConsoleUI();

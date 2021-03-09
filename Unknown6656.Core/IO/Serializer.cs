@@ -65,6 +65,8 @@ namespace Unknown6656.IO
 
         public From Hash<T>(T hash_function) where T : HashFunction<T> => hash_function.Hash(Data);
 
+        public From Hash<T>() where T : HashFunction<T>, new() => Hash(new T());
+
         public From HexDump()
         {
             ConsoleExtensions.HexDump(Data);
@@ -374,7 +376,7 @@ namespace Unknown6656.IO
 
         public INIFile ToINI() => ToINI(BytewiseEncoding.Instance);
 
-        public INIFile ToINI(Encoding encoding) => INIFile.ParseFile(ToString(encoding));
+        public INIFile ToINI(Encoding encoding) => INIFile.FromINIString(ToString(encoding));
 
 
         public static From Multiple(params From?[]? sources) => Multiple(sources as IEnumerable<From?>);

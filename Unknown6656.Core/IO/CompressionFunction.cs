@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
 using System;
 
 using Unknown6656.Mathematics.Cryptography;
 using Unknown6656.Mathematics.Numerics;
 using Unknown6656.Common;
-using Microsoft.VisualBasic;
 
 namespace Unknown6656.IO
 {

@@ -1,12 +1,10 @@
 ﻿using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
 using System.Text;
+using System.Linq;
 using System.IO;
 using System;
 
-using Unknown6656.Mathematics.Numerics;
 using Unknown6656.Common;
-using System.Linq;
 
 namespace Unknown6656.Mathematics.Cryptography
 {

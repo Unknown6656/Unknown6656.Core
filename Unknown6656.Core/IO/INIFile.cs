@@ -6,6 +6,7 @@ using System.Collections;
 using System.ComponentModel;
 using System.Dynamic;
 using System.Linq;
+using System.IO;
 using System;
 
 using Unknown6656.Common;
@@ -86,6 +87,10 @@ namespace Unknown6656.IO
         public override string ToString() => _sections.SelectWhere(kvp => !kvp.Value.IsEmpty, kvp => $"[{kvp.Key}]{Environment.NewLine}{kvp.Value}").StringJoin(Environment.NewLine + Environment.NewLine);
 
         public string Serialize() => ToString();
+
+        public void SaveTo(string path) => From.INI(this).ToFile(path);
+
+        public void SaveTo(FileInfo file) => From.INI(this).ToFile(file);
 
         public bool HasSection(string key) => _sections.ContainsKey(key);
 
@@ -213,9 +218,17 @@ namespace Unknown6656.IO
         #endregion
         #region STATICS
 
-        public static INIFile ParseFile(string ini_string) => ParseFile(ini_string, false);
+        public static INIFile FromURI(Uri uri) => From.WebResource(uri).ToINI();
 
-        public static INIFile ParseFile(string ini_string, bool case_insensitive)
+        public static INIFile FromURI(string uri) => From.WebResource(uri).ToINI();
+
+        public static INIFile FromFile(string path) => From.File(path).ToINI();
+
+        public static INIFile FromFile(FileInfo file) => From.File(file).ToINI();
+
+        public static INIFile FromINIString(string ini_string) => FromINIString(ini_string, false);
+
+        public static INIFile FromINIString(string ini_string, bool case_insensitive)
         {
             INIFile ini = new(case_insensitive);
             INISection? section = null;

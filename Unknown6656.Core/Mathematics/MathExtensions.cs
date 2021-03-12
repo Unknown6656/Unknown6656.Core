@@ -1,6 +1,7 @@
 ﻿#nullable enable
 
 using System.Runtime.CompilerServices;
+using System.Diagnostics.CodeAnalysis;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
@@ -65,6 +66,123 @@ namespace Unknown6656.Mathematics
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Are(this IEnumerable<float> xs, IEnumerable<float> ys) => xs.Are(ys, Scalar.EqualityComparer);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Constrain(this float scalar, float min, float max) => scalar <= min ? min : scalar >= max ? max : scalar;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double Constrain(this double scalar, double min, double max) => scalar <= min ? min : scalar >= max ? max : scalar;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static decimal Constrain(this decimal scalar, decimal min, decimal max) => scalar <= min ? min : scalar >= max ? max : scalar;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Map(this float scalar, (float lower, float upper) from, (float lower, float upper) to) =>
+            (scalar - from.lower) / (from.upper - from.lower) * (to.upper - to.lower) + to.lower;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double Map(this double scalar, (double lower, double upper) from, (double lower, double upper) to) =>
+            (scalar - from.lower) / (from.upper - from.lower) * (to.upper - to.lower) + to.lower;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static decimal Map(this decimal scalar, (decimal lower, decimal upper) from, (decimal lower, decimal upper) to) =>
+            (scalar - from.lower) / (from.upper - from.lower) * (to.upper - to.lower) + to.lower;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float ConstrainMap(this float scalar, (float lower, float upper) from, (float lower, float upper) to) => scalar.Constrain(from.lower, from.upper).Map(from, to);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double ConstrainMap(this double scalar, (double lower, double upper) from, (double lower, double upper) to) => scalar.Constrain(from.lower, from.upper).Map(from, to);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static decimal ConstrainMap(this decimal scalar, (decimal lower, decimal upper) from, (decimal lower, decimal upper) to) => scalar.Constrain(from.lower, from.upper).Map(from, to);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Product(this IEnumerable<float> scalars) => scalars.Aggregate(1f, (s1, s2) => s1 * s2);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double Product(this IEnumerable<double> scalars) => scalars.Aggregate(1d, (s1, s2) => s1 * s2);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static decimal Product(this IEnumerable<decimal> scalars) => scalars.Aggregate(1m, (s1, s2) => s1 * s2);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MaybeNull]
+        public static T Median<T>(this IEnumerable<T> scalars)
+            where T : IComparable<T>
+        {
+            T[] ordered = scalars.OrderBy(LINQ.id).ToArray();
+
+            return ordered.Length == 0 ? default : ordered[ordered.Length / 2];
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Average(this IEnumerable<float>? scalars) => (scalars as float[] ?? scalars?.ToArray()) is float[] arr ? arr.Sum() / arr.Length : 0f;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double Average(this IEnumerable<double>? scalars) => (scalars as double[] ?? scalars?.ToArray()) is double[] arr ? arr.Sum() / arr.Length : 0d;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static decimal Average(this IEnumerable<decimal>? scalars) => (scalars as decimal[] ?? scalars?.ToArray()) is decimal[] arr ? arr.Sum() / arr.Length : 0m;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Variance(this IEnumerable<float>? scalars) => (float)Variance(scalars?.Select(Convert.ToDouble));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double Variance(this IEnumerable<double>? scalars)
+        {
+            double avg = scalars.Average();
+
+            return Math.Pow(scalars?.Sum(x => x - avg) ?? 0, 2);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float StandardDeviation(this IEnumerable<float>? scalars) => (float)StandardDeviation(scalars?.Select(Convert.ToDouble));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double StandardDeviation(this IEnumerable<double>? scalars) => Math.Sqrt(scalars.Variance());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static decimal StandardDeviation(this IEnumerable<decimal>? scalars) => (decimal)StandardDeviation(scalars?.Select(Convert.ToDouble));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float GeometricMean(this IEnumerable<float> scalars) => (float)GeometricMean(scalars.Select(Convert.ToDouble));
+
+        public static double GeometricMean(this IEnumerable<double> scalars)
+        {
+            double[] arr = scalars as double[] ?? scalars.ToArray();
+
+            return Math.Pow(arr.Product(), 1d / arr.Length);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static decimal GeometricMean(this IEnumerable<decimal> scalars) => (decimal)GeometricMean(scalars.Select(Convert.ToDouble));
+
+        /// <summary>
+        /// aka. GMDN.
+        /// <para/>
+        /// See XKCD №2435: <see href="https://xkcd.com/2435/"/>
+        /// </summary>
+        public static double GeothmeticMeandian(this IEnumerable<double> scalars, double epsilon = 1e-12, int max_iterations = 10_000)
+        {
+            static double[] F(double[] arr) => new[] { arr.Average(), arr.GeometricMean(), arr.Median() };
+
+            double[] arr = F(scalars.ToArray());
+            double last_avg = 0, diff;
+
+            for (int iter = 0; iter < max_iterations; ++iter)
+            {
+                last_avg = arr[0];
+                arr = F(arr);
+                diff = last_avg - arr[0];
+                diff /= Abs(arr[0]) > double.Epsilon ? arr[0] : Abs(last_avg) > double.Epsilon ? last_avg : 1;
+
+                if (Abs(diff) < epsilon)
+                    break;
+            }
+
+            return last_avg;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double FastPow(this double @base, double exp) => Exp(Log(@base) * exp);

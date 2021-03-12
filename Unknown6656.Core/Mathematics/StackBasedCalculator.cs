@@ -3,15 +3,16 @@ using System.Linq;
 using System.Text;
 using System;
 
+using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Common;
 
 using bint = System.Numerics.BigInteger;
-using data = Unknown6656.Common.Union<Unknown6656.Mathematics.Analysis.Complex, System.Numerics.BigInteger>;
-
+using data = Unknown6656.Union<Unknown6656.Mathematics.Analysis.Complex, System.Numerics.BigInteger>;
 
 namespace Unknown6656.Mathematics
 {
+    [Obsolete]
     public sealed class StackBasedCalculator
     {
         #region PROPERTIES
@@ -52,9 +53,9 @@ namespace Unknown6656.Mathematics
 
         public data Pop() => _stack.Pop();
 
-        public bint PopBigInteger() => (bint)Pop().UnsafeItem;
+        public bint PopBigInteger() => Pop().Match(c => c.Real, LINQ.id);
 
-        public Complex PopComplex() => (Complex)Pop().UnsafeItem;
+        public Complex PopComplex() => Pop().Match(LINQ.id, c => new((Scalar)(decimal)c));
 
         private void UnaryOperator(Func<bint, bint> fb, Func<Complex, Complex> fc) => UnaryOperator(d =>
         {

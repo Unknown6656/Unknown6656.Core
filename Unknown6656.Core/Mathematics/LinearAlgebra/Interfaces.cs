@@ -1495,16 +1495,6 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public static T Average<T>(this IEnumerable<T>? scalars) where T : unmanaged, IField<T> => scalars?.ToArray() is T[] arr ? arr.Sum().Divide(arr.Length.ToRing<T>()) : IRing<T>.ZeroElement;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [return: MaybeNull]
-        public static T Median<T>(this IEnumerable<T> scalars)
-            where T : IComparable<T>
-        {
-            T[] ordered = scalars.OrderBy(LINQ.id).ToArray();
-
-            return ordered.Length == 0 ? default : ordered[ordered.Length / 2];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T Variance<T>(this IEnumerable<T>? scalars)
             where T : unmanaged, IField<T>
         {

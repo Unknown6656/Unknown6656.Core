@@ -38,7 +38,7 @@ namespace Testing
             Console.OutputEncoding = Encoding.UTF8;
 
 
-
+            double gmdn = new double[] { 1, 1, 2, 3, 5 }.GeothmeticMeandian();
 
 
             //Main_PSO();

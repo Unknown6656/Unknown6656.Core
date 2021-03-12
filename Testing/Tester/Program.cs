@@ -27,7 +27,7 @@ using System.Threading.Tasks;
 using System.Reflection;
 using Unknown6656;
 
-namespace MathLibrary.Tester
+namespace Testing
 {
     using static Complex;
 
@@ -36,6 +36,9 @@ namespace MathLibrary.Tester
         public static void Main(string[] args)
         {
             Console.OutputEncoding = Encoding.UTF8;
+
+
+
 
 
             //Main_PSO();

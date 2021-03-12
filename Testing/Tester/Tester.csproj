@@ -8,8 +8,6 @@
         <AssemblyName>Tester</AssemblyName>
         <ApplicationIcon />
         <OutputType>Exe</OutputType>
-        <StartupObject>MathLibrary.Tester.Program</StartupObject>
-        <RootNamespace>MathLibrary.Tester</RootNamespace>
         <Nullable>enable</Nullable>
         <NullableContextOptions>enable</NullableContextOptions>
         <UseWindowsForms>true</UseWindowsForms>

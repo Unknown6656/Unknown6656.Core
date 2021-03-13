@@ -31,14 +31,16 @@ namespace Testing
 {
     using static Complex;
 
-    public static class Program
+    public static unsafe class Program
     {
         public static void Main(string[] args)
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-
-            double gmdn = new double[] { 1, 1, 2, 3, 5 }.GeothmeticMeandian();
+            int x = 0x00800000;
+            float f = 0x00800000;
+            float d = 1.0f / f;
+            Console.WriteLine(f);
 
 
             //Main_PSO();

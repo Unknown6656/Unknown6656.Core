@@ -188,6 +188,62 @@ namespace Unknown6656.Mathematics
         public static double FastPow(this double @base, double exp) => Exp(Log(@base) * exp);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe float FastUnsafeInverseSqrt(float x)
+        {
+            float x2 = x * .5f;
+            int i = *(int*)&x;
+
+            i = 0x5f375a86 - (i >> 1);
+            x = *(float*)&i;
+            x *= 1.5f - (x2 * x * x);
+            x *= 1.5f - (x2 * x * x);
+
+            return x;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe float FastUnsafeLog2(float x)
+        {
+            const int f_one = 0x3f800000; // 1.0f
+            const float down = 1.0f / 0x0080000;
+
+            return (*(int*)&x - f_one) * down;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe float FastUnsafeExp2(float x)
+        {
+            const int f_one = 0x3f800000; // 1.0f
+
+            return BitConverter.Int32BitsToSingle(*(int*)&x + f_one);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe float FastUnsafePow(float x, float y)
+        {
+            const int f_one = 0x3f800000; // 1.0f
+
+            return BitConverter.Int32BitsToSingle((int)(y * (*(int*)&x - f_one)) + f_one);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe float FastUnsafeSqrt(float x)
+        {
+            const int f_one = 0x03f80000; // 1.0f >> 1
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            static float sqrt(float x) => BitConverter.Int32BitsToSingle((*(int*)&x >> 1) + f_one);
+
+            float y = sqrt(x);
+
+            // newton iteration
+            y = (y * y + x) / (2 * y);
+            y = (y * y + x) / (2 * y);
+
+            return y;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double ACosh(this double x) => x < 1 ? 0 : Log(x + Sqrt(x * x - 1));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

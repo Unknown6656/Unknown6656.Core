@@ -411,7 +411,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// <param name="v">The vector's coefficients</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public <#=typename#>(Scalar[] v)
-            : this(<#=            string.Join(", ", r(0, dim).Select(i => $"v[{i}]"))#>)
+            : this(<#=string.Join(", ", r(0, dim).Select(i => $"v[{i}]"))#>)
         {
         }
 

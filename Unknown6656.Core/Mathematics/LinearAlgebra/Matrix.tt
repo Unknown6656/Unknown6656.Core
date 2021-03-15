@@ -1565,37 +1565,40 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly string ToString(string? format) => ToString(format, null);
 
-        public readonly string ToString(string? format, IFormatProvider? provider) => string.Join("\n", Rows.Select(c => $"| {string.Join(", ", c.ToArray().Select(f => f.ToString(format, provider)))} |"));
+        public readonly string ToString(string? format, IFormatProvider? provider) => Rows.Select(c => $"| {c.ToArray().Select(f => f.ToString(format, provider)).StringJoin(", ")} |").StringJoinLines();
 
         /// <summary>
         /// The <#=dim#>x<#=dim#>-matrix' string representation
         /// </summary>
         /// <returns>String representation</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override string ToString() => string.Join("\n", Rows.Select(c => $"| {string.Join(", ", c.ToArray().Select(f => $"{f,22:F16}"))} |"));
+        public readonly override string ToString() => Rows.Select(c => $"| {c.ToArray().Select(f => $"{f,22:F16}").StringJoin(", ")} |").StringJoinLines();
 
         /// <summary>
         /// The <#=dim#>x<#=dim#>-matrix' short string representation
         /// </summary>
         /// <returns>Short string representation</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly string ToShortString() => string.Join("\n", (from col in Columns
-                                                                     let strings = (from entry in col.ToArray().Select(f => f.ToShortString("F25").PadRight(27).PadLeft(34))
-                                                                                    let end = entry.Reverse().TakeWhile(c => c == '0' || c == ' ').Count()
-                                                                                    select new
-                                                                                    {
-                                                                                        entry,
-                                                                                        front = entry.TakeWhile(c => c == ' ').Count(),
-                                                                                        back = entry[entry.Length - 1 - end] == '.' ? end + 1 : end
-                                                                                    }).ToArray()
-                                                                     let f = strings.Min(c => c.front)
-                                                                     let b = strings.Min(c => c.back)
-                                                                     select strings.Select(e =>
-                                                                     {
-                                                                         string s = e.entry!.Substring(f, e.entry.Length - f - b);
-                                                                     
-                                                                         return string.IsNullOrWhiteSpace(s) || s == "0" ? "0" : s;
-                                                                     }).ToArray()).Transpose().Select(r => $"| {string.Join(", ", r)} |"));
+        public readonly string ToShortString() => (from col in Columns
+                                                   let strings = (from entry in col.ToArray().Select(f => f.ToShortString("F25").PadRight(27).PadLeft(34))
+                                                                  let end = entry.Reverse().TakeWhile(c => c == '0' || c == ' ').Count()
+                                                                  select new
+                                                                  {
+                                                                      entry,
+                                                                      front = entry.TakeWhile(c => c == ' ').Count(),
+                                                                      back = entry[entry.Length - 1 - end] == '.' ? end + 1 : end
+                                                                  }).ToArray()
+                                                   let f = strings.Min(c => c.front)
+                                                   let b = strings.Min(c => c.back)
+                                                   select strings.Select(e =>
+                                                   {
+                                                       string s = e.entry!.Substring(f, e.entry.Length - f - b);
+                                                   
+                                                       return string.IsNullOrWhiteSpace(s) || s == "0" ? "0" : s;
+                                                   }).ToArray())
+                                                  .Transpose()
+                                                  .Select(r => $"| {r.StringJoin(", ")} |")
+                                                  .StringJoinLines();
 
         #endregion
         #region INSTANCE METHODS : CONVERTING / CASTING / DECONSTRUCTION

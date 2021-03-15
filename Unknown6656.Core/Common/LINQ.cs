@@ -84,6 +84,9 @@ namespace Unknown6656.Common
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string StringJoinLines<T>(this IEnumerable<T> collection, string line_break = "\n") => collection.StringJoin(line_break);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string StringJoin<T>(this IEnumerable<T> collection, string separator) => string.Join(separator, collection);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

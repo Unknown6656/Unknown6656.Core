@@ -171,7 +171,7 @@ namespace Unknown6656.Controls.Console
             {
                 string[] sub_lines = line.PartitionByArraySize(max_size.width).ToArray(c => new string(c));
 
-                if (wrap_overflow && sub_lines.Length > 0)
+                if (!wrap_overflow && sub_lines.Length > 0)
                     cropped_lines.Add(sub_lines[0]);
                 else
                     cropped_lines.AddRange(sub_lines);

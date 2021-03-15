@@ -39,6 +39,7 @@ namespace Testing
 
             ConsoleExtensions.WriteBlock(new string('w', 1000), 20, 10, 50, 30, true);
 
+            ConsoleExtensions.WriteBlock(new string('@', 123), 80, 20, 10, 50, true);
 
             //Main_PSO();
             return;

@@ -37,10 +37,7 @@ namespace Testing
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-            int x = 0x00800000;
-            float f = 0x00800000;
-            float d = 1.0f / f;
-            Console.WriteLine(f);
+            ConsoleExtensions.WriteBlock(new string('w', 1000), 20, 10, 50, 30, true);
 
 
             //Main_PSO();

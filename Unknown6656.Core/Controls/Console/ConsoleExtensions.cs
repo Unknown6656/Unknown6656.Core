@@ -1,12 +1,13 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
 using System.Text;
+using System.Linq;
+using System.IO;
 using System;
 
 using Unknown6656.Imaging;
 using Unknown6656.Common;
-using System.IO;
-using System.Collections.Generic;
 
 namespace Unknown6656.Controls.Console
 {
@@ -134,28 +135,67 @@ namespace Unknown6656.Controls.Console
             }
         }
 
+        public static void Write(object? value, int left, int top) => Write(value, (left, top));
+
         public static void Write(object? value, (int left, int top) starting_pos)
         {
             Console.SetCursorPosition(starting_pos.left, starting_pos.top);
             Console.Write(value);
         }
 
-        public static void WriteBlock(string value, (int left, int top) starting_pos) => WriteBlock(value.SplitIntoLines(), starting_pos);
+        public static (int max_line_length, int line_count) WriteBlock(string value, int left, int top) =>
+            WriteBlock(value, (left, top));
 
-        public static void WriteBlock(IEnumerable<string> lines, (int left, int top) starting_pos)
+        public static (int max_line_length, int line_count) WriteBlock(string value, (int left, int top) starting_pos) =>
+            WriteBlock(value.SplitIntoLines(), starting_pos);
+
+        public static (int max_line_length, int line_count) WriteBlock(IEnumerable<string> lines, int left, int top) => WriteBlock(lines, (left, top));
+
+        public static (int max_line_length, int line_count) WriteBlock(IEnumerable<string> lines, (int left, int top) starting_pos) =>
+            WriteBlock(lines, starting_pos, (0x0fffffff, 0x0fffffff), true);
+
+        public static (int max_line_length, int line_count) WriteBlock(string value, int left, int top, int max_width, int max_height, bool wrap_overflow = true) =>
+            WriteBlock(value, (left, top), (max_width, max_height), wrap_overflow);
+
+        public static (int max_line_length, int line_count) WriteBlock(string value, (int left, int top) starting_pos, (int width, int height) max_size, bool wrap_overflow = true) =>
+            WriteBlock(value.SplitIntoLines(), starting_pos, max_size, wrap_overflow);
+
+        public static (int max_line_length, int line_count) WriteBlock(IEnumerable<string> lines, int left, int top, int max_width, int max_height, bool wrap_overflow = true) =>
+            WriteBlock(lines, (left, top), (max_width, max_height), wrap_overflow);
+
+        public static (int max_line_length, int line_count) WriteBlock(IEnumerable<string> lines, (int left, int top) starting_pos, (int width, int height) max_size, bool wrap_overflow = true)
         {
-            int line_no = 0;
+            List<string> cropped_lines = new();
 
             foreach (string line in lines)
+            {
+                string[] sub_lines = line.PartitionByArraySize(max_size.width).ToArray(c => new string(c));
+
+                if (wrap_overflow && sub_lines.Length > 0)
+                    cropped_lines.Add(sub_lines[0]);
+                else
+                    cropped_lines.AddRange(sub_lines);
+            }
+
+            int line_no = 0;
+
+            while (cropped_lines.Count > max_size.height)
+                cropped_lines.RemoveAt(cropped_lines.Count - 1);
+
+            foreach (string line in cropped_lines.Take(max_size.height))
             {
                 Console.SetCursorPosition(starting_pos.left, starting_pos.top + line_no);
                 Console.Write(line);
 
                 ++line_no;
             }
+
+            return (cropped_lines.Max(line => line.Length), cropped_lines.Count);
         }
 
-        public static void WriteVertical(object? value) => WriteVertical(value, (Console.CursorLeft, Console.CursorTop));
+        public static void WriteVertical(object? value) => WriteVertical(value, Console.CursorLeft, Console.CursorTop);
+
+        public static void WriteVertical(object? value, int left, int top) => WriteVertical(value, (left, top));
 
         public static void WriteVertical(object? value, (int left, int top) starting_pos)
         {

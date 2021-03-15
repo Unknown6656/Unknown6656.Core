@@ -6,6 +6,7 @@ using System;
 using Unknown6656.Imaging;
 using Unknown6656.Common;
 using System.IO;
+using System.Collections.Generic;
 
 namespace Unknown6656.Controls.Console
 {
@@ -137,6 +138,21 @@ namespace Unknown6656.Controls.Console
         {
             Console.SetCursorPosition(starting_pos.left, starting_pos.top);
             Console.Write(value);
+        }
+
+        public static void WriteBlock(string value, (int left, int top) starting_pos) => WriteBlock(value.SplitIntoLines(), starting_pos);
+
+        public static void WriteBlock(IEnumerable<string> lines, (int left, int top) starting_pos)
+        {
+            int line_no = 0;
+
+            foreach (string line in lines)
+            {
+                Console.SetCursorPosition(starting_pos.left, starting_pos.top + line_no);
+                Console.Write(line);
+
+                ++line_no;
+            }
         }
 
         public static void WriteVertical(object? value) => WriteVertical(value, (Console.CursorLeft, Console.CursorTop));
@@ -279,7 +295,7 @@ namespace Unknown6656.Controls.Console
             RestoreConsoleState(state);
         }
 
-        public static ConsoleState SaveConsoleState() => new ConsoleState
+        public static ConsoleState SaveConsoleState() => new()
         {
             Background = Console.BackgroundColor,
             Foreground = Console.ForegroundColor,

@@ -244,10 +244,19 @@ namespace Unknown6656.Common
         public static IEnumerable<(T Item, int Index)> WithIndex<T>(this IEnumerable<T> coll) => coll.Select(Join);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IEnumerable<T> AppendToLists<T>(this IEnumerable<T> coll, IList<T> list)
+        public static IEnumerable<T> AppendToList<T>(this IEnumerable<T> coll, IList<T> list)
         {
             foreach (T t in coll)
                 list.Add(t);
+
+            return coll;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IEnumerable<T> PrependToList<T>(this IEnumerable<T> coll, IList<T> list)
+        {
+            foreach (T t in coll.Reverse())
+                list.Insert(0, t);
 
             return coll;
         }

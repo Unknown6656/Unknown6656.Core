@@ -244,6 +244,24 @@ namespace Unknown6656.Common
         public static IEnumerable<(T Item, int Index)> WithIndex<T>(this IEnumerable<T> coll) => coll.Select(Join);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IEnumerable<T> AppendToLists<T>(this IEnumerable<T> coll, IList<T> list)
+        {
+            foreach (T t in coll)
+                list.Add(t);
+
+            return coll;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IEnumerable<T> Distinctby<T, U>(this IEnumerable<T> coll, Func<T, U> selector)
+        {
+            EqualityComparer<U> cmp_u = EqualityComparer<U>.Default;
+            CustomEqualityComparer<T> cmp_t = new((t1, t2) => cmp_u.Equals(selector(t1), selector(t2)));
+
+            return coll.Distinct(cmp_t);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Dictionary<T, U> ToDictionary<T, U>(this IEnumerable<(T key, U value)> pairs) where T : notnull => pairs.ToDictionary(fst, snd);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

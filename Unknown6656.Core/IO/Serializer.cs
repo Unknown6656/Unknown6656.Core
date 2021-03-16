@@ -34,9 +34,9 @@ namespace Unknown6656.IO
     public unsafe sealed class From
         : IEnumerable<byte>
     {
-        private static readonly Regex FTP_PROTOCOL_REGEX = new Regex(@"^(?<protocol>ftps?):\/\/(?<uname>[^:]+)(:(?<passw>[^@]+))?@(?<url>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex SSH_PROTOCOL_REGEX = new Regex(@"^(sftp|ssh|s?scp):\/\/(?<uname>[^:]+)(:(?<passw>[^@]+))?@(?<host>[^:\/]+|\[[0-9a-f\:]+\])(:(?<port>[0-9]{1,6}))?(\/|\\)(?<path>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex BASE64_REGEX = new Regex(@"^.\s*data:\s*[^\w\/\-\+]+\s*;(\s*base64\s*,)?(?<data>(?:[a-z0-9+/]{4})*(?:[a-z0-9+/]{2}==|[a-z0-9+/]{3}=)?)$", RegexOptions.Compiled | RegexOptions.Compiled);
+        private static readonly Regex FTP_PROTOCOL_REGEX = new(@"^(?<protocol>ftps?):\/\/(?<uname>[^:]+)(:(?<passw>[^@]+))?@(?<url>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex SSH_PROTOCOL_REGEX = new(@"^(sftp|ssh|s?scp):\/\/(?<uname>[^:]+)(:(?<passw>[^@]+))?@(?<host>[^:\/]+|\[[0-9a-f\:]+\])(:(?<port>[0-9]{1,6}))?(\/|\\)(?<path>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex BASE64_REGEX = new(@"^.\s*data:\s*[^\w\/\-\+]+\s*;(\s*base64\s*,)?(?<data>(?:[a-z0-9+/]{4})*(?:[a-z0-9+/]{2}==|[a-z0-9+/]{3}=)?)$", RegexOptions.Compiled | RegexOptions.Compiled);
 
 
         public static From Empty { get; } = new(System.Array.Empty<byte>());

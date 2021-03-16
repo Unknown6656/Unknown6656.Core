@@ -262,7 +262,7 @@ namespace Unknown6656.Common
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IEnumerable<T> Distinctby<T, U>(this IEnumerable<T> coll, Func<T, U> selector)
+        public static IEnumerable<T> DistinctBy<T, U>(this IEnumerable<T> coll, Func<T, U> selector)
         {
             EqualityComparer<U> cmp_u = EqualityComparer<U>.Default;
             CustomEqualityComparer<T> cmp_t = new((t1, t2) => cmp_u.Equals(selector(t1), selector(t2)));

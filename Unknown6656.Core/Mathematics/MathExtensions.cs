@@ -290,6 +290,20 @@ namespace Unknown6656.Mathematics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe bool HasFlag<T>(this T value, T flag)
+            where T : unmanaged
+        {
+            byte* ptr1 = (byte*)&value;
+            byte* ptr2 = (byte*)&flag;
+
+            for (int i = 0; i < sizeof(T); ++i)
+                if ((ptr1[i] & ptr2[i]) != 0)
+                    return true;
+
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe T ROL<T>(this T value, int offset) where T : unmanaged => BitRotateLeft(value, offset);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

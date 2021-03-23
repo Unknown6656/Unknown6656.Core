@@ -201,14 +201,11 @@ namespace Unknown6656.Controls.Console
         {
             string s = value?.ToString() ?? "";
 
-            Console.CursorTop = starting_pos.top;
-            Console.CursorLeft = starting_pos.left;
-
             for (int i = 0; i < s.Length; i++)
             {
-                Console.Write(s[i]);
                 Console.CursorTop = starting_pos.top + i;
                 Console.CursorLeft = starting_pos.left;
+                Console.Write(s[i]);
             }
         }
 

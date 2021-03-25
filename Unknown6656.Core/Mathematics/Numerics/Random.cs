@@ -167,7 +167,7 @@ namespace Unknown6656.Mathematics.Numerics
     public sealed class XorShift
         : Random
     {
-        private uint _x, _y, _z, _w;
+        private volatile uint _x, _y, _z, _w;
 
 
         public XorShift()
@@ -276,6 +276,39 @@ namespace Unknown6656.Mathematics.Numerics
 
         protected override void Init()
         {
+        }
+    }
+
+    public sealed class TurbulenceShift
+        : Random
+    {
+        private volatile int _state;
+
+
+        public TurbulenceShift()
+            : base()
+        {
+        }
+
+        public TurbulenceShift(long seed)
+            : base(seed)
+        {
+        }
+
+        protected override void Init() => _state = Seed.GetHashCode();
+
+        public override int NextInt()
+        {
+            uint i = (uint)_state;
+
+            i ^= 2747636419u;
+            i *= 2654435769u;
+            i ^= i >> 16;
+            i *= 2654435769u;
+            i ^= i >> 16;
+            i *= 2654435769u;
+
+            return _state = (int)i;
         }
     }
 

@@ -21,6 +21,8 @@ using Unknown6656.Mathematics.Cryptography;
 using Unknown6656.Controls.Console;
 using Unknown6656.Imaging;
 using Unknown6656.Common;
+using System.Net.Mail;
+using System.Net.Mime;
 
 
 // TODO : obj file format
@@ -109,6 +111,38 @@ namespace Unknown6656.IO
         public StringBuilder ToStringBuilder() => ToStringBuilder(BytewiseEncoding.Instance);
 
         public StringBuilder ToStringBuilder(Encoding encoding) => new StringBuilder(ToString(encoding));
+
+        public void SendAsEMailBody(string smtp_server, string email_address, string password, string recipient_email, string subject, ushort smtp_port = 587, bool ssl = true, bool body_as_html = false)
+        {
+            using SmtpClient client = new(smtp_server)
+            {
+                Credentials = new(email_address, password),
+                Port = smtp_port,
+                EnableSsl = ssl,
+            };
+
+            client.Send(new MailMessage(email_address, recipient_email, subject, ToString())
+            {
+                IsBodyHtml = body_as_html,
+            });
+        }
+
+        public void SendAsEMailAttachment(string smtp_server, string email_address, string password, string recipient_email, string subject, string body, ContentType attachment_type, ushort smtp_port = 587, bool ssl = true, bool body_as_html = false)
+        {
+            using SmtpClient client = new(smtp_server)
+            {
+                Credentials = new(email_address, password),
+                Port = smtp_port,
+                EnableSsl = ssl,
+            };
+            MailMessage email = new(email_address, recipient_email, subject, body)
+            {
+                IsBodyHtml = body_as_html,
+            };
+            email.Attachments.Add(new Attachment(ToStream(), attachment_type))
+
+            client.Send(email);
+        }
 
         public string[] ToLines(string separator = "\n") => ToLines(BytewiseEncoding.Instance, separator);
 

@@ -110,13 +110,13 @@ namespace Unknown6656.IO
 
         public StringBuilder ToStringBuilder() => ToStringBuilder(BytewiseEncoding.Instance);
 
-        public StringBuilder ToStringBuilder(Encoding encoding) => new StringBuilder(ToString(encoding));
+        public StringBuilder ToStringBuilder(Encoding encoding) => new(ToString(encoding));
 
         public void SendAsEMailBody(string smtp_server, string email_address, string password, string recipient_email, string subject, ushort smtp_port = 587, bool ssl = true, bool body_as_html = false)
         {
             using SmtpClient client = new(smtp_server)
             {
-                Credentials = new(email_address, password),
+                Credentials = new NetworkCredential(email_address, password),
                 Port = smtp_port,
                 EnableSsl = ssl,
             };
@@ -131,7 +131,7 @@ namespace Unknown6656.IO
         {
             using SmtpClient client = new(smtp_server)
             {
-                Credentials = new(email_address, password),
+                Credentials = new NetworkCredential(email_address, password),
                 Port = smtp_port,
                 EnableSsl = ssl,
             };
@@ -139,7 +139,7 @@ namespace Unknown6656.IO
             {
                 IsBodyHtml = body_as_html,
             };
-            email.Attachments.Add(new Attachment(ToStream(), attachment_type))
+            email.Attachments.Add(new Attachment(ToStream(), attachment_type));
 
             client.Send(email);
         }
@@ -220,9 +220,9 @@ namespace Unknown6656.IO
 
         public void ToStream(Stream stream) => ToStream().CopyTo(stream);
 
-        public MemoryStream ToStream() => new MemoryStream(Data);
+        public MemoryStream ToStream() => new(Data);
 
-        public BinaryReader ToBinaryReader() => new BinaryReader(ToStream());
+        public BinaryReader ToBinaryReader() => new(ToStream());
 
         public void ToBinaryWriter(BinaryWriter writer) => writer.Write(Data);
 

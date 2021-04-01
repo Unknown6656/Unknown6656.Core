@@ -927,6 +927,76 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly <#=typename#> Divide(Scalar factor) => Multiply(factor.Inverse);
+        
+        public readonly <#=typename#> Sin()
+        {
+            <#=typename#> result = this;
+            <#=typename#> exponent = this;
+            <#=typename#> squared = Multiply(this);
+            <#=typename#> last = result;
+            Scalar factor = Scalar.One;
+
+            for (int i = 1; i < 2000; i += 2)
+            {
+                result += factor * exponent;
+                factor *= -i * (i + 1);
+                exponent *= squared;
+
+                if (result.DistanceTo(last, MatrixNorm.EucledianNorm) < Scalar.ComputationalEpsilon)
+                    break;
+                else
+                    last = result;
+            }
+
+            return result;
+        }
+        
+        public readonly <#=typename#> Cos()
+        {
+            <#=typename#> result = Identity;
+            <#=typename#> exponent = this;
+            <#=typename#> squared = Multiply(this);
+            <#=typename#> last = result;
+            Scalar factor = Scalar.One;
+
+            for (int i = 2; i < 2000; i += 2)
+            {
+                factor *= -i * (i - 1);
+                result += factor * exponent;
+                exponent *= squared;
+
+                if (result.DistanceTo(last, MatrixNorm.EucledianNorm) < Scalar.ComputationalEpsilon)
+                    break;
+                else
+                    last = result;
+            }
+
+            return result;
+        }
+        
+        public readonly <#=typename#> Exp()
+        {
+            <#=typename#> result = Identity;
+            <#=typename#> exponent = this;
+            <#=typename#> last = result;
+            Scalar factor = Scalar.One;
+
+            for (int i = 0; i < 2000; ++i)
+            {
+                result += factor * exponent;
+                factor /= i;
+                exponent *= this;
+                
+                if (result.DistanceTo(last, MatrixNorm.EucledianNorm) < Scalar.ComputationalEpsilon)
+                    break;
+                else
+                    last = result;
+            }
+
+            return result;
+        }
+        
+        public readonly Scalar DistanceTo(<#=typename#> other, MatrixNorm norm) => Subtract(other).ComputeNorm(norm);
 
         public readonly Scalar ComputeNorm(MatrixNorm norm) => norm switch
         {
@@ -1868,6 +1938,18 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static <#=typename#> Divide(<#=typename#> m, Scalar s) => m.Divide(s);
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static <#=typename#> Exp(<#=typename#> matrix) => matrix.Exp();
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static <#=typename#> Sin(<#=typename#> matrix) => matrix.Sin();
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static <#=typename#> Cos(<#=typename#> matrix) => matrix.Cos();
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Scalar DistanceBetween(<#=typename#> first, <#=typename#> second, MatrixNorm norm) => first.DistanceTo(second, norm);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static <#=typename#> SparseMatrix(params (int column, int row, Scalar value)[] entries)

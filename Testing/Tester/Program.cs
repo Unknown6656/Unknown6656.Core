@@ -355,7 +355,7 @@ namespace Testing
                 .5, 0, .3,
                 0, .5, 0,
                 0, 0, 1
-            ) * new Triangle(
+            ) * new Triangle2D(
                 (-.5, -.2),
                 (.5, .5),
                 (.2, -.7)

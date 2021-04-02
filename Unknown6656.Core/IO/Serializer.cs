@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.Net.Http;
+using System.Net.Mail;
+using System.Net.Mime;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -21,8 +23,6 @@ using Unknown6656.Mathematics.Cryptography;
 using Unknown6656.Controls.Console;
 using Unknown6656.Imaging;
 using Unknown6656.Common;
-using System.Net.Mail;
-using System.Net.Mime;
 
 
 // TODO : obj file format

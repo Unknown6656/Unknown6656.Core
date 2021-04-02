@@ -100,6 +100,23 @@ namespace Unknown6656.Mathematics.LinearAlgebra
             );
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Matrix3 CreateRotationXYZ(Scalar euler_x, Scalar euler_y, Scalar euler_z)
+        {
+            Scalar sx = euler_x.Sin();
+            Scalar cx = euler_x.Cos();
+            Scalar sy = euler_y.Sin();
+            Scalar cy = euler_y.Cos();
+            Scalar sz = euler_z.Sin();
+            Scalar cz = euler_z.Cos();
+
+            return new Matrix3(
+                cy* cz, sx * sy * cz - cx * sz, cx* sy * cz + sx * sz,
+                cx* sz, sx * sy * sz + cx * cz, cx* sy * sz - sy * cz,
+                sy,     sx* cy,                 cx * cy
+            );
+        }
+
         /// <summary
         /// Creates a homogeneous matrix for a 4-corner-pin transformation for 2D vectors using the given corner pin mappings.
         /// </summary>
@@ -174,6 +191,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
             return result[1, t];
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Matrix4 Rotate(Vector3 axis, Scalar angle) => CreateRotation(Identity, axis, angle);
+
+
         /// <summary>
         /// Creates a frustrum projection matrix.
         /// </summary>
@@ -185,7 +206,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// <param name="farVal">The far val.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Matrix4 Frustum(Scalar left, Scalar right, Scalar bottom, Scalar top, Scalar nearVal, Scalar farVal) => (
+        public static Matrix4 CreateFrustum(Scalar left, Scalar right, Scalar bottom, Scalar top, Scalar nearVal, Scalar farVal) => (
             2 * nearVal / (right - left), 0, 0, 0,
             0, 2 * nearVal / (top - bottom), 0, 0,
 
@@ -205,7 +226,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// <param name="zNear">The z near.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Matrix4 InfinitePerspective(Scalar fovy, Scalar aspect, Scalar zNear)
+        public static Matrix4 CreateInfinitePerspective(Scalar fovy, Scalar aspect, Scalar zNear)
         {
             Scalar range = Tan(fovy / 2f) * zNear;
             Scalar left = -range * aspect;
@@ -220,18 +241,18 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         }
 
         /// <summary>
-        /// Build a look at view matrix.
+        /// Creates a look-at view matrix.
         /// </summary>
         /// <param name="eye">The eye.</param>
         /// <param name="center">The center.</param>
         /// <param name="up">Up.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Matrix4 LookAt(Vector3 eye, Vector3 center, Vector3 up)
+        public static Matrix4 CreateLookAt(Vector3 eye, Vector3 center, Vector3 up)
         {
             Vector3 f = (center - eye).Normalized;
             Vector3 s = f.Cross(up).Normalized;
-            Vector3 u = new Vector3(s.Cross(f));
+            Vector3 u = new(s.Cross(f));
 
             return (
                 s.X, u.X, -f.X, 0,
@@ -252,7 +273,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// <param name="zFar">The z far.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Matrix4 Ortho(Scalar left, Scalar right, Scalar bottom, Scalar top, Scalar zNear, Scalar zFar) =>
+        public static Matrix4 CreateOrtho(Scalar left, Scalar right, Scalar bottom, Scalar top, Scalar zNear, Scalar zFar) =>
         (
             2 / (right - left), 0, 0, 0,
             0, 2 / (top - bottom), 0, 0,
@@ -272,7 +293,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// <param name="top">The top.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Matrix4 Ortho(Scalar left, Scalar right, Scalar bottom, Scalar top) => (
+        public static Matrix4 CreateOrtho(Scalar left, Scalar right, Scalar bottom, Scalar top) => (
             2 / (right - left), 0, 0, 0,
             0, 2 / (top - bottom), 0, 0,
             0, 0, -1, 0,
@@ -288,7 +309,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// <param name="zFar">The far depth clipping plane.</param>
         /// <returns>A <see cref="Matrix4"/> that contains the projection matrix for the perspective transformation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Matrix4 Perspective(Scalar fovy, Scalar aspect, Scalar zNear, Scalar zFar)
+        public static Matrix4 CreatePerspective(Scalar fovy, Scalar aspect, Scalar zNear, Scalar zFar)
         {
             Scalar tanHalfFovy = Tan(fovy / 2);
 
@@ -311,7 +332,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Matrix4 PerspectiveFOV(Scalar fov, Scalar width, Scalar height, Scalar zNear, Scalar zFar)
+        public static Matrix4 CreatePerspectiveFOV(Scalar fov, Scalar width, Scalar height, Scalar zNear, Scalar zFar)
         {
             if (width <= 0 || height <= 0 || fov <= 0)
                 throw new ArgumentOutOfRangeException();
@@ -352,18 +373,44 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         }
 
         /// <summary>
-        /// Builds a rotation 4 * 4 matrix created from an axis vector and an angle.
+        /// Creates a matrix for a symmetric perspective-view frustum with far plane 
+        /// at infinite for graphics hardware that doesn't support depth clamping.
         /// </summary>
-        /// <param name="m">The m.</param>
-        /// <param name="angle">The angle.</param>
-        /// <param name="v">The v.</param>
+        /// <param name="fovy">The fovy.</param>
+        /// <param name="aspect">The aspect.</param>
+        /// <param name="zNear">The z near.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Matrix4 Rotate(Matrix4 m, Scalar angle, Vector3 v)
+        public static Matrix4 CreateTweakedInfinitePerspective(Scalar fovy, Scalar aspect, Scalar zNear)
+        {
+            Scalar range = Tan(fovy / 2) * zNear;
+            Scalar left = -range * aspect;
+            Scalar right = range * aspect;
+            Scalar bottom = -range;
+            Scalar top = range;
+
+            return new Matrix4(0f)
+                [0, 0, 2 * zNear / (right - left)]
+                [1, 1, 2 * zNear / (top - bottom)]
+                [2, 2, 0.0001f - 1f]
+                [2, 3, -1]
+                [3, 2, -(0.0001f - 2) * zNear]
+            ;
+        }
+
+        /// <summary>
+        /// Builds a rotation 4x4 matrix created from an axis vector and an angle.
+        /// </summary>
+        /// <param name="matrix">The matrix to be rotated</param>
+        /// <param name="angle">The rotation angle (in radian).</param>
+        /// <param name="axis">The rotation axis.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Matrix4 CreateRotation(Matrix4 matrix, Vector3 axis, Scalar angle)
         {
             Scalar c = Cos(angle);
             Scalar s = Sin(angle);
-            Vector3 axis = v.Normalized;
+            Vector3 axis = axis.Normalized;
             Vector3 tmp = (1 - c) * axis;
             Matrix4 rot = (
                 c + tmp[0] * axis[0],
@@ -382,42 +429,25 @@ namespace Unknown6656.Mathematics.LinearAlgebra
             );
 
             return new Matrix4(
-                m[0] * rot[0][0] + m[1] * rot[0][1] + m[2] * rot[0][2],
-                m[0] * rot[1][0] + m[1] * rot[1][1] + m[2] * rot[1][2],
-                m[0] * rot[2][0] + m[1] * rot[2][1] + m[2] * rot[2][2],
-                m[3]
+                matrix[0] * rot[0][0] + matrix[1] * rot[0][1] + matrix[2] * rot[0][2],
+                matrix[0] * rot[1][0] + matrix[1] * rot[1][1] + matrix[2] * rot[1][2],
+                matrix[0] * rot[2][0] + matrix[1] * rot[2][1] + matrix[2] * rot[2][2],
+                matrix[3]
             );
         }
 
-        //  TODO: this is actually defined as an extension, put in the right file.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Matrix4 Rotate(Scalar angle, Vector3 v) => Rotate(Identity, angle, v);
+        public static Matrix4 CreateRotation(Vector3 axis, Scalar angle) => CreateRotation(Identity, axis, angle);
 
-        /// <summary>
-        /// Creates a matrix for a symmetric perspective-view frustum with far plane 
-        /// at infinite for graphics hardware that doesn't support depth clamping.
-        /// </summary>
-        /// <param name="fovy">The fovy.</param>
-        /// <param name="aspect">The aspect.</param>
-        /// <param name="zNear">The z near.</param>
-        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Matrix4 TweakedInfinitePerspective(Scalar fovy, Scalar aspect, Scalar zNear)
-        {
-            Scalar range = Tan(fovy / 2) * zNear;
-            Scalar left = -range * aspect;
-            Scalar right = range * aspect;
-            Scalar bottom = -range;
-            Scalar top = range;
+        public static Matrix4 CreateRotation(Scalar euler_x, Scalar euler_y, Scalar euler_z) =>
+            Matrix3.CreateRotationXYZ(euler_x, euler_y, euler_z).ToHomogeneousTransformationMatrix();
 
-            return new Matrix4(0f)
-                [0, 0, 2 * zNear / (right - left)]
-                [1, 1, 2 * zNear / (top - bottom)]
-                [2, 2, 0.0001f - 1f]
-                [2, 3, -1]
-                [3, 2, -(0.0001f - 2) * zNear]
-            ;
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Matrix4 CreateRotation((Scalar X, Scalar Y, Scalar Z) euler_angles) => CreateRotation(euler_angles.X, euler_angles.Y, euler_angles.Z);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Matrix4 CreateTranslation(Vector3 translation) => Identity.Translate(translation);
     }
 
     public partial struct Vector2

@@ -575,6 +575,28 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         public readonly bool HasPositives => FlattenedCoefficients.Any(c => c.IsPositive);
 
+        public readonly bool IsDiagonallyDominant
+        {
+            get
+            {
+                <#=vecname#>[] rows = Rows;
+
+                for (int i = 0; i < <#=dim#>; ++i)
+                {
+                    Scalar s = rows[i][i].AbsoluteValue;
+
+                    for (int j = 0; j < <#=dim#>; ++j)
+                        if (j != i)
+                            s -= rows[i][j].AbsoluteValue;
+
+                    if (s <= 0)
+                        return false;
+                }
+
+                return true;
+            }
+        }
+
         /// <summary>
         /// Indicates whether the matrix is a diagonal matrix.
         /// </summary>
@@ -815,7 +837,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// </summary>
         /// <returns>Negated object</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Negate() => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"-_c{i}"))#>);
+        public readonly <#=typename#> Negate() => new(<#=string.Join(", ", r(0, dim).Select(i => $"-_c{i}"))#>);
 
         /// <summary>
         /// Adds the given object to the current instance and returns the addition's result without modifying the current instance.
@@ -823,7 +845,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// <param name="second">Second operand</param>
         /// <returns>Addition result</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Add(in <#=typename#> second) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i} + second._c{i}"))#>);
+        public readonly <#=typename#> Add(in <#=typename#> second) => new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i} + second._c{i}"))#>);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly <#=typename#> Add(params <#=typename#>[] matrices) => matrices.Aggregate(this, Add);
@@ -886,7 +908,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// <param name="vector">Vector</param>
         /// <returns>Multiplication result</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=vecname#> Multiply(in <#=vecname#> vector) => new <#=vecname#>(
+        public readonly <#=vecname#> Multiply(in <#=vecname#> vector) => new(
             <#=string.Join(",\n            ", Enumerable.Range(0, dim).Select(i => string.Join(" + ", Enumerable.Range(0, dim).Select(j => $"_c{j}[{i}] * vector[{j}]"))))#>
         );
 
@@ -896,7 +918,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// <param name="factor">Scalar factor</param>
         /// <returns>Multiplication result</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Multiply(Scalar factor) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i} * factor"))#>);
+        public readonly <#=typename#> Multiply(Scalar factor) => new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i} * factor"))#>);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly <#=typename#> Multiply(params Scalar[] factors) => Multiply(factors.Aggregate(Scalar.One, Scalar.Multiply));
@@ -2011,7 +2033,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         /// <inheritdoc cref="FromNative{T}"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> FromPointer<T>(T* src) where T : unmanaged => new <#=typename#>((Scalar*)src);
+        public static <#=typename#> FromPointer<T>(T* src) where T : unmanaged => new((Scalar*)src);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static <#=typename#> FromCompressedStorageFormat(CompressedStorageFormat<Scalar> compressed) => FromArray(compressed.ToMatrix());
@@ -2086,7 +2108,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public static <#=typename#> operator +(in <#=typename#> m, Scalar f) => m.Add(f);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> operator -(Scalar f, in <#=typename#> m) => new <#=typename#>(f).Subtract(m);
+        public static <#=typename#> operator -(Scalar f, in <#=typename#> m) => new(f).Subtract(m);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static <#=typename#> operator -(in <#=typename#> m, Scalar f) => m.Subtract(f);
@@ -2157,13 +2179,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public static implicit operator (<#=_vecs#>) (in <#=typename#> m) => (<#=string.Join(", ", r(0, dim).Select(i => $"m[{i}]"))#>);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator <#=typename#>((<#=_vecs#>) t) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"t.x{i}"))#>);
+        public static implicit operator <#=typename#>((<#=_vecs#>) t) => new(<#=string.Join(", ", r(0, dim).Select(i => $"t.x{i}"))#>);
 /*
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static explicit operator (<#=_scals#>) (in <#=typename#> m) => (<#=string.Join(", ", r(0, dim).Select(i => $"m[{i}]"))#>);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static explicit operator <#=typename#>(in (<#=_scals#>) t) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"t.c{i}"))#>);
+        public static explicit operator <#=typename#>(in (<#=_scals#>) t) => new(<#=string.Join(", ", r(0, dim).Select(i => $"t.c{i}"))#>);
 */
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator (<#=_flats#>) (in <#=typename#> m) => (
@@ -2178,7 +2200,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         );
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator <#=typename#>(in (<#=_flats#>) t) => new <#=typename#>(
+        public static implicit operator <#=typename#>(in (<#=_flats#>) t) => new(
 <#
         for (int i = 0; i < dim; ++i)
         {
@@ -2190,10 +2212,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         );
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static explicit operator <#=typename#>(Scalar m) => new <#=typename#>(m);
+        public static explicit operator <#=typename#>(Scalar m) => new(m);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator <#=typename#>(in <#=vecname#>[] arr) => new <#=typename#>(arr);
+        public static implicit operator <#=typename#>(in <#=vecname#>[] arr) => new(arr);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator <#=vecname#>[](in <#=typename#> m) => m.Columns;
@@ -2202,19 +2224,19 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public static explicit operator Scalar[](in <#=typename#> m) => m.ToArray();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator <#=typename#>(Scalar[] arr) => new <#=typename#>(arr);
+        public static implicit operator <#=typename#>(Scalar[] arr) => new(arr);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator Scalar[,](in <#=typename#> m) => m.Coefficients;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator <#=typename#>(Scalar[,] arr) => new <#=typename#>(arr);
+        public static implicit operator <#=typename#>(Scalar[,] arr) => new(arr);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator MatrixNM(in <#=typename#> m) => new MatrixNM(m.Coefficients);
+        public static implicit operator MatrixNM(in <#=typename#> m) => new(m.Coefficients);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static explicit operator <#=typename#>(in MatrixNM m) => new <#=typename#>(m);
+        public static explicit operator <#=typename#>(in MatrixNM m) => new(m);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator CompressedStorageFormat<Scalar>(in <#=typename#> m) => CompressedStorageFormat<Scalar>.FromMatrix<<#=typename#>>(m);
@@ -2288,7 +2310,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 #>
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Matrix<#=dim#> ToMatrix(this IEnumerable<Vector<#=dim#>> columns) => new Matrix<#=dim#>(columns);
+        public static Matrix<#=dim#> ToMatrix(this IEnumerable<Vector<#=dim#>> columns) => new(columns);
 <#
     }
 #>

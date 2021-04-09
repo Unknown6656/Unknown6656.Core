@@ -165,15 +165,12 @@ namespace Unknown6656.Mathematics
         /// </summary>
         public static double GeothmeticMeandian(this IEnumerable<double> scalars, double epsilon = 1e-12, int max_iterations = 10_000)
         {
-            static double[] F(double[] arr) => new[] { arr.Average(), arr.GeometricMean(), arr.Median() };
-
-            double[] arr = F(scalars.ToArray());
+            double[] arr = new[] { scalars.Average(), scalars.GeometricMean(), scalars.Median() };
             double last_avg = 0, diff;
 
             for (int iter = 0; iter < max_iterations; ++iter)
             {
-                last_avg = arr[0];
-                arr = F(arr);
+                (last_avg, arr[0], arr[1], arr[2]) = (arr[0], arr.Average(), arr.GeometricMean(), arr.Median());
                 diff = last_avg - arr[0];
                 diff /= Abs(arr[0]) > double.Epsilon ? arr[0] : Abs(last_avg) > double.Epsilon ? last_avg : 1;
 

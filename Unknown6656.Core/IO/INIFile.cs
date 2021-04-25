@@ -53,10 +53,16 @@ namespace Unknown6656.IO
             }
         }
 
-        public INISection this[string key]
+        public INISection this[string section]
         {
-            get => GetOrAddSection(key);
-            set => SetOrOverwrite(key, value);
+            get => GetOrAddSection(section);
+            set => SetOrOverwrite(section, value);
+        }
+
+        public string this[string section, string key]
+        {
+            get => this[section][key];
+            set => this[section][key] = value;
         }
 
 

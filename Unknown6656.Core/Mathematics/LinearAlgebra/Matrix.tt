@@ -2108,7 +2108,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public static <#=typename#> operator +(in <#=typename#> m, Scalar f) => m.Add(f);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> operator -(Scalar f, in <#=typename#> m) => new(f).Subtract(m);
+        public static <#=typename#> operator -(Scalar f, in <#=typename#> m) => new <#=typename#>(f).Subtract(m);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static <#=typename#> operator -(in <#=typename#> m, Scalar f) => m.Subtract(f);

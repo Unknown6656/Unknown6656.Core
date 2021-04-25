@@ -23,6 +23,10 @@ using Unknown6656.Mathematics.Cryptography;
 using Unknown6656.Controls.Console;
 using Unknown6656.Imaging;
 using Unknown6656.Common;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
+using Unknown6656.Mathematics.Graphs;
+using static System.Net.WebRequestMethods;
 
 
 // TODO : obj file format
@@ -64,6 +68,10 @@ namespace Unknown6656.IO
         public From Encrypt(BinaryCipher algorithm, byte[] key) => Data.Encrypt(algorithm, key);
 
         public From Decrypt(BinaryCipher algorithm, byte[] key) => Data.Decrypt(algorithm, key);
+
+        public From Hex() => From.String(ToHexString());
+
+        public From UnHex() => From.Hex(ToString());
 
         public From Hash<T>(T hash_function) where T : HashFunction<T> => hash_function.Hash(Data);
 
@@ -226,18 +234,27 @@ namespace Unknown6656.IO
 
         public void ToBinaryWriter(BinaryWriter writer) => writer.Write(Data);
 
-        public void ToFile(string path)
+        public void ToFile(string path) => ToFile(path, FileMode.Create);
+
+        public void ToFile(string path, FileMode mode, FileAccess access = FileAccess.Write, FileShare share = FileShare.Read)
         {
-            using FileStream fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.Read);
+            using FileStream fs = new(path, mode, access, share);
 
             fs.Write(Data);
             fs.Flush();
             fs.Close();
+            fs.Dispose();
         }
 
         public void ToFile(Uri path) => ToFile(Path.GetFileName(path.LocalPath));
 
+        public void ToFile(Uri path, FileMode mode, FileAccess access = FileAccess.Write, FileShare share = FileShare.Read) =>
+            ToFile(Path.GetFileName(path.LocalPath), mode, access, share);
+
         public void ToFile(FileInfo file) => ToFile(file.FullName);
+
+        public void ToFile(FileInfo file, FileMode mode, FileAccess access = FileAccess.Write, FileShare share = FileShare.Read) =>
+            ToFile(file.FullName, mode, access, share);
 
         public Bitmap ToBitmap()
         {
@@ -261,7 +278,7 @@ namespace Unknown6656.IO
                     break;
                 }
 
-            Bitmap bitmap = new Bitmap(fac, len / fac, PixelFormat.Format32bppArgb);
+            Bitmap bitmap = new(fac, len / fac, PixelFormat.Format32bppArgb);
 
             bitmap.LockRGBAPixels((ptr, _, _) => pixels.CopyTo(ptr));
 
@@ -373,11 +390,11 @@ namespace Unknown6656.IO
 
         public Span<T> ToSpan<T>() where T : unmanaged => ToArray<T>().AsSpan();
 
-        public ReadOnlySpan<T> ToReadOnlySpan<T>() where T : unmanaged => new ReadOnlySpan<T>(ToArray<T>());
+        public ReadOnlySpan<T> ToReadOnlySpan<T>() where T : unmanaged => new(ToArray<T>());
 
-        public Memory<T> ToMemory<T>() where T : unmanaged => new Memory<T>(ToArray<T>());
+        public Memory<T> ToMemory<T>() where T : unmanaged => new(ToArray<T>());
 
-        public ReadOnlyMemory<T> ToReadOnlyMemory<T>() where T : unmanaged => new ReadOnlyMemory<T>(ToArray<T>());
+        public ReadOnlyMemory<T> ToReadOnlyMemory<T>() where T : unmanaged => new(ToArray<T>());
 
         public Field[,] ToCompressedMatrix<Field>() where Field : unmanaged, IField<Field> => ToCompressedStorageFormat<Field>().ToMatrix();
 
@@ -412,12 +429,21 @@ namespace Unknown6656.IO
 
         public INIFile ToINI(Encoding encoding) => INIFile.FromINIString(ToString(encoding));
 
+        public Type? ToType()
+        {
+            From[] sources = ToArrayOfSources();
+            Guid clsid = sources[0].ToUnmanaged<Guid>();
+            string name = sources[1].ToString();
+
+            return System.Type.GetTypeFromCLSID(clsid) ?? System.Type.GetType(name);
+        }
+
 
         public static From Multiple(params From?[]? sources) => Multiple(sources as IEnumerable<From?>);
 
         public static From Multiple(IEnumerable<From?>? sources)
         {
-            MemoryStream s = new MemoryStream();
+            MemoryStream s = new();
 
             foreach (From? source in sources ?? System.Array.Empty<From>())
                 if (source is { })
@@ -560,7 +586,7 @@ namespace Unknown6656.IO
 
         public static From Bitmap(Bitmap bitmap)
         {
-            using MemoryStream ms = new MemoryStream();
+            using MemoryStream ms = new();
 
             bitmap.Save(ms, ImageFormat.Png);
             ms.Seek(0, SeekOrigin.Begin);
@@ -570,7 +596,7 @@ namespace Unknown6656.IO
 
         public static From Stream(Stream stream, bool seek_beginning = true)
         {
-            using MemoryStream ms = new MemoryStream();
+            using MemoryStream ms = new();
 
             if (seek_beginning && stream.CanSeek)
                 stream.Seek(0, SeekOrigin.Begin);
@@ -609,9 +635,26 @@ namespace Unknown6656.IO
 
         public static From File(string path) => File(new FileInfo(path));
 
-        public static From File(FileInfo file) => Stream(file.OpenRead());
+        public static From File(string path, FileMode mode, FileAccess access = FileAccess.Read, FileShare share = FileShare.Read) =>
+            File(new FileInfo(path), mode, access, share);
+
+        public static From File(FileInfo file) => File(file, FileMode.Open);
+
+        public static From File(FileInfo file, FileMode mode, FileAccess access = FileAccess.Read, FileShare share = FileShare.Read)
+        {
+            using FileStream fs = new(file.FullName, mode, access, share);
+            From data = Stream(fs);
+
+            fs.Close();
+            fs.Dispose();
+
+            return data;
+        }
 
         public static From File(Uri path) => File(Path.GetFileName(path.LocalPath));
+
+        public static From File(Uri path, FileMode mode, FileAccess access = FileAccess.Read, FileShare share = FileShare.Read) =>
+            File(Path.GetFileName(path.LocalPath), mode, access, share);
 
         public static From CompressedMatrix<Field>(Field[,] matrix)
             where Field : unmanaged, IField<Field> => CompressedStorageFormat(new CompressedStorageFormat<Field>(matrix));
@@ -623,21 +666,21 @@ namespace Unknown6656.IO
 
         public static From WebResource(Uri uri)
         {
-            using WebClient wc = new WebClient();
+            using WebClient wc = new();
 
             return Bytes(wc.DownloadData(uri));
         }
 
         public static From WebResource(string uri)
         {
-            using WebClient wc = new WebClient();
+            using WebClient wc = new();
 
             return Bytes(wc.DownloadData(uri));
         }
 
         public static From HTTP(string uri)
         {
-            using HttpClient hc = new HttpClient
+            using HttpClient hc = new()
             {
                 Timeout = new TimeSpan(0, 0, 15)
             };
@@ -682,8 +725,8 @@ namespace Unknown6656.IO
                 if (!int.TryParse(g["port"], out int port))
                     port = 22;
 
-                using (SftpClient sftp = new SftpClient(host, port, uname, passw))
-                using (MemoryStream ms = new MemoryStream())
+                using (SftpClient sftp = new(host, port, uname, passw))
+                using (MemoryStream ms = new())
                 {
                     sftp.Connect();
                     sftp.DownloadFile(rpath, ms);
@@ -722,7 +765,7 @@ namespace Unknown6656.IO
 
         public static From Bytes(IEnumerable<byte>? bytes) => Bytes(bytes?.ToArray());
 
-        public static From Bytes(params byte[]? bytes) => new From(bytes ?? new byte[0]);
+        public static From Bytes(params byte[]? bytes) => new(bytes ?? System.Array.Empty<byte>());
 
         public static From Bytes(byte[] bytes, int offset) => Bytes(bytes[offset..]);
 
@@ -736,12 +779,14 @@ namespace Unknown6656.IO
 
         public static From Memory<T>(ReadOnlyMemory<T> bytes) where T : unmanaged => Array(bytes.ToArray());
 
+        public static From Type(Type type) => ArrayOfSources(Unmanaged(type.GUID), String(type.AssemblyQualifiedName ?? type.FullName ?? type.ToString()));
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator byte[](From from) => from.Data;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator From(byte[] bytes) => new From(bytes);
+        public static implicit operator From(byte[] bytes) => new(bytes);
     }
 
     public unsafe sealed partial class UnsafeFunctionPointer
@@ -753,7 +798,7 @@ namespace Unknown6656.IO
 
         public int BufferSize { get; }
 
-        public ReadOnlySpan<byte> InstructionBytes => new ReadOnlySpan<byte>(BufferAddress, BufferSize);
+        public ReadOnlySpan<byte> InstructionBytes => new(BufferAddress, BufferSize);
 
 
         internal UnsafeFunctionPointer(void* buffer, int size)

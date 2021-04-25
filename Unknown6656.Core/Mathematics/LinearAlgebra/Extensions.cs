@@ -337,7 +337,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
             if (width <= 0 || height <= 0 || fov <= 0)
                 throw new ArgumentOutOfRangeException();
 
-            Scalar h = Cos(fov / 2) / Sin(fov / 2);
+            Scalar h = (fov * .5).Cot();
             Scalar w = h * height / width;
 
             return new Matrix4(0)
@@ -408,9 +408,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Matrix4 CreateRotation(Matrix4 matrix, Vector3 axis, Scalar angle)
         {
-            Scalar c = Cos(angle);
-            Scalar s = Sin(angle);
-            Vector3 axis = axis.Normalized;
+            axis = axis.Normalized;
+
+            Scalar c = angle.Cos();
+            Scalar s = angle.Sin();
             Vector3 tmp = (1 - c) * axis;
             Matrix4 rot = (
                 c + tmp[0] * axis[0],

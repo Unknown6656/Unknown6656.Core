@@ -139,17 +139,34 @@ namespace Unknown6656.Common
         public static T[] HeapSort<T>(this IEnumerable<T> coll) where T : IComparable<T> => BinaryHeap<T>.HeapSort(coll);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T[] ArrayZip<T>(this T[] coll1, T[] coll2, Func<T, T, T> func) => ArrayZip<T, T, T>(coll1, coll2, func);
+        public static T[] ZipArray<T>(this IEnumerable<T> coll1, IEnumerable<T> coll2, Func<T, T, T> func) => ZipArray<T, T, T>(coll1, coll2, func);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static V[] ArrayZip<T, U, V>(this T[] coll1, U[] coll2, Func<T, U, V> func)
+        public static V[] ZipArray<T, U, V>(this IEnumerable<T> coll1, IEnumerable<U> coll2, Func<T, U, V> func)
         {
-            V[] res = new V[Min(coll1.Length, coll2.Length)];
+            T[] arr1 = coll1 as T[] ?? coll1.ToArray();
+            U[] arr2 = coll2 as U[] ?? coll2.ToArray();
+            V[] res = new V[Min(arr1.Length, arr2.Length)];
 
             for (int i = 0, l = res.Length; i < l; ++i)
-                res[i] = func(coll1[i], coll2[i]);
+                res[i] = func(arr1[i], arr2[i]);
 
             return res;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IEnumerable<V> ZipOuter<T, U, V>(this IEnumerable<T> coll1, IEnumerable<U> coll2, Func<T, U, V> func)
+        {
+            T[] a = coll1 as T[] ?? coll1.ToArray();
+            U[] b = coll2 as U[] ?? coll2.ToArray();
+            int cmp = a.Length.CompareTo(b.Length);
+
+            if (cmp < 0)
+                Array.Resize(ref a, b.Length);
+            else if (cmp > 0)
+                Array.Resize(ref b, a.Length);
+
+            return a.Zip(b, func);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -414,19 +431,6 @@ namespace Unknown6656.Common
                 element = func(element);
 
             return element;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IEnumerable<V> ZipOuter<T, U, V>(this T[] a, U[] b, Func<T, U, V> func)
-        {
-            int cmp = a.Length.CompareTo(b.Length);
-
-            if (cmp < 0)
-                Array.Resize(ref a, b.Length);
-            else if (cmp > 0)
-                Array.Resize(ref b, a.Length);
-
-            return a.Zip(b, func);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

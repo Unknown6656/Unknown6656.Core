@@ -240,7 +240,7 @@ namespace Unknown6656.Mathematics.Numerics
             else if ((@base < 2) || (@base >= digits.Length))
                 throw new ArgumentException($"Base must be in the range [2, {digits.Length - 1}]", nameof(@base));
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             (UInt128 D, UInt128 M) dm = (this, Zero);
 
             do
@@ -324,7 +324,7 @@ namespace Unknown6656.Mathematics.Numerics
         public readonly decimal ToDecimal(IFormatProvider? provider) => this;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly DateTime ToDateTime(IFormatProvider? provider) => new DateTime(ToInt64(provider));
+        public readonly DateTime ToDateTime(IFormatProvider? provider) => new(ToInt64(provider));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly string ToString(IFormatProvider? _) => ToString();
@@ -797,10 +797,10 @@ namespace Unknown6656.Mathematics.Numerics
         public static explicit operator bool(UInt128 v) => !v.IsZero;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator UInt128(ulong v) => new UInt128(v);
+        public static implicit operator UInt128(ulong v) => new(v);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator UInt128((ulong High, ulong Low) v) => new UInt128(v.Item1, v.Item2);
+        public static implicit operator UInt128((ulong High, ulong Low) v) => new(v.High, v.Low);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator (ulong High, ulong Low)(UInt128 v) => (v._hi, v._lo);
@@ -829,7 +829,7 @@ namespace Unknown6656.Mathematics.Numerics
         public static implicit operator decimal(UInt128 v) => decimal.Parse(v.ToString());
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator BigInteger(UInt128 v) => new BigInteger(v);
+        public static implicit operator BigInteger(UInt128 v) => new(v);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static explicit operator ulong(UInt128 v) => v._lo;

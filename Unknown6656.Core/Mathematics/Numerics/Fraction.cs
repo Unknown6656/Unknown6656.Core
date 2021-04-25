@@ -4,6 +4,7 @@ using System;
 using Unknown6656.Mathematics.LinearAlgebra;
 
 using bint = System.Numerics.BigInteger;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Unknown6656.Mathematics.Numerics
 {
@@ -34,7 +35,7 @@ namespace Unknown6656.Mathematics.Numerics
 
         public readonly Fraction AdditiveInverse => Negate();
 
-        public readonly Fraction MultiplicativeInverse => new Fraction(Math.Sign(Numerator) * (long)Denominator, (ulong)Math.Abs(Numerator));
+        public readonly Fraction MultiplicativeInverse => new(Math.Sign(Numerator) * (long)Denominator, (ulong)Math.Abs(Numerator));
 
         public readonly bool IsInteger => Denominator == 1;
 
@@ -84,7 +85,7 @@ namespace Unknown6656.Mathematics.Numerics
             Denominator = denominator / gcd;
         }
 
-        public readonly Fraction Negate() => new Fraction(-Numerator, Denominator);
+        public readonly Fraction Negate() => new(-Numerator, Denominator);
 
         public readonly Fraction Abs() => IsNegative ? Negate() : this;
 
@@ -201,9 +202,9 @@ namespace Unknown6656.Mathematics.Numerics
 
         public readonly bool Equals(Fraction other) => CompareTo(other) == 0;
 
-        public readonly bool Is(Fraction o) => Equals(o);
+        public readonly bool Is([MaybeNull] Fraction o) => Equals(o);
 
-        public readonly bool IsNot(Fraction o) => !Equals(o);
+        public readonly bool IsNot([MaybeNull] Fraction o) => !Equals(o);
 
         public readonly override int GetHashCode() => HashCode.Combine(Numerator, Denominator);
 
@@ -281,7 +282,7 @@ namespace Unknown6656.Mathematics.Numerics
         }
 
 
-        public static implicit operator Fraction((long  numerator, ulong denominator) fraction) => new Fraction(fraction.numerator, fraction.denominator);
+        public static implicit operator Fraction((long  numerator, ulong denominator) fraction) => new(fraction.numerator, fraction.denominator);
 
         public static implicit operator Scalar(Fraction f) => (Scalar)f.Numerator / (Scalar)f.Denominator;
 
@@ -307,21 +308,21 @@ namespace Unknown6656.Mathematics.Numerics
 
         public static explicit operator ulong(Fraction f) => (ulong)(Scalar)f;
 
-        public static implicit operator Fraction(sbyte n) => new Fraction(n, 1);
+        public static implicit operator Fraction(sbyte n) => new(n, 1);
 
-        public static implicit operator Fraction(byte n) => new Fraction(n, 1);
+        public static implicit operator Fraction(byte n) => new(n, 1);
 
-        public static implicit operator Fraction(short n) => new Fraction(n, 1);
+        public static implicit operator Fraction(short n) => new(n, 1);
 
-        public static implicit operator Fraction(ushort n) => new Fraction(n, 1);
+        public static implicit operator Fraction(ushort n) => new(n, 1);
 
-        public static implicit operator Fraction(int n) => new Fraction(n, 1);
+        public static implicit operator Fraction(int n) => new(n, 1);
 
-        public static implicit operator Fraction(uint n) => new Fraction(n, 1);
+        public static implicit operator Fraction(uint n) => new(n, 1);
 
-        public static implicit operator Fraction(long n) => new Fraction(n, 1);
+        public static implicit operator Fraction(long n) => new(n, 1);
 
-        public static explicit operator Fraction(ulong n) => new Fraction((long)n, 1);
+        public static explicit operator Fraction(ulong n) => new((long)n, 1);
 
         public static explicit operator Fraction(Scalar s) => FromScalar(s);
 

@@ -27,6 +27,7 @@ using System.Runtime.Serialization;
 using System.Security.Permissions;
 using Unknown6656.Mathematics.Graphs;
 using static System.Net.WebRequestMethods;
+using System.Text.Json;
 
 
 // TODO : obj file format
@@ -46,6 +47,15 @@ namespace Unknown6656.IO
 
 
         public static From Empty { get; } = new(System.Array.Empty<byte>());
+
+        public static JsonSerializerOptions DefaultJSONOptions { get; } = new()
+        {
+            AllowTrailingCommas = true,
+            ReadCommentHandling = JsonCommentHandling.Skip,
+            PropertyNameCaseInsensitive = true,
+            WriteIndented = true,
+            IncludeFields = true,
+        };
 
 
         public From this[Range range] => Slice(range);
@@ -429,6 +439,21 @@ namespace Unknown6656.IO
 
         public INIFile ToINI(Encoding encoding) => INIFile.FromINIString(ToString(encoding));
 
+        public T ToJSON<T>(JsonSerializerOptions? options = null) => ToJSON<T>(obj, BytewiseEncoding.Instance, options);
+
+        public T ToJSON<T>(Encoding enc, JsonSerializerOptions? options = null) => (T)ToJSON(typeof(T), enc, options);
+
+        public object? ToJSON(Type type, JsonSerializerOptions? options = null) => ToJSON(obj, BytewiseEncoding.Instance, options);
+
+        public object? ToJSON(Type type, Encoding enc, JsonSerializerOptions? options = null) => JsonSerializer.Deserialize(ToString(enc), type, options ?? DefaultJSONOptions);
+
+        public object? ToObject() => FunctionExtensions.TryDo(() =>
+        {
+            From[] sources = ToArrayOfSources();
+
+            return sources[1].ToJSON(sources[0].ToType());
+        }, null);
+
         public Type? ToType()
         {
             From[] sources = ToArrayOfSources();
@@ -623,6 +648,21 @@ namespace Unknown6656.IO
 
         public static From INI(INIFile ini, Encoding enc) => String(ini.Serialize(), enc);
 
+        public static From JSON(object? obj, JsonSerializerOptions? options = null) => JSON(obj, BytewiseEncoding.Instance, options);
+
+        public static From JSON(object? obj, Encoding enc, JsonSerializerOptions? options = null) => String(JsonSerializer.Serialize(obj, options ?? DefaultJSONOptions), enc);
+
+        public static From Object(object? obj)
+        {
+            if (obj is null)
+                return Empty;
+            else
+                return ArrayOfSources(
+                    Type(obj.GetType()),
+                    JSON(obj)
+                );
+        }
+
         public static From StringBuilder(StringBuilder sb) => StringBuilder(sb, BytewiseEncoding.Instance);
 
         public static From StringBuilder(StringBuilder sb, Encoding enc) => String(sb.ToString(), enc);
@@ -780,6 +820,8 @@ namespace Unknown6656.IO
         public static From Memory<T>(ReadOnlyMemory<T> bytes) where T : unmanaged => Array(bytes.ToArray());
 
         public static From Type(Type type) => ArrayOfSources(Unmanaged(type.GUID), String(type.AssemblyQualifiedName ?? type.FullName ?? type.ToString()));
+
+        public static From Type<T>() => Type(typeof(T));
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

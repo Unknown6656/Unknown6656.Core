@@ -439,11 +439,11 @@ namespace Unknown6656.IO
 
         public INIFile ToINI(Encoding encoding) => INIFile.FromINIString(ToString(encoding));
 
-        public T ToJSON<T>(JsonSerializerOptions? options = null) => ToJSON<T>(obj, BytewiseEncoding.Instance, options);
+        public T ToJSON<T>(JsonSerializerOptions? options = null) => ToJSON<T>(BytewiseEncoding.Instance, options);
 
-        public T ToJSON<T>(Encoding enc, JsonSerializerOptions? options = null) => (T)ToJSON(typeof(T), enc, options);
+        public T ToJSON<T>(Encoding enc, JsonSerializerOptions? options = null) => (T)ToJSON(typeof(T), enc, options)!;
 
-        public object? ToJSON(Type type, JsonSerializerOptions? options = null) => ToJSON(obj, BytewiseEncoding.Instance, options);
+        public object? ToJSON(Type type, JsonSerializerOptions? options = null) => ToJSON(type, BytewiseEncoding.Instance, options);
 
         public object? ToJSON(Type type, Encoding enc, JsonSerializerOptions? options = null) => JsonSerializer.Deserialize(ToString(enc), type, options ?? DefaultJSONOptions);
 

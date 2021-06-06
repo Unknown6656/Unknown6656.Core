@@ -18,7 +18,7 @@ namespace Unknown6656.Mathematics.Analysis
         where I : IEquatable<I>
     {
         public const uint DEFAULT_CACHE_SIZE = 1024 * 1024 * 256;
-        private readonly Dictionary<I, V> _valdic = new Dictionary<I, V>();
+        private readonly Dictionary<I, V> _valdic = new();
 
 
         public ReadOnlyIndexer<I, bool> IsCached { get; }
@@ -128,7 +128,7 @@ namespace Unknown6656.Mathematics.Analysis
         }
 
 
-        public static implicit operator FunctionCache<F, I, V>(F function) => new FunctionCache<F, I, V>(function);
+        public static implicit operator FunctionCache<F, I, V>(F function) => new(function);
 
         public static implicit operator F(FunctionCache<F, I, V> cache) => cache.Function;
     }

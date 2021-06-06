@@ -20,6 +20,9 @@ using Unknown6656.Common;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
+
+// TODO : Use C# 10's abstract static !!
+
 namespace Unknown6656.Mathematics.LinearAlgebra
 {
     public interface IDisplayable

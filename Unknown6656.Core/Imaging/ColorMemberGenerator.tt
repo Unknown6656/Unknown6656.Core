@@ -315,6 +315,94 @@
                     orderby copy.EucledianDistanceTo(kvp.Value) / norm ascending
                     select kvp.Key).FirstOrDefault();
         }",
+        @"public readonly double DistanceTo($type other, ColorEqualityMetric metric)
+        {
+            switch (metric)
+            {
+                case ColorEqualityMetric.RGBAChannels:
+                    return Math.Abs($R - other.$R)
+                        + Math.Abs($G - other.$G)
+                        + Math.Abs($B - other.$B)
+                        + Math.Abs($A - other.$A);
+                case ColorEqualityMetric.RGBChannels:
+                    return Math.Abs($R - other.$R)
+                        + Math.Abs($G - other.$G)
+                        + Math.Abs($B - other.$B);
+                case ColorEqualityMetric.RChannel:
+                    return Math.Abs($R - other.$R);
+                case ColorEqualityMetric.GChannel:
+                    return Math.Abs($G - other.$G);
+                case ColorEqualityMetric.BChannel:
+                    return Math.Abs($B - other.$B);
+                case ColorEqualityMetric.Alpha:
+                    return Math.Abs($A - other.$A);
+                case ColorEqualityMetric.RGChannels:
+                    return Math.Abs($R - other.$R)
+                        + Math.Abs($G - other.$G);
+                case ColorEqualityMetric.RBChannels:
+                    return Math.Abs($R - other.$R)
+                        + Math.Abs($B - other.$B);
+                case ColorEqualityMetric.RAChannels:
+                    return Math.Abs($R - other.$R)
+                        + Math.Abs($A - other.$A);
+                case ColorEqualityMetric.GBChannels:
+                    return Math.Abs($G - other.$G)
+                        + Math.Abs($B - other.$B);
+                case ColorEqualityMetric.GAChannels:
+                    return Math.Abs($G - other.$G)
+                        + Math.Abs($A - other.$A);
+                case ColorEqualityMetric.BAChannels:
+                    return Math.Abs($A - other.$A)
+                        + Math.Abs($B - other.$B);
+                case ColorEqualityMetric.RGAChannels:
+                    return Math.Abs($R - other.$R)
+                        + Math.Abs($G - other.$G)
+                        + Math.Abs($A - other.$A);
+                case ColorEqualityMetric.RBAChannels:
+                    return Math.Abs($R - other.$R)
+                        + Math.Abs($B - other.$B)
+                        + Math.Abs($A - other.$A);
+                case ColorEqualityMetric.GBAChannels:
+                    return Math.Abs($G - other.$G)
+                        + Math.Abs($B - other.$B)
+                        + Math.Abs($A - other.$A);
+                case ColorEqualityMetric.CChannel:
+                    return Math.Abs(ToCMYK().C - other.ToCMYK().C);
+                case ColorEqualityMetric.MChannel:
+                    return Math.Abs(ToCMYK().M - other.ToCMYK().M);
+                case ColorEqualityMetric.YChannel:
+                    return Math.Abs(ToCMYK().Y - other.ToCMYK().Y);
+                case ColorEqualityMetric.KChannel:
+                    return Math.Abs(ToCMYK().K - other.ToCMYK().K);
+                case ColorEqualityMetric.Hue:
+                    return Math.Abs(ToHSL().H - other.ToHSL().H);
+                case ColorEqualityMetric.Saturation:
+                    return Math.Abs(ToHSL().S - other.ToHSL().S);
+                case ColorEqualityMetric.Luminance:
+                    return Math.Abs(ToHSL().L - other.ToHSL().L);
+                case ColorEqualityMetric.CIEGray:
+                    return Math.Abs(CIEGray - other.CIEGray);
+                case ColorEqualityMetric.Average:
+                    return Math.Abs(Average - other.Average);
+                case ColorEqualityMetric.EucledianLength:
+                    return EucledianDistanceTo(other);
+                case ColorEqualityMetric.LegacyConsoleColor:
+                    return FromConsoleColor(ToConsoleColor(ConsoleColorScheme.Legacy), ConsoleColorScheme.Legacy).DistanceTo(
+                        FromConsoleColor(other.ToConsoleColor(ConsoleColorScheme.Legacy), ConsoleColorScheme.Legacy),
+                        ColorEqualityMetric.RGAChannels
+                    );
+                case ColorEqualityMetric.Windows10ConsoleColor:
+                    return FromConsoleColor(ToConsoleColor(ConsoleColorScheme.Windows10), ConsoleColorScheme.Windows10).DistanceTo(
+                        FromConsoleColor(other.ToConsoleColor(ConsoleColorScheme.Windows10), ConsoleColorScheme.Windows10),
+                        ColorEqualityMetric.RGAChannels
+                    );
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(metric));
+            }
+        }",
+        @"public readonly bool Equals($type other, ColorEqualityMetric metric) => Equals(other, metric, Scalar.ComputationalEpsilon);",
+        @"public readonly bool Equals($type other, ColorEqualityMetric metric, double tolerance) => Equals(other, new(tolerance, metric));",
+        @"public readonly bool Equals($type other, ColorTolerance tolerance) => DistanceTo(other, tolerance.Metric) <= tolerance.Tolerance;",
         @"public static $type FromConsoleColor(ConsoleColor color, ConsoleColorScheme color_scheme) => IColor.ConsoleColorSchemes[color_scheme][color];",
         @"public static $type FromComplexWrapped(Complex c) => FromComplexWrapped(c, 1);",
         @"public static $type FromComplexWrapped(Complex c, double α)

@@ -9,7 +9,9 @@ using System;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics;
 using Unknown6656.Common;
-using System.Dynamic;
+using System.Drawing.Imaging;
+using System.Transactions;
+using System.Threading.Channels;
 
 namespace Unknown6656.Imaging
 {
@@ -122,6 +124,12 @@ namespace Unknown6656.Imaging
 
         //void Deconstruct(out Channel r, out Channel g, out Channel b);
         //void Deconstruct(out Channel r, out Channel g, out Channel b, out Channel α);
+
+
+        double DistanceTo(Color other, ColorEqualityMetric metric);
+        bool Equals(Color other, ColorEqualityMetric metric);
+        bool Equals(Color other, ColorEqualityMetric metric, double tolerance);
+        bool Equals(Color other, ColorTolerance tolerance);
     }
 
     /// <summary>
@@ -207,10 +215,10 @@ namespace Unknown6656.Imaging
         public static implicit operator RGBAColor(HDRColor color) => color.ARGB32;
     }
 
-/// <summary>
-/// Represents a native pixel 32-bit color information structure.
-/// </summary>
-[NativeCppClass, Serializable, StructLayout(LayoutKind.Explicit)]
+    /// <summary>
+    /// Represents a native pixel 32-bit color information structure.
+    /// </summary>
+    [NativeCppClass, Serializable, StructLayout(LayoutKind.Explicit)]
     public unsafe partial struct RGBAColor
         : IColor<RGBAColor, byte>
         , IComparable<RGBAColor>
@@ -509,6 +517,8 @@ namespace Unknown6656.Imaging
         public static implicit operator RGBAColor((byte r, byte g, byte b, byte α) color) => new RGBAColor(color.r, color.g, color.b, color.α);
 
         #endregion
+
+
     }
 
     public abstract class ColorMap
@@ -1089,6 +1099,28 @@ namespace Unknown6656.Imaging
 
 
         public static implicit operator DiscreteColorMap(RGBAColor[] colors) => Uniform(colors);
+}
+
+    public sealed record ColorTolerance(double Tolerance, ColorEqualityMetric Metric)
+    {
+        public ColorTolerance(double Tolerance)
+            : this(Tolerance, ColorEqualityMetric.RGBAChannels)
+        {
+        }
+
+        public double DistanceBetween<Color, Channel>(Color color1, Color color2)
+            where Color : unmanaged, IColor<Color, Channel>
+            where Channel : unmanaged => color1.DistanceTo(color2, Metric);
+
+        public bool Equals<Color, Channel>(Color color1, Color color2)
+            where Color : unmanaged, IColor<Color, Channel>
+            where Channel : unmanaged => color1.Equals(color2, this);
+
+        public static implicit operator ColorTolerance(double tolerance) => new(tolerance);
+
+        public static implicit operator ColorEqualityMetric(ColorTolerance tolerance) => tolerance.Metric;
+
+        public static implicit operator double(ColorTolerance tolerance) => tolerance.Tolerance;
     }
 
     public enum BitmapChannel
@@ -1103,6 +1135,37 @@ namespace Unknown6656.Imaging
     {
         Legacy,
         Windows10
+    }
+
+    public enum ColorEqualityMetric
+    {
+        RGBAChannels,
+        RGBChannels,
+        RChannel,
+        GChannel,
+        BChannel,
+        RGChannels,
+        RBChannels,
+        RAChannels,
+        GBChannels,
+        GAChannels,
+        BAChannels,
+        RGAChannels,
+        RBAChannels,
+        GBAChannels,
+        CChannel,
+        MChannel,
+        YChannel,
+        KChannel,
+        Alpha,
+        Hue,
+        Saturation,
+        Luminance,
+        CIEGray,
+        Average,
+        EucledianLength,
+        LegacyConsoleColor,
+        Windows10ConsoleColor,
     }
 }
 

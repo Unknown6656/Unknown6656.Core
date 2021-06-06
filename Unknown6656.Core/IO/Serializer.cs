@@ -1,11 +1,13 @@
-﻿using System.Text.RegularExpressions;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
+using System.Text.Json.Serialization;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Collections;
 using System.Threading.Tasks;
 using System.Drawing.Imaging;
 using System.Globalization;
+using System.Text.Json;
 using System.Net.Http;
 using System.Net.Mail;
 using System.Net.Mime;
@@ -23,11 +25,6 @@ using Unknown6656.Mathematics.Cryptography;
 using Unknown6656.Controls.Console;
 using Unknown6656.Imaging;
 using Unknown6656.Common;
-using System.Runtime.Serialization;
-using System.Security.Permissions;
-using Unknown6656.Mathematics.Graphs;
-using static System.Net.WebRequestMethods;
-using System.Text.Json;
 
 
 // TODO : obj file format
@@ -38,7 +35,7 @@ namespace Unknown6656.IO
     /// <summary>
     /// A class containing serialization/deserialization functions.
     /// </summary>
-    public unsafe sealed class From
+    public unsafe record DataStream(byte[] Data)
         : IEnumerable<byte>
     {
         private static readonly Regex FTP_PROTOCOL_REGEX = new(@"^(?<protocol>ftps?):\/\/(?<uname>[^:]+)(:(?<passw>[^@]+))?@(?<url>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -46,76 +43,73 @@ namespace Unknown6656.IO
         private static readonly Regex BASE64_REGEX = new(@"^.\s*data:\s*[^\w\/\-\+]+\s*;(\s*base64\s*,)?(?<data>(?:[a-z0-9+/]{4})*(?:[a-z0-9+/]{2}==|[a-z0-9+/]{3}=)?)$", RegexOptions.Compiled | RegexOptions.Compiled);
 
 
-        public static From Empty { get; } = new(System.Array.Empty<byte>());
+        public static DataStream Empty { get; } = new(Array.Empty<byte>());
 
         public static JsonSerializerOptions DefaultJSONOptions { get; } = new()
         {
             AllowTrailingCommas = true,
             ReadCommentHandling = JsonCommentHandling.Skip,
+            NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
             PropertyNameCaseInsensitive = true,
             WriteIndented = true,
             IncludeFields = true,
         };
 
 
-        public From this[Range range] => Slice(range);
+        public DataStream this[Range range] => Slice(range);
 
-        public From this[Index start, Index end] => Slice(start, end);
+        public DataStream this[Index start, Index end] => Slice(start, end);
 
         public ref byte this[Index index] => ref Data[index];
-
-        public byte[] Data { get; }
 
         public int ByteCount => Data.Length;
 
 
-        private From(byte[] data) => Data = data;
+        public DataStream Compress(CompressionFunction algorithm) => Data.Compress(algorithm);
 
-        public From Compress(CompressionFunction algorithm) => Data.Compress(algorithm);
+        public DataStream Uncompress(CompressionFunction algorithm) => Data.Uncompress(algorithm);
 
-        public From Uncompress(CompressionFunction algorithm) => Data.Uncompress(algorithm);
+        public DataStream Encrypt(BinaryCipher algorithm, byte[] key) => Data.Encrypt(algorithm, key);
 
-        public From Encrypt(BinaryCipher algorithm, byte[] key) => Data.Encrypt(algorithm, key);
+        public DataStream Decrypt(BinaryCipher algorithm, byte[] key) => Data.Decrypt(algorithm, key);
 
-        public From Decrypt(BinaryCipher algorithm, byte[] key) => Data.Decrypt(algorithm, key);
+        public DataStream Hex() => FromString(ToHexString());
 
-        public From Hex() => From.String(ToHexString());
+        public DataStream UnHex() => FromHex(ToString());
 
-        public From UnHex() => From.Hex(ToString());
+        public DataStream Hash<T>(T hash_function) where T : HashFunction<T> => hash_function.Hash(Data);
 
-        public From Hash<T>(T hash_function) where T : HashFunction<T> => hash_function.Hash(Data);
+        public DataStream Hash<T>() where T : HashFunction<T>, new() => Hash(new T());
 
-        public From Hash<T>() where T : HashFunction<T>, new() => Hash(new T());
-
-        public From HexDump()
+        public DataStream HexDump()
         {
             ConsoleExtensions.HexDump(Data);
 
             return this;
         }
 
-        public From HexDump(TextWriter writer)
+        public DataStream HexDump(TextWriter writer)
         {
             ConsoleExtensions.HexDump(Data, writer);
 
             return this;
         }
 
-        public From Slice(Index start, Index end) => Slice(start..end);
+        public DataStream Slice(Index start, Index end) => Slice(start..end);
 
-        public From Slice(Range range) => Bytes(Data[range]);
+        public DataStream Slice(Range range) => FromBytes(Data[range]);
 
-        public From Concat(params From[] others) => Multiple(others.Prepend(this));
+        public DataStream Concat(params DataStream[] others) => Concat(others.Prepend(this));
 
-        public From Append(params From[] others) => Multiple(others.Prepend(this));
+        public DataStream Append(params DataStream[] others) => Concat(others.Prepend(this));
 
-        public From Prepend(From first) => Multiple(first, this);
+        public DataStream Prepend(DataStream first) => DataStream.Concat(new[] { first, this });
 
-        public From Where(Func<byte, bool> predicate) => Data.Where(predicate).ToArray();
+        public DataStream Where(Func<byte, bool> predicate) => Data.Where(predicate).ToArray();
 
-        public From Select(Func<byte, byte> function) => Data.ToArray(function);
+        public DataStream Select(Func<byte, byte> function) => Data.ToArray(function);
 
-        public From Reverse() => Data.Reverse().ToArray();
+        public DataStream Reverse() => Data.Reverse().ToArray();
 
         public IEnumerator<byte> GetEnumerator() => ((IEnumerable<byte>)Data).GetEnumerator();
 
@@ -354,7 +348,7 @@ namespace Unknown6656.IO
         public T[,] ToMultiDimensionalArray2D<T>()
             where T : unmanaged
         {
-            From[] sources = ToArrayOfSources();
+            DataStream[] sources = ToArrayOfSources();
             int dim0 = sources[0].ToUnmanaged<int>();
             int dim1 = sources[1].ToUnmanaged<int>();
             T[] flat = sources[2].ToArray<T>();
@@ -368,7 +362,7 @@ namespace Unknown6656.IO
         public T[,,] ToMultiDimensionalArray3D<T>()
             where T : unmanaged
         {
-            From[] sources = ToArrayOfSources();
+            DataStream[] sources = ToArrayOfSources();
             int dim0 = sources[0].ToUnmanaged<int>();
             int dim1 = sources[1].ToUnmanaged<int>();
             int dim2 = sources[2].ToUnmanaged<int>();
@@ -383,7 +377,7 @@ namespace Unknown6656.IO
         public T[,,,] ToMultiDimensionalArray4D<T>()
             where T : unmanaged
         {
-            From[] sources = ToArrayOfSources();
+            DataStream[] sources = ToArrayOfSources();
             int dim0 = sources[0].ToUnmanaged<int>();
             int dim1 = sources[1].ToUnmanaged<int>();
             int dim2 = sources[2].ToUnmanaged<int>();
@@ -396,7 +390,7 @@ namespace Unknown6656.IO
             return array;
         }
 
-        public From[] ToArrayOfSources() => ToJaggedArray2D<byte>().ToArray(bytes => new From(bytes));
+        public DataStream[] ToArrayOfSources() => ToJaggedArray2D<byte>().ToArray(bytes => new DataStream(bytes));
 
         public Span<T> ToSpan<T>() where T : unmanaged => ToArray<T>().AsSpan();
 
@@ -449,14 +443,14 @@ namespace Unknown6656.IO
 
         public object? ToObject() => FunctionExtensions.TryDo(() =>
         {
-            From[] sources = ToArrayOfSources();
+            DataStream[] sources = ToArrayOfSources();
 
             return sources[1].ToJSON(sources[0].ToType());
         }, null);
 
         public Type? ToType()
         {
-            From[] sources = ToArrayOfSources();
+            DataStream[] sources = ToArrayOfSources();
             Guid clsid = sources[0].ToUnmanaged<Guid>();
             string name = sources[1].ToString();
 
@@ -464,30 +458,28 @@ namespace Unknown6656.IO
         }
 
 
-        public static From Multiple(params From?[]? sources) => Multiple(sources as IEnumerable<From?>);
-
-        public static From Multiple(IEnumerable<From?>? sources)
+        public static DataStream Concat(IEnumerable<DataStream?>? sources)
         {
             MemoryStream s = new();
 
-            foreach (From? source in sources ?? System.Array.Empty<From>())
+            foreach (DataStream? source in sources ?? Array.Empty<DataStream>())
                 if (source is { })
                     s.Write(source.Data, 0, source.ByteCount);
 
             s.Seek(0, SeekOrigin.Begin);
 
-            return Stream(s);
+            return FromStream(s);
         }
 
-        public static From Unmanaged<T>(T data) where T : unmanaged => Pointer(&data);
+        public static DataStream FromUnmanaged<T>(T data) where T : unmanaged => FromPointer(&data);
 
-        public static From Pointer<T>(T* data) where T : unmanaged => Pointer(data, sizeof(T));
+        public static DataStream FromPointer<T>(T* data) where T : unmanaged => FromPointer(data, sizeof(T));
 
-        public static From Pointer(nint pointer, int byte_count) => Pointer((void*)pointer, byte_count);
+        public static DataStream FromPointer(nint pointer, int byte_count) => FromPointer((void*)pointer, byte_count);
 
-        public static From Pointer(void* data, int byte_count) => Pointer((byte*)data, byte_count);
+        public static DataStream FromPointer(void* data, int byte_count) => FromPointer((byte*)data, byte_count);
 
-        public static From Pointer<T>(T* data, int byte_count)
+        public static DataStream FromPointer<T>(T* data, int byte_count)
             where T : unmanaged
         {
             byte[] arr = new byte[byte_count];
@@ -496,10 +488,10 @@ namespace Unknown6656.IO
             for (int i = 0; i < byte_count; ++i)
                 arr[i] = ptr[i];
 
-            return Bytes(arr);
+            return FromBytes(arr);
         }
 
-        public static From Array<T>(T[] array)
+        public static DataStream FromArray<T>(T[] array)
             where T : unmanaged
         {
             byte[] arr = new byte[array.Length * sizeof(T) + 4];
@@ -513,38 +505,38 @@ namespace Unknown6656.IO
                     dst[i] = array[i];
             }
 
-            return Bytes(arr);
+            return FromBytes(arr);
         }
 
-        public static From ArrayOfSources(IEnumerable<From> sources) => ArrayOfSources(sources.ToArray());
+        public static DataStream FromArrayOfSources(IEnumerable<DataStream> sources) => FromArrayOfSources(sources.ToArray());
 
-        public static From ArrayOfSources(params From[] sources) => JaggedArray(sources.ToArray(s => s.Data));
+        public static DataStream FromArrayOfSources(params DataStream[] sources) => FromJaggedArray(sources.ToArray(s => s.Data));
 
-        public static From JaggedArray<T>(T[][] array)
+        public static DataStream FromJaggedArray<T>(T[][] array)
             where T : unmanaged
         {
-            From[] arrays = array.ToArray(Array);
+            DataStream[] arrays = array.ToArray(FromArray);
 
-            return Unmanaged(arrays.Length).Append(arrays);
+            return FromUnmanaged(arrays.Length).Append(arrays);
         }
 
-        public static From JaggedArray<T>(T[][][] array)
+        public static DataStream FromJaggedArray<T>(T[][][] array)
             where T : unmanaged
         {
-            From[] arrays = array.ToArray(JaggedArray);
+            DataStream[] arrays = array.ToArray(FromJaggedArray);
 
-            return Unmanaged(arrays.Length).Append(arrays);
+            return FromUnmanaged(arrays.Length).Append(arrays);
         }
 
-        public static From JaggedArray<T>(T[][][][] array)
+        public static DataStream FromJaggedArray<T>(T[][][][] array)
             where T : unmanaged
         {
-            From[] arrays = array.ToArray(JaggedArray);
+            DataStream[] arrays = array.ToArray(FromJaggedArray);
 
-            return Unmanaged(arrays.Length).Append(arrays);
+            return FromUnmanaged(arrays.Length).Append(arrays);
         }
 
-        public static From MultiDimensionalArray<T>(T[,] array)
+        public static DataStream FromMultiDimensionalArray<T>(T[,] array)
             where T : unmanaged
         {
             int dim0 = array.GetLength(0);
@@ -553,14 +545,14 @@ namespace Unknown6656.IO
 
             Parallel.For(0, flat.Length, i => flat[i] = array[i / dim0, i % dim0]);
 
-            return ArrayOfSources(
-                Unmanaged(dim0),
-                Unmanaged(dim1),
-                Array(flat)
+            return FromArrayOfSources(
+                FromUnmanaged(dim0),
+                FromUnmanaged(dim1),
+                FromArray(flat)
             );
         }
 
-        public static From MultiDimensionalArray<T>(T[,,] array)
+        public static DataStream FromMultiDimensionalArray<T>(T[,,] array)
             where T : unmanaged
         {
             int dim0 = array.GetLength(0);
@@ -570,15 +562,15 @@ namespace Unknown6656.IO
 
             Parallel.For(0, flat.Length, i => flat[i] = array[i / (dim2 * dim1), i / dim2 % dim1, i % dim2]);
 
-            return ArrayOfSources(
-                Unmanaged(dim0),
-                Unmanaged(dim1),
-                Unmanaged(dim2),
-                Array(flat)
+            return FromArrayOfSources(
+                FromUnmanaged(dim0),
+                FromUnmanaged(dim1),
+                FromUnmanaged(dim2),
+                FromArray(flat)
             );
         }
 
-        public static From MultiDimensionalArray<T>(T[,,,] array)
+        public static DataStream FromMultiDimensionalArray<T>(T[,,,] array)
             where T : unmanaged
         {
             int dim0 = array.GetLength(0);
@@ -589,16 +581,16 @@ namespace Unknown6656.IO
 
             Parallel.For(0, flat.Length, i => flat[i] = array[i / (dim3 * dim2 * dim1), i / (dim3 * dim2) % dim1, i / dim3 % dim2, i % dim3]);
 
-            return ArrayOfSources(
-                Unmanaged(dim0),
-                Unmanaged(dim1),
-                Unmanaged(dim2),
-                Unmanaged(dim3),
-                Array(flat)
+            return FromArrayOfSources(
+                FromUnmanaged(dim0),
+                FromUnmanaged(dim1),
+                FromUnmanaged(dim2),
+                FromUnmanaged(dim3),
+                FromArray(flat)
             );
         }
 
-        public static From MultiDimensionalArray<T>(Array array, int dimensions)
+        public static DataStream FromMultiDimensionalArray<T>(Array array, int dimensions)
         {
             int[] dims = Enumerable.Range(0, dimensions).ToArray(array.GetLength);
 
@@ -607,19 +599,19 @@ namespace Unknown6656.IO
             throw new NotImplementedException();
         }
 
-        public static From RGBAEncodedBitmap(Bitmap bitmap) => Array(bitmap.ToPixelArray());
+        public static DataStream FromBitmapAsRGBAEncoded(Bitmap bitmap) => FromArray(bitmap.ToPixelArray());
 
-        public static From Bitmap(Bitmap bitmap)
+        public static DataStream FromBitmap(Bitmap bitmap)
         {
             using MemoryStream ms = new();
 
             bitmap.Save(ms, ImageFormat.Png);
             ms.Seek(0, SeekOrigin.Begin);
 
-            return Stream(ms);
+            return FromStream(ms);
         }
 
-        public static From Stream(Stream stream, bool seek_beginning = true)
+        public static DataStream FromStream(Stream stream, bool seek_beginning = true)
         {
             using MemoryStream ms = new();
 
@@ -629,61 +621,61 @@ namespace Unknown6656.IO
             stream.CopyTo(ms);
             ms.Seek(0, SeekOrigin.Begin);
 
-            return Bytes(ms.ToArray());
+            return FromBytes(ms.ToArray());
         }
 
-        public static From String(object? obj) => String(obj, BytewiseEncoding.Instance);
+        public static DataStream FromString(object? obj) => FromString(obj, BytewiseEncoding.Instance);
 
-        public static From String(object? obj, Encoding enc) => String(obj?.ToString() ?? "", enc);
+        public static DataStream FromString(object? obj, Encoding enc) => FromString(obj?.ToString() ?? "", enc);
 
-        public static From String(string str) => String(str, BytewiseEncoding.Instance);
+        public static DataStream FromString(string str) => FromString(str, BytewiseEncoding.Instance);
 
-        public static From String(string str, Encoding enc) => Bytes(enc.GetBytes(str));
+        public static DataStream FromString(string str, Encoding enc) => FromBytes(enc.GetBytes(str));
 
-        public static From INI(INISection ini_section) => INI(ini_section, BytewiseEncoding.Instance);
+        public static DataStream FromINI(INISection ini_section) => FromINI(ini_section, BytewiseEncoding.Instance);
 
-        public static From INI(INISection ini_section, Encoding enc) => INI(new INIFile() { [string.Empty] = ini_section }, enc);
+        public static DataStream FromINI(INISection ini_section, Encoding enc) => FromINI(new INIFile() { [string.Empty] = ini_section }, enc);
 
-        public static From INI(INIFile ini) => INI(ini, BytewiseEncoding.Instance);
+        public static DataStream FromINI(INIFile ini) => FromINI(ini, BytewiseEncoding.Instance);
 
-        public static From INI(INIFile ini, Encoding enc) => String(ini.Serialize(), enc);
+        public static DataStream FromINI(INIFile ini, Encoding enc) => FromString(ini.Serialize(), enc);
 
-        public static From JSON(object? obj, JsonSerializerOptions? options = null) => JSON(obj, BytewiseEncoding.Instance, options);
+        public static DataStream FromObjectAsJSON(object? obj, JsonSerializerOptions? options = null) => FromObjectAsJSON(obj, BytewiseEncoding.Instance, options);
 
-        public static From JSON(object? obj, Encoding enc, JsonSerializerOptions? options = null) => String(JsonSerializer.Serialize(obj, options ?? DefaultJSONOptions), enc);
+        public static DataStream FromObjectAsJSON(object? obj, Encoding enc, JsonSerializerOptions? options = null) => FromString(JsonSerializer.Serialize(obj, options ?? DefaultJSONOptions), enc);
 
-        public static From Object(object? obj)
+        public static DataStream FromObject(object? obj)
         {
             if (obj is null)
                 return Empty;
             else
-                return ArrayOfSources(
-                    Type(obj.GetType()),
-                    JSON(obj)
+                return FromArrayOfSources(
+                    FromType(obj.GetType()),
+                    FromObjectAsJSON(obj)
                 );
         }
 
-        public static From StringBuilder(StringBuilder sb) => StringBuilder(sb, BytewiseEncoding.Instance);
+        public static DataStream FromStringBuilder(StringBuilder sb) => FromStringBuilder(sb, BytewiseEncoding.Instance);
 
-        public static From StringBuilder(StringBuilder sb, Encoding enc) => String(sb.ToString(), enc);
+        public static DataStream FromStringBuilder(StringBuilder sb, Encoding enc) => FromString(sb.ToString(), enc);
 
-        public static From Lines(IEnumerable<string> lines, string separator = "\n") => Lines(lines, BytewiseEncoding.Instance, separator);
+        public static DataStream FromTextLines(IEnumerable<string> lines, string separator = "\n") => FromTextLines(lines, BytewiseEncoding.Instance, separator);
 
-        public static From Lines(IEnumerable<string> lines, Encoding enc, string separator = "\n") => String(string.Join(separator, lines), enc);
+        public static DataStream FromTextLines(IEnumerable<string> lines, Encoding enc, string separator = "\n") => FromString(string.Join(separator, lines), enc);
 
-        public static From Base64(string str) => Bytes(Convert.FromBase64String(str));
+        public static DataStream FromBase64(string str) => FromBytes(Convert.FromBase64String(str));
 
-        public static From File(string path) => File(new FileInfo(path));
+        public static DataStream FromFile(string path) => FromFile(new FileInfo(path));
 
-        public static From File(string path, FileMode mode, FileAccess access = FileAccess.Read, FileShare share = FileShare.Read) =>
-            File(new FileInfo(path), mode, access, share);
+        public static DataStream FromFile(string path, FileMode mode, FileAccess access = FileAccess.Read, FileShare share = FileShare.Read) =>
+            FromFile(new FileInfo(path), mode, access, share);
 
-        public static From File(FileInfo file) => File(file, FileMode.Open);
+        public static DataStream FromFile(FileInfo file) => FromFile(file, FileMode.Open);
 
-        public static From File(FileInfo file, FileMode mode, FileAccess access = FileAccess.Read, FileShare share = FileShare.Read)
+        public static DataStream FromFile(FileInfo file, FileMode mode, FileAccess access = FileAccess.Read, FileShare share = FileShare.Read)
         {
             using FileStream fs = new(file.FullName, mode, access, share);
-            From data = Stream(fs);
+            DataStream data = FromStream(fs);
 
             fs.Close();
             fs.Dispose();
@@ -691,47 +683,47 @@ namespace Unknown6656.IO
             return data;
         }
 
-        public static From File(Uri path) => File(Path.GetFileName(path.LocalPath));
+        public static DataStream FromFile(Uri path) => FromFile(Path.GetFileName(path.LocalPath));
 
-        public static From File(Uri path, FileMode mode, FileAccess access = FileAccess.Read, FileShare share = FileShare.Read) =>
-            File(Path.GetFileName(path.LocalPath), mode, access, share);
+        public static DataStream FromFile(Uri path, FileMode mode, FileAccess access = FileAccess.Read, FileShare share = FileShare.Read) =>
+            FromFile(Path.GetFileName(path.LocalPath), mode, access, share);
 
-        public static From CompressedMatrix<Field>(Field[,] matrix)
-            where Field : unmanaged, IField<Field> => CompressedStorageFormat(new CompressedStorageFormat<Field>(matrix));
+        public static DataStream FromCompressedMatrix<Field>(Field[,] matrix)
+            where Field : unmanaged, IField<Field> => FromCompressedStorageFormat(new CompressedStorageFormat<Field>(matrix));
 
-        public static From CompressedMatrix<Field>(Algebra<Field>.IComposite2D matrix)
-            where Field : unmanaged, IField<Field> => CompressedStorageFormat(new CompressedStorageFormat<Field>(matrix));
+        public static DataStream FromCompressedMatrix<Field>(Algebra<Field>.IComposite2D matrix)
+            where Field : unmanaged, IField<Field> => FromCompressedStorageFormat(new CompressedStorageFormat<Field>(matrix));
 
-        public static From CompressedStorageFormat<Field>(CompressedStorageFormat<Field> compressed) where Field : unmanaged, IField<Field> => Bytes(compressed.ToBytes());
+        public static DataStream FromCompressedStorageFormat<Field>(CompressedStorageFormat<Field> compressed) where Field : unmanaged, IField<Field> => FromBytes(compressed.ToBytes());
 
-        public static From WebResource(Uri uri)
+        public static DataStream FromWebResource(Uri uri)
         {
             using WebClient wc = new();
 
-            return Bytes(wc.DownloadData(uri));
+            return FromBytes(wc.DownloadData(uri));
         }
 
-        public static From WebResource(string uri)
+        public static DataStream FromWebResource(string uri)
         {
             using WebClient wc = new();
 
-            return Bytes(wc.DownloadData(uri));
+            return FromBytes(wc.DownloadData(uri));
         }
 
-        public static From HTTP(string uri)
+        public static DataStream FromHTTP(string uri)
         {
             using HttpClient hc = new()
             {
                 Timeout = new TimeSpan(0, 0, 15)
             };
 
-            return Bytes(hc.GetByteArrayAsync(uri)
+            return FromBytes(hc.GetByteArrayAsync(uri)
                            .ConfigureAwait(false)
                            .GetAwaiter()
                            .GetResult());
         }
 
-        public static From FTP(string uri)
+        public static DataStream FromFTP(string uri)
         {
             FtpWebRequest req;
             byte[] content;
@@ -750,10 +742,10 @@ namespace Unknown6656.IO
 
             using (FtpWebResponse resp = (FtpWebResponse)req.GetResponse())
             using (Stream s = resp.GetResponseStream())
-                return Stream(s);
+                return FromStream(s);
         }
 
-        public static From SSH(string uri)
+        public static DataStream FromSSH(string uri)
         {
             if (uri.Match(SSH_PROTOCOL_REGEX, out ReadOnlyIndexer<string, string>? g))
             {
@@ -773,22 +765,22 @@ namespace Unknown6656.IO
                     sftp.Disconnect();
                     ms.Seek(0, SeekOrigin.Begin);
 
-                    return Stream(ms);
+                    return FromStream(ms);
                 }
             }
             else
                 throw new ArgumentException($"Invalid SSH URI: The URI should have the format '<protocol>://<user>:<password>@<host>:<port>/<path>'.", nameof(uri));
         }
 
-        public static From DataURI(string uri)
+        public static DataStream FromDataURI(string uri)
         {
             if (uri.Match(BASE64_REGEX, out ReadOnlyIndexer<string, string>? groups))
-                return Base64(groups!["data"]);
+                return FromBase64(groups!["data"]);
 
             throw new ArgumentException("Invalid data URI.");
         }
 
-        public static From Hex(string str)
+        public static DataStream FromHex(string str)
         {
             str = new string(str.ToLower().Where(c => (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')).ToArray());
 
@@ -800,35 +792,46 @@ namespace Unknown6656.IO
             for (int i = 0; i < data.Length; ++i)
                 data[i] = byte.Parse(str[(i * 2)..((i + 1) * 2)], NumberStyles.HexNumber);
 
-            return Bytes(data);
+            return FromBytes(data);
         }
 
-        public static From Bytes(IEnumerable<byte>? bytes) => Bytes(bytes?.ToArray());
+        public static DataStream FromBytes(IEnumerable<byte>? bytes) => FromBytes(bytes?.ToArray());
 
-        public static From Bytes(params byte[]? bytes) => new(bytes ?? System.Array.Empty<byte>());
+        public static DataStream FromBytes(params byte[]? bytes) => new(bytes ?? Array.Empty<byte>());
 
-        public static From Bytes(byte[] bytes, int offset) => Bytes(bytes[offset..]);
+        public static DataStream FromBytes(byte[] bytes, int offset) => FromBytes(bytes[offset..]);
 
-        public static From Bytes(byte[] bytes, int offset, int count) => Bytes(bytes[offset..(offset + count)]);
+        public static DataStream FromBytes(byte[] bytes, int offset, int count) => FromBytes(bytes[offset..(offset + count)]);
 
-        public static From Span<T>(Span<T> bytes) where T : unmanaged => Array(bytes.ToArray());
+        public static DataStream FromSpan<T>(Span<T> bytes) where T : unmanaged => FromArray(bytes.ToArray());
 
-        public static From Span<T>(ReadOnlySpan<T> bytes) where T : unmanaged => Array(bytes.ToArray());
+        public static DataStream FromSpan<T>(ReadOnlySpan<T> bytes) where T : unmanaged => FromArray(bytes.ToArray());
 
-        public static From Memory<T>(Memory<T> bytes) where T : unmanaged => Array(bytes.ToArray());
+        public static DataStream FromMemory<T>(Memory<T> bytes) where T : unmanaged => FromArray(bytes.ToArray());
 
-        public static From Memory<T>(ReadOnlyMemory<T> bytes) where T : unmanaged => Array(bytes.ToArray());
+        public static DataStream FromMemory<T>(ReadOnlyMemory<T> bytes) where T : unmanaged => FromArray(bytes.ToArray());
 
-        public static From Type(Type type) => ArrayOfSources(Unmanaged(type.GUID), String(type.AssemblyQualifiedName ?? type.FullName ?? type.ToString()));
+        public static DataStream FromType(Type type) => FromArrayOfSources(FromUnmanaged(type.GUID), FromString(type.AssemblyQualifiedName ?? type.FullName ?? type.ToString()));
 
-        public static From Type<T>() => Type(typeof(T));
+        public static DataStream FromType<T>() => FromType(typeof(T));
+
+        [SkipLocalsInit]
+        public static DataStream FromGhostStackFrame(int offset, int size)
+        {
+            byte __start;
+
+            return FromPointer(&__start + offset, size);
+        }
 
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator byte[](From from) => from.Data;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator From(byte[] bytes) => new(bytes);
+        public static implicit operator byte[](DataStream data) => data.Data;
+
+        public static implicit operator DataStream(byte[] bytes) => new(bytes);
+
+        public static implicit operator MemoryStream(DataStream data) => data.ToStream();
+
+        public static implicit operator DataStream(Stream stream) => FromStream(stream);
     }
 
     public unsafe sealed partial class UnsafeFunctionPointer
@@ -876,13 +879,13 @@ namespace Unknown6656.IO
             GC.SuppressFinalize(this);
         }
 
-        public static UnsafeFunctionPointer FromBuffer(Span<byte> buffer) => From.Span(buffer).ToFunctionPointer();
+        public static UnsafeFunctionPointer FromBuffer(Span<byte> buffer) => DataStream.FromSpan(buffer).ToFunctionPointer();
 
-        public static UnsafeFunctionPointer FromBuffer(ReadOnlySpan<byte> buffer) => From.Span(buffer).ToFunctionPointer();
+        public static UnsafeFunctionPointer FromBuffer(ReadOnlySpan<byte> buffer) => DataStream.FromSpan(buffer).ToFunctionPointer();
 
-        public static UnsafeFunctionPointer FromBuffer(Memory<byte> buffer) => From.Memory(buffer).ToFunctionPointer();
+        public static UnsafeFunctionPointer FromBuffer(Memory<byte> buffer) => DataStream.FromMemory(buffer).ToFunctionPointer();
 
-        public static UnsafeFunctionPointer FromBuffer(ReadOnlyMemory<byte> buffer) => From.Memory(buffer).ToFunctionPointer();
+        public static UnsafeFunctionPointer FromBuffer(ReadOnlyMemory<byte> buffer) => DataStream.FromMemory(buffer).ToFunctionPointer();
 
         public static UnsafeFunctionPointer FromBuffer(IEnumerable<byte> bytes) => FromBuffer(new Span<byte>(bytes.ToArray()));
     }

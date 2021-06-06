@@ -437,10 +437,10 @@ namespace Unknown6656.Common
         public static unsafe byte[] BinaryCast<T>(this T value) where T : unmanaged => BinaryCast(&value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe byte[] BinaryCast<T>(T* pointer) where T : unmanaged => From.Pointer(pointer).ToBytes();
+        public static unsafe byte[] BinaryCast<T>(T* pointer) where T : unmanaged => DataStream.FromPointer(pointer).ToBytes();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe T BinaryCast<T>(this byte[] source) where T : unmanaged => From.Bytes(source).ToUnmanaged<T>();
+        public static unsafe T BinaryCast<T>(this byte[] source) where T : unmanaged => DataStream.FromBytes(source).ToUnmanaged<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe U BinaryCast<T, U>(this T value) where T : unmanaged where U : unmanaged => *(U*)&value;

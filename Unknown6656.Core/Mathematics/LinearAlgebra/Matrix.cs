@@ -1370,10 +1370,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix(this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).ToArray<T>();
+        public readonly T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).ToPointer(dst);
+        public readonly void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly IEnumerator<Vector2> GetEnumerator() => ((IEnumerable<Vector2>)Columns).GetEnumerator();
@@ -3278,10 +3278,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix(this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).ToArray<T>();
+        public readonly T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).ToPointer(dst);
+        public readonly void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly IEnumerator<Vector3> GetEnumerator() => ((IEnumerable<Vector3>)Columns).GetEnumerator();
@@ -5258,10 +5258,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix(this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).ToArray<T>();
+        public readonly T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).ToPointer(dst);
+        public readonly void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly IEnumerator<Vector4> GetEnumerator() => ((IEnumerable<Vector4>)Columns).GetEnumerator();
@@ -7306,10 +7306,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix(this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).ToArray<T>();
+        public readonly T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).ToPointer(dst);
+        public readonly void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly IEnumerator<Vector5> GetEnumerator() => ((IEnumerable<Vector5>)Columns).GetEnumerator();
@@ -9414,10 +9414,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix(this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).ToArray<T>();
+        public readonly T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).ToPointer(dst);
+        public readonly void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly IEnumerator<Vector6> GetEnumerator() => ((IEnumerable<Vector6>)Columns).GetEnumerator();
@@ -11585,10 +11585,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix(this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).ToArray<T>();
+        public readonly T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).ToPointer(dst);
+        public readonly void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly IEnumerator<Vector7> GetEnumerator() => ((IEnumerable<Vector7>)Columns).GetEnumerator();
@@ -13822,10 +13822,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix(this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).ToArray<T>();
+        public readonly T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).ToPointer(dst);
+        public readonly void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly IEnumerator<Vector8> GetEnumerator() => ((IEnumerable<Vector8>)Columns).GetEnumerator();
@@ -16128,10 +16128,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix(this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).ToArray<T>();
+        public readonly T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).ToPointer(dst);
+        public readonly void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly IEnumerator<Vector9> GetEnumerator() => ((IEnumerable<Vector9>)Columns).GetEnumerator();
@@ -18487,10 +18487,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix(this);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).ToArray<T>();
+        public readonly T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).ToPointer(dst);
+        public readonly void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly IEnumerator<Vector10> GetEnumerator() => ((IEnumerable<Vector10>)Columns).GetEnumerator();

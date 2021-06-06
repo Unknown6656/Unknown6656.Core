@@ -29,9 +29,9 @@ namespace Unknown6656.Mathematics.Numerics
 
         public override string ToString() => ToBigInteger().ToString();
 
-        private string GetDebuggerDisplay() => $"{this}     ({Size} Byte(s): {From.Bytes(InternalBytes).ToHexString(false, true)})";
+        private string GetDebuggerDisplay() => $"{this}     ({Size} Byte(s): {DataStream.FromBytes(InternalBytes).ToHexString(false, true)})";
 
-        public override int GetHashCode() => From.Array(InternalBytes).Hash(HashFunctions.CRC32).ToUnmanaged<int>();
+        public override int GetHashCode() => DataStream.FromArray(InternalBytes).Hash(HashFunctions.CRC32).ToUnmanaged<int>();
 
         public override bool Equals(object? obj) => obj is VarInt other && Equals(other);
 

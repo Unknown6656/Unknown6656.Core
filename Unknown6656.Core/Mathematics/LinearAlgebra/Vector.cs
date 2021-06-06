@@ -587,10 +587,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar DistanceTo(in Vector2 second) => Subtract(second).Length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).ToArray<T>();
+        public T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).ToPointer(dst);
+        public void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar[] ToArray() => Coefficients;
@@ -1617,10 +1617,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar DistanceTo(in Vector3 second) => Subtract(second).Length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).ToArray<T>();
+        public T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).ToPointer(dst);
+        public void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar[] ToArray() => Coefficients;
@@ -2709,10 +2709,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar DistanceTo(in Vector4 second) => Subtract(second).Length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).ToArray<T>();
+        public T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).ToPointer(dst);
+        public void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar[] ToArray() => Coefficients;
@@ -3883,10 +3883,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar DistanceTo(in Vector5 second) => Subtract(second).Length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).ToArray<T>();
+        public T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).ToPointer(dst);
+        public void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar[] ToArray() => Coefficients;
@@ -5248,10 +5248,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar DistanceTo(in Vector6 second) => Subtract(second).Length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).ToArray<T>();
+        public T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).ToPointer(dst);
+        public void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar[] ToArray() => Coefficients;
@@ -6219,10 +6219,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar DistanceTo(in Vector7 second) => Subtract(second).Length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).ToArray<T>();
+        public T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).ToPointer(dst);
+        public void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar[] ToArray() => Coefficients;
@@ -7200,10 +7200,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar DistanceTo(in Vector8 second) => Subtract(second).Length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).ToArray<T>();
+        public T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).ToPointer(dst);
+        public void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar[] ToArray() => Coefficients;
@@ -8154,10 +8154,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar DistanceTo(in Vector9 second) => Subtract(second).Length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).ToArray<T>();
+        public T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).ToPointer(dst);
+        public void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar[] ToArray() => Coefficients;
@@ -9103,10 +9103,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar DistanceTo(in Vector10 second) => Subtract(second).Length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).ToArray<T>();
+        public T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).ToPointer(dst);
+        public void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar[] ToArray() => Coefficients;

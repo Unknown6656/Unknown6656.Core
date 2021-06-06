@@ -37,10 +37,6 @@ namespace Testing
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-            ConsoleExtensions.WriteBlock(new string('w', 1000), 20, 10, 50, 30, true);
-
-            ConsoleExtensions.WriteBlock(new string('@', 123), 80, 20, 10, 50, true);
-
             //Main_PSO();
             return;
             Main_BMP_effects();
@@ -93,7 +89,7 @@ namespace Testing
 
             while (i-- > 0)
             {
-                string s = From.Bytes(sh.NextBytes(512)).ToDrunkBishop(100, 50, " .,-~+=´'*\"/!?lI$#&%@BGWO", false);
+                string s = DataStream.FromBytes(sh.NextBytes(512)).ToDrunkBishop(100, 50, " .,-~+=´'*\"/!?lI$#&%@BGWO", false);
                 Console.Clear();
                 Console.WriteLine(s);
                 System.Threading.Thread.Sleep(200);
@@ -551,8 +547,8 @@ namespace Testing
                 π, 0, 0,-τ, 0, 0,-e
             );
             var ccs = m.ToCompressedStorageFormat();
-            var b64 = From.Bytes(ccs).Compress(CompressionFunction.GZip).ToBase64();
-            var bts = From.Base64(b64).Uncompress(CompressionFunction.GZip).ToBytes();
+            var b64 = DataStream.FromBytes(ccs).Compress(CompressionFunction.GZip).ToBase64();
+            var bts = DataStream.FromBase64(b64).Uncompress(CompressionFunction.GZip).ToBytes();
             var ccsx = CompressedStorageFormat<Scalar>.FromBytes(bts);
             var m2 = Matrix7.FromCompressedStorageFormat(ccsx);
 
@@ -560,7 +556,7 @@ namespace Testing
 
             Console.WriteLine(m.ToShortString());
             Console.WriteLine();
-            Console.WriteLine(From.Unmanaged(m).ToBase64());
+            Console.WriteLine(DataStream.FromUnmanaged(m).ToBase64());
             Console.WriteLine();
             Console.WriteLine(b64);
             Console.WriteLine();

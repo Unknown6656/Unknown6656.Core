@@ -94,9 +94,9 @@ namespace Unknown6656.IO
 
         public string Serialize() => ToString();
 
-        public void SaveTo(string path) => From.INI(this).ToFile(path);
+        public void SaveTo(string path) => DataStream.FromINI(this).ToFile(path);
 
-        public void SaveTo(FileInfo file) => From.INI(this).ToFile(file);
+        public void SaveTo(FileInfo file) => DataStream.FromINI(this).ToFile(file);
 
         public bool HasSection(string key) => _sections.ContainsKey(key);
 
@@ -224,13 +224,13 @@ namespace Unknown6656.IO
         #endregion
         #region STATICS
 
-        public static INIFile FromURI(Uri uri) => From.WebResource(uri).ToINI();
+        public static INIFile FromURI(Uri uri) => DataStream.FromWebResource(uri).ToINI();
 
-        public static INIFile FromURI(string uri) => From.WebResource(uri).ToINI();
+        public static INIFile FromURI(string uri) => DataStream.FromWebResource(uri).ToINI();
 
-        public static INIFile FromFile(string path) => From.File(path).ToINI();
+        public static INIFile FromFile(string path) => DataStream.FromFile(path).ToINI();
 
-        public static INIFile FromFile(FileInfo file) => From.File(file).ToINI();
+        public static INIFile FromFile(FileInfo file) => DataStream.FromFile(file).ToINI();
 
         public static INIFile FromINIString(string ini_string) => FromINIString(ini_string, false);
 

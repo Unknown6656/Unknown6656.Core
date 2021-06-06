@@ -1,10 +1,10 @@
-﻿using System.Linq;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
 
 using bint = System.Numerics.BigInteger;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Unknown6656.Mathematics.Numerics
 {
@@ -12,19 +12,19 @@ namespace Unknown6656.Mathematics.Numerics
         : INumericRing<Fraction>
         , IScalar
     {
-        public static Fraction PositiveInfinity { get; } = new Fraction(1, 0);
+        public static Fraction PositiveInfinity { get; } = new(1, 0);
 
-        public static Fraction NegativeInfinity { get; } = new Fraction(-1, 0);
+        public static Fraction NegativeInfinity { get; } = new(-1, 0);
 
-        public static Fraction NaN { get; } = new Fraction(0, 0);
+        public static Fraction NaN { get; } = new(0, 0);
 
-        public static Fraction Zero { get; } = new Fraction(0, 1);
+        public static Fraction Zero { get; } = new(0, 1);
 
-        public static Fraction One { get; } = new Fraction(1, 1);
+        public static Fraction One { get; } = new(1, 1);
 
-        public static Fraction NegativeOne { get; } = new Fraction(-1, 1);
+        public static Fraction NegativeOne { get; } = new(-1, 1);
 
-        public static Fraction Epsilon { get; } = new Fraction(1, ulong.MaxValue);
+        public static Fraction Epsilon { get; } = new(1, ulong.MaxValue);
 
 
         public readonly long Numerator { get; }

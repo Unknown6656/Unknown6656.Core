@@ -89,6 +89,10 @@ namespace Unknown6656.Imaging
 
         public readonly HDRColor ToColor(double α) => HDRColor.FromWavelength(in this, α);
 
+        public readonly RGBAColor ToRGBAColor() => ToColor();
+
+        public readonly RGBAColor ToRGBAColor(double α) => ToColor(α);
+
         /// <inheritdoc/>
         public override string ToString() => $"{InNanometers} nm / {Frequency} Hz ({(IsVisible ? "" : "in")}visible)";
 
@@ -134,9 +138,11 @@ namespace Unknown6656.Imaging
 
         public static bool operator >=(Wavelength left, Wavelength right) => left.CompareTo(right) >= 0;
 
-        public static implicit operator Wavelength(double nm) => new Wavelength(nm);
+        public static implicit operator Wavelength(double nm) => new(nm);
 
         public static implicit operator HDRColor(Wavelength wavelength) => wavelength.ToColor();
+
+        public static implicit operator RGBAColor(Wavelength wavelength) => wavelength.ToRGBAColor();
     }
 
     public abstract partial class Spectrum

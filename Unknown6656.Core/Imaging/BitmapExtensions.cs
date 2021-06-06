@@ -1,4 +1,5 @@
-﻿using System.Drawing.Imaging;
+﻿using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.Drawing;
 using System.Linq;
 using System;
@@ -6,6 +7,7 @@ using System;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Statistics;
 using Unknown6656.Mathematics.Analysis;
+using Unknown6656.Imaging.Effects;
 using Unknown6656.Common;
 
 namespace Unknown6656.Imaging
@@ -234,6 +236,25 @@ namespace Unknown6656.Imaging
         public static Bitmap ApplyEffect(this Bitmap bmp, PartialBitmapEffect effect, (Range Horizontal, Range Vertical) region) => effect.ApplyTo(bmp, region);
 
         public static Bitmap ApplyEffect(this Bitmap bmp, PartialBitmapEffect effect, BitmapMask mask) => effect.ApplyTo(bmp, mask);
-    }
 
+        public static Bitmap Replace(this Bitmap bmp, RGBAColor search, RGBAColor replace) => bmp.ApplyEffect(new Replace(search, replace));
+
+        public static Bitmap Replace(this Bitmap bmp, RGBAColor search, RGBAColor replace, ColorTolerance tolerance) => bmp.ApplyEffect(new Replace(search, replace, tolerance));
+
+        public static Bitmap Replace(this Bitmap bmp, IEnumerable<(RGBAColor search, RGBAColor replace)> pairs) => bmp.ApplyEffect(new Replace(pairs));
+
+        public static Bitmap Replace(this Bitmap bmp, IEnumerable<(RGBAColor search, RGBAColor replace)> pairs, ColorTolerance tolerance) => bmp.ApplyEffect(new Replace(pairs, tolerance));
+
+        public static Bitmap Replace(this Bitmap bmp, IEnumerable<RGBAColor> search, RGBAColor replace) => bmp.ApplyEffect(new Replace(search, replace));
+
+        public static Bitmap Replace(this Bitmap bmp, IEnumerable<RGBAColor> search, RGBAColor replace, ColorTolerance tolerance) => bmp.ApplyEffect(new Replace(search, replace, tolerance));
+
+        public static Bitmap Remove(this Bitmap bmp, RGBAColor color) => bmp.ApplyEffect(new Remove(color));
+
+        public static Bitmap Remove(this Bitmap bmp, RGBAColor color, ColorTolerance tolerance) => bmp.ApplyEffect(new Remove(color, tolerance));
+
+        public static Bitmap Remove(this Bitmap bmp, IEnumerable<RGBAColor> colors) => bmp.ApplyEffect(new Remove(colors));
+
+        public static Bitmap Remove(this Bitmap bmp, IEnumerable<RGBAColor> colors, ColorTolerance tolerance) => bmp.ApplyEffect(new Remove(colors, tolerance));
+    }
 }

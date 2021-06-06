@@ -14,6 +14,7 @@ using Unknown6656.Mathematics.Numerics;
 using Unknown6656.Common;
 
 using Random = Unknown6656.Mathematics.Numerics.Random;
+using System.Collections.Generic;
 
 namespace Unknown6656.Imaging.Effects
 {
@@ -158,6 +159,79 @@ namespace Unknown6656.Imaging.Effects
             (double h, double s, double l) = input.HSL;
 
             return RGBAColor.FromHSL(h + Degree, s, l);
+        }
+    }
+
+    public class Replace
+        : ColorEffect
+    {
+        private readonly (RGBAColor search, RGBAColor replace)[] _pairs;
+        private readonly ColorTolerance _tolerance;
+
+
+
+        public Replace(RGBAColor search, RGBAColor replace)
+            : this(new[] { (search, replace) })
+        {
+        }
+
+        public Replace(RGBAColor search, RGBAColor replace, ColorTolerance tolerance)
+            : this(new[] { (search, replace) }, tolerance)
+        {
+        }
+
+        public Replace(IEnumerable<RGBAColor> search, RGBAColor replace)
+            : this(search.Select(s => (s, replace)))
+        {
+        }
+
+        public Replace(IEnumerable<RGBAColor> search, RGBAColor replace, ColorTolerance tolerance)
+            : this(search.Select(s => (s, replace)), tolerance)
+        {
+        }
+
+        public Replace(IEnumerable<(RGBAColor search, RGBAColor replace)> pairs)
+            : this(pairs, ColorTolerance.Default)
+        {
+        }
+
+        public Replace(IEnumerable<(RGBAColor search, RGBAColor replace)> pairs, ColorTolerance tolerance)
+        {
+            _pairs = pairs as (RGBAColor, RGBAColor)[] ?? pairs.ToArray();
+            _tolerance = tolerance;
+        }
+
+        protected override RGBAColor ProcessColor(RGBAColor input)
+        {
+            foreach ((RGBAColor search, RGBAColor replace) in _pairs)
+                if (input.Equals(search, _tolerance))
+                    return replace;
+
+            return input;
+        }
+    }
+
+    public sealed class Remove
+        : Replace
+    {
+        public Remove(RGBAColor color)
+            : base(color, RGBAColor.Transparent)
+        {
+        }
+
+        public Remove(RGBAColor color, ColorTolerance tolerance)
+            : base(color, RGBAColor.Transparent, tolerance)
+        {
+        }
+
+        public Remove(IEnumerable<RGBAColor> colors)
+            : base(colors, RGBAColor.Transparent)
+        {
+        }
+
+        public Remove(IEnumerable<RGBAColor> colors, ColorTolerance tolerance)
+            : base(colors, RGBAColor.Transparent, tolerance)
+        {
         }
     }
 
@@ -314,7 +388,6 @@ namespace Unknown6656.Imaging.Effects
 
         protected override RGBAColor ProcessColor(RGBAColor input) => Map[input.Average];
     }
-
 
     #endregion
     #region INSTAGRAM CSS COLOR FILTERS

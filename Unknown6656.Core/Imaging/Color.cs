@@ -1103,6 +1103,13 @@ namespace Unknown6656.Imaging
 
     public sealed record ColorTolerance(double Tolerance, ColorEqualityMetric Metric)
     {
+        public static ColorTolerance RGBADefault { get; } = new(Scalar.ComputationalEpsilon, ColorEqualityMetric.RGBAChannels);
+
+        public static ColorTolerance RGBDefault { get; } = new(Scalar.ComputationalEpsilon, ColorEqualityMetric.RGBChannels);
+
+        public static ColorTolerance None { get; } = new(0, ColorEqualityMetric.RGBAChannels);
+
+
         public ColorTolerance(double Tolerance)
             : this(Tolerance, ColorEqualityMetric.RGBAChannels)
         {

@@ -2,6 +2,7 @@
 // #define USE_HSL_SATURATION
 
 using System.Runtime.CompilerServices;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Drawing;
 using System.Linq;
@@ -14,7 +15,6 @@ using Unknown6656.Mathematics.Numerics;
 using Unknown6656.Common;
 
 using Random = Unknown6656.Mathematics.Numerics.Random;
-using System.Collections.Generic;
 
 namespace Unknown6656.Imaging.Effects
 {
@@ -191,7 +191,7 @@ namespace Unknown6656.Imaging.Effects
         }
 
         public Replace(IEnumerable<(RGBAColor search, RGBAColor replace)> pairs)
-            : this(pairs, ColorTolerance.Default)
+            : this(pairs, ColorTolerance.RGBDefault)
         {
         }
 

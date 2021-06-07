@@ -19,3 +19,5 @@ The library is mainly dedicated to mathematical and imaging functions, as well a
   A client to visualize the opinion polls for the next German federal election.
 - **[Unknown6656/GPSReceiver](https://github.com/Unknown6656/GPSReceiver)**<br/>
   A light-weight library for GPS receivers.
+- **[Unknown6656/buddhaslice](https://github.com/Unknown6656/buddhaslice)**<br/>
+  A renderer for the buddhabrot set.

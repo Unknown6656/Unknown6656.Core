@@ -21,3 +21,7 @@ The library is mainly dedicated to mathematical and imaging functions, as well a
   A light-weight library for GPS receivers.
 - **[Unknown6656/buddhaslice](https://github.com/Unknown6656/buddhaslice)**<br/>
   A renderer for the buddhabrot set.
+- **[Unknown6656/HFTBot](https://github.com/Unknown6656/HFTBot)**<br/>
+  A HFT Trading Bot.
+- **[Unknown6656/SKHEIJO](https://github.com/Unknown6656/SKHEIJO)**<br/>
+  A digital version of the SKYJO board game created by Magilano.

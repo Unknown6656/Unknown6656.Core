@@ -111,8 +111,17 @@ namespace Unknown6656.Imaging
 
         protected virtual FontFamily FontFamily { get; set; } = FontFamily.GenericMonospace;
 
-
         public abstract void Plot(Graphics g, int width, int height);
+
+        public Bitmap Plot(int width, int height)
+        {
+            Bitmap bmp = new(width, height, PixelFormat.Format32bppArgb);
+            using Graphics g = Graphics.FromImage(bmp);
+
+            Plot(g, width, height);
+
+            return bmp;
+        }
     }
 
     public abstract class FunctionPlotterPOI
@@ -144,16 +153,6 @@ namespace Unknown6656.Imaging
 
         #endregion
         #region INSTANCE METHODS
-
-        public Bitmap Plot(int width, int height)
-        {
-            Bitmap bmp = new(width, height, PixelFormat.Format32bppArgb);
-            using Graphics g = Graphics.FromImage(bmp);
-
-            Plot(g, width, height);
-
-            return bmp;
-        }
 
         public override void Plot(Graphics g, int width, int height)
         {
@@ -366,12 +365,23 @@ namespace Unknown6656.Imaging
                     );
                 }
 
+                Vector2 axis_text_size = g.MeasureString("-10", font);
+
                 if (AxisType == AxisType.Cartesian)
                 {
                     g.DrawLine(dashed, cx, y, cx, cy);
                     g.DrawLine(dashed, x, cy, cx, cy);
-                    g.DrawString(cursorx.ToString(), font, brush, cx - FontSize, y - FontSize - MARKING_SIZE);
-                    g.DrawString(cursory.ToString(), font, brush, x + MARKING_SIZE, cy - FontSize / 2);
+                    g.DrawString(cursorx.ToString(), font, brush, cx - FontSize, y + (FontSize + MARKING_SIZE) * Math.Sign(cursory));
+
+                    if (cursorx > 0)
+                    {
+                        string text = cursory.ToString();
+                        int text_width = (int)Math.Ceiling(g.MeasureString(text, font).Width);
+
+                        g.DrawString(text, font, brush, x - axis_text_size.Y - text_width, cy - FontSize / 2);
+                    }
+                    else
+                        g.DrawString(cursory.ToString(), font, brush, x + MARKING_SIZE, cy - FontSize / 2);
                 }
                 else if (AxisType == AxisType.Polar)
                 {
@@ -456,14 +466,14 @@ namespace Unknown6656.Imaging
 
         public int? SelectedFunctionIndex
         {
-            set => _selidx = value is int i ? i >= -1 && i < Functions.Length ? (int?)i : throw new ArgumentOutOfRangeException(nameof(value), $"The function index must be a positive and smaller than {Functions.Length}.") : null;
+            set => _selidx = value is int i ? i >= 0 && i < Functions.Length ? (int?)i : throw new ArgumentOutOfRangeException(nameof(value), $"The function index must be a positive and smaller than {Functions.Length}.") : null;
             get => _selidx;
         }
 
         public MultiFunctionPlotter(params (Func Function, RGBAColor Color)[] functions)
         {
             Functions = functions;
-            SelectedFunctionIndex = -1;
+            SelectedFunctionIndex = null;
         }
     }
 

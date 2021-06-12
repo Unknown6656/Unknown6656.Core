@@ -491,12 +491,13 @@ namespace Unknown6656.IO
             return FromBytes(arr);
         }
 
-        public static DataStream FromArray<T>(T[] array)
+        public static DataStream FromArray<T>(IEnumerable<T> collection)
             where T : unmanaged
         {
-            byte[] arr = new byte[array.Length * sizeof(T) + 4];
+            T[] array = collection as T[] ?? collection.ToArray();
+            byte[] bytes = new byte[array.Length * sizeof(T) + 4];
 
-            fixed (byte* ptr = arr)
+            fixed (byte* ptr = bytes)
             {
                 *(int*)ptr = array.Length;
                 T* dst = (T*)(ptr + 4);
@@ -505,7 +506,7 @@ namespace Unknown6656.IO
                     dst[i] = array[i];
             }
 
-            return FromBytes(arr);
+            return FromBytes(bytes);
         }
 
         public static DataStream FromArrayOfSources(IEnumerable<DataStream> sources) => FromArrayOfSources(sources.ToArray());
@@ -822,7 +823,6 @@ namespace Unknown6656.IO
 
             return FromPointer(&__start + offset, size);
         }
-
 
 
         public static implicit operator byte[](DataStream data) => data.Data;

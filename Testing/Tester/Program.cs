@@ -21,11 +21,13 @@ using Unknown6656.IO;
 
 using Random = Unknown6656.Mathematics.Numerics.Random;
 using winforms = System.Windows.Forms;
+using Tester;
 
 namespace Testing
 {
     public static unsafe class Program
     {
+        [STAThread]
         public static void Main(string[] args)
         {
             Console.OutputEncoding = Encoding.UTF8;

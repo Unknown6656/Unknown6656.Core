@@ -602,11 +602,13 @@ namespace Unknown6656.IO
 
         public static DataStream FromBitmapAsRGBAEncoded(Bitmap bitmap) => FromArray(bitmap.ToPixelArray());
 
-        public static DataStream FromBitmap(Bitmap bitmap)
+        public static DataStream FromBitmap(Bitmap bitmap) => FromBitmap(bitmap, ImageFormat.Png);
+
+        public static DataStream FromBitmap(Bitmap bitmap, ImageFormat format)
         {
             using MemoryStream ms = new();
 
-            bitmap.Save(ms, ImageFormat.Png);
+            bitmap.Save(ms, format);
             ms.Seek(0, SeekOrigin.Begin);
 
             return FromStream(ms);

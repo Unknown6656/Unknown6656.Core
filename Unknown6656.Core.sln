@@ -15,7 +15,7 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "TesterFS", "Testing\TesterF
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Unknown6656.Analyzers", "Unknown6656.Analyzers", "{A829D6F4-5319-4F55-A8EF-65D64BA8567D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unknown6656.WinForms", "Unknown6656.WinForms\Unknown6656.WinForms.csproj", "{C9887F69-FBBD-4E25-8404-7E595CCD6C03}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unknown6656.Core.Windows", "Unknown6656.WinForms\Unknown6656.Core.Windows.csproj", "{C9887F69-FBBD-4E25-8404-7E595CCD6C03}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9D88561B-D626-4E08-90B2-44E80CD4178B}"
 	ProjectSection(SolutionItems) = preProject
@@ -23,8 +23,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		publish.ps1 = publish.ps1
 		version.txt = version.txt
 	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unknown6656.WPF", "Unknown6656.WPF\Unknown6656.WPF.csproj", "{07F5F77D-28ED-4FAE-99FB-24E358B2C074}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,10 +50,6 @@ Global
 		{C9887F69-FBBD-4E25-8404-7E595CCD6C03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9887F69-FBBD-4E25-8404-7E595CCD6C03}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9887F69-FBBD-4E25-8404-7E595CCD6C03}.Release|Any CPU.Build.0 = Release|Any CPU
-		{07F5F77D-28ED-4FAE-99FB-24E358B2C074}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{07F5F77D-28ED-4FAE-99FB-24E358B2C074}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{07F5F77D-28ED-4FAE-99FB-24E358B2C074}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{07F5F77D-28ED-4FAE-99FB-24E358B2C074}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

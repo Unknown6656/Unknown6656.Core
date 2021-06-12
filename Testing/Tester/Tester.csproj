@@ -22,7 +22,7 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\Unknown6656.Core\Unknown6656.Core.csproj" />
-        <ProjectReference Include="..\..\Unknown6656.WinForms\Unknown6656.WinForms.csproj" />
+        <ProjectReference Include="..\..\Unknown6656.WinForms\Unknown6656.Core.Windows.csproj" />
     </ItemGroup>
     <ItemGroup>
         <Folder Include="Properties\" />

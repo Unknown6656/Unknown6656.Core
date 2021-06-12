@@ -73,10 +73,6 @@ namespace Unknown6656.Controls.WPF
         {
             InitializeComponent();
 
-            DoubleBuffered = true;
-            AutoScaleMode = AutoScaleMode.Font;
-            _graphics = Graphics.FromHwndInternal(Handle);
-
             MouseDown += FunctionPlotterControl_MouseDown;
             MouseMove += FunctionPlotterControl_MouseMove;
             MouseEnter += FunctionPlotterControl_MouseEnter;
@@ -84,8 +80,8 @@ namespace Unknown6656.Controls.WPF
             MouseWheel += FunctionPlotterControl_MouseWheel;
             MouseUp += FunctionPlotterControl_MouseUp;
             KeyDown += FunctionPlotterControl_KeyDown;
-            Load += FunctionPlotterControl_Load;
-            ClientSizeChanged += (_, _) => InitiateRedraw();
+            Loaded += FunctionPlotterControl_Loaded;
+            SizeChanged += (_, _) => InitiateRedraw();
             Cursor = Cursors.Cross;
         }
 
@@ -202,7 +198,7 @@ namespace Unknown6656.Controls.WPF
             }
         }
 
-        private void FunctionPlotterControl_Load(object? sender, EventArgs e)
+        private void FunctionPlotterControl_Loaded(object? sender, EventArgs e)
         {
             _mouse_initial_delta = VerticalScroll.Value;
         }

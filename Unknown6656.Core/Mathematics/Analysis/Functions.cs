@@ -43,6 +43,8 @@ namespace Unknown6656.Mathematics.Analysis
         public static ScalarFunction InverseHyperbolicSecant { get; } = new(c => c.Asech());
         public static ScalarFunction InverseHyperbolicCosecant { get; } = new(c => c.Acsch());
 
+        public static ScalarFunction UnitParabola { get; } = new(c => c * c);
+
         public static ScalarFunction Gamma { get; } = new(c => ComplexFunction.Gamma[c].Real);
         public static ScalarFunction Stirling { get; } = new(c => ComplexFunction.Stirling[c].Real);
     }

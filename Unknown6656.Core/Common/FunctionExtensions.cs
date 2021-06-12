@@ -7,6 +7,9 @@ namespace Unknown6656.Common
 {
     public static unsafe class FunctionExtensions
     {
+        public static Action NoOp { get; } = new(delegate { });
+
+
         public static void Do(Action? func) => func?.Invoke();
 
         public static T Do<T>(Func<T> func) => func.Invoke();

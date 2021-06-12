@@ -6,6 +6,7 @@ using System;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Imaging;
 using Unknown6656.Common;
+using System.Windows.Documents;
 
 namespace Unknown6656.Controls.WinForms
 {
@@ -26,6 +27,7 @@ namespace Unknown6656.Controls.WinForms
         private Scalar _scale = Scalar.One;
 
 
+        public KeyMap KeyMap { set; get; } = new();
         public Scalar ScrollSpeed { set; get; } = .1;
         public Scalar ZoomSpeed { set; get; } = .1;
 
@@ -79,104 +81,62 @@ namespace Unknown6656.Controls.WinForms
             {
                 bool handled = FunctionExtensions.Do(delegate
                 {
-                    switch (e.KeyCode)
+                    if (e.KeyCode == KeyMap.MoveLeft)
+                        _offset -= (1 / _scale, 0);
+                    else if (e.KeyCode == KeyMap.MoveRight)
+                        _offset += (1 / _scale, 0);
+                    else if (e.KeyCode == KeyMap.MoveUp)
+                        _offset -= (0, 1 / _scale);
+                    else if (e.KeyCode == KeyMap.MoveDown)
+                        _offset += (0, 1 / _scale);
+                    else if (e.KeyCode == KeyMap.ZoomIn)
+                        _scale *= 1.1;
+                    else if (e.KeyCode == KeyMap.ZoomOut)
+                        _scale /= 1.1;
+                    else if (e.KeyCode == KeyMap.ResetView)
                     {
-                        case Keys.W:
-                            _offset -= (0, 1 / _scale);
-
-                            return true;
-                        case Keys.A:
-                            _offset -= (1 / _scale, 0);
-
-                            return true;
-                        case Keys.S:
-                            _offset += (0, 1 / _scale);
-
-                            return true;
-                        case Keys.D:
-                            _offset += (1 / _scale, 0);
-
-                            return true;
-                        case Keys.R:
-                            _offset = Vector2.Zero;
-                            _scale = Scalar.One;
-
-                            return true;
-                        case Keys.P:
-                            {
-                                if (Plotter is FunctionPlotter plotter)
-                                    plotter.AxisType = plotter.AxisType is AxisType.Cartesian ? AxisType.Polar : AxisType.Cartesian;
-                            }
-                            return true;
-                        case Keys.X:
-                            {
-                                if (Plotter is FunctionPlotter plotter)
-                                    plotter.AxisVisible ^= true;
-                            }
-                            return true;
-                        case Keys.G:
-                            {
-                                if (Plotter is FunctionPlotter plotter)
-                                    plotter.GridVisible ^= true;
-                            }
-                            return true;
-                        case Keys.C:
-                            {
-                                if (Plotter is FunctionPlotter plotter)
-                                    plotter.CursorVisible ^= true;
-                            }
-                            return true;
-                        case Keys.NumPad1:
-                        case Keys.NumPad2:
-                        case Keys.NumPad3:
-                        case Keys.NumPad4:
-                        case Keys.NumPad5:
-                        case Keys.NumPad6:
-                        case Keys.NumPad7:
-                        case Keys.NumPad8:
-                        case Keys.NumPad9:
-                            {
-                                if (Plotter is IMultiFunctionPlotter multi && Math.Min(e.KeyCode - Keys.NumPad1, multi.Functions.Length - 1) is int index and >= 0)
-                                    multi.SelectedFunctionIndex = index;
-                            }
-                            return true;
-                        case Keys.D1:
-                        case Keys.D2:
-                        case Keys.D3:
-                        case Keys.D4:
-                        case Keys.D5:
-                        case Keys.D6:
-                        case Keys.D7:
-                        case Keys.D8:
-                        case Keys.D9:
-                            {
-                                if (Plotter is IMultiFunctionPlotter multi && Math.Min(e.KeyCode - Keys.D1, multi.Functions.Length - 1) is int index and >= 0)
-                                    multi.SelectedFunctionIndex = index;
-                            }
-                            return true;
-                        case Keys.NumPad0:
-                        case Keys.D0:
-                            {
-                                if (Plotter is IMultiFunctionPlotter multi)
-                                    multi.SelectedFunctionIndex = -1;
-                            }
-                            return true;
-                        case Keys.H:
-                        case Keys.OemQuestion:
-                            // TODO : draw help
-
-                            return true;
-                        case Keys.Oemplus:
-                            _scale *= 1.1;
-
-                            return true;
-                        case Keys.OemMinus:
-                            _scale /= 1.1;
-
-                            return true;
+                        _offset = Vector2.Zero;
+                        _scale = Scalar.One;
                     }
+                    else if (e.KeyCode == KeyMap.SelectNextFunction)
+                    {
+                        if (Plotter is IMultiFunctionPlotter multi && multi.SelectedFunctionIndex < multi.Functions.Length - 1)
+                            ++multi.SelectedFunctionIndex;
+                    }
+                    else if (e.KeyCode == KeyMap.SelectPreviousFunction)
+                    {
+                        if (Plotter is IMultiFunctionPlotter { SelectedFunctionIndex: > 0 } multi)
+                            --multi.SelectedFunctionIndex;
+                    }
+                    else if (e.KeyCode == KeyMap.SelectNoFunction)
+                    {
+                        if (Plotter is IMultiFunctionPlotter multi)
+                            multi.SelectedFunctionIndex = -1;
+                    }
+                    else if (e.KeyCode == KeyMap.ToggleAxisVisibility)
+                    {
+                        if (Plotter is FunctionPlotter plotter)
+                            plotter.AxisVisible ^= true;
+                    }
+                    else if (e.KeyCode == KeyMap.ToggleCursorVisibility)
+                    {
+                        if (Plotter is FunctionPlotter plotter)
+                            plotter.CursorVisible ^= true;
+                    }
+                    else if (e.KeyCode == KeyMap.ToggleGridVisibility)
+                    {
+                        if (Plotter is FunctionPlotter plotter)
+                            plotter.GridVisible ^= true;
+                    }
+                    else if (e.KeyCode == KeyMap.TogglePolarGrid)
+                    {
+                        if (Plotter is FunctionPlotter plotter)
+                            plotter.AxisType = plotter.AxisType is AxisType.Cartesian ? AxisType.Polar : AxisType.Cartesian;
+                    }
+                    else
+                        return false;
 
-                    return false;
+                    return true;
                 });
 
                 e.Handled = handled;
@@ -320,6 +280,24 @@ namespace Unknown6656.Controls.WinForms
             else
                 g.Clear(BackColor);
         }
+    }
+
+    public sealed class KeyMap
+    {
+        public Keys MoveLeft { set; get; } = Keys.A;
+        public Keys MoveRight { set; get; } = Keys.D;
+        public Keys MoveDown { set; get; } = Keys.S;
+        public Keys MoveUp { set; get; } = Keys.W;
+        public Keys ZoomIn { set; get; } = Keys.Oemplus;
+        public Keys ZoomOut { set; get; } = Keys.OemMinus;
+        public Keys ResetView { set; get; } = Keys.R;
+        public Keys TogglePolarGrid { set; get; } = Keys.P;
+        public Keys ToggleAxisVisibility { set; get; } = Keys.X;
+        public Keys ToggleGridVisibility { set; get; } = Keys.G;
+        public Keys ToggleCursorVisibility { set; get; } = Keys.C;
+        public Keys SelectPreviousFunction { set; get; } = Keys.E;
+        public Keys SelectNoFunction { set; get; } = Keys.R;
+        public Keys SelectNextFunction { set; get; } = Keys.T;
     }
 
     public sealed class MouseEventArgsExt

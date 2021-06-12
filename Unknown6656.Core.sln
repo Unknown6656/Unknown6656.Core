@@ -15,7 +15,7 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "TesterFS", "Testing\TesterF
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Unknown6656.Analyzers", "Unknown6656.Analyzers", "{A829D6F4-5319-4F55-A8EF-65D64BA8567D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unknown6656.Core.Windows", "Unknown6656.WinForms\Unknown6656.Core.Windows.csproj", "{C9887F69-FBBD-4E25-8404-7E595CCD6C03}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unknown6656.Core.Windows", "Unknown6656.Core.Windows\Unknown6656.Core.Windows.csproj", "{C9887F69-FBBD-4E25-8404-7E595CCD6C03}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9D88561B-D626-4E08-90B2-44E80CD4178B}"
 	ProjectSection(SolutionItems) = preProject

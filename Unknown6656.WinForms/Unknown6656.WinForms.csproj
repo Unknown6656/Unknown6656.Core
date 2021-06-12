@@ -9,9 +9,9 @@
         <NullableContextOptions>enable</NullableContextOptions>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-        <AssemblyName>unknown6656.winforms</AssemblyName>
+        <AssemblyName>Unknown6656.WinForms</AssemblyName>
         <RootNamespace>Unknown6656.Controls.WinForms</RootNamespace>
-        <OutputPath>../bin</OutputPath>
+        <OutputPath>$(SolutionDir)bin</OutputPath>
         <DocumentationFile></DocumentationFile>
 
         <DefineConstants>TRACE;DOUBLE_PRECISION</DefineConstants>
@@ -47,5 +47,8 @@
     </PropertyGroup>
     <ItemGroup>
       <ProjectReference Include="..\Unknown6656.Core\Unknown6656.Core.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="unknown6656-logo-1024.png" Pack="true" PackagePath=""/>
     </ItemGroup>
 </Project>

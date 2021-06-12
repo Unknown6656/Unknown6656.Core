@@ -1,36 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
+﻿using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Renci.SshNet.Messages;
+using System.Windows.Media;
+using System.Windows.Input;
+using System.Threading;
+using System.Drawing;
 
-using Unknown6656.Common;
-using Unknown6656.Imaging;
 using Unknown6656.Mathematics.LinearAlgebra;
+using Unknown6656.Imaging;
+using Unknown6656.Common;
+using Unknown6656.IO;
 
 namespace Unknown6656.Controls.WPF
 {
-    public partial class FunctionPlotterControl<P>
+    public class FunctionPlotterControl<P>
         : UserControl
         where P : FunctionPlotter
     {
-        private const int WM_MOUSEHWHEEL = 0x020E;
-
-        private readonly Graphics _graphics;
-        private int _mouse_initial_delta;
         private Vector2? _mouse_down;
         private Vector2 _last_relative;
         private P? _plotter;
@@ -40,6 +25,7 @@ namespace Unknown6656.Controls.WPF
         private Scalar _scale = Scalar.One;
 
 
+        public KeyMap KeyMap { set; get; } = new();
         public Scalar ScrollSpeed { set; get; } = .1;
         public Scalar ZoomSpeed { set; get; } = .1;
 
@@ -71,8 +57,6 @@ namespace Unknown6656.Controls.WPF
 
         public FunctionPlotterControl()
         {
-            InitializeComponent();
-
             MouseDown += FunctionPlotterControl_MouseDown;
             MouseMove += FunctionPlotterControl_MouseMove;
             MouseEnter += FunctionPlotterControl_MouseEnter;
@@ -80,7 +64,6 @@ namespace Unknown6656.Controls.WPF
             MouseWheel += FunctionPlotterControl_MouseWheel;
             MouseUp += FunctionPlotterControl_MouseUp;
             KeyDown += FunctionPlotterControl_KeyDown;
-            Loaded += FunctionPlotterControl_Loaded;
             SizeChanged += (_, _) => InitiateRedraw();
             Cursor = Cursors.Cross;
         }
@@ -89,106 +72,65 @@ namespace Unknown6656.Controls.WPF
         {
             if (KeyboardInteractionEnabled)
             {
+                Key key = e.Key;
                 bool handled = FunctionExtensions.Do(delegate
                 {
-                    switch (e.KeyCode)
+                    if (e.Key == KeyMap.MoveLeft)
+                        _offset -= (1 / _scale, 0);
+                    else if (key == KeyMap.MoveRight)
+                        _offset += (1 / _scale, 0);
+                    else if (key == KeyMap.MoveUp)
+                        _offset -= (0, 1 / _scale);
+                    else if (key == KeyMap.MoveDown)
+                        _offset += (0, 1 / _scale);
+                    else if (key == KeyMap.ZoomIn)
+                        _scale *= 1.1;
+                    else if (key == KeyMap.ZoomOut)
+                        _scale /= 1.1;
+                    else if (key == KeyMap.ResetView)
                     {
-                        case Keys.W:
-                            _offset -= (0, 1 / _scale);
-
-                            return true;
-                        case Keys.A:
-                            _offset -= (1 / _scale, 0);
-
-                            return true;
-                        case Keys.S:
-                            _offset += (0, 1 / _scale);
-
-                            return true;
-                        case Keys.D:
-                            _offset += (1 / _scale, 0);
-
-                            return true;
-                        case Keys.R:
-                            _offset = Vector2.Zero;
-                            _scale = Scalar.One;
-
-                            return true;
-                        case Keys.P:
-                            {
-                                if (Plotter is FunctionPlotter plotter)
-                                    plotter.AxisType = plotter.AxisType is AxisType.Cartesian ? AxisType.Polar : AxisType.Cartesian;
-                            }
-                            return true;
-                        case Keys.X:
-                            {
-                                if (Plotter is FunctionPlotter plotter)
-                                    plotter.AxisVisible ^= true;
-                            }
-                            return true;
-                        case Keys.G:
-                            {
-                                if (Plotter is FunctionPlotter plotter)
-                                    plotter.GridVisible ^= true;
-                            }
-                            return true;
-                        case Keys.C:
-                            {
-                                if (Plotter is FunctionPlotter plotter)
-                                    plotter.CursorVisible ^= true;
-                            }
-                            return true;
-                        case Keys.NumPad1:
-                        case Keys.NumPad2:
-                        case Keys.NumPad3:
-                        case Keys.NumPad4:
-                        case Keys.NumPad5:
-                        case Keys.NumPad6:
-                        case Keys.NumPad7:
-                        case Keys.NumPad8:
-                        case Keys.NumPad9:
-                            {
-                                if (Plotter is IMultiFunctionPlotter multi && Math.Min(e.KeyCode - Keys.NumPad1, multi.Functions.Length - 1) is int index and >= 0)
-                                    multi.SelectedFunctionIndex = index;
-                            }
-                            return true;
-                        case Keys.D1:
-                        case Keys.D2:
-                        case Keys.D3:
-                        case Keys.D4:
-                        case Keys.D5:
-                        case Keys.D6:
-                        case Keys.D7:
-                        case Keys.D8:
-                        case Keys.D9:
-                            {
-                                if (Plotter is IMultiFunctionPlotter multi && Math.Min(e.KeyCode - Keys.D1, multi.Functions.Length - 1) is int index and >= 0)
-                                    multi.SelectedFunctionIndex = index;
-                            }
-                            return true;
-                        case Keys.NumPad0:
-                        case Keys.D0:
-                            {
-                                if (Plotter is IMultiFunctionPlotter multi)
-                                    multi.SelectedFunctionIndex = -1;
-                            }
-                            return true;
-                        case Keys.H:
-                        case Keys.OemQuestion:
-                            // TODO : draw help
-
-                            return true;
-                        case Keys.Oemplus:
-                            _scale *= 1.1;
-
-                            return true;
-                        case Keys.OemMinus:
-                            _scale /= 1.1;
-
-                            return true;
+                        _offset = Vector2.Zero;
+                        _scale = Scalar.One;
                     }
+                    else if (key == KeyMap.SelectNextFunction)
+                    {
+                        if (Plotter is IMultiFunctionPlotter multi && multi.SelectedFunctionIndex < multi.Functions.Length - 1)
+                            ++multi.SelectedFunctionIndex;
+                    }
+                    else if (key == KeyMap.SelectPreviousFunction)
+                    {
+                        if (Plotter is IMultiFunctionPlotter { SelectedFunctionIndex: > 0 } multi)
+                            --multi.SelectedFunctionIndex;
+                    }
+                    else if (key == KeyMap.SelectNoFunction)
+                    {
+                        if (Plotter is IMultiFunctionPlotter multi)
+                            multi.SelectedFunctionIndex = null;
+                    }
+                    else if (key == KeyMap.ToggleAxisVisibility)
+                    {
+                        if (Plotter is FunctionPlotter plotter)
+                            plotter.AxisVisible ^= true;
+                    }
+                    else if (key == KeyMap.ToggleCursorVisibility)
+                    {
+                        if (Plotter is FunctionPlotter plotter)
+                            plotter.CursorVisible ^= true;
+                    }
+                    else if (key == KeyMap.ToggleGridVisibility)
+                    {
+                        if (Plotter is FunctionPlotter plotter)
+                            plotter.GridVisible ^= true;
+                    }
+                    else if (key == KeyMap.TogglePolarGrid)
+                    {
+                        if (Plotter is FunctionPlotter plotter)
+                            plotter.AxisType = plotter.AxisType is AxisType.Cartesian ? AxisType.Polar : AxisType.Cartesian;
+                    }
+                    else
+                        return false;
 
-                    return false;
+                    return true;
                 });
 
                 e.Handled = handled;
@@ -198,12 +140,7 @@ namespace Unknown6656.Controls.WPF
             }
         }
 
-        private void FunctionPlotterControl_Loaded(object? sender, EventArgs e)
-        {
-            _mouse_initial_delta = VerticalScroll.Value;
-        }
-
-        private void FunctionPlotterControl_MouseLeave(object? sender, EventArgs e)
+        private void FunctionPlotterControl_MouseLeave(object? sender, MouseEventArgs e)
         {
             if (MouseInteractionEnabled)
             {
@@ -213,11 +150,13 @@ namespace Unknown6656.Controls.WPF
             }
         }
 
-        private void FunctionPlotterControl_MouseEnter(object? sender, EventArgs e)
+        private void FunctionPlotterControl_MouseEnter(object? sender, MouseEventArgs e)
         {
             if (MouseInteractionEnabled)
             {
-                _cursorpos = MousePosition;
+                System.Windows.Point point = e.GetPosition(this);
+
+                _cursorpos = (point.X, point.Y);
 
                 InitiateRedraw();
             }
@@ -227,7 +166,9 @@ namespace Unknown6656.Controls.WPF
         {
             if (MouseInteractionEnabled)
             {
-                _mouse_down = e.Location;
+                System.Windows.Point point = e.GetPosition(this);
+
+                _mouse_down = (point.X, point.Y);
                 _last_relative = Vector2.Zero;
                 Cursor = Cursors.SizeAll;
             }
@@ -243,29 +184,29 @@ namespace Unknown6656.Controls.WPF
         private void FunctionPlotterControl_MouseMove(object? sender, MouseEventArgs e)
         {
             Scalar spacing = Plotter?.DefaultGridSpacing ?? 1;
+            System.Windows.Point point = e.GetPosition(this);
 
             if (MouseInteractionEnabled && _mouse_down is Vector2 start)
             {
-                Vector2 relative = (start.X - e.Location.X, e.Location.Y - start.Y);
+                Vector2 relative = (start.X - point.X, point.Y - start.Y);
 
                 _offset += (relative - _last_relative) / (_scale * spacing);
                 _last_relative = relative;
             }
             else
-                _cursorpos = (e.Location - new Vector2(ClientSize.Width * .5, ClientSize.Height * .5) + _offset) / (spacing * _scale);
+                _cursorpos = ((point.X, point.Y) - new Vector2(ActualWidth * .5, ActualHeight * .5) + _offset) / (spacing * _scale);
 
             InitiateRedraw();
         }
 
-        private void FunctionPlotterControl_MouseWheel(object? sender, MouseEventArgs e)
+        private void FunctionPlotterControl_MouseWheel(object? sender, MouseWheelEventArgs e)
         {
             if (!MouseInteractionEnabled)
                 return;
 
-            Scalar delta = (e.Delta - _mouse_initial_delta) / (_scale * SystemInformation.MouseWheelScrollDelta);
+            Scalar delta = e.Delta / (_scale * 3);
 
-
-            if (ModifierKeys.HasFlag(Keys.Control) || e is MouseEventArgsExt { IsHorizontal: true })
+            if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
             {
                 delta *= ZoomSpeed;
                 //_scale += delta;
@@ -277,7 +218,7 @@ namespace Unknown6656.Controls.WPF
             {
                 delta *= ScrollSpeed;
 
-                if (ModifierKeys.HasFlag(Keys.Shift)) // horizontal
+                if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift)) // horizontal
                     _offset += (delta, 0);
                 else
                     _offset += (0, delta);
@@ -286,37 +227,11 @@ namespace Unknown6656.Controls.WPF
             InitiateRedraw();
         }
 
-        protected override unsafe void WndProc(ref Message m)
+        public void InitiateRedraw() => InvalidateVisual(); // TODO : ??
+
+        protected override void OnRender(DrawingContext context)
         {
-            base.WndProc(ref m);
-
-            if (m.HWnd == Handle)
-                if (m.Msg is WM_MOUSEHWHEEL && MouseInteractionEnabled)
-                {
-                    static int hi(nint ptr) => ((int)ptr >> 16) & 0xffff;
-                    static int lo(nint ptr) => (int)ptr & 0xffff;
-
-                    int tilt = hi(m.WParam);
-                    int x = lo(m.LParam);
-                    int y = hi(m.LParam);
-
-                    OnMouseWheel(new MouseEventArgsExt(MouseButtons.None, 0, x, y, tilt, true));
-
-                    m.Result = (nint)1;
-                }
-
-            // TODO : other messages?
-        }
-
-        public void InitiateRedraw()
-        {
-            Invalidate(ClientRectangle);
-            Update();
-        }
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            Graphics g = e.Graphics ?? _graphics;
+            base.OnRender(context);
 
             if (Plotter is { } plotter)
             {
@@ -326,31 +241,34 @@ namespace Unknown6656.Controls.WPF
                 if (_cursorpos is { } c)
                     plotter.CursorPosition = (c.X, -c.Y);
 
-                plotter.Plot(g, ClientSize.Width, ClientSize.Height);
-                //plotter.Plot(g, e.ClipRectangle.Width, e.ClipRectangle.Height);
+                using Bitmap bitmap = plotter.Plot((int)ActualWidth, (int)ActualHeight);
+
+                BitmapImage image = new();
+
+                image.BeginInit();
+                image.StreamSource = DataStream.FromBitmap(bitmap, System.Drawing.Imaging.ImageFormat.Bmp).ToStream();
+                image.EndInit();
+
+                context.DrawImage(image, new(0, 0, bitmap.Width, bitmap.Height));
             }
-            else
-                g.Clear(BackColor);
         }
     }
 
-    public sealed class MouseEventArgsExt
-        : MouseEventArgs
+    public sealed class KeyMap
     {
-        public bool IsHorizontal { get; }
-
-
-        public MouseEventArgsExt(MouseButtons button, int clicks, int x, int y, int delta, bool horizontal)
-            : base(button, clicks, x, y, delta) => IsHorizontal = horizontal;
+        public Key MoveLeft { set; get; } = Key.A;
+        public Key MoveRight { set; get; } = Key.D;
+        public Key MoveDown { set; get; } = Key.S;
+        public Key MoveUp { set; get; } = Key.W;
+        public Key ZoomIn { set; get; } = Key.OemPlus;
+        public Key ZoomOut { set; get; } = Key.OemMinus;
+        public Key ResetView { set; get; } = Key.R;
+        public Key TogglePolarGrid { set; get; } = Key.P;
+        public Key ToggleAxisVisibility { set; get; } = Key.X;
+        public Key ToggleGridVisibility { set; get; } = Key.G;
+        public Key ToggleCursorVisibility { set; get; } = Key.C;
+        public Key SelectPreviousFunction { set; get; } = Key.E;
+        public Key SelectNoFunction { set; get; } = Key.R;
+        public Key SelectNextFunction { set; get; } = Key.T;
     }
-
-
-
-
-
-
-
-
-
-
 }

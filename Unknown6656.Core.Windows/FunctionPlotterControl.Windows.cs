@@ -6,12 +6,9 @@ using System;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Imaging;
 using Unknown6656.Common;
-using System.Reflection;
 
 namespace Unknown6656.Controls.WinForms
 {
-    using Console = System.Console;
-
     public partial class FunctionPlotterControl<P>
         : UserControl
         where P : FunctionPlotter
@@ -243,7 +240,7 @@ namespace Unknown6656.Controls.WinForms
                 _last_relative = relative;
             }
             else
-                _cursorpos = (e.Location - new Vector2(ClientSize.Width * .5, ClientSize.Height * .5) + _offset) / (spacing  * _scale);
+                _cursorpos = (e.Location - new Vector2(ClientSize.Width * .5, ClientSize.Height * .5) + _offset) / (spacing * _scale);
 
             InitiateRedraw();
         }

@@ -6,7 +6,6 @@ using System;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Imaging;
 using Unknown6656.Common;
-using System.Windows.Documents;
 
 namespace Unknown6656.Controls.WinForms
 {
@@ -79,56 +78,57 @@ namespace Unknown6656.Controls.WinForms
         {
             if (KeyboardInteractionEnabled)
             {
+                Keys key = e.KeyCode;
                 bool handled = FunctionExtensions.Do(delegate
                 {
-                    if (e.KeyCode == KeyMap.MoveLeft)
+                    if (key == KeyMap.MoveLeft)
                         _offset -= (1 / _scale, 0);
-                    else if (e.KeyCode == KeyMap.MoveRight)
+                    else if (key == KeyMap.MoveRight)
                         _offset += (1 / _scale, 0);
-                    else if (e.KeyCode == KeyMap.MoveUp)
+                    else if (key == KeyMap.MoveUp)
                         _offset -= (0, 1 / _scale);
-                    else if (e.KeyCode == KeyMap.MoveDown)
+                    else if (key == KeyMap.MoveDown)
                         _offset += (0, 1 / _scale);
-                    else if (e.KeyCode == KeyMap.ZoomIn)
+                    else if (key == KeyMap.ZoomIn)
                         _scale *= 1.1;
-                    else if (e.KeyCode == KeyMap.ZoomOut)
+                    else if (key == KeyMap.ZoomOut)
                         _scale /= 1.1;
-                    else if (e.KeyCode == KeyMap.ResetView)
+                    else if (key == KeyMap.ResetView)
                     {
                         _offset = Vector2.Zero;
                         _scale = Scalar.One;
                     }
-                    else if (e.KeyCode == KeyMap.SelectNextFunction)
+                    else if (key == KeyMap.SelectNextFunction)
                     {
                         if (Plotter is IMultiFunctionPlotter multi && multi.SelectedFunctionIndex < multi.Functions.Length - 1)
                             ++multi.SelectedFunctionIndex;
                     }
-                    else if (e.KeyCode == KeyMap.SelectPreviousFunction)
+                    else if (key == KeyMap.SelectPreviousFunction)
                     {
                         if (Plotter is IMultiFunctionPlotter { SelectedFunctionIndex: > 0 } multi)
                             --multi.SelectedFunctionIndex;
                     }
-                    else if (e.KeyCode == KeyMap.SelectNoFunction)
+                    else if (key == KeyMap.SelectNoFunction)
                     {
                         if (Plotter is IMultiFunctionPlotter multi)
-                            multi.SelectedFunctionIndex = -1;
+                            multi.SelectedFunctionIndex = null;
                     }
-                    else if (e.KeyCode == KeyMap.ToggleAxisVisibility)
+                    else if (key == KeyMap.ToggleAxisVisibility)
                     {
                         if (Plotter is FunctionPlotter plotter)
                             plotter.AxisVisible ^= true;
                     }
-                    else if (e.KeyCode == KeyMap.ToggleCursorVisibility)
+                    else if (key == KeyMap.ToggleCursorVisibility)
                     {
                         if (Plotter is FunctionPlotter plotter)
                             plotter.CursorVisible ^= true;
                     }
-                    else if (e.KeyCode == KeyMap.ToggleGridVisibility)
+                    else if (key == KeyMap.ToggleGridVisibility)
                     {
                         if (Plotter is FunctionPlotter plotter)
                             plotter.GridVisible ^= true;
                     }
-                    else if (e.KeyCode == KeyMap.TogglePolarGrid)
+                    else if (key == KeyMap.TogglePolarGrid)
                     {
                         if (Plotter is FunctionPlotter plotter)
                             plotter.AxisType = plotter.AxisType is AxisType.Cartesian ? AxisType.Polar : AxisType.Cartesian;
@@ -275,7 +275,6 @@ namespace Unknown6656.Controls.WinForms
                     plotter.CursorPosition = (c.X, -c.Y);
 
                 plotter.Plot(g, ClientSize.Width, ClientSize.Height);
-                //plotter.Plot(g, e.ClipRectangle.Width, e.ClipRectangle.Height);
             }
             else
                 g.Clear(BackColor);

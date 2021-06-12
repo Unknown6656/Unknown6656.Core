@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net5.0-windows</TargetFramework>
-        <!--<RuntimeFrameworkVersion>5.0.2</RuntimeFrameworkVersion>-->
         <UseWindowsForms>true</UseWindowsForms>
 
         <LangVersion>preview</LangVersion>
@@ -35,7 +34,7 @@
         <PackageProjectUrl>https://github.com/unknown6656/Unknown6656.Core</PackageProjectUrl>
         <RepositoryUrl>https://github.com/Unknown6656/Unknown6656.Core</RepositoryUrl>
         <PackageIcon>unknown6656-logo-1024.png</PackageIcon>
-        <PackageTags>unknown6656;core;library;windows;forms;winforms</PackageTags>
+        <PackageTags>unknown6656;core;library;windows;forms;winforms;extentions</PackageTags>
 
         <PackageId>Unknown6656.WinForms</PackageId>
         <IncludeSymbols>true</IncludeSymbols>

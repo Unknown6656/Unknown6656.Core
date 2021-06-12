@@ -458,9 +458,13 @@ namespace Unknown6656.Imaging
         {
             set => _selidx = value is int i ? i >= -1 && i < Functions.Length ? (int?)i : throw new ArgumentOutOfRangeException(nameof(value), $"The function index must be a positive and smaller than {Functions.Length}.") : null;
             get => _selidx;
-        } = -1;
+        }
 
-        public MultiFunctionPlotter(params (Func Function, RGBAColor Color)[] functions) => Functions = functions;
+        public MultiFunctionPlotter(params (Func Function, RGBAColor Color)[] functions)
+        {
+            Functions = functions;
+            SelectedFunctionIndex = -1;
+        }
     }
 
     // TODO : implicit cartesian/polar plotter

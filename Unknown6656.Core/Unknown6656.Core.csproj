@@ -9,9 +9,9 @@
         <NullableContextOptions>enable</NullableContextOptions>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-        <AssemblyName>unknown6656.core</AssemblyName>
+        <AssemblyName>Unknown6656.Core</AssemblyName>
         <RootNamespace>Unknown6656</RootNamespace>
-        <OutputPath>../bin</OutputPath>
+        <OutputPath>$(SolutionDir)bin</OutputPath>
         <DocumentationFile></DocumentationFile>
         
         <DefineConstants>TRACE;DOUBLE_PRECISION</DefineConstants>
@@ -48,10 +48,12 @@
         <!--<UserSecretsId>e25c8605-a6b4-42e1-9806-2eb3ebe4aa4a</UserSecretsId>-->
     </PropertyGroup>
     <ItemGroup>
-        <None Include="C:/Users/unknown6656/Pictures/unknown6656/unknown6656-logo-1024.png">
-          <Pack>True</Pack>
-          <PackagePath></PackagePath>
-        </None>
+      <Compile Remove="IO\YAMLFile.cs" />
+      <Compile Remove="Mathematics\Geometry\Shape3D.cs" />
+    </ItemGroup>
+    <ItemGroup>
+      <Content Include="IO\YAMLFile.cs" />
+      <Content Include="Mathematics\Geometry\Shape3D.cs" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="SSH.NET" Version="2020.0.1" />
@@ -61,6 +63,9 @@
     </ItemGroup>
     <ItemGroup>
         <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="unknown6656-logo-1024.png" Pack="true" PackagePath="" />
     </ItemGroup>
     <!--<ItemGroup>
         <None Include="Common/Currying.cs">
@@ -213,8 +218,5 @@
           <AutoGen>True</AutoGen>
           <DependentUpon>VectorSpace.tt</DependentUpon>
         </Compile>
-    </ItemGroup>
-    <ItemGroup>
-      <Folder Include="Controls\WinForms\" />
     </ItemGroup>
 </Project>

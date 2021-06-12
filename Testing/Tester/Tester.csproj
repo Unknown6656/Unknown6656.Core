@@ -10,6 +10,7 @@
         <OutputType>Exe</OutputType>
         <Nullable>enable</Nullable>
         <NullableContextOptions>enable</NullableContextOptions>
+        <UseWPF>true</UseWPF>
         <UseWindowsForms>true</UseWindowsForms>
         <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
     </PropertyGroup>
@@ -21,8 +22,8 @@
         <PackageReference Include="Unknown6656.DiscriminatedUnions" Version="1.0.0" />
     </ItemGroup>
     <ItemGroup>
+        <ProjectReference Include="..\..\Unknown6656.Core.Windows\Unknown6656.Core.Windows.csproj" />
         <ProjectReference Include="..\..\Unknown6656.Core\Unknown6656.Core.csproj" />
-        <ProjectReference Include="..\..\Unknown6656.WinForms\Unknown6656.Core.Windows.csproj" />
     </ItemGroup>
     <ItemGroup>
         <Folder Include="Properties\" />

@@ -1,21 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using System.Drawing;
-using System.Linq.Expressions;
 using System.Linq;
 using System.Text;
 using System.IO;
 using System;
-
-using Unknown6656.Optimization.ParticleSwarmOptimization;
 using Unknown6656.Mathematics.Graphs.Computation;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Mathematics.Graphs;
 using Unknown6656.Mathematics.Numerics;
 using Unknown6656.Mathematics.Geometry;
-using Unknown6656.Mathematics.Cryptography;
-using Unknown6656.Mathematics;
+using Unknown6656.Controls.WinForms;
 using Unknown6656.Controls.Console;
 using Unknown6656.Imaging.Effects;
 using Unknown6656.Imaging;
@@ -23,30 +20,37 @@ using Unknown6656.Common;
 using Unknown6656.IO;
 
 using Random = Unknown6656.Mathematics.Numerics.Random;
-using System.Threading.Tasks;
-using System.Reflection;
-using Unknown6656;
+using winforms = System.Windows.Forms;
 
 namespace Testing
 {
-    using static Complex;
-
     public static unsafe class Program
     {
         public static void Main(string[] args)
         {
             Console.OutputEncoding = Encoding.UTF8;
 
+
+            using var plotter = new FunctionPlotterControl<CartesianFunctionPlotter<ScalarFunction>>()
+            {
+                Dock = winforms.DockStyle.Fill,
+                Plotter = new(
+                    (ScalarFunction.Identity, RGBAColor.Black),
+                    (ScalarFunction.UnitParabola, RGBAColor.Red),
+                    (ScalarFunction.Sine, RGBAColor.Green)
+                ),
+            };
+            using var form = new winforms.Form()
+            {
+                Width = 800,
+                Height = 600,
+                BackColor = Color.Teal,
+            };
+            form.Controls.Add(plotter);
+            form.ShowDialog();
+
+
             //Main_PSO();
-            return;
-            Main_BMP_effects();
-            Main_Math();
-            Main_BMP1();
-            Main_ConsoleUI();
-            Main_Statistics();
-            Main_LinearAlgebra();
-            Main_Automaton();
-            Main_Graph();
         }
 
         private static void evaluate_random<random>()

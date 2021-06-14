@@ -426,12 +426,10 @@ namespace Unknown6656.Imaging
                                 g.DrawLine(thin, cx, cy, mouse_x, mouse_y);
                         }
                         else if (this is { AxisType: AxisType.Cartesian } and IPolarPlotter)
-                        {
                             if (new Vector2(x - mouse_x, y - mouse_y).Length > new Vector2(x - cx, y - cy).Length)
                                 g.DrawLine(thin, x, y, mouse_x, mouse_y);
                             else
                                 g.DrawLine(thin, x, y, cx, cy);
-                        }
                     }
 
                     if (!(this is { AxisType: AxisType.Cartesian } and ICartesianPlotter { SelectedFunction: { } }))

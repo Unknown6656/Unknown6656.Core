@@ -6,5 +6,5 @@
         xmlns:local="clr-namespace:Tester"
         mc:Ignorable="d"
         Title="test_window" Height="450" Width="800" Background="Teal">
-    <local:plotter />
+    <local:plotter x:Name="plotter"/>
 </Window>

@@ -100,13 +100,19 @@ namespace Unknown6656.Controls.WinForms
                     }
                     else if (key == KeyMap.SelectNextFunction)
                     {
-                        if (Plotter is IMultiFunctionPlotter multi && multi.SelectedFunctionIndex < multi.Functions.Length - 1)
-                            ++multi.SelectedFunctionIndex;
+                        if (Plotter is IMultiFunctionPlotter multi)
+                            if (multi.SelectedFunctionIndex < multi.Functions.Length - 1)
+                                ++multi.SelectedFunctionIndex;
+                            else if (multi.SelectedFunctionIndex is null)
+                                multi.SelectedFunctionIndex = 0;
                     }
                     else if (key == KeyMap.SelectPreviousFunction)
                     {
-                        if (Plotter is IMultiFunctionPlotter { SelectedFunctionIndex: > 0 } multi)
-                            --multi.SelectedFunctionIndex;
+                        if (Plotter is IMultiFunctionPlotter multi)
+                            if (multi.SelectedFunctionIndex > 0)
+                                --multi.SelectedFunctionIndex;
+                            else if (multi.SelectedFunctionIndex is null)
+                                multi.SelectedFunctionIndex = 0;
                     }
                     else if (key == KeyMap.SelectNoFunction)
                     {
@@ -212,7 +218,6 @@ namespace Unknown6656.Controls.WinForms
 
             Scalar delta = (e.Delta - _mouse_initial_delta) / (_scale * SystemInformation.MouseWheelScrollDelta);
 
-
             if (ModifierKeys.HasFlag(Keys.Control) || e is MouseEventArgsExt { IsHorizontal: true })
             {
                 delta *= ZoomSpeed;
@@ -231,7 +236,7 @@ namespace Unknown6656.Controls.WinForms
                     _offset += (0, delta);
             }
 
-            InitiateRedraw();
+            FunctionPlotterControl_MouseMove(sender, e);
         }
 
         protected override unsafe void WndProc(ref Message m)
@@ -283,10 +288,10 @@ namespace Unknown6656.Controls.WinForms
 
     public sealed class KeyMap
     {
-        public Keys MoveLeft { set; get; } = Keys.A;
-        public Keys MoveRight { set; get; } = Keys.D;
-        public Keys MoveDown { set; get; } = Keys.S;
-        public Keys MoveUp { set; get; } = Keys.W;
+        public Keys MoveLeft { set; get; } = Keys.Left;
+        public Keys MoveRight { set; get; } = Keys.Right;
+        public Keys MoveDown { set; get; } = Keys.Down;
+        public Keys MoveUp { set; get; } = Keys.Up;
         public Keys ZoomIn { set; get; } = Keys.Oemplus;
         public Keys ZoomOut { set; get; } = Keys.OemMinus;
         public Keys ResetView { set; get; } = Keys.R;
@@ -294,9 +299,9 @@ namespace Unknown6656.Controls.WinForms
         public Keys ToggleAxisVisibility { set; get; } = Keys.X;
         public Keys ToggleGridVisibility { set; get; } = Keys.G;
         public Keys ToggleCursorVisibility { set; get; } = Keys.C;
-        public Keys SelectPreviousFunction { set; get; } = Keys.E;
-        public Keys SelectNoFunction { set; get; } = Keys.R;
-        public Keys SelectNextFunction { set; get; } = Keys.T;
+        public Keys SelectPreviousFunction { set; get; } = Keys.B;
+        public Keys SelectNoFunction { set; get; } = Keys.N;
+        public Keys SelectNextFunction { set; get; } = Keys.M;
     }
 
     public sealed class MouseEventArgsExt

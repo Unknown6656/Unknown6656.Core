@@ -94,13 +94,19 @@ namespace Unknown6656.Controls.WPF
                     }
                     else if (key == KeyMap.SelectNextFunction)
                     {
-                        if (Plotter is IMultiFunctionPlotter multi && multi.SelectedFunctionIndex < multi.Functions.Length - 1)
-                            ++multi.SelectedFunctionIndex;
+                        if (Plotter is IMultiFunctionPlotter multi)
+                            if (multi.SelectedFunctionIndex < multi.Functions.Length - 1)
+                                ++multi.SelectedFunctionIndex;
+                            else if (multi.SelectedFunctionIndex is null)
+                                multi.SelectedFunctionIndex = 0;
                     }
                     else if (key == KeyMap.SelectPreviousFunction)
                     {
-                        if (Plotter is IMultiFunctionPlotter { SelectedFunctionIndex: > 0 } multi)
-                            --multi.SelectedFunctionIndex;
+                        if (Plotter is IMultiFunctionPlotter multi)
+                            if (multi.SelectedFunctionIndex > 0)
+                                --multi.SelectedFunctionIndex;
+                            else if (multi.SelectedFunctionIndex is null)
+                                multi.SelectedFunctionIndex = 0;
                     }
                     else if (key == KeyMap.SelectNoFunction)
                     {
@@ -224,7 +230,7 @@ namespace Unknown6656.Controls.WPF
                     _offset += (0, delta);
             }
 
-            InitiateRedraw();
+            FunctionPlotterControl_MouseMove(sender, e);
         }
 
         public void InitiateRedraw() => InvalidateVisual(); // TODO : ??
@@ -256,10 +262,10 @@ namespace Unknown6656.Controls.WPF
 
     public sealed class KeyMap
     {
-        public Key MoveLeft { set; get; } = Key.A;
-        public Key MoveRight { set; get; } = Key.D;
-        public Key MoveDown { set; get; } = Key.S;
-        public Key MoveUp { set; get; } = Key.W;
+        public Key MoveLeft { set; get; } = Key.Left;
+        public Key MoveRight { set; get; } = Key.Right;
+        public Key MoveDown { set; get; } = Key.Down;
+        public Key MoveUp { set; get; } = Key.Up;
         public Key ZoomIn { set; get; } = Key.OemPlus;
         public Key ZoomOut { set; get; } = Key.OemMinus;
         public Key ResetView { set; get; } = Key.R;
@@ -267,8 +273,8 @@ namespace Unknown6656.Controls.WPF
         public Key ToggleAxisVisibility { set; get; } = Key.X;
         public Key ToggleGridVisibility { set; get; } = Key.G;
         public Key ToggleCursorVisibility { set; get; } = Key.C;
-        public Key SelectPreviousFunction { set; get; } = Key.E;
-        public Key SelectNoFunction { set; get; } = Key.R;
-        public Key SelectNextFunction { set; get; } = Key.T;
+        public Key SelectPreviousFunction { set; get; } = Key.B;
+        public Key SelectNoFunction { set; get; } = Key.N;
+        public Key SelectNextFunction { set; get; } = Key.M;
     }
 }

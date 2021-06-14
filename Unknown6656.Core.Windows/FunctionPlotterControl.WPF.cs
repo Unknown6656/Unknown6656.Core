@@ -68,7 +68,7 @@ namespace Unknown6656.Controls.WPF
             Cursor = Cursors.Cross;
         }
 
-        private void FunctionPlotterControl_KeyDown(object? sender, KeyEventArgs e)
+        protected void FunctionPlotterControl_KeyDown(object? sender, KeyEventArgs e)
         {
             if (KeyboardInteractionEnabled)
             {
@@ -146,7 +146,7 @@ namespace Unknown6656.Controls.WPF
             }
         }
 
-        private void FunctionPlotterControl_MouseLeave(object? sender, MouseEventArgs e)
+        protected void FunctionPlotterControl_MouseLeave(object? sender, MouseEventArgs e)
         {
             if (MouseInteractionEnabled)
             {
@@ -156,7 +156,7 @@ namespace Unknown6656.Controls.WPF
             }
         }
 
-        private void FunctionPlotterControl_MouseEnter(object? sender, MouseEventArgs e)
+        protected void FunctionPlotterControl_MouseEnter(object? sender, MouseEventArgs e)
         {
             if (MouseInteractionEnabled)
             {
@@ -168,7 +168,7 @@ namespace Unknown6656.Controls.WPF
             }
         }
 
-        private void FunctionPlotterControl_MouseDown(object? sender, MouseEventArgs e)
+        protected void FunctionPlotterControl_MouseDown(object? sender, MouseEventArgs e)
         {
             if (MouseInteractionEnabled)
             {
@@ -180,32 +180,32 @@ namespace Unknown6656.Controls.WPF
             }
         }
 
-        private void FunctionPlotterControl_MouseUp(object? sender, MouseEventArgs e)
+        protected void FunctionPlotterControl_MouseUp(object? sender, MouseEventArgs e)
         {
             _mouse_down = null;
             Cursor = Cursors.Cross;
             _last_relative = Vector2.Zero;
         }
 
-        private void FunctionPlotterControl_MouseMove(object? sender, MouseEventArgs e)
+        protected void FunctionPlotterControl_MouseMove(object? sender, MouseEventArgs e)
         {
-            Scalar spacing = Plotter?.DefaultGridSpacing ?? 1;
             System.Windows.Point point = e.GetPosition(this);
 
             if (MouseInteractionEnabled && _mouse_down is Vector2 start)
             {
                 Vector2 relative = (start.X - point.X, point.Y - start.Y);
+                Scalar spacing = Plotter?.DefaultGridSpacing ?? 1;
 
                 _offset += (relative - _last_relative) / (_scale * spacing);
                 _last_relative = relative;
             }
             else
-                _cursorpos = ((point.X, point.Y) - new Vector2(ActualWidth * .5, ActualHeight * .5) + _offset) / (spacing * _scale);
+                _cursorpos = (point.X, point.Y);
 
             InitiateRedraw();
         }
 
-        private void FunctionPlotterControl_MouseWheel(object? sender, MouseWheelEventArgs e)
+        protected void FunctionPlotterControl_MouseWheel(object? sender, MouseWheelEventArgs e)
         {
             if (!MouseInteractionEnabled)
                 return;
@@ -245,7 +245,7 @@ namespace Unknown6656.Controls.WPF
                 plotter.Scale = _scale;
 
                 if (_cursorpos is { } c)
-                    plotter.CursorPosition = (c.X, -c.Y);
+                    plotter.CursorPosition = new Vector2(c.X - ActualWidth * .5, ActualHeight * .5 - c.Y) / ((Plotter?.DefaultGridSpacing ?? 1) * _scale) + _offset;
 
                 using Bitmap bitmap = plotter.Plot((int)ActualWidth, (int)ActualHeight);
 

@@ -7,6 +7,7 @@ using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Imaging;
 using Unknown6656.Common;
 
+
 namespace Unknown6656.Controls.WinForms
 {
     public partial class FunctionPlotterControl<P>
@@ -74,7 +75,7 @@ namespace Unknown6656.Controls.WinForms
             Cursor = Cursors.Cross;
         }
 
-        private void FunctionPlotterControl_KeyDown(object? sender, KeyEventArgs e)
+        protected void FunctionPlotterControl_KeyDown(object? sender, KeyEventArgs e)
         {
             if (KeyboardInteractionEnabled)
             {
@@ -152,12 +153,12 @@ namespace Unknown6656.Controls.WinForms
             }
         }
 
-        private void FunctionPlotterControl_Load(object? sender, EventArgs e)
+        protected void FunctionPlotterControl_Load(object? sender, EventArgs e)
         {
             _mouse_initial_delta = VerticalScroll.Value;
         }
 
-        private void FunctionPlotterControl_MouseLeave(object? sender, EventArgs e)
+        protected void FunctionPlotterControl_MouseLeave(object? sender, EventArgs e)
         {
             if (MouseInteractionEnabled)
             {
@@ -167,7 +168,7 @@ namespace Unknown6656.Controls.WinForms
             }
         }
 
-        private void FunctionPlotterControl_MouseEnter(object? sender, EventArgs e)
+        protected void FunctionPlotterControl_MouseEnter(object? sender, EventArgs e)
         {
             if (MouseInteractionEnabled)
             {
@@ -177,7 +178,7 @@ namespace Unknown6656.Controls.WinForms
             }
         }
 
-        private void FunctionPlotterControl_MouseDown(object? sender, MouseEventArgs e)
+        protected void FunctionPlotterControl_MouseDown(object? sender, MouseEventArgs e)
         {
             if (MouseInteractionEnabled)
             {
@@ -187,31 +188,31 @@ namespace Unknown6656.Controls.WinForms
             }
         }
 
-        private void FunctionPlotterControl_MouseUp(object? sender, MouseEventArgs e)
+        protected void FunctionPlotterControl_MouseUp(object? sender, MouseEventArgs e)
         {
             _mouse_down = null;
             Cursor = Cursors.Cross;
             _last_relative = Vector2.Zero;
         }
 
-        private void FunctionPlotterControl_MouseMove(object? sender, MouseEventArgs e)
+        protected void FunctionPlotterControl_MouseMove(object? sender, MouseEventArgs e)
         {
-            Scalar spacing = Plotter?.DefaultGridSpacing ?? 1;
-
             if (MouseInteractionEnabled && _mouse_down is Vector2 start)
             {
                 Vector2 relative = (start.X - e.Location.X, e.Location.Y - start.Y);
+                Scalar spacing = Plotter?.DefaultGridSpacing ?? 1;
 
                 _offset += (relative - _last_relative) / (_scale * spacing);
                 _last_relative = relative;
+                _cursorpos = null;
             }
             else
-                _cursorpos = (e.Location - new Vector2(ClientSize.Width * .5, ClientSize.Height * .5) + _offset) / (spacing * _scale);
+                _cursorpos = e.Location;
 
             InitiateRedraw();
         }
 
-        private void FunctionPlotterControl_MouseWheel(object? sender, MouseEventArgs e)
+        protected void FunctionPlotterControl_MouseWheel(object? sender, MouseEventArgs e)
         {
             if (!MouseInteractionEnabled)
                 return;
@@ -277,7 +278,7 @@ namespace Unknown6656.Controls.WinForms
                 plotter.Scale = _scale;
 
                 if (_cursorpos is { } c)
-                    plotter.CursorPosition = (c.X, -c.Y);
+                    plotter.CursorPosition = new Vector2(c.X - ClientSize.Width * .5, ClientSize.Height * .5 - c.Y) / ((Plotter?.DefaultGridSpacing ?? 1) * _scale) + _offset;
 
                 plotter.Plot(g, ClientSize.Width, ClientSize.Height);
             }

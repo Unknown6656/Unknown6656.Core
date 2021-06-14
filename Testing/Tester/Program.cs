@@ -36,11 +36,14 @@ namespace Testing
             using var plotter = new FunctionPlotterControl<CartesianFunctionPlotter<ScalarFunction>>()
             {
                 Dock = winforms.DockStyle.Fill,
-                Plotter = new(
-                    (ScalarFunction.Identity, RGBAColor.Black),
-                    (ScalarFunction.UnitParabola, RGBAColor.Red),
-                    (ScalarFunction.Sine, RGBAColor.Green)
-                ),
+                Plotter = new(new[] {
+                    (ScalarFunction.Sine, RGBAColor.Green),
+                    (ScalarFunction.UnitParabola, RGBAColor.Cyan),
+                    (new ScalarFunction(Scalar.Sqrt), RGBAColor.Red),
+                })
+                {
+                    CursorVisible = true,
+                },
             };
             using var form = new winforms.Form()
             {
@@ -50,6 +53,7 @@ namespace Testing
             };
             form.Controls.Add(plotter);
             form.ShowDialog();
+
 
 
             //Main_PSO();

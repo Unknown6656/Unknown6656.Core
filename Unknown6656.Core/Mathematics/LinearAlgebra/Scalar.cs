@@ -344,6 +344,9 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar Subtract(params Scalar[] others) => others.Aggregate(this, Subtract);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly Scalar DistanceTo(Scalar other) => Subtract(other).Abs();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar Increment() => Add(One);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

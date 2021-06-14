@@ -12,7 +12,8 @@ using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Mathematics;
 using Unknown6656.Common;
-
+using System.Diagnostics;
+using System.Linq.Expressions;
 
 namespace Unknown6656.Imaging
 {
@@ -150,7 +151,6 @@ namespace Unknown6656.Imaging
         internal const float MARKING_SIZE = 3;
         internal const int POLAR_DIVISIONS = 8;
 
-
         #endregion
         #region INSTANCE METHODS
 
@@ -168,264 +168,300 @@ namespace Unknown6656.Imaging
             PointF center = new((width / 2f) - CenterPoint.X * scale, (height / 2f) + CenterPoint.Y * scale);
 
             PlotGraph(g, width, height, center.X, center.Y, scale, out List<(Vector2 pos, Value desc)> poi);
-            PlotGrid(g, width, height, center.X, center.Y, scale);
-            PlotAxis(g, width, height, center.X, center.Y, scale);
-            PlotPOIs(g, width, height, center.X, center.Y, scale, poi);
-            PlotCursor(g, width, height, center.X, center.Y, scale);
+
+            if (GridVisible)
+                PlotGrid(g, width, height, center.X, center.Y, scale);
+
+            if (AxisVisible)
+                PlotAxis(g, width, height, center.X, center.Y, scale);
+
+            if (PointsOfInterestVisible)
+                PlotPOIs(g, width, height, center.X, center.Y, scale, poi);
+
+            if (CursorVisible)
+                PlotCursor(g, width, height, center.X, center.Y, scale);
+
             DrawComment(g);
         }
 
-        private void PlotGrid(Graphics g, int w, int h, float x, float y, float s)
+        protected virtual void PlotGrid(Graphics g, int w, int h, float x, float y, float s)
         {
-            if (GridVisible)
+            while (s > DefaultGridSpacing)
+                s /= 2;
+
+            using Pen pen = new(GridColor, GridThickness);
+            int ch = (int)(w / s) + 1;
+            int cv = (int)(h / s) + 1;
+            float oh = x % s;
+            float ov = y % s;
+
+            if (AxisType == AxisType.Cartesian)
             {
-                while (s > DefaultGridSpacing)
-                    s /= 2;
-
-                using Pen pen = new(GridColor, GridThickness);
-                int ch = (int)(w / s) + 1;
-                int cv = (int)(h / s) + 1;
-                float oh = x % s;
-                float ov = y % s;
-
-                if (AxisType == AxisType.Cartesian)
-                {
-                    for (int i = 0; i <= ch; ++i)
-                        g.DrawLine(pen, i * s + oh, 0, i * s + oh, h);
-
-                    for (int i = 0; i <= cv; ++i)
-                        g.DrawLine(pen, 0, i * s + ov, w, i * s + ov);
-                }
-                else
-                {
-                    Scalar r = new Vector2(w, h).Length;
-                    int c = (int)(r / s / 2) + 1;
-
-                    for (int i = 1; i <= c; ++i)
-                        g.DrawEllipse(pen, x - i * s, y - i * s, 2 * i * s, 2 * i * s);
-
-                    for (int i = 1; i < POLAR_DIVISIONS; ++i)
-                    {
-                        Scalar φ = (90d * i / POLAR_DIVISIONS).Radians();
-
-                        g.DrawLine(pen, x - r * φ.Sin(), y - r * φ.Cos(), x + r * φ.Sin(), y + r * φ.Cos());
-                        g.DrawLine(pen, x + r * φ.Cos(), y - r * φ.Sin(), x - r * φ.Cos(), y + r * φ.Sin());
-                    }
-                }
-            }
-        }
-
-        private void PlotAxis(Graphics g, int w, int h, float x, float y, float s)
-        {
-            if (AxisVisible)
-            {
-                using Font font = new(FontFamily, FontSize, FontStyle.Regular, GraphicsUnit.Pixel);
-                using Pen pen = new(AxisColor, AxisThickness);
-                using Brush brush = new SolidBrush(AxisColor);
-                SizeF char_dims = g.MeasureString("W", font);
-                int ch = (int)(w / s) + 1;
-                int cv = (int)(h / s) + 1;
-                float oh = x % s;
-                float ov = y % s;
-
-                g.DrawLine(pen, x, 0, x, h);
-                g.DrawLine(pen, 0, y, w, y);
-                g.DrawString("0", font, brush, x - char_dims.Width, y);
-                g.DrawString("X", font, brush, w - char_dims.Width, y - char_dims.Height);
-                g.DrawString("Y", font, brush, x, 0);
-
-                int vskip = (int)Math.Ceiling(FontSize * 1.5 / s);
-                int hskip = (int)Math.Ceiling(FontSize * 1.5 * Math.Log10(ch / 2) / s);
-                int mspacing = s < 2 + AxisThickness ? (int)AxisThickness.Ceiling.Add(2) : 1;
-
                 for (int i = 0; i <= ch; ++i)
-                    if (i - (int)(w / (s * 2) - CenterPoint.X) is int ix && ix != 0)
-                    {
-                        if (i % mspacing == 0)
-                            g.DrawLine(pen, i * s + oh, y - MARKING_SIZE, i * s + oh, y + MARKING_SIZE);
-
-                        if (hskip == 0 || ix % hskip == 0)
-                        {
-                            string str = ix.ToString();
-
-                            g.DrawString(str, font, brush, i * s + oh - str.Length * char_dims.Width / 2, y + 2);
-                        }
-                    }
+                    g.DrawLine(pen, i * s + oh, 0, i * s + oh, h);
 
                 for (int i = 0; i <= cv; ++i)
-                    if ((int)(h / (s * 2) + CenterPoint.Y) - i is int iy && iy != 0)
-                    {
-                        if (i % mspacing == 0)
-                            g.DrawLine(pen, x - MARKING_SIZE, i * s + ov, x + MARKING_SIZE, i * s + ov);
+                    g.DrawLine(pen, 0, i * s + ov, w, i * s + ov);
+            }
+            else
+            {
+                Scalar r = new Vector2(w, h).Length;
+                int c = (int)(r / s / 2) + 1;
 
-                        if (vskip == 0 || iy % vskip == 0)
-                        {
-                            string str = iy.ToString();
+                for (int i = 1; i <= c; ++i)
+                    g.DrawEllipse(pen, x - i * s, y - i * s, 2 * i * s, 2 * i * s);
 
-                            g.DrawString(str, font, brush, x - 2 - str.Length * char_dims.Width * .8f, i * s + ov - char_dims.Height / 2);
-                        }
-                    }
-
-                if (AxisType == AxisType.Polar)
+                for (int i = 1; i < POLAR_DIVISIONS; ++i)
                 {
-                    using Pen cpen = new(AxisColor, AxisThickness) { DashPattern = new float[] { 3, 6 } };
-                    Scalar diag = new Vector2(w, h).Length;
-                    int cskip = Math.Max(vskip, hskip) * 4;
-                    int c = (int)(diag / s / 2);
-                    int circle = 0;
+                    Scalar φ = (90d * i / POLAR_DIVISIONS).Radians();
 
-                    for (int i = 1; i <= c; ++i)
-                        if (i % cskip == 0)
-                        {
-                            ++circle;
+                    g.DrawLine(pen, x - r * φ.Sin(), y - r * φ.Cos(), x + r * φ.Sin(), y + r * φ.Cos());
+                    g.DrawLine(pen, x + r * φ.Cos(), y - r * φ.Sin(), x - r * φ.Cos(), y + r * φ.Sin());
+                }
+            }
+        }
 
-                            float r = i * s;
-                            float ri = r - 2 * MARKING_SIZE;
-                            float ro = r + 2 * MARKING_SIZE;
+        protected virtual void PlotAxis(Graphics g, int w, int h, float x, float y, float s)
+        {
+            using Font font = new(FontFamily, FontSize, FontStyle.Regular, GraphicsUnit.Pixel);
+            using Pen pen = new(AxisColor, AxisThickness);
+            using Brush brush = new SolidBrush(AxisColor);
+            SizeF char_dims = g.MeasureString("W", font);
+            int ch = (int)(w / s) + 1;
+            int cv = (int)(h / s) + 1;
+            float oh = x % s;
+            float ov = y % s;
 
-                            g.DrawEllipse(cpen, x - r, y - r, 2 * r, 2 * r);
+            g.DrawLine(pen, x, 0, x, h);
+            g.DrawLine(pen, 0, y, w, y);
+            g.DrawString("0", font, brush, x - char_dims.Width, y);
+            g.DrawString("X", font, brush, w - char_dims.Width, y - char_dims.Height);
+            g.DrawString("Y", font, brush, x, 0);
 
-                            // int sskip = (char_dims.Height / s).Ceiling;
-                            // int sskip = ((POLAR_DIVISIONS * 4 * char_dims.Height) / (ri * Scalar.Pi)).Ceiling;
+            int vskip = (int)Math.Ceiling(FontSize * 1.5 / s);
+            int hskip = (int)Math.Ceiling(FontSize * 1.5 * Math.Log10(ch / 2) / s);
+            int mspacing = s < 2 + AxisThickness ? (int)AxisThickness.Ceiling.Add(2) : 1;
 
-                            int sskip = ri * Scalar.Pi < 4 * POLAR_DIVISIONS * char_dims.Height ? (int)(ri * Scalar.Pi / 2 / POLAR_DIVISIONS / char_dims.Height).Ceiling : POLAR_DIVISIONS;
+            for (int i = 0; i <= ch; ++i)
+                if (i - (int)(w / (s * 2) - CenterPoint.X) is int ix && ix != 0)
+                {
+                    if (i % mspacing == 0)
+                        g.DrawLine(pen, i * s + oh, y - MARKING_SIZE, i * s + oh, y + MARKING_SIZE);
 
-                            for (int j = 0; j < POLAR_DIVISIONS * 4; ++j)
-                                if (j % POLAR_DIVISIONS != 0)
+                    if (hskip == 0 || ix % hskip == 0)
+                    {
+                        string str = ix.ToString();
+
+                        g.DrawString(str, font, brush, i * s + oh - str.Length * char_dims.Width / 2, y + 2);
+                    }
+                }
+
+            for (int i = 0; i <= cv; ++i)
+                if ((int)(h / (s * 2) + CenterPoint.Y) - i is int iy && iy != 0)
+                {
+                    if (i % mspacing == 0)
+                        g.DrawLine(pen, x - MARKING_SIZE, i * s + ov, x + MARKING_SIZE, i * s + ov);
+
+                    if (vskip == 0 || iy % vskip == 0)
+                    {
+                        string str = iy.ToString();
+
+                        g.DrawString(str, font, brush, x - 2 - str.Length * char_dims.Width * .8f, i * s + ov - char_dims.Height / 2);
+                    }
+                }
+
+            if (AxisType == AxisType.Polar)
+            {
+                using Pen cpen = new(AxisColor, AxisThickness) { DashPattern = new float[] { 3, 6 } };
+                Scalar diag = new Vector2(w, h).Length;
+                int cskip = Math.Max(vskip, hskip) * 4;
+                int c = (int)(diag / s / 2);
+                int circle = 0;
+
+                for (int i = 1; i <= c; ++i)
+                    if (i % cskip == 0)
+                    {
+                        ++circle;
+
+                        float r = i * s;
+                        float ri = r - 2 * MARKING_SIZE;
+                        float ro = r + 2 * MARKING_SIZE;
+
+                        g.DrawEllipse(cpen, x - r, y - r, 2 * r, 2 * r);
+
+                        // int sskip = (char_dims.Height / s).Ceiling;
+                        // int sskip = ((POLAR_DIVISIONS * 4 * char_dims.Height) / (ri * Scalar.Pi)).Ceiling;
+
+                        int sskip = ri * Scalar.Pi < 4 * POLAR_DIVISIONS * char_dims.Height ? (int)(ri * Scalar.Pi / 2 / POLAR_DIVISIONS / char_dims.Height).Ceiling : POLAR_DIVISIONS;
+
+                        for (int j = 0; j < POLAR_DIVISIONS * 4; ++j)
+                            if (j % POLAR_DIVISIONS != 0)
+                            {
+                                Scalar φ = .5 * Scalar.Pi * j / POLAR_DIVISIONS;
+                                Scalar px = x + ro * φ.Cos();
+                                Scalar py = y - ro * φ.Sin();
+
+                                g.DrawLine(pen, x + ri * φ.Cos(), y - ri * φ.Sin(), px, py);
+
+                                if (j % sskip == 0)
+                                    continue;
+
+                                string str = circle % 2 == 1 ? $"{j * .5 / POLAR_DIVISIONS}π" : $"{j * 90d / POLAR_DIVISIONS}°";
+                                SizeF sdim = g.MeasureString(str, font);
+                                Scalar sx = x + ro * φ.Cos();
+                                Scalar sy = y - ro * φ.Sin();
+
+                                if (φ < Scalar.Pi)
                                 {
-                                    Scalar φ = .5 * Scalar.Pi * j / POLAR_DIVISIONS;
-                                    Scalar px = x + ro * φ.Cos();
-                                    Scalar py = y - ro * φ.Sin();
+                                    sy -= sdim.Height;
 
-                                    g.DrawLine(pen, x + ri * φ.Cos(), y - ri * φ.Sin(), px, py);
-
-                                    if (j % sskip == 0)
-                                        continue;
-
-                                    string str = circle % 2 == 1 ? $"{j * .5 / POLAR_DIVISIONS}π" : $"{j * 90d / POLAR_DIVISIONS}°";
-                                    SizeF sdim = g.MeasureString(str, font);
-                                    Scalar sx = x + ro * φ.Cos();
-                                    Scalar sy = y - ro * φ.Sin();
-
-                                    if (φ < Scalar.Pi)
-                                    {
-                                        sy -= sdim.Height;
-
-                                        if (φ > Scalar.Pi / 2)
-                                            sx -= sdim.Width;
-                                    }
-                                    else if (φ < Scalar.Pi * 3 / 2)
+                                    if (φ > Scalar.Pi / 2)
                                         sx -= sdim.Width;
-
-                                    g.DrawString(str, font, brush, sx, sy);
                                 }
+                                else if (φ < Scalar.Pi * 3 / 2)
+                                    sx -= sdim.Width;
+
+                                g.DrawString(str, font, brush, sx, sy);
+                            }
+                    }
+            }
+        }
+
+        protected virtual void PlotCursor(Graphics g, int w, int h, float x, float y, float s)
+        {
+            using Font font = new(FontFamily, FontSize, FontStyle.Regular, GraphicsUnit.Pixel);
+            using Brush brush = new SolidBrush(CursorColor);
+            using Pen pen = new(CursorColor, CursorThickness.Max(1e-3));
+            using Pen thin = new(CursorColor, (CursorThickness * .5).Clamp(1e-3, .5));
+            using Pen dashed = new(CursorColor, CursorThickness.Max(1e-3))
+            {
+                DashStyle = DashStyle.DashDot
+            };
+
+            float cursorx = CursorPosition.X;
+            float cursory = CursorPosition.Y;
+            (Scalar φ, RGBAColor col)? deriv = null;
+            string? str = null;
+
+            if (GetInformation(CursorPosition) is { } t)
+            {
+                str = t.Value;
+                cursorx = t.Position.X;
+                cursory = t.Position.Y;
+                deriv = (t.DerivativeAngle, t.Color);
+            }
+
+            if (float.IsFinite(cursorx) && float.IsFinite(cursory))
+                try
+                {
+                    float cx = x + cursorx * s;
+                    float cy = y - cursory * s;
+                    float sz = 2 * MARKING_SIZE;
+
+                    if (deriv is (Scalar α, RGBAColor col))
+                    {
+                        Scalar len = new Vector2(w, h).Length * 2;
+
+                        g.DrawLine(new Pen(col, 1),
+                            cx - α.Cos() * len,
+                            cy + α.Sin() * len,
+                            cx + α.Cos() * len,
+                            cy - α.Sin() * len
+                        );
+                    }
+
+                    Vector2 axis_text_size = g.MeasureString("-10", font);
+
+                    if (AxisType is AxisType.Cartesian)
+                    {
+                        if (new Vector2(cy - y, cx - x).Length > .5)
+                        {
+                            g.DrawLine(dashed, cx, y, cx, cy);
+                            g.DrawLine(dashed, x, cy, cx, cy);
                         }
-                }
-            }
-        }
 
-        private void PlotCursor(Graphics g, int w, int h, float x, float y, float s)
-        {
-            if (CursorVisible)
-            {
-                using Font font = new(FontFamily, FontSize, FontStyle.Regular, GraphicsUnit.Pixel);
-                using Brush brush = new SolidBrush(CursorColor);
-                using Pen pen = new(CursorColor, CursorThickness.Max(1e-3));
-                using Pen dashed = new(CursorColor, CursorThickness.Max(1e-3))
-                {
-                    DashStyle = DashStyle.DashDot
-                };
+                        g.DrawString(cursorx.ToString(), font, brush, cx - FontSize, y + (FontSize + MARKING_SIZE) * Math.Sign(cursory));
 
-                float cursorx = CursorPosition.X;
-                float cursory = CursorPosition.Y;
-                (Scalar φ, RGBAColor col)? deriv = null;
-                string? str = null;
+                        if (cursorx > 0)
+                        {
+                            string text = cursory.ToString();
+                            int text_width = (int)Math.Ceiling(g.MeasureString(text, font).Width);
 
-                if (GetInformation(CursorPosition) is { } t)
-                {
-                    str = t.Value;
-                    cursorx = t.Position.X;
-                    cursory = t.Position.Y;
-                    deriv = (t.DerivativeAngle, t.Color);
-                }
-
-                float cx = x + cursorx * s;
-                float cy = y - cursory * s;
-                float sz = 2 * MARKING_SIZE;
-
-                if (deriv is (Scalar α, RGBAColor col))
-                {
-                    Scalar len = new Vector2(w, h).Length * 2;
-
-                    g.DrawLine(new Pen(col, 1),
-                        cx - α.Cos() * len,
-                        cy + α.Sin() * len,
-                        cx + α.Cos() * len,
-                        cy - α.Sin() * len
-                    );
-                }
-
-                Vector2 axis_text_size = g.MeasureString("-10", font);
-
-                if (AxisType == AxisType.Cartesian)
-                {
-                    g.DrawLine(dashed, cx, y, cx, cy);
-                    g.DrawLine(dashed, x, cy, cx, cy);
-                    g.DrawString(cursorx.ToString(), font, brush, cx - FontSize, y + (FontSize + MARKING_SIZE) * Math.Sign(cursory));
-
-                    if (cursorx > 0)
-                    {
-                        string text = cursory.ToString();
-                        int text_width = (int)Math.Ceiling(g.MeasureString(text, font).Width);
-
-                        g.DrawString(text, font, brush, x - axis_text_size.Y - text_width, cy - FontSize / 2);
+                            g.DrawString(text, font, brush, x - axis_text_size.Y - text_width, cy - FontSize / 2);
+                        }
+                        else
+                            g.DrawString(cursory.ToString(), font, brush, x + MARKING_SIZE, cy - FontSize / 2);
                     }
-                    else
-                        g.DrawString(cursory.ToString(), font, brush, x + MARKING_SIZE, cy - FontSize / 2);
-                }
-                else if (AxisType == AxisType.Polar)
-                {
-                    Vector2 diff = (cursorx, cursory) - CenterPoint;
-                    Scalar dist = diff.Length * s;
-                    Scalar φ = new Complex(diff.X, -diff.Y).Argument.Degrees();
-
-                    if (dist.IsNonZero)
+                    else if (AxisType is AxisType.Polar)
                     {
-                        g.DrawArc(dashed, x - dist, y - dist, dist * 2, dist * 2, φ, φ.IsPositive ? 360 - φ : -φ);
-                        g.DrawLine(pen, x + dist - 1, y - sz, x + dist - 1, y + sz);
+                        Vector2 diff = (cursorx, cursory) - CenterPoint;
+                        Scalar dist = diff.Length * s;
+                        Scalar φ = new Complex(diff.X, -diff.Y).Argument.Degrees();
+                        Scalar end_φ = φ.IsPositive ? 360 - φ : -φ;
+
+                        if (dist > 1 && φ.DistanceTo(end_φ) > .5)
+                        {
+                            g.DrawArc(dashed, x - dist, y - dist, dist * 2, dist * 2, φ, end_φ);
+                            g.DrawLine(pen, x + dist - 1, y - sz, x + dist - 1, y + sz);
+                        }
+
+                        g.DrawLine(dashed, x, y, cx, cy);
+                        g.DrawString($"θ = {(Scalar.Tau + ((Complex)diff).Argument) % Scalar.Tau}\nr = {diff.Length}", font, brush, x + dist, y - 2 * FontSize - MARKING_SIZE);
                     }
 
-                    g.DrawLine(dashed, x, y, cx, cy);
-                    g.DrawString($"θ = {(Scalar.Tau + ((Complex)diff).Argument) % Scalar.Tau}\nr = {diff.Length}", font, brush, x + dist, y - 2 * FontSize - MARKING_SIZE);
+                    g.DrawLine(pen, cx, cy - sz, cx, cy + sz);
+                    g.DrawLine(pen, cx - sz, cy, cx + sz, cy);
+
+                    {
+                        float mouse_x = x + CursorPosition.X * s;
+                        float mouse_y = y - CursorPosition.Y * s;
+
+                        if (this is { AxisType: AxisType.Polar } and ICartesianPlotter)
+                            g.DrawLines(thin, new[] { mouse_y, cy, y }.OrderBy(LINQ.id).ToArray(y => new PointF(mouse_x, y)));
+                        else if (this is { AxisType: AxisType.Cartesian } and ICartesianPlotter)
+                            g.DrawLine(thin, mouse_x, mouse_y, mouse_x, Math.Abs(y - mouse_y) > Math.Abs(cy - mouse_y) ? cy : y);
+                        else if (this is { AxisType: AxisType.Polar } and IPolarPlotter)
+                        {
+                            if (new Vector2(x - mouse_x, y - mouse_y).Length > new Vector2(x - cx, y - cy).Length)
+                                g.DrawLine(thin, cx, cy, mouse_x, mouse_y);
+                        }
+                        else if (this is { AxisType: AxisType.Cartesian } and IPolarPlotter)
+                        {
+                            if (new Vector2(x - mouse_x, y - mouse_y).Length > new Vector2(x - cx, y - cy).Length)
+                                g.DrawLine(thin, x, y, mouse_x, mouse_y);
+                            else
+                                g.DrawLine(thin, x, y, cx, cy);
+                        }
+                    }
+
+                    if (!(this is { AxisType: AxisType.Cartesian } and ICartesianPlotter { SelectedFunction: { } }))
+                        g.DrawString(str, font, brush, cx, cy);
                 }
-
-                g.DrawLine(pen, cx, cy - sz, cx, cy + sz);
-                g.DrawLine(pen, cx - sz, cy, cx + sz, cy);
-                g.DrawString(str, font, brush, cx, cy);
-            }
-        }
-
-        private void PlotPOIs(Graphics g, int w, int h, float x, float y, float s, List<(Vector2 pos, Value value)> poi)
-        {
-            if (PointsOfInterestVisible)
-            {
-                using Font font = new(FontFamily, FontSize, FontStyle.Regular, GraphicsUnit.Pixel);
-                using Pen pen = new(PointsOfInterestColor, AxisThickness);
-                using Brush brush = new SolidBrush(PointsOfInterestColor);
-
-                var grouped = poi.GroupBy(p => p.pos, new CustomEqualityComparer<Vector2>((v1, v2) => v1.DistanceTo(v2) < 2 * MARKING_SIZE))
-                   .Select(g => (g.Select(t => (Complex)t.pos).Average(), g.Select(t => t.value).Average(), g.Count()));
-
-                foreach ((Vector2 pos, Value val, int count) in grouped)
+                catch (Exception ex)
+                when (ex is OutOfMemoryException or OverflowException)
                 {
-                    g.DrawLine(pen, pos.X - MARKING_SIZE, pos.Y, pos.X + MARKING_SIZE, pos.Y);
-                    g.DrawLine(pen, pos.X, pos.Y - MARKING_SIZE, pos.X, pos.Y + MARKING_SIZE);
-                    g.DrawString(val.ToString(), font, brush, pos.X, pos.Y);
+                    Console.WriteLine($"[unknown6656.core, CRITICAL]\n{ex}");
                 }
+        }
+
+        protected virtual void PlotPOIs(Graphics g, int w, int h, float x, float y, float s, List<(Vector2 pos, Value value)> poi)
+        {
+            using Font font = new(FontFamily, FontSize, FontStyle.Regular, GraphicsUnit.Pixel);
+            using Pen pen = new(PointsOfInterestColor, AxisThickness);
+            using Brush brush = new SolidBrush(PointsOfInterestColor);
+
+            var grouped = poi.GroupBy(p => p.pos, new CustomEqualityComparer<Vector2>((v1, v2) => v1.DistanceTo(v2) < 2 * MARKING_SIZE))
+                .Select(g => (g.Select(t => (Complex)t.pos).Average(), g.Select(t => t.value).Average(), g.Count()));
+
+            foreach ((Vector2 pos, Value val, int count) in grouped)
+            {
+                g.DrawLine(pen, pos.X - MARKING_SIZE, pos.Y, pos.X + MARKING_SIZE, pos.Y);
+                g.DrawLine(pen, pos.X, pos.Y - MARKING_SIZE, pos.X, pos.Y + MARKING_SIZE);
+                g.DrawString(val.ToString(), font, brush, pos.X, pos.Y);
             }
         }
 
-        public void DrawComment(Graphics g)
+        protected virtual void DrawComment(Graphics g)
         {
             if (OptionalComment is (string s, RGBAColor col) && s?.Trim() is string str && (str?.Length ?? 0) > 0)
                 using (Font font = new(FontFamily, FontSize, FontStyle.Regular, GraphicsUnit.Pixel))
@@ -444,6 +480,7 @@ namespace Unknown6656.Imaging
         Scalar SelectedFunctionThickness { set; get; }
         Scalar FunctionThickness { set; get; }
         int? SelectedFunctionIndex { set; get; }
+        public object? SelectedFunction { get; }
         public (object Function, RGBAColor Color)[] Functions { get; }
     }
 
@@ -458,6 +495,10 @@ namespace Unknown6656.Imaging
 
         public (Func Function, RGBAColor Color)[] Functions { get; }
 
+        public Func? SelectedFunction => SelectedFunctionIndex is int index ? Functions[index].Function : null;
+
+        object? IMultiFunctionPlotter.SelectedFunction => SelectedFunction;
+
         (object Function, RGBAColor Color)[] IMultiFunctionPlotter.Functions => Functions.ToArray(f => (f.Function as object, f.Color));
 
         public Scalar SelectedFunctionThickness { set; get; } = 3;
@@ -470,19 +511,54 @@ namespace Unknown6656.Imaging
             get => _selidx;
         }
 
+
+        public MultiFunctionPlotter(Func function)
+            : this(function, RGBAColor.Red)
+        {
+        }
+
+        public MultiFunctionPlotter(Func function, RGBAColor color)
+            : this((function, color)) => SelectedFunctionIndex = 0;
+
         public MultiFunctionPlotter(params (Func Function, RGBAColor Color)[] functions)
         {
             Functions = functions;
             SelectedFunctionIndex = null;
         }
+
+        // public void AddFunction(Func function, RGBAColor color)
+        // public bool RemoveFunction(Func function)
+        // public void RemoveFunction(int index)
+        // TODO
     }
 
     // TODO : implicit cartesian/polar plotter
 
+    internal interface IPolarPlotter
+        : IMultiFunctionPlotter
+    {
+    }
+
+    internal interface ICartesianPlotter
+        : IMultiFunctionPlotter
+    {
+    }
+
     public class CartesianFunctionPlotter<Func>
         : MultiFunctionPlotter<Func, Scalar>
+        , ICartesianPlotter
         where Func : FieldFunction<Scalar>
     {
+        public CartesianFunctionPlotter(Func function)
+            : base(function)
+        {
+        }
+
+        public CartesianFunctionPlotter(Func function, RGBAColor color)
+            : base(function, color)
+        {
+        }
+
         public CartesianFunctionPlotter(params (Func Function, RGBAColor Color)[] functions)
             : base(functions)
         {
@@ -535,12 +611,23 @@ namespace Unknown6656.Imaging
 
     public class PolarFunctionPlotter<Func>
         : MultiFunctionPlotter<Func, Scalar>
+        , IPolarPlotter
         where Func : FieldFunction<Scalar>
     {
         public Scalar MinAngle { set; get; } = Scalar.Zero;
         public Scalar MaxAngle { set; get; } = Scalar.Tau * 4;
         public Scalar AngleStep { set; get; } = 1e-5;
 
+
+        public PolarFunctionPlotter(Func function)
+            : base(function)
+        {
+        }
+
+        public PolarFunctionPlotter(Func function, RGBAColor color)
+            : base(function, color)
+        {
+        }
 
         public PolarFunctionPlotter(params (Func Function, RGBAColor Color)[] functions)
             : base(functions)

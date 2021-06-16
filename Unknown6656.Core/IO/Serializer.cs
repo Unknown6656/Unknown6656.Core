@@ -28,6 +28,8 @@ using Unknown6656.Common;
 
 
 // TODO : obj file format
+// TODO : YAML file format
+// TODO : memory mapped files
 
 
 namespace Unknown6656.IO
@@ -64,6 +66,26 @@ namespace Unknown6656.IO
 
         public int ByteCount => Data.Length;
 
+
+
+        public bool GetBit(ulong index) => ((Data[index / 8] >> (int)(index % 8)) & 1) != 0;
+
+        public void SetBit(ulong index, bool new_value)
+        {
+            byte mask = (byte)(1 << (int)(index % 8));
+
+            if (new_value)
+                Data[index / 8] |= mask;
+            else
+                Data[index / 8] &= (byte)~mask;
+        }
+
+        public void SetBit(ulong index, bool new_value, out bool old_value)
+        {
+            old_value = GetBit(index);
+
+            SetBit(index, new_value);
+        }
 
         public DataStream Compress(CompressionFunction algorithm) => Data.Compress(algorithm);
 
@@ -220,8 +242,11 @@ namespace Unknown6656.IO
                 return ToHexString(false, false);
             else if (@base == 64)
                 return ToBase64();
+            else if (@base == 2)
+                Data.Select(b => Convert.ToString(b, 2).PadLeft(8, '0')).StringJoin("");
+            else
+                ; // TODO : make use of bitstreams?
 
-            // TODO
 
             throw new NotImplementedException();
         }
@@ -818,6 +843,8 @@ namespace Unknown6656.IO
 
         public static DataStream FromType<T>() => FromType(typeof(T));
 
+        // public static DataStream FromMemoryMappedFile(MemoryMapped)
+
         [SkipLocalsInit]
         public static DataStream FromGhostStackFrame(int offset, int size)
         {
@@ -825,6 +852,7 @@ namespace Unknown6656.IO
 
             return FromPointer(&__start + offset, size);
         }
+
 
 
         public static implicit operator byte[](DataStream data) => data.Data;

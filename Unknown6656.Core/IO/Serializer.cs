@@ -68,7 +68,7 @@ namespace Unknown6656.IO
 
 
 
-        public bool GetBit(ulong index) => ((Data[index / 8] >> (int)(index % 8)) & 1) != 0;
+        public bool GetBit(ulong index) => (Data[index / 8] & (1 << (int)(index % 8))) != 0;
 
         public void SetBit(ulong index, bool new_value)
         {
@@ -85,6 +85,16 @@ namespace Unknown6656.IO
             old_value = GetBit(index);
 
             SetBit(index, new_value);
+        }
+
+        public bool FlipBit(ulong index)
+        {
+            byte mask = (byte)(1 << (int)(index % 8));
+            ref byte data = ref Data[index / 8];
+
+            data ^= mask;
+
+            return (data & mask) != 0;
         }
 
         public DataStream Compress(CompressionFunction algorithm) => Data.Compress(algorithm);

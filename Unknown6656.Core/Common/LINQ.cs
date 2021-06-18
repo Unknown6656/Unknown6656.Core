@@ -53,7 +53,7 @@ namespace Unknown6656.Common
         public static Indexer<K, V> GetIndexer<K, V>(this IDictionary<K, V> dictionary) => new(k => dictionary[k], (k, v) => dictionary[k] = v);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static DensityFunction<T> GenerateDensityFunction<T>(this IEnumerable<T> collection) where T : IComparable<T> => new DensityFunction<T>(collection);
+        public static DensityFunction<T> GenerateDensityFunction<T>(this IEnumerable<T> collection) where T : IComparable<T> => new(collection);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEnumerable<IEnumerable<T>> PowerSet<T>(this T[] collection)
@@ -172,7 +172,7 @@ namespace Unknown6656.Common
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Shuffle<T>(this IList<T> list)
         {
-            XorShift rng = new XorShift();
+            XorShift rng = new();
             int n = list.Count, k;
             T value;
 
@@ -202,8 +202,8 @@ namespace Unknown6656.Common
 
         public static (IEnumerable<T> @false, IEnumerable<T> @true) Partition<T>(this IEnumerable<T> coll, Predicate<T> pred)
         {
-            List<T> tl = new List<T>();
-            List<T> fl = new List<T>();
+            List<T> tl = new();
+            List<T> fl = new();
 
             foreach (T t in coll)
                 (pred(t) ? tl : fl).Add(t);
@@ -217,6 +217,21 @@ namespace Unknown6656.Common
                 foreach (U u in coll2)
                     yield return (t, u);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ObservableDictionary<T, U> ToObservableDictionary<T, U>(this IDictionary<T, U> dictionary) where T : notnull => new(dictionary);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ObservableDictionary<T, U> ToObservableDictionary<T, U>(this IEnumerable<KeyValuePair<T, U>> dictionary) where T : notnull =>
+            dictionary.ToDictionary<T, U>().ToObservableDictionary();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ObservableDictionary<T, U> ToObservableDictionary<T, U>(this IEnumerable<Tuple<T, U>> dictionary) where T : notnull =>
+            dictionary.ToDictionary().ToObservableDictionary();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ObservableDictionary<T, U> ToObservableDictionary<T, U>(this IEnumerable<(T, U)> dictionary) where T : notnull =>
+            dictionary.ToDictionary().ToObservableDictionary();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static List<U> ToList<T, U>(this IEnumerable<T> coll, Func<T, U> func) => coll.Select(func).ToList();
@@ -288,6 +303,9 @@ namespace Unknown6656.Common
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Dictionary<T, U> ToDictionary<T, U>(this IEnumerable<Tuple<T, U>> dictionary) where T : notnull => dictionary.ToDictionary(t => t.Item1, t => t.Item2);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Dictionary<T, U> ToDictionary<T, U>(this IEnumerable<(T key, U value)> pairs) where T : notnull => pairs.ToDictionary(fst, snd);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -304,7 +322,7 @@ namespace Unknown6656.Common
         public static IDictionary<T, U> Merge<T, U>(this IEnumerable<IDictionary<T, U>?> dictionaries)
             where T : notnull
         {
-            Dictionary<T, U> result = new Dictionary<T, U>();
+            Dictionary<T, U> result = new();
 
             foreach (IDictionary<T, U>? dic in dictionaries)
                 if (dic is { })

@@ -306,6 +306,9 @@ namespace Unknown6656.Common
         public static Dictionary<T, U> ToDictionary<T, U>(this IEnumerable<Tuple<T, U>> dictionary) where T : notnull => dictionary.ToDictionary(t => t.Item1, t => t.Item2);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Dictionary<T, U> ToDictionary<T, U>(this IEnumerable<KeyValuePair<T, U>> dictionary) where T : notnull => dictionary.ToDictionary(t => t.Key, t => t.Value);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Dictionary<T, U> ToDictionary<T, U>(this IEnumerable<(T key, U value)> pairs) where T : notnull => pairs.ToDictionary(fst, snd);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -70,7 +70,14 @@ namespace Unknown6656.IO
 
         public bool GetBit(ulong index) => (Data[index / 8] & (1 << (int)(index % 8))) != 0;
 
-        public void SetBit(ulong index, bool new_value)
+        public DataStream GetBit(ulong index, out bool bit)
+        {
+            bit = GetBit(index);
+
+            return this;
+        }
+
+        public DataStream SetBit(ulong index, bool new_value)
         {
             byte mask = (byte)(1 << (int)(index % 8));
 
@@ -78,13 +85,15 @@ namespace Unknown6656.IO
                 Data[index / 8] |= mask;
             else
                 Data[index / 8] &= (byte)~mask;
+
+            return this;
         }
 
-        public void SetBit(ulong index, bool new_value, out bool old_value)
+        public DataStream SetBit(ulong index, bool new_value, out bool old_value)
         {
             old_value = GetBit(index);
 
-            SetBit(index, new_value);
+            return SetBit(index, new_value);
         }
 
         public bool FlipBit(ulong index)
@@ -95,6 +104,31 @@ namespace Unknown6656.IO
             data ^= mask;
 
             return (data & mask) != 0;
+        }
+
+        public DataStream FlipBit(ulong index, out bool new_value)
+        {
+            new_value = FlipBit(index);
+
+            return this;
+        }
+
+        public void Transform(Func<byte, byte> transformer_func, bool parallel = true)
+        {
+            if (parallel)
+                Parallel.For(0, Data.LongLength, i => Data[i] = transformer_func(Data[i]));
+            else
+                for (long i = 0; i < Data.LongLength; ++i)
+                    Data[i] = transformer_func(Data[i]);
+        }
+
+        public void Transform(Func<byte, long, byte> transformer_func, bool parallel = true)
+        {
+            if (parallel)
+                Parallel.For(0, Data.LongLength, i => Data[i] = transformer_func(Data[i], i));
+            else
+                for (long i = 0; i < Data.LongLength; ++i)
+                    Data[i] = transformer_func(Data[i], i);
         }
 
         public DataStream Compress(CompressionFunction algorithm) => Data.Compress(algorithm);

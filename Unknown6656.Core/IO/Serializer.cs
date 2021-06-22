@@ -57,6 +57,8 @@ namespace Unknown6656.IO
             IncludeFields = true,
         };
 
+        public static Encoding DefaultDataStreamEncoding = Encoding.Default; // BytewiseEncoding.Instance;
+
 
         public DataStream this[Range range] => Slice(range);
 
@@ -131,6 +133,8 @@ namespace Unknown6656.IO
                     Data[i] = transformer_func(Data[i], i);
         }
 
+        public DataStream ChangeEncoding(Encoding from, Encoding to) => FromString(ToString(from), to);
+
         public DataStream Compress(CompressionFunction algorithm) => Data.Compress(algorithm);
 
         public DataStream Uncompress(CompressionFunction algorithm) => Data.Uncompress(algorithm);
@@ -182,11 +186,11 @@ namespace Unknown6656.IO
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
 
-        public override string ToString() => ToString(BytewiseEncoding.Instance);
+        public override string ToString() => ToString(DefaultDataStreamEncoding);
 
         public string ToString(Encoding encoding) => encoding.GetString(Data);
 
-        public StringBuilder ToStringBuilder() => ToStringBuilder(BytewiseEncoding.Instance);
+        public StringBuilder ToStringBuilder() => ToStringBuilder(DefaultDataStreamEncoding);
 
         public StringBuilder ToStringBuilder(Encoding encoding) => new(ToString(encoding));
 
@@ -222,7 +226,7 @@ namespace Unknown6656.IO
             client.Send(email);
         }
 
-        public string[] ToLines(string separator = "\n") => ToLines(BytewiseEncoding.Instance, separator);
+        public string[] ToLines(string separator = "\n") => ToLines(DefaultDataStreamEncoding, separator);
 
         public string[] ToLines(Encoding enc, string separator = "\n") => ToString(enc).SplitIntoLines(separator);
 
@@ -498,15 +502,15 @@ namespace Unknown6656.IO
             return new UnsafeFunctionPointer(buffer, bytes.Length);
         }
 
-        public INIFile ToINI() => ToINI(BytewiseEncoding.Instance);
+        public INIFile ToINI() => ToINI(DefaultDataStreamEncoding);
 
         public INIFile ToINI(Encoding encoding) => INIFile.FromINIString(ToString(encoding));
 
-        public T ToJSON<T>(JsonSerializerOptions? options = null) => ToJSON<T>(BytewiseEncoding.Instance, options);
+        public T ToJSON<T>(JsonSerializerOptions? options = null) => ToJSON<T>(DefaultDataStreamEncoding, options);
 
         public T ToJSON<T>(Encoding enc, JsonSerializerOptions? options = null) => (T)ToJSON(typeof(T), enc, options)!;
 
-        public object? ToJSON(Type type, JsonSerializerOptions? options = null) => ToJSON(type, BytewiseEncoding.Instance, options);
+        public object? ToJSON(Type type, JsonSerializerOptions? options = null) => ToJSON(type, DefaultDataStreamEncoding, options);
 
         public object? ToJSON(Type type, Encoding enc, JsonSerializerOptions? options = null) => JsonSerializer.Deserialize(ToString(enc), type, options ?? DefaultJSONOptions);
 
@@ -696,23 +700,23 @@ namespace Unknown6656.IO
             return FromBytes(ms.ToArray());
         }
 
-        public static DataStream FromString(object? obj) => FromString(obj, BytewiseEncoding.Instance);
+        public static DataStream FromString(object? obj) => FromString(obj, DefaultDataStreamEncoding);
 
         public static DataStream FromString(object? obj, Encoding enc) => FromString(obj?.ToString() ?? "", enc);
 
-        public static DataStream FromString(string str) => FromString(str, BytewiseEncoding.Instance);
+        public static DataStream FromString(string str) => FromString(str, DefaultDataStreamEncoding);
 
         public static DataStream FromString(string str, Encoding enc) => FromBytes(enc.GetBytes(str));
 
-        public static DataStream FromINI(INISection ini_section) => FromINI(ini_section, BytewiseEncoding.Instance);
+        public static DataStream FromINI(INISection ini_section) => FromINI(ini_section, DefaultDataStreamEncoding);
 
         public static DataStream FromINI(INISection ini_section, Encoding enc) => FromINI(new INIFile() { [string.Empty] = ini_section }, enc);
 
-        public static DataStream FromINI(INIFile ini) => FromINI(ini, BytewiseEncoding.Instance);
+        public static DataStream FromINI(INIFile ini) => FromINI(ini, DefaultDataStreamEncoding);
 
         public static DataStream FromINI(INIFile ini, Encoding enc) => FromString(ini.Serialize(), enc);
 
-        public static DataStream FromObjectAsJSON(object? obj, JsonSerializerOptions? options = null) => FromObjectAsJSON(obj, BytewiseEncoding.Instance, options);
+        public static DataStream FromObjectAsJSON(object? obj, JsonSerializerOptions? options = null) => FromObjectAsJSON(obj, DefaultDataStreamEncoding, options);
 
         public static DataStream FromObjectAsJSON(object? obj, Encoding enc, JsonSerializerOptions? options = null) => FromString(JsonSerializer.Serialize(obj, options ?? DefaultJSONOptions), enc);
 
@@ -727,11 +731,11 @@ namespace Unknown6656.IO
                 );
         }
 
-        public static DataStream FromStringBuilder(StringBuilder sb) => FromStringBuilder(sb, BytewiseEncoding.Instance);
+        public static DataStream FromStringBuilder(StringBuilder sb) => FromStringBuilder(sb, DefaultDataStreamEncoding);
 
         public static DataStream FromStringBuilder(StringBuilder sb, Encoding enc) => FromString(sb.ToString(), enc);
 
-        public static DataStream FromTextLines(IEnumerable<string> lines, string separator = "\n") => FromTextLines(lines, BytewiseEncoding.Instance, separator);
+        public static DataStream FromTextLines(IEnumerable<string> lines, string separator = "\n") => FromTextLines(lines, DefaultDataStreamEncoding, separator);
 
         public static DataStream FromTextLines(IEnumerable<string> lines, Encoding enc, string separator = "\n") => FromString(string.Join(separator, lines), enc);
 

@@ -18,6 +18,7 @@ namespace Unknown6656.Mathematics
 {
     public static partial class MathExtensions
     {
+        private const string BASE_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         public const decimal M_PI = 3.14159265358979323846m;
 
 
@@ -435,6 +436,38 @@ namespace Unknown6656.Mathematics
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bint? Phi(this bint a) => a.PrimeFactorization().ToArray() is { Length: 2 } l ? (bint?)((l[0] - 1) * (l[1] - 1)) : null;
+
+        public static string LongToBase(long value, int target_base)
+        {
+            string @base = BASE_CHARS[..target_base];
+            char[] buffer = new char[Max((int)Ceiling(Log(value + 1, target_base)), 1)];
+            long i = buffer.Length;
+
+            do
+            {
+                buffer[--i] = @base[(int)(value % target_base)];
+                value /= target_base;
+            }
+            while (value > 0);
+
+            return new string(buffer, (int)i, (int)(buffer.Length - i));
+        }
+
+        public static long BaseToLong(string number, int source_base)
+        {
+            string @base = BASE_CHARS[..source_base];
+            int m = number.Length - 1;
+            int n = source_base, x;
+            long result = 0;
+
+            for (int i = 0; i < number.Length; i++)
+            {
+                x = @base.IndexOf(number[i]);
+                result += x * (long)Pow(n, m--);
+            }
+
+            return result;
+        }
 
         public static string ToSuperScript(this Scalar l) => l.ToString().ToSuperScript();
 

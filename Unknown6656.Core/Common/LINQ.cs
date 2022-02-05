@@ -30,6 +30,18 @@ namespace Unknown6656.Common
 #pragma warning restore IDE1006
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static (U e1, U e2) Apply<T, U>(this (T e1, T e2) x, Func<T, U> func) => (func(x.e1), func(x.e2));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static (U e1, U e2, U e3) Apply<T, U>(this (T e1, T e2, T e3) x, Func<T, U> func) => (func(x.e1), func(x.e2), func(x.e3));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static (U e1, U e2, U e3, U e4) Apply<T, U>(this (T e1, T e2, T e3, T e4) x, Func<T, U> func) => (func(x.e1), func(x.e2), func(x.e3), func(x.e4));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static (U e1, U e2, U e3, U e4, U e5) Apply<T, U>(this (T e1, T e2, T e3, T e4, T e5) x, Func<T, U> func) => (func(x.e1), func(x.e2), func(x.e3), func(x.e4), func(x.e5));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] GetEnumValues<T>() where T : Enum => Enum.GetValues(typeof(T)).Cast<object>().ToArray(v => (T)v!);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -200,7 +212,7 @@ namespace Unknown6656.Common
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] Slice<T>(this IEnumerable<T> coll, Range range) => coll.ToArray()[range];
 
-        public static (IEnumerable<T> @false, IEnumerable<T> @true) Partition<T>(this IEnumerable<T> coll, Predicate<T> pred)
+        public static (List<T> @false, List<T> @true) Partition<T>(this IEnumerable<T> coll, Predicate<T> pred)
         {
             List<T> tl = new();
             List<T> fl = new();

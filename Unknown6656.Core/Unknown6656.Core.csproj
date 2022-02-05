@@ -1,9 +1,9 @@
 ﻿<!--<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">-->
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <!--<RuntimeFrameworkVersion>5.0.2</RuntimeFrameworkVersion>-->
-        
+
         <LangVersion>preview</LangVersion>
         <Nullable>enable</Nullable>
         <NullableContextOptions>enable</NullableContextOptions>
@@ -13,7 +13,7 @@
         <RootNamespace>Unknown6656</RootNamespace>
         <OutputPath>$(SolutionDir)bin</OutputPath>
         <DocumentationFile></DocumentationFile>
-        
+
         <DefineConstants>TRACE;DOUBLE_PRECISION</DefineConstants>
         <NoWarn>1701;1702;8652</NoWarn>
 
@@ -36,7 +36,7 @@
         <RepositoryUrl>https://github.com/Unknown6656/Unknown6656.Core</RepositoryUrl>
         <PackageIcon>unknown6656-logo-1024.png</PackageIcon>
         <PackageTags>unknown6656;core;library</PackageTags>
-        
+
         <PackageId>Unknown6656.Core</PackageId>
         <IncludeSymbols>true</IncludeSymbols>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -44,16 +44,16 @@
         <RepositoryType>Git</RepositoryType>
         <Version>$([System.IO.File]::ReadAllText("$(SolutionDir)/version.txt"))</Version>
         <AssemblyVersion>$([System.IO.File]::ReadAllText("$(SolutionDir)/version.txt"))</AssemblyVersion>
-        
+
         <!--<UserSecretsId>e25c8605-a6b4-42e1-9806-2eb3ebe4aa4a</UserSecretsId>-->
     </PropertyGroup>
     <ItemGroup>
-      <Compile Remove="IO\YAMLFile.cs" />
-      <Compile Remove="Mathematics\Geometry\Shape3D.cs" />
+        <Compile Remove="IO\YAMLFile.cs" />
+        <Compile Remove="Mathematics\Geometry\Shape3D.cs" />
     </ItemGroup>
     <ItemGroup>
-      <Content Include="IO\YAMLFile.cs" />
-      <Content Include="Mathematics\Geometry\Shape3D.cs" />
+        <Content Include="IO\YAMLFile.cs" />
+        <Content Include="Mathematics\Geometry\Shape3D.cs" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="SSH.NET" Version="2020.0.1" />
@@ -99,28 +99,28 @@
             <LastGenOutput>Indexer.cs</LastGenOutput>
         </None>
         <None Update="Common\LINQExtensions.tt">
-          <LastGenOutput>LINQExtensions.cs</LastGenOutput>
-          <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>LINQExtensions.cs</LastGenOutput>
+            <Generator>TextTemplatingFileGenerator</Generator>
         </None>
         <None Update="Optimization\LinearEquationSolvers.tt">
-          <Generator>TextTemplatingFileGenerator</Generator>
-          <LastGenOutput>LinearEquationSolvers.cs</LastGenOutput>
+            <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>LinearEquationSolvers.cs</LastGenOutput>
         </None>
         <None Update="Imaging\PhysicalSpectrums.tt">
-          <LastGenOutput>PhysicalSpectrums.cs</LastGenOutput>
-          <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>PhysicalSpectrums.cs</LastGenOutput>
+            <Generator>TextTemplatingFileGenerator</Generator>
         </None>
         <None Update="Imaging\ColorMemberGenerator.tt">
-          <Generator>TextTemplatingFileGenerator</Generator>
-          <LastGenOutput>ColorMemberGenerator.cs</LastGenOutput>
+            <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>ColorMemberGenerator.cs</LastGenOutput>
         </None>
         <None Update="IO/CompressionFunctions.tt">
-          <LastGenOutput>CompressionFunctions.cs</LastGenOutput>
-          <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>CompressionFunctions.cs</LastGenOutput>
+            <Generator>TextTemplatingFileGenerator</Generator>
         </None>
         <None Update="IO/UnsafeFunctionPointer.tt">
-          <Generator>TextTemplatingFileGenerator</Generator>
-          <LastGenOutput>UnsafeFunctionPointer.cs</LastGenOutput>
+            <Generator>TextTemplatingFileGenerator</Generator>
+            <LastGenOutput>UnsafeFunctionPointer.cs</LastGenOutput>
         </None>
         <None Update="Function/Polynomial.Extensions.tt">
             <Generator>TextTemplatingFileGenerator</Generator>
@@ -154,14 +154,14 @@
             <DependentUpon>LINQExtensions.tt</DependentUpon>
         </Compile>
         <Compile Update="Common\Currying - Copy.cs">
-          <DependentUpon>Currying.tt</DependentUpon>
-          <DesignTime>True</DesignTime>
-          <AutoGen>True</AutoGen>
+            <DependentUpon>Currying.tt</DependentUpon>
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
         </Compile>
         <Compile Update="Optimization\LinearEquationSolvers.cs">
-          <DesignTime>True</DesignTime>
-          <AutoGen>True</AutoGen>
-          <DependentUpon>LinearEquationSolvers.tt</DependentUpon>
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>LinearEquationSolvers.tt</DependentUpon>
         </Compile>
         <Compile Update="Function/Polynomial.Extensions.cs">
             <DesignTime>True</DesignTime>
@@ -174,49 +174,49 @@
             <DependentUpon>Indexer.tt</DependentUpon>
         </Compile>
         <Compile Update="Imaging\ColorMemberGenerator.cs">
-          <DesignTime>True</DesignTime>
-          <AutoGen>True</AutoGen>
-          <DependentUpon>ColorMemberGenerator.tt</DependentUpon>
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>ColorMemberGenerator.tt</DependentUpon>
         </Compile>
         <Compile Update="Imaging\PhysicalSpectrums.cs">
-          <DesignTime>True</DesignTime>
-          <AutoGen>True</AutoGen>
-          <DependentUpon>PhysicalSpectrums.tt</DependentUpon>
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>PhysicalSpectrums.tt</DependentUpon>
         </Compile>
         <Compile Update="IO/CompressionFunctions.cs">
-          <DesignTime>True</DesignTime>
-          <AutoGen>True</AutoGen>
-          <DependentUpon>CompressionFunctions.tt</DependentUpon>
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>CompressionFunctions.tt</DependentUpon>
         </Compile>
         <Compile Update="IO/UnsafeFunctionPointer.cs">
-          <DesignTime>True</DesignTime>
-          <AutoGen>True</AutoGen>
-          <DependentUpon>UnsafeFunctionPointer.tt</DependentUpon>
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>UnsafeFunctionPointer.tt</DependentUpon>
         </Compile>
         <Compile Update="Mathematics/Analysis/Polynomial.Extensions.cs">
-          <DesignTime>True</DesignTime>
-          <AutoGen>True</AutoGen>
-          <DependentUpon>Polynomial.Extensions.tt</DependentUpon>
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Polynomial.Extensions.tt</DependentUpon>
         </Compile>
         <Compile Update="Mathematics/Cryptography/HashFunctions.cs">
-          <DesignTime>True</DesignTime>
-          <AutoGen>True</AutoGen>
-          <DependentUpon>HashFunctions.tt</DependentUpon>
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>HashFunctions.tt</DependentUpon>
         </Compile>
         <Compile Update="Mathematics/LinearAlgebra/Matrix.cs">
-          <DesignTime>True</DesignTime>
-          <AutoGen>True</AutoGen>
-          <DependentUpon>Matrix.tt</DependentUpon>
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Matrix.tt</DependentUpon>
         </Compile>
         <Compile Update="Mathematics/LinearAlgebra/Vector.cs">
-          <DesignTime>True</DesignTime>
-          <AutoGen>True</AutoGen>
-          <DependentUpon>Vector.tt</DependentUpon>
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Vector.tt</DependentUpon>
         </Compile>
         <Compile Update="Mathematics/LinearAlgebra/VectorSpace.cs">
-          <DesignTime>True</DesignTime>
-          <AutoGen>True</AutoGen>
-          <DependentUpon>VectorSpace.tt</DependentUpon>
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>VectorSpace.tt</DependentUpon>
         </Compile>
     </ItemGroup>
 </Project>

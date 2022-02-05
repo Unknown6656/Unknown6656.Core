@@ -10,6 +10,37 @@
 <#@ output extension=".cs" #>
 <#
     var colors = typeof(Color).GetProperties(BindingFlags.Static | BindingFlags.Public).Select(p => (hex: ((Color)p.GetValue(null)).ToArgb().ToString("x8"), name: p.Name)).ToList();
+
+    colors.AddRange(new[] {
+        (2000, 15, 4020, "FF9BB7D4"),
+        (2001, 17, 203, "FFC74375"),
+        (2002, 19, 166, "FFBF1932"),
+        (2003, 14, 481, "FF7BC4C4"),
+        (2004, 17, 145, "FFE2583E"),
+        (2005, 15, 5217, "FF53B0AE"),
+        (2006, 13, 1106, "FFDECDBE"),
+        (2007, 19, 1557, "FF9B1B30"),
+        (2008, 18, 3943, "FF5A5B9F"),
+        (2009, 14, 0848, "FFF0C05A"),
+        (2010, 15, 5519, "FF45B5AA"),
+        (2011, 18, 2120, "FFD94F70"),
+        (2012, 17, 1463, "FFDD4124"),
+        (2013, 17, 5641, "FF009473"),
+        (2014, 18, 3224, "FFB163A3"),
+        (2015, 18, 1438, "FF955251"),
+        (2016, 13, 1520, "FFF7CAC9"),
+        (2017, 15, 0343, "FF88B04B"),
+        (2018, 18, 3838, "FF5F4B8B"),
+        (2019, 16, 1546, "FFFF6F61"),
+        (2020, 19, 4052, "FF0F4C81"),
+        (2021, 17, 5104, "FF939597"),
+    }.SelectMany(t => new[] {
+        (t.Item4, "Pantone" + t.Item1),
+        (t.Item4, $"Pantone_{t.Item2}_{t.Item3}"),
+    }));
+    colors.Add(("FF92A8D1", "Pantone_15_3919"));
+    colors.Add(("FFF5DF4D", "Pantone_13_0647"));
+
     var members = new string[]
     {
         @"public readonly double Average => ($R + $G + $B) / 3;",

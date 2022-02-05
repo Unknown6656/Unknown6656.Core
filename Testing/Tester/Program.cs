@@ -31,6 +31,9 @@ namespace Testing
         public static void Main(string[] args)
         {
             Console.OutputEncoding = Encoding.UTF8;
+            Console.WriteLine("bücher".ToPunycode());
+
+
 
 
             using var plotter = new FunctionPlotterControl<CartesianFunctionPlotter<ScalarFunction>>()

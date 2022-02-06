@@ -2,6 +2,10 @@
 
 namespace Unknown6656
 {
+    /// <summary>
+    /// A generic data type for boxing and unboxing <see langword="struct"/>s.
+    /// </summary>
+    /// <typeparam name="T">The <see langword="struct"/>'s generic type.</typeparam>
     public sealed class Box<T>
         : IEquatable<Box<T>>
         where T : struct

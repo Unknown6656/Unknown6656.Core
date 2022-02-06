@@ -60,6 +60,7 @@
         <PackageReference Include="System.Drawing.Common" Version="6.0.2-mauipre.1.22054.8" />
         <PackageReference Include="System.Drawing.Primitives" Version="4.3.0" />
         <PackageReference Include="Unknown6656.DiscriminatedUnions" Version="1.0.0" />
+        <PackageReference Include="Unknown6656.IndexableProperties" Version="1.0.0" />
     </ItemGroup>
     <ItemGroup>
         <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
@@ -90,14 +91,6 @@
         </None>
     </ItemGroup>-->
     <ItemGroup>
-        <None Update="Common/Currying.tt">
-            <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>LINQExtensions.cs</LastGenOutput>
-        </None>
-        <None Update="Common/Indexer.tt">
-            <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>Indexer.cs</LastGenOutput>
-        </None>
         <None Update="Common\LINQExtensions.tt">
             <LastGenOutput>LINQExtensions.cs</LastGenOutput>
             <Generator>TextTemplatingFileGenerator</Generator>
@@ -148,11 +141,6 @@
         </None>
     </ItemGroup>
     <ItemGroup>
-        <Compile Update="Common\LINQExtensions.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>LINQExtensions.tt</DependentUpon>
-        </Compile>
         <Compile Update="Common\Currying - Copy.cs">
             <DependentUpon>Currying.tt</DependentUpon>
             <DesignTime>True</DesignTime>
@@ -167,11 +155,6 @@
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
             <DependentUpon>Polynomial.Extensions.tt</DependentUpon>
-        </Compile>
-        <Compile Update="Common/Indexer.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>Indexer.tt</DependentUpon>
         </Compile>
         <Compile Update="Imaging\ColorMemberGenerator.cs">
             <DesignTime>True</DesignTime>

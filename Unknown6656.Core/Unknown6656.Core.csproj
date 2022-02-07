@@ -68,28 +68,6 @@
     <ItemGroup>
         <None Include="unknown6656-logo-1024.png" Pack="true" PackagePath="" />
     </ItemGroup>
-    <!--<ItemGroup>
-        <None Include="Common/Currying.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>Currying.tt</DependentUpon>
-        </None>
-        <None Include="Common/Indexer.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>Indexer.tt</DependentUpon>
-        </None>
-        <None Include="Imaging/Colors.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>Colors.tt</DependentUpon>
-        </None>
-        <None Include="IO/UnsafeFunctionPointer.cs">
-          <DesignTime>True</DesignTime>
-          <AutoGen>True</AutoGen>
-          <DependentUpon>UnsafeFunctionPointer.tt</DependentUpon>
-        </None>
-    </ItemGroup>-->
     <ItemGroup>
         <None Update="Common\LINQExtensions.tt">
             <LastGenOutput>LINQExtensions.cs</LastGenOutput>
@@ -141,11 +119,6 @@
         </None>
     </ItemGroup>
     <ItemGroup>
-        <Compile Update="Common\Currying - Copy.cs">
-            <DependentUpon>Currying.tt</DependentUpon>
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-        </Compile>
         <Compile Update="Optimization\LinearEquationSolvers.cs">
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>

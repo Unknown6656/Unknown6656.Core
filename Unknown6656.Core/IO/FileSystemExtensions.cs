@@ -9,6 +9,9 @@ namespace Unknown6656.IO
 {
     public static unsafe class FileSystemExtensions
     {
+        // TODO : all extensions from 'tabbedexplorer'
+
+
         public static string GetShortPath(string path)
         {
             StringBuilder sb = new StringBuilder(256);

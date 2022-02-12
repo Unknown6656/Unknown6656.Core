@@ -2,6 +2,7 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net5</TargetFramework>
+        <EnablePreviewFeatures>True</EnablePreviewFeatures>
         <LangVersion>preview</LangVersion>
         <PlatformTarget>x64</PlatformTarget>
         <OutputPath>$(SolutionDir)tests</OutputPath>

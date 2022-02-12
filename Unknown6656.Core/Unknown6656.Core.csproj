@@ -5,6 +5,7 @@
         <!--<RuntimeFrameworkVersion>5.0.2</RuntimeFrameworkVersion>-->
 
         <LangVersion>preview</LangVersion>
+        <EnablePreviewFeatures>True</EnablePreviewFeatures>
         <Nullable>enable</Nullable>
         <NullableContextOptions>enable</NullableContextOptions>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

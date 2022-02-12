@@ -75,7 +75,7 @@ public class COMObject
         }
     }
 
-    public override bool TrySetMember(SetMemberBinder binder, object? value) => FunctionExtensions.TryDo(() =>
+    public override bool TrySetMember(SetMemberBinder binder, object? value) => LINQ.TryDo(() =>
     {
         Type.InvokeMember(
             binder.Name,

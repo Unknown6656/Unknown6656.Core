@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Unknown6656.Mathematics.Statistics
+﻿namespace Unknown6656.Mathematics.Statistics
 {
     // TODO
 

@@ -10,7 +10,6 @@ using System.Text;
 using System;
 
 using Unknown6656.Generics;
-using Unknown6656.Common;
 
 namespace Unknown6656.Mathematics.Graphs;
 

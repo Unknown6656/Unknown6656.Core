@@ -1,11 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Drawing.Imaging;
+﻿using System.Drawing.Imaging;
 using System.Drawing;
-using System.Text;
-using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
-using Unknown6656.Mathematics.Analysis;
 
 
 namespace Unknown6656.Imaging

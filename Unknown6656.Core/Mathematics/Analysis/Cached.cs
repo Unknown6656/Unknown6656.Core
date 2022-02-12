@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 
-using Unknown6656.Common;
-
 using static System.Math;
 
 namespace Unknown6656.Mathematics.Analysis

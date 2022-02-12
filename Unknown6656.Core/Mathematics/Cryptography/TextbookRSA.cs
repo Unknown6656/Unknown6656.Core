@@ -1,11 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Numerics;
-using System.Text;
-using System;
+﻿using System.Threading.Tasks;
 
 using Unknown6656.Mathematics.LinearAlgebra;
-using Unknown6656.Mathematics.Numerics;
 
 using bint = System.Numerics.BigInteger;
 

@@ -6,7 +6,6 @@ using System;
 
 using Unknown6656.Mathematics.Numerics;
 using Unknown6656.Mathematics.Analysis;
-using Unknown6656.Common;
 
 using bint = System.Numerics.BigInteger;
 

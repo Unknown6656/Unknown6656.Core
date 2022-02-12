@@ -1,15 +1,9 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Collections.Generic;
-using System.Collections;
-using System.Linq;
 using System;
 
 using Unknown6656.Mathematics.Analysis;
-using Unknown6656.Mathematics.Numerics;
-using Unknown6656.Mathematics.Graphs;
 using Unknown6656.IO;
-
-using static System.Math;
 
 namespace Unknown6656.Common;
 

@@ -19,7 +19,6 @@ using System;
 
 using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Generics;
-using Unknown6656.Common;
 
 
 // TODO : Use C# 10's abstract static !!

@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Text;
-using System;
-
-
-namespace Unknown6656.Mathematics.Graphs.Computation
+﻿namespace Unknown6656.Mathematics.Graphs.Computation
 {
     public delegate TuringAction DeterministicTouringDelegate<S, I, O>(S old_state, I input, out S new_state, out O output);
 

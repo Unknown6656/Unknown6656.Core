@@ -5,7 +5,6 @@ using System.Linq;
 using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
-using Unknown6656.Common;
 
 
 namespace Unknown6656.Mathematics.Analysis

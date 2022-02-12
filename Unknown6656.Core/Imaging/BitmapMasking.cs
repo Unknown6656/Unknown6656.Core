@@ -6,9 +6,7 @@ using System.Linq;
 using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
-using Unknown6656.Mathematics.Analysis;
 //using Unknown6656.Mathematics.Geometry;
-using Unknown6656.Common;
 using Unknown6656.Mathematics.Statistics;
 
 namespace Unknown6656.Imaging

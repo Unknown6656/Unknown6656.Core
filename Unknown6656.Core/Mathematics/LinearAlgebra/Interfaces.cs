@@ -19,6 +19,8 @@ using System;
 
 using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Generics;
+using System.Runtime.Serialization;
+using System.Xml;
 
 namespace Unknown6656.Mathematics.LinearAlgebra;
 
@@ -75,6 +77,16 @@ public unsafe interface INative<@this>
     static abstract T FromArray<T>(T[] arr) where T : unmanaged;
 }
 
+public interface ISerializable<@this>
+    : INative<@this>
+    , IDisplayable
+    , ISerializable
+    , IDeserializationCallback
+    where @this : unmanaged, ISerializable<@this>
+{
+    // TODO
+}
+
 /// <summary>
 /// Represents an interface containing basic equality comparison methods
 /// </summary>
@@ -104,6 +116,10 @@ public interface IEquality<Object>
 
     /// <inheritdoc/>
     int IStructuralEquatable.GetHashCode(IEqualityComparer comparer) => comparer.GetHashCode(this);
+
+    static abstract bool operator ==(Object first, Object second);
+
+    static abstract bool operator !=(Object first, Object second);
 }
 
 public interface IGroup
@@ -124,13 +140,10 @@ public interface IGroup
 #endif
 }
 
-/// <summary>
-/// Represents an abstract algebraic group, which defines a zero element (<see cref="ZeroElement"/>), which is neutral towards addition.
-/// The group further defines the notion of nullability and the addition itself.
-/// </summary>
 public interface INumericIGroup<Group>
     : IGroup
     , IEquality<Group>
+  //, IAdditionOperators<Group, Group, Group>
     where Group : INumericIGroup<Group>
 {
     /// <summary>
@@ -139,6 +152,7 @@ public interface INumericIGroup<Group>
     /// This is therefore euqal to "<see cref="Group"/>.Zero" or "<see cref="Group"/>.Null".
     /// </summary>
     public static abstract Group? ZeroElement { get; }
+    //[DebuggerHidden, DebuggerNonUserCode, DebuggerBrowsable(DebuggerBrowsableState.Never), EditorBrowsable(EditorBrowsableState.Never)]
     //public static Group? ZeroElement { get; } = (from p in typeof(Group).GetProperties(BindingFlags.Public | BindingFlags.Static)
     //                                             where p.DeclaringType != typeof(INumericIGroup<Group>)
     //                                             where p.Name.ToLowerInvariant() is "zero" or "null" or "nullelement" or "zeroelement"
@@ -166,10 +180,12 @@ public interface INumericIGroup<Group>
 #else
         ;
 #endif
+
+    static abstract Group operator +(Group first, Group second);
 }
 
 /// <summary>
-/// Represents an algebraic group containing a zero element, a notion of addition, and a notion of additive inversibility.
+/// Represents an algebraic group containing a zero element (<see cref="ZeroElement"/>), the notion of addition, and a notion of additive inversibility.
 /// </summary>
 /// <typeparam name="Group">Generic group data type</typeparam>
 public interface IGroup<Group>
@@ -212,6 +228,12 @@ public interface IGroup<Group>
 #else
         ;
 #endif
+
+    static abstract Group operator +(Group group);
+
+    static abstract Group operator -(Group group);
+
+    static abstract Group operator -(Group first, Group second);
 }
 
 public interface IRing
@@ -240,20 +262,17 @@ public interface IRing<Ring>
     , IGroup<Ring>
     where Ring : IRing<Ring>
 {
-#if DEFAULT_IMPL
     /// <summary>
-    /// Returns the groups's one instance based upon the presence of a static member "One", "Unit" or "Identity".
-    /// <br/>
-    /// This is therefore euqal to "<see cref="Group"/>.One", "<see cref="Group"/>.Unit" or "<see cref="Group"/>.Identity".
+    /// Returns the ring's one element. The element is neutral towards the ring's multiplication.
     /// </summary>
-    [DebuggerHidden, DebuggerNonUserCode, DebuggerBrowsable(DebuggerBrowsableState.Never), EditorBrowsable(EditorBrowsableState.Never)]
-    Ring OneElement => (from p in GetType().GetProperties(BindingFlags.Public | BindingFlags.Static)
-                        where p.Name == "One"
-                           || p.Name == "Identity"
-                           || p.Name == "Unit"
-                        where typeof(IRing<Ring>).IsAssignableFrom(p.PropertyType)
-                        select (Ring)p.GetValue(null)).FirstOrDefault();
+    public static abstract Ring? OneElement { get; }
+    //[DebuggerHidden, DebuggerNonUserCode, DebuggerBrowsable(DebuggerBrowsableState.Never), EditorBrowsable(EditorBrowsableState.Never)]
+    //Ring OneElement => (from p in GetType().GetProperties(BindingFlags.Public | BindingFlags.Static)
+    //                    where p.Name.ToLowerInvariant() is "one" or "identity" or "unit" or "oneelement" or "unitelement"
+    //                    where typeof(IRing<Ring>).IsAssignableFrom(p.PropertyType)
+    //                    select (Ring)p.GetValue(null)).FirstOrDefault();
 
+#if DEFAULT_IMPL
     /// <summary>
     /// Indicates whether the current instance is equal to the one element.
     /// </summary>
@@ -280,7 +299,6 @@ public interface IRing<Ring>
     /// Increments the current instance by one and returns the result. The current instance will not be modified.
     /// </summary>
     /// <returns>Incremented value</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     Ring Increment()
 #if DEFAULT_IMPL
         => Add(OneElement);
@@ -292,7 +310,6 @@ public interface IRing<Ring>
     /// Decrements the current instance by one and returns the result. The current instance will not be modified.
     /// </summary>
     /// <returns>Decremented value</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     Ring Decrement()
 #if DEFAULT_IMPL
         => Subtract(OneElement);
@@ -320,6 +337,12 @@ public interface IRing<Ring>
 #else
         ;
 #endif
+
+    static abstract Ring operator ++(Ring ring);
+
+    static abstract Ring operator --(Ring ring);
+
+    static abstract Ring operator *(Ring first, Ring second);
 }
 
 public interface IField
@@ -352,7 +375,6 @@ public interface IField<Field>
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Division result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     Field Divide(in Field second)
 #if DEFAULT_IMPL
         => Multiply(second.MultiplicativeInverse);
@@ -370,6 +392,10 @@ public interface IField<Field>
 #else
         ;
 #endif
+
+    static abstract Field operator /(Field first, Field second);
+
+    static abstract Field operator %(Field first, Field second);
 }
 
 public interface INumericRing<Field>
@@ -388,7 +414,6 @@ public interface INumericRing<Field>
     /// </summary>
     /// <param name="second">Second scalar</param>
     /// <returns>Minimum of both scalar values</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     Field Min(Field second)
 #if DEFAULT_IMPL
         => CompareTo(second) <= 0 ? (Field)this : second;
@@ -401,7 +426,6 @@ public interface INumericRing<Field>
     /// </summary>
     /// <param name="second">Second scalar</param>
     /// <returns>Maximum of both scalar values</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     Field Max(Field second)
 #if DEFAULT_IMPL
         => CompareTo(second) >= 0 ? (Field)this : second;
@@ -409,7 +433,6 @@ public interface INumericRing<Field>
         ;
 #endif
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     Field Clamp()
 #if DEFAULT_IMPL
         => Clamp(ZeroElement, OneElement);
@@ -417,7 +440,6 @@ public interface INumericRing<Field>
         ;
 #endif
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     Field Clamp(Field low, Field high)
 #if DEFAULT_IMPL
         => Max(low).Min(high);
@@ -454,7 +476,6 @@ public interface INumericScalar<Field>
         { get; }
 #endif
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     (Field P, Field Q)? DecomposePQ(Field phi);
 }
 
@@ -469,6 +490,17 @@ public interface IScalar<Field>
     , IComparable<Field>
     where Field : IScalar<Field>
 {
+    static abstract Field NaN { get; }
+
+    static abstract Field NegativeInfinity { get; }
+
+    static abstract Field PositiveInfinity { get; }
+
+    static abstract Field MinValue { get; }
+
+    static abstract Field MaxValue { get; }
+
+
     int Sign
 #if DEFAULT_IMPL
          => CompareTo(Subtract((Field)this));
@@ -586,7 +618,6 @@ public static class Algebra<Scalar>
         /// </summary>
         /// <param name="factor">Scalar factor</param>
         /// <returns>Division result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         Vector Divide(Scalar factor)
 #if DEFAULT_IMPL
             => Multiply(factor.MultiplicativeInverse);
@@ -594,15 +625,24 @@ public static class Algebra<Scalar>
             ;
 #endif
 
+        Vector Modulus(Scalar factor);
+
         bool IsLinearDependant(in Vector other, out Scalar? factor);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         Vector LinearInterpolate(in Vector other, Scalar factor)
 #if DEFAULT_IMPL
             => Multiply(factor.OneElement.Subtract(factor)).Add(other.Multiply(factor));
 #else
             ;
 #endif
+
+        static abstract Vector operator *(Scalar scalar, Vector vector);
+
+        static abstract Vector operator *(Vector vector, Scalar scalar);
+
+        static abstract Vector operator /(Vector vector, Scalar scalar);
+
+        static abstract Vector operator %(Vector vector, Scalar scalar);
     }
 
     public interface IComposite
@@ -647,7 +687,7 @@ public static class Algebra<Scalar>
         /// <summary>
         /// The sum of the coefficients.
         /// </summary>
-        Scalar Sum
+        Scalar CoefficientSum
 #if DEFAULT_IMPL
              => Coefficients.Aggregate(new Scalar().ZeroElement, (a, b) => a.Add(b));
 #else
@@ -657,7 +697,7 @@ public static class Algebra<Scalar>
         /// <summary>
         /// The average of the coefficients.
         /// </summary>
-        Scalar Avg
+        Scalar CoefficientAvg
 #if DEFAULT_IMPL
              => Sum.Divide(Dimension);
 #else
@@ -667,7 +707,7 @@ public static class Algebra<Scalar>
         /// <summary>
         /// The minimum value of the coefficients.
         /// </summary>
-        Scalar Min
+        Scalar CoefficientMin
 #if DEFAULT_IMPL
              => Coefficients.OrderBy(Generics.id).FirstOrDefault();
 #else
@@ -677,7 +717,7 @@ public static class Algebra<Scalar>
         /// <summary>
         /// The maximum value of the coefficients.
         /// </summary>
-        Scalar Max
+        Scalar CoefficientMax
 #if DEFAULT_IMPL
             => Coefficients.OrderByDescending(Generics.id).FirstOrDefault();
 #else
@@ -784,7 +824,6 @@ public static class Algebra<Scalar>
         /// </summary>
         /// <param name="second">Second vector</param>
         /// <returns>Dot product</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         Scalar Dot(in Vector second)
 #if DEFAULT_IMPL
              => ComponentwiseMultiply(second).Sum;
@@ -799,7 +838,6 @@ public static class Algebra<Scalar>
         /// </summary>
         /// <param name="second">Second vector</param>
         /// <returns>Orthogonality check result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         bool IsOrthogonal(in Vector second)
 #if DEFAULT_IMPL
              => Dot(second).IsZero;
@@ -812,7 +850,6 @@ public static class Algebra<Scalar>
         /// </summary>
         /// <param name="normal">Normal vector</param>
         /// <returns>Reflected vector</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         Vector Reflect(in Vector normal)
 #if DEFAULT_IMPL
         {
@@ -833,7 +870,6 @@ public static class Algebra<Scalar>
         /// <param name="eta">Ratio of refractive indices</param>
         /// <param name="refracted">Refracted (or reflected) vector</param>
         /// <returns>Total reflection indicator</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         bool Refract(in Vector normal, Scalar eta, out Vector refracted)
 #if DEFAULT_IMPL
         {
@@ -849,6 +885,8 @@ public static class Algebra<Scalar>
 #else
             ;
 #endif
+
+        static abstract Scalar operator*(Vector first, Vector second);
     }
 
     public interface IMetricVectorSpace
@@ -889,22 +927,12 @@ public static class Algebra<Scalar>
         /// Returns the squared norm of the current vector. This is computed using the dot product with itself.
         /// </summary>
         Scalar SquaredNorm
-#if DEFAULT_IMPL
-             => Dot((Vector)this);
-#else
+#if !DEFAULT_IMPL
             { get; }
-#endif
+#else
+           => Dot((Vector)this);
 
-#if false
-        /// <summary>
-        /// Returns the metric length of the current vector.
-        /// </summary>
-        Scalar Length
-#if DEFAULT_IMPL
-            => SquaredNorm.Sqrt();
-#else
-            { get; }
-#endif
+        Scalar IMetricVectorSpace.Length => SquaredNorm.Sqrt();
 #endif
 
         /// <summary>
@@ -922,7 +950,6 @@ public static class Algebra<Scalar>
         /// </summary>
         /// <param name="second">Second vector</param>
         /// <returns>Distance</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         Scalar DistanceTo(in Vector second)
 #if DEFAULT_IMPL
              => Subtract(second).Length;
@@ -938,7 +965,6 @@ public static class Algebra<Scalar>
         /// Returns the array representation of the vector.
         /// </summary>
         /// <returns>Flat array representation</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         Scalar[] ToArray()
 #if DEFAULT_IMPL
               => Coefficients;
@@ -957,6 +983,8 @@ public static class Algebra<Scalar>
         // TODO : c-wise clamp
         // TODO : swap
         // TODO : set
+
+        static abstract Vector FromArray(Scalar[] coefficients);
     }
 
     public interface IVector<Vector, Matrix>
@@ -1009,7 +1037,6 @@ public static class Algebra<Scalar>
         /// <param name="y">Second vector</param>
         /// <param name="z">Third vector</param>
         /// <returns>Triple product</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         Scalar TripleProduct(in Vector y, in Vector z)
 #if DEFAULT_IMPL
             => Dot(y.Cross(z));
@@ -1135,6 +1162,9 @@ public static class Algebra<Scalar>
         /// The transposed matrix.
         /// </summary>
         Matrix Transposed { get; }
+
+
+        static abstract Matrix FromArray(Scalar[] coefficients);
     }
 
     public interface IMatrix<Vector, Matrix>
@@ -1224,7 +1254,6 @@ public static class Algebra<Scalar>
         /// <param name="row">Zero-based row index</param>
         /// <param name="factor">Scalar multiplication factor</param>
         /// <returns>Modified matrix</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         Matrix MultiplyRow(int row, Scalar factor)
 #if DEFAULT_IMPL
              => SetRow(row, GetRow(row).Multiply(factor));
@@ -1238,7 +1267,6 @@ public static class Algebra<Scalar>
         /// <param name="src_row">Zero-based first row index</param>
         /// <param name="dst_row">Zero-based second row index</param>
         /// <returns>Modified matrix</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         Matrix SwapRows(int src_row, int dst_row)
 #if DEFAULT_IMPL
         {
@@ -1257,7 +1285,6 @@ public static class Algebra<Scalar>
         /// <param name="src_row">Zero-based source row index</param>
         /// <param name="dst_row">Zero-based destination row index</param>
         /// <returns>Modified matrix</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         Matrix AddRows(int src_row, int dst_row)
 #if DEFAULT_IMPL
              => AddRows(src_row, dst_row, new Scalar().OneElement);
@@ -1272,7 +1299,6 @@ public static class Algebra<Scalar>
         /// <param name="dst_row">Zero-based destination row index</param>
         /// <param name="factor">Scalar factor</param>
         /// <returns>Modified matrix</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         Matrix AddRows(int src_row, int dst_row, Scalar factor)
 #if DEFAULT_IMPL
             => SetRow(dst_row, GetRow(src_row).Multiply(factor).Add(GetRow(dst_row)));
@@ -1286,7 +1312,6 @@ public static class Algebra<Scalar>
         /// <param name="col">Zero-based column index</param>
         /// <param name="factor">Scalar factor</param>
         /// <returns>Modified matrix</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         Matrix MultiplyColumn(int col, Scalar factor)
 #if DEFAULT_IMPL
             => this[col, this[col].Multiply(factor)];
@@ -1300,7 +1325,6 @@ public static class Algebra<Scalar>
         /// <param name="src_col">Zero-based first column index</param>
         /// <param name="dst_col">Zero-based second column index</param>
         /// <returns>Modified matrix</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         Matrix SwapColumns(int src_col, int dst_col)
 #if DEFAULT_IMPL
         {
@@ -1318,7 +1342,6 @@ public static class Algebra<Scalar>
         /// <param name="src_col">Zero-based source coulmn index</param>
         /// <param name="dst_col">Zero-based destination column index</param>
         /// <returns>Modified matrix</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         Matrix AddColumns(int src_col, int dst_col)
 #if DEFAULT_IMPL
              => AddColumns(src_col, dst_col, new Scalar().OneElement);
@@ -1333,7 +1356,6 @@ public static class Algebra<Scalar>
         /// <param name="dst_col">Zero-based destination column index</param>
         /// <param name="factor">Scalar factor</param>
         /// <returns>Modified matrix</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         Matrix AddColumns(int src_col, int dst_col, Scalar factor)
 #if DEFAULT_IMPL
              => this[dst_col, this[src_col].Multiply(factor).Add(this[dst_col])];
@@ -1394,7 +1416,6 @@ public static class Algebra<Scalar, Poly>
 public sealed class ClosenessComparer<Scalar>
     : IEqualityComparer<Scalar>
     where Scalar : unmanaged, IField<Scalar>, IComparable<Scalar>
-
 {
     public Scalar Delta { get; }
 
@@ -1408,14 +1429,12 @@ public sealed class ClosenessComparer<Scalar>
 
 public static class InterfaceExtensions
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T ToRing<T>(this int i) where T : unmanaged, IRing<T> => i switch
     {
         >= 0 => default(T).ApplyRecursively(e => e.Increment(), i),
         _ => default(T).ApplyRecursively(e => e.Decrement(), -i)
     };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ToInt<T>(this T r) where T : unmanaged, IRing<T>, IComparable<T>
     {
         T zero = default;
@@ -1436,32 +1455,23 @@ public static class InterfaceExtensions
         return v;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Constrain<T>(this T scalar, T min, T max) where T : unmanaged, INumericRing<T> => scalar.Min(max).Max(min);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Map<T>(this T scalar, (T lower, T upper) from, (T lower, T upper) to) where T : unmanaged, IField<T> =>
         scalar.Subtract(from.lower).Divide(from.upper.Subtract(from.lower)).Multiply(to.upper.Subtract(to.lower)).Add(to.lower);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T ConstrainMap<T>(this T scalar, (T lower, T upper) from, (T lower, T upper) to) where T : unmanaged, IField<T>, INumericRing<T> => scalar.Constrain(from.lower, from.upper).Map(from, to);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Product<T>(this IEnumerable<T> scalars) where T : unmanaged, IRing<T> => scalars.Aggregate(default(T).Increment(), (s1, s2) => s1.Multiply(s2));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Sum<T>(this IEnumerable<T>? scalars) where T : unmanaged, IRing<T> => scalars?.Aggregate(default(T), (s1, s2) => s1.Add(s2)) ?? T.ZeroElement;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Min<T>(this IEnumerable<T> scalars) where T : unmanaged, INumericRing<T> => scalars.AggregateNonEmpty((s, a) => s.Min(a));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Max<T>(this IEnumerable<T> scalars) where T : unmanaged, INumericRing<T> => scalars.AggregateNonEmpty((s, a) => s.Max(a));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static T Average<T>(this IEnumerable<T>? scalars) where T : unmanaged, IField<T> => scalars?.ToArray() is T[] arr ? arr.Sum().Divide(arr.Length.ToRing<T>()) : IRing<T>.ZeroElement;
+    public static T Average<T>(this IEnumerable<T>? scalars) where T : unmanaged, IField<T> => scalars?.ToArray() is T[] arr ? arr.Sum().Divide(arr.Length.ToRing<T>()) : T.ZeroElement;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Variance<T>(this IEnumerable<T>? scalars)
         where T : unmanaged, IField<T>
     {
@@ -1470,31 +1480,22 @@ public static class InterfaceExtensions
         return scalars.Sum(x => x.Subtract(avg).Power(2));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T StandardDeviation<T>(this IEnumerable<T>? scalars) where T : unmanaged, IScalar<T> => scalars.Variance().Sqrt();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static U Product<T, U>(this IEnumerable<T> scalars, Func<T, U> selector) where U : unmanaged, IRing<U> => scalars.Select(selector).Product();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static U Sum<T, U>(this IEnumerable<T>? scalars, Func<T, U> selector) where U : unmanaged, IRing<U> => scalars?.Select(selector).Sum() ?? IRing<U>.ZeroElement;
+    public static U Sum<T, U>(this IEnumerable<T>? scalars, Func<T, U> selector) where U : unmanaged, IRing<U> => scalars?.Select(selector).Sum() ?? U.ZeroElement;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static U Min<T, U>(this IEnumerable<T> scalars, Func<T, U> selector) where U : unmanaged, INumericRing<U> => scalars.Select(selector).Min();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static U Max<T, U>(this IEnumerable<T> scalars, Func<T, U> selector) where U : unmanaged, INumericRing<U> => scalars.Select(selector).Max();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static U Average<T, U>(this IEnumerable<T>? scalars, Func<T, U> selector) where U : unmanaged, IField<U> => scalars?.Select(selector)?.Average() ?? IRing<U>.ZeroElement;
+    public static U Average<T, U>(this IEnumerable<T>? scalars, Func<T, U> selector) where U : unmanaged, IField<U> => scalars?.Select(selector)?.Average() ?? U.ZeroElement;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static U Median<T, U>(this IEnumerable<T> scalars, Func<T, U> selector) where U : unmanaged, IComparable<U> => scalars.Select(selector).Median();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static U Variance<T, U>(this IEnumerable<T> scalars, Func<T, U> selector) where U : unmanaged, IField<U> => scalars.Select(selector).Variance();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static U StandardDeviation<T, U>(this IEnumerable<T> scalars, Func<T, U> selector) where U : unmanaged, IScalar<U> => scalars.Select(selector).StandardDeviation();
 }
 
@@ -1531,7 +1532,6 @@ public interface IArithmeticRing<R, in S>
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Subtraction result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     R Subtract(R second) => Add(second.Negate());
     /// <summary>
     /// Multiplies the given object with the current instance and returns the multiplication's result without modifying the current instance.
@@ -1596,7 +1596,6 @@ public interface IArithmeticField<F, S>
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Division result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     F Divide(F second) => Multiply(second.MultiplicativeInverse);
 }
 
@@ -1621,7 +1620,6 @@ public unsafe interface IReadonlyNative
     /// </summary>
     /// <typeparam name="T">Generic pointer type</typeparam>
     /// <param name="dst">Destination pointer</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     void ToNative<T>(T* dst) where T : unmanaged => ToArray<T>().BinaryCopy(dst, BinarySize);
 }
 

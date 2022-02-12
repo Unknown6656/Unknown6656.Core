@@ -514,7 +514,7 @@ namespace Unknown6656.IO
 
         public object? ToJSON(Type type, Encoding enc, JsonSerializerOptions? options = null) => JsonSerializer.Deserialize(ToString(enc), type, options ?? DefaultJSONOptions);
 
-        public object? ToObject() => FunctionExtensions.TryDo(() =>
+        public object? ToObject() => LINQ.TryDo(() =>
         {
             DataStream[] sources = ToArrayOfSources();
 

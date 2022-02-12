@@ -64,7 +64,7 @@ namespace Unknown6656.Testing
         private static void PrintHeader(string text, int width)
         {
             int rw = width - text.Length - 2;
-            string ps = new string('=', rw / 2);
+            string ps = new('=', rw / 2);
 
             WriteLine($"{ps} {text} {ps}{(rw % 2 == 0 ? "" : "=")}");
         }
@@ -108,9 +108,9 @@ namespace Unknown6656.Testing
             ForegroundColor = ConsoleColor.White;
             OutputEncoding = Encoding.Default;
 
-            List<(string Name, int Passed, int Failed, int Skipped, long TimeCtor, long TimeInit, long TimeMethod)> partial_results = new List<(string, int, int, int, long, long, long)>();
+            List<(string Name, int Passed, int Failed, int Skipped, long TimeCtor, long TimeInit, long TimeMethod)> partial_results = new();
             int passed = 0, failed = 0, skipped = 0;
-            Stopwatch sw = new Stopwatch();
+            Stopwatch sw = new();
             long swc, swi, swm;
             Type[] types = (from t in asm.GetTypes()
                             let attr = t.GetCustomAttributes<TestClassAttribute>(true).FirstOrDefault()
@@ -156,7 +156,7 @@ Testing {types.Length} type(s):
                                     if (nfo.ContainsGenericParameters)
                                     {
                                         ParameterInfo[] pars = nfo.GetParameters();
-                                        List<Type> types = new List<Type>();
+                                        List<Type> types = new();
 
                                         for (int i = 0; i < pars.Length; ++i)
                                             if (pars[i].ParameterType.IsGenericParameter)

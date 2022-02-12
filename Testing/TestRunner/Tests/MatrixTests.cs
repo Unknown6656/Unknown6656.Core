@@ -12,39 +12,39 @@ namespace Unknown6656.Testing.Tests
         [TestMethod]
         public void Test_00__construct()
         {
-            Matrix2 m = new Matrix2(
+            Matrix2 m = new(
                 0, 1,
                 2, 3
             );
 
-            Matrix2 m1 = new Matrix2(m);
-            Matrix2 m2 = new Matrix2(&m);
-            Matrix2 m3 = new Matrix2(new Scalar[2, 2]
+            Matrix2 m1 = new(m);
+            Matrix2 m2 = new(&m);
+            Matrix2 m3 = new(new Scalar[2, 2]
             {
                 { 0, 2 },
                 { 1, 3 },
             });
-            Matrix2 m4 = new Matrix2(new Scalar[4]
+            Matrix2 m4 = new(new Scalar[4]
             {
                 0, 1,
                 2, 3
             });
-            Matrix2 m5 = new Matrix2(new Scalar[2][]
+            Matrix2 m5 = new(new Scalar[2][]
             {
                 new Scalar[2] { 0, 2 },
                 new Scalar[2] { 1, 3 },
             });
-            Matrix2 m6 = new Matrix2(m.Columns);
-            Matrix2 m7 = new Matrix2(new Vector2[]
+            Matrix2 m6 = new(m.Columns);
+            Matrix2 m7 = new(new Vector2[]
             {
                 new Vector2(0, 2),
                 new Vector2(1, 3),
             });
-            Matrix2 m8 = new Matrix2(
+            Matrix2 m8 = new(
                 new Vector2(0, 2),
                 new Vector2(1, 3)
             );
-            Matrix2 m9 = new Matrix2(
+            Matrix2 m9 = new(
                 0, 1,
                 2, 3
             );
@@ -63,13 +63,13 @@ namespace Unknown6656.Testing.Tests
         [TestMethod]
         public void Test_01__construct()
         {
-            Matrix2 m = new Matrix2(
+            Matrix2 m = new(
                 0, 1,
                 2, 3
             );
 
 
-            Matrix2 m1 = new Matrix2(
+            Matrix2 m1 = new(
                 (0, 2),
                 (1, 3)
             );
@@ -138,17 +138,17 @@ namespace Unknown6656.Testing.Tests
         [TestMethod]
         public void Test_03__matrix_nm()
         {
-            MatrixNM m = new MatrixNM(4, 3, new Scalar[]
+            MatrixNM m = new(4, 3, new Scalar[]
             {
                 0, 1, 2, 3,
                 4, 5, 6, 7,
                 8, 9, -1, -2
             });
 
-            MatrixNM m1 = new MatrixNM(m);
-            MatrixNM m2 = new MatrixNM(m.Coefficients);
-            MatrixNM m3 = new MatrixNM(m.ColumnCount, m.RowCount, m.FlattenedCoefficients);
-            MatrixNM m4 = new MatrixNM(m.Columns);
+            MatrixNM m1 = new(m);
+            MatrixNM m2 = new(m.Coefficients);
+            MatrixNM m3 = new(m.ColumnCount, m.RowCount, m.FlattenedCoefficients);
+            MatrixNM m4 = new(m.Columns);
 
             Assert.AreEqual(4, m.ColumnCount);
             Assert.AreEqual(3, m.RowCount);

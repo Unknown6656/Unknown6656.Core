@@ -34,7 +34,7 @@ namespace Unknown6656.Testing.Tests
             mat = mat[100..200, 100..200];
             //mat = mat.NormalizeMinMax();
 
-            HDRBitmap bmp2 = new HDRBitmap(mat);
+            HDRBitmap bmp2 = new(mat);
             Bitmap outp = bmp2.ToBitmap();
         }
 

@@ -112,7 +112,7 @@ namespace Unknown6656.Testing.Tests
         [TestMethod]
         public void Test_12__vigenere()
         {
-            Vigenere vig = new Vigenere("abcdefghijklmnopqrstuvwxyz ");
+            Vigenere vig = new("abcdefghijklmnopqrstuvwxyz ");
             string plain = "this is a message";
             string passw = "pass";
 

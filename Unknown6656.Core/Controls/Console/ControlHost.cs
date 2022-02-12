@@ -839,13 +839,13 @@ namespace Unknown6656.Controls.Console
         {
             Host = host;
 
-            IsVisibleChanged += delegate { RequestRender(); };
-            BackgroundChanged += delegate { RequestRender(); };
-            ForegroundChanged += delegate { RequestRender(); };
-            BorderStyleChanged += delegate { RequestRender(); };
-            RenderableAbsoluteClientAreaChanged += delegate { RequestRender(); };
-            FocusedStyleChanged += delegate { RequestRender(); };
-            FocusAcquired += delegate { RequestRender(); };
+            IsVisibleChanged += (_, _) => RequestRender();
+            BackgroundChanged += (_, _) => RequestRender();
+            ForegroundChanged += (_, _) => RequestRender();
+            BorderStyleChanged += (_, _) => RequestRender();
+            RenderableAbsoluteClientAreaChanged += (_, _) => RequestRender();
+            FocusedStyleChanged += (_, _) => RequestRender();
+            FocusAcquired += (_, _) => RequestRender();
         }
 
         public override string ToString() => $"({Left},{Top}: {Width}x{Height}, {(IsFocused ? 'F' : FocusBehaviour switch { FocusBehaviour.Focusable => 'f', FocusBehaviour.PassFocusThrough => 'p', _ => 'n' })}) {GetType().Name}: {Text}";
@@ -1288,7 +1288,7 @@ namespace Unknown6656.Controls.Console
         {
             FocusedStyle = FocusedStyle.RenderAsNormal;
             FocusBehaviour = FocusBehaviour.PassFocusThrough;
-            ChildCollectionChanged += delegate { RequestRender(); };
+            ChildCollectionChanged += (_, _) => RequestRender();
             FocusAcquired += ContainerControl_FocusAcquired;
             ChildRelativeZIndexChanged += Child_Invalidated;
             ChildAbsolutePositionChanged += Child_Invalidated;

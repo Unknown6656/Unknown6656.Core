@@ -143,12 +143,12 @@ namespace Unknown6656.Controls.Console
             BorderStyle = BorderStyle.TextBox;
             FocusBehaviour = FocusBehaviour.Focusable;
             FocusedStyle = FocusedStyle.RenderAsNormal;
-            SelectionChanged += delegate { RequestRender(); };
+            SelectionChanged += (_, _) => RequestRender();
             BorderStyleChanged += TextBoxLayoutChanged;
             AutosizeChanged += TextBoxLayoutChanged;
             TextChanged += TextBox_TextChanged;
             KeyPress += TextBox_KeyPress;
-            host.BlinkEvent += delegate { RequestRender(); };
+            host.BlinkEvent += (_, _) => RequestRender();
         }
 
         private void TextBox_KeyPress(Control sender, ConsoleKeyInfo key, ref bool handled)
@@ -304,7 +304,7 @@ namespace Unknown6656.Controls.Console
             AutosizeChanged += CheckBoxLayoutChanged;
             TextChanged += CheckBoxLayoutChanged;
             KeyPress += CheckBox_KeyPress;
-            CheckedChanged += delegate { RequestRender(); };
+            CheckedChanged += (_, _) => RequestRender();
         }
 
         private void CheckBoxLayoutChanged<T>(Control sender, T _)
@@ -415,7 +415,7 @@ namespace Unknown6656.Controls.Console
             AutosizeChanged += OptionBoxLayoutChanged;
             TextChanged += OptionBoxLayoutChanged;
             OptionsChanged += OptionBoxLayoutChanged;
-            SelectedOptionIndexChanged += delegate { RequestRender(); };
+            SelectedOptionIndexChanged += (_, _) => RequestRender();
             KeyPress += OptionBox_KeyPress;
         }
 
@@ -491,10 +491,10 @@ namespace Unknown6656.Controls.Console
             : base(host)
         {
             BorderStyle = BorderStyle.None;
-            BorderStyleChanged += delegate { UpdateSize(); };
-            ChildCollectionChanged += delegate { UpdateSize(); };
-            ChildAbsolutePositionChanged += delegate { UpdateSize(); };
-            ChildSizeChanged += delegate { UpdateSize(); };
+            BorderStyleChanged += (_, _) => UpdateSize();
+            ChildCollectionChanged += (_, _) => UpdateSize();
+            ChildAbsolutePositionChanged += (_, _) => UpdateSize();
+            ChildSizeChanged += (_, _) => UpdateSize();
         }
 
         private void UpdateSize()
@@ -566,8 +566,8 @@ namespace Unknown6656.Controls.Console
             BorderStyle = BorderStyle.Rounded;
             FocusBehaviour = FocusBehaviour.NonFocusable;
             Size = new Size(12, 3);
-            ValueChanged += delegate { RequestRender(); };
-            DisplayPercentageChanged += delegate { RequestRender(); };
+            ValueChanged += (_, _) => RequestRender();
+            DisplayPercentageChanged += (_, _) => RequestRender();
         }
 
         protected override void InternalRender(RenderInformation render_information)
@@ -677,9 +677,9 @@ namespace Unknown6656.Controls.Console
             CanChangeText = false;
             BorderStyle = BorderStyle.Rounded;
             FocusedStyle = FocusedStyle.RenderAsNormal;
-            PickedColorChanged += delegate { RequestRender(); };
-            SelectedHexIndexChanged += delegate { RequestRender(); };
-            SelectedChannelIndexChanged += delegate { RequestRender(); };
+            PickedColorChanged += (_, _) => RequestRender();
+            SelectedHexIndexChanged += (_, _) => RequestRender();
+            SelectedChannelIndexChanged += (_, _) => RequestRender();
             KeyPress += ColorPicker_KeyPress;
         }
 

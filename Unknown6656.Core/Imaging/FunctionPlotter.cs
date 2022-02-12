@@ -1,6 +1,8 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq.Expressions;
+using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
@@ -11,9 +13,8 @@ using System;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Mathematics;
+using Unknown6656.Generics;
 using Unknown6656.Common;
-using System.Diagnostics;
-using System.Linq.Expressions;
 
 namespace Unknown6656.Imaging
 {

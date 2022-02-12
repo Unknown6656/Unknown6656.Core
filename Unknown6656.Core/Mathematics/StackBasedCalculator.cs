@@ -5,6 +5,7 @@ using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Analysis;
+using Unknown6656.Generics;
 using Unknown6656.Common;
 
 using bint = System.Numerics.BigInteger;

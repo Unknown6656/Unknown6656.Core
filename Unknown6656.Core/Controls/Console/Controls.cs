@@ -1,12 +1,14 @@
-﻿using System.Drawing;
+﻿// using System.Windows.Forms;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Drawing;
 using System.Linq;
 using System;
-using Unknown6656.Common;
-using System.Collections.Generic;
-//using System.Windows.Forms;
+
 using Unknown6656.Mathematics.LinearAlgebra;
+using Unknown6656.Generics;
 using Unknown6656.Imaging;
-using System.Globalization;
+using Unknown6656.Common;
 
 namespace Unknown6656.Controls.Console
 {

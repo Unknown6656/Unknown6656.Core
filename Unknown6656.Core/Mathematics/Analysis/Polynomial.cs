@@ -15,6 +15,7 @@ using System;
 using Unknown6656.Optimization.ParticleSwarmOptimization;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Numerics;
+using Unknown6656.Generics;
 using Unknown6656.Common;
 
 using static System.Math;

@@ -97,7 +97,7 @@ namespace Testing
 
         private static void Main_Statistics()
         {
-            XorShift sh = new XorShift();
+            XorShift sh = new();
             int i = 20;
 
             while (i-- > 0)
@@ -124,7 +124,7 @@ namespace Testing
 
 
 
-            ControlHost host = new ControlHost();
+            ControlHost host = new();
 
             host.AddNewChild<StackPanel>(p =>
             {
@@ -518,7 +518,7 @@ namespace Testing
             //}.Select(s => parser.Parse(s)).ToArray();
 
 
-            DirectedGraph<int, IEnumerable<char>> dg = new DirectedGraph<int, IEnumerable<char>>
+            DirectedGraph<int, IEnumerable<char>> dg = new()
             {
                 0,
                 1,
@@ -534,7 +534,7 @@ namespace Testing
             };
             dg.DebugPrintToConsole();
 
-            DeterministicFiniteAutomaton<int, char> dfa = new DeterministicFiniteAutomaton<int, char>(dg, dg[0]!);
+            DeterministicFiniteAutomaton<int, char> dfa = new(dg, dg[0]!);
 
             dfa.Accepted[dg[3]!] = true;
 

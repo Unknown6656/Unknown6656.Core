@@ -9,16 +9,17 @@ using System.ComponentModel;
 using System.Reflection;
 #endif
 using System.Runtime.CompilerServices;
+using System.Diagnostics.CodeAnalysis;
 using System.Collections.Generic;
 using System.Collections;
 using System.Diagnostics;
+using System.Reflection;
 using System.Linq;
 using System;
 
 using Unknown6656.Mathematics.Analysis;
+using Unknown6656.Generics;
 using Unknown6656.Common;
-using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 
 
 // TODO : Use C# 10's abstract static !!

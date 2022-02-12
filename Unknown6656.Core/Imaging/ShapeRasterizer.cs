@@ -100,7 +100,7 @@ namespace Unknown6656.Imaging
                 // new BoxBlur(),
                 new ColorEffect.Delegated(c => new RGBAColor
                 {
-                    Af = line_clr.Af * ((Vector3)c).Max, // TODO : radius thresholding
+                    Af = line_clr.Af * ((Vector3)c).CoefficientMax, // TODO : radius thresholding
                     Rf = line_clr.Rf,
                     Gf = line_clr.Gf,
                     Bf = line_clr.Bf,

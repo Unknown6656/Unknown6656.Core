@@ -159,13 +159,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         public readonly bool HasNaNs => Coefficients.Any(c => c.IsNaN);
 
-        public readonly Scalar Sum => _0 + _1;
+        public readonly Scalar CoefficientSum => _0 + _1;
 
-        public readonly Scalar Avg => Sum / Dimension;
+        public readonly Scalar CoefficientAvg => CoefficientSum / Dimension;
 
-        public readonly Scalar Min => Coefficients.Min();
+        public readonly Scalar CoefficientMin => Coefficients.Min();
 
-        public readonly Scalar Max => Coefficients.Max();
+        public readonly Scalar CoefficientMax => Coefficients.Max();
         
         public readonly Scalar MaximumNorm => Coefficients.Select(Scalar.Abs).Max();
 
@@ -454,7 +454,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar Dot(in Vector2 second) => ComponentwiseMultiply(second).Sum;
+        public readonly Scalar Dot(in Vector2 second) => ComponentwiseMultiply(second).CoefficientSum;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly bool IsLinearDependant(in Vector2 other, out Scalar? factor)
@@ -1163,13 +1163,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         public readonly bool HasNaNs => Coefficients.Any(c => c.IsNaN);
 
-        public readonly Scalar Sum => _0 + _1 + _2;
+        public readonly Scalar CoefficientSum => _0 + _1 + _2;
 
-        public readonly Scalar Avg => Sum / Dimension;
+        public readonly Scalar CoefficientAvg => CoefficientSum / Dimension;
 
-        public readonly Scalar Min => Coefficients.Min();
+        public readonly Scalar CoefficientMin => Coefficients.Min();
 
-        public readonly Scalar Max => Coefficients.Max();
+        public readonly Scalar CoefficientMax => Coefficients.Max();
         
         public readonly Scalar MaximumNorm => Coefficients.Select(Scalar.Abs).Max();
 
@@ -1470,7 +1470,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar Dot(in Vector3 second) => ComponentwiseMultiply(second).Sum;
+        public readonly Scalar Dot(in Vector3 second) => ComponentwiseMultiply(second).CoefficientSum;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Vector3 Cross(in Vector3 v) => Cross(this, v);
@@ -2268,13 +2268,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         public readonly bool HasNaNs => Coefficients.Any(c => c.IsNaN);
 
-        public readonly Scalar Sum => _0 + _1 + _2 + _3;
+        public readonly Scalar CoefficientSum => _0 + _1 + _2 + _3;
 
-        public readonly Scalar Avg => Sum / Dimension;
+        public readonly Scalar CoefficientAvg => CoefficientSum / Dimension;
 
-        public readonly Scalar Min => Coefficients.Min();
+        public readonly Scalar CoefficientMin => Coefficients.Min();
 
-        public readonly Scalar Max => Coefficients.Max();
+        public readonly Scalar CoefficientMax => Coefficients.Max();
         
         public readonly Scalar MaximumNorm => Coefficients.Select(Scalar.Abs).Max();
 
@@ -2566,7 +2566,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar Dot(in Vector4 second) => ComponentwiseMultiply(second).Sum;
+        public readonly Scalar Dot(in Vector4 second) => ComponentwiseMultiply(second).CoefficientSum;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly bool IsLinearDependant(in Vector4 other, out Scalar? factor)
@@ -3449,13 +3449,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         public readonly bool HasNaNs => Coefficients.Any(c => c.IsNaN);
 
-        public readonly Scalar Sum => _0 + _1 + _2 + _3 + _4;
+        public readonly Scalar CoefficientSum => _0 + _1 + _2 + _3 + _4;
 
-        public readonly Scalar Avg => Sum / Dimension;
+        public readonly Scalar CoefficientAvg => CoefficientSum / Dimension;
 
-        public readonly Scalar Min => Coefficients.Min();
+        public readonly Scalar CoefficientMin => Coefficients.Min();
 
-        public readonly Scalar Max => Coefficients.Max();
+        public readonly Scalar CoefficientMax => Coefficients.Max();
         
         public readonly Scalar MaximumNorm => Coefficients.Select(Scalar.Abs).Max();
 
@@ -3738,7 +3738,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar Dot(in Vector5 second) => ComponentwiseMultiply(second).Sum;
+        public readonly Scalar Dot(in Vector5 second) => ComponentwiseMultiply(second).CoefficientSum;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly bool IsLinearDependant(in Vector5 other, out Scalar? factor)
@@ -4821,13 +4821,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         public readonly bool HasNaNs => Coefficients.Any(c => c.IsNaN);
 
-        public readonly Scalar Sum => _0 + _1 + _2 + _3 + _4 + _5;
+        public readonly Scalar CoefficientSum => _0 + _1 + _2 + _3 + _4 + _5;
 
-        public readonly Scalar Avg => Sum / Dimension;
+        public readonly Scalar CoefficientAvg => CoefficientSum / Dimension;
 
-        public readonly Scalar Min => Coefficients.Min();
+        public readonly Scalar CoefficientMin => Coefficients.Min();
 
-        public readonly Scalar Max => Coefficients.Max();
+        public readonly Scalar CoefficientMax => Coefficients.Max();
         
         public readonly Scalar MaximumNorm => Coefficients.Select(Scalar.Abs).Max();
 
@@ -5101,7 +5101,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar Dot(in Vector6 second) => ComponentwiseMultiply(second).Sum;
+        public readonly Scalar Dot(in Vector6 second) => ComponentwiseMultiply(second).CoefficientSum;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly bool IsLinearDependant(in Vector6 other, out Scalar? factor)
@@ -5793,13 +5793,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         public readonly bool HasNaNs => Coefficients.Any(c => c.IsNaN);
 
-        public readonly Scalar Sum => _0 + _1 + _2 + _3 + _4 + _5 + _6;
+        public readonly Scalar CoefficientSum => _0 + _1 + _2 + _3 + _4 + _5 + _6;
 
-        public readonly Scalar Avg => Sum / Dimension;
+        public readonly Scalar CoefficientAvg => CoefficientSum / Dimension;
 
-        public readonly Scalar Min => Coefficients.Min();
+        public readonly Scalar CoefficientMin => Coefficients.Min();
 
-        public readonly Scalar Max => Coefficients.Max();
+        public readonly Scalar CoefficientMax => Coefficients.Max();
         
         public readonly Scalar MaximumNorm => Coefficients.Select(Scalar.Abs).Max();
 
@@ -6064,7 +6064,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar Dot(in Vector7 second) => ComponentwiseMultiply(second).Sum;
+        public readonly Scalar Dot(in Vector7 second) => ComponentwiseMultiply(second).CoefficientSum;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Vector7 Cross(in Vector7 v) => Cross(this, v);
@@ -6787,13 +6787,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         public readonly bool HasNaNs => Coefficients.Any(c => c.IsNaN);
 
-        public readonly Scalar Sum => _0 + _1 + _2 + _3 + _4 + _5 + _6 + _7;
+        public readonly Scalar CoefficientSum => _0 + _1 + _2 + _3 + _4 + _5 + _6 + _7;
 
-        public readonly Scalar Avg => Sum / Dimension;
+        public readonly Scalar CoefficientAvg => CoefficientSum / Dimension;
 
-        public readonly Scalar Min => Coefficients.Min();
+        public readonly Scalar CoefficientMin => Coefficients.Min();
 
-        public readonly Scalar Max => Coefficients.Max();
+        public readonly Scalar CoefficientMax => Coefficients.Max();
         
         public readonly Scalar MaximumNorm => Coefficients.Select(Scalar.Abs).Max();
 
@@ -7049,7 +7049,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar Dot(in Vector8 second) => ComponentwiseMultiply(second).Sum;
+        public readonly Scalar Dot(in Vector8 second) => ComponentwiseMultiply(second).CoefficientSum;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly bool IsLinearDependant(in Vector8 other, out Scalar? factor)
@@ -7748,13 +7748,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         public readonly bool HasNaNs => Coefficients.Any(c => c.IsNaN);
 
-        public readonly Scalar Sum => _0 + _1 + _2 + _3 + _4 + _5 + _6 + _7 + _8;
+        public readonly Scalar CoefficientSum => _0 + _1 + _2 + _3 + _4 + _5 + _6 + _7 + _8;
 
-        public readonly Scalar Avg => Sum / Dimension;
+        public readonly Scalar CoefficientAvg => CoefficientSum / Dimension;
 
-        public readonly Scalar Min => Coefficients.Min();
+        public readonly Scalar CoefficientMin => Coefficients.Min();
 
-        public readonly Scalar Max => Coefficients.Max();
+        public readonly Scalar CoefficientMax => Coefficients.Max();
         
         public readonly Scalar MaximumNorm => Coefficients.Select(Scalar.Abs).Max();
 
@@ -8001,7 +8001,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar Dot(in Vector9 second) => ComponentwiseMultiply(second).Sum;
+        public readonly Scalar Dot(in Vector9 second) => ComponentwiseMultiply(second).CoefficientSum;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly bool IsLinearDependant(in Vector9 other, out Scalar? factor)
@@ -8704,13 +8704,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         public readonly bool HasNaNs => Coefficients.Any(c => c.IsNaN);
 
-        public readonly Scalar Sum => _0 + _1 + _2 + _3 + _4 + _5 + _6 + _7 + _8 + _9;
+        public readonly Scalar CoefficientSum => _0 + _1 + _2 + _3 + _4 + _5 + _6 + _7 + _8 + _9;
 
-        public readonly Scalar Avg => Sum / Dimension;
+        public readonly Scalar CoefficientAvg => CoefficientSum / Dimension;
 
-        public readonly Scalar Min => Coefficients.Min();
+        public readonly Scalar CoefficientMin => Coefficients.Min();
 
-        public readonly Scalar Max => Coefficients.Max();
+        public readonly Scalar CoefficientMax => Coefficients.Max();
         
         public readonly Scalar MaximumNorm => Coefficients.Select(Scalar.Abs).Max();
 
@@ -8948,7 +8948,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar Dot(in Vector10 second) => ComponentwiseMultiply(second).Sum;
+        public readonly Scalar Dot(in Vector10 second) => ComponentwiseMultiply(second).CoefficientSum;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly bool IsLinearDependant(in Vector10 other, out Scalar? factor)

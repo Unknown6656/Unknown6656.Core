@@ -308,13 +308,13 @@ public unsafe abstract class VectorN<Vector, Matrix, Polynomial, Scalar>
 
     public Vector AdditiveInverse => Negate();
 
-    public Scalar Sum => _coefficients.Sum();
+    public Scalar CoefficientSum => _coefficients.Sum();
 
-    public Scalar Avg => _coefficients.Average();
+    public Scalar CoefficientAvg => _coefficients.Average();
 
-    public Scalar Min => _coefficients.Min();
+    public Scalar CoefficientMin => _coefficients.Min();
 
-    public Scalar Max => _coefficients.Max();
+    public Scalar CoefficientMax => _coefficients.Max();
 
     public Scalar Length => SquaredNorm.Sqrt();
 
@@ -560,8 +560,8 @@ public unsafe abstract class VectorN<Vector, Matrix, Polynomial, Scalar>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector NormalizeMinMax()
     {
-        Scalar min = Min;
-        Scalar fac = Max.Subtract(min);
+        Scalar min = CoefficientMin;
+        Scalar fac = CoefficientMax.Subtract(min);
 
         return FromCollection(_coefficients.Select(c => c.Subtract(min).Divide(fac)));
     }
@@ -851,7 +851,7 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
     /// <summary>
     /// The matrix' trace.
     /// </summary>
-    public Scalar Trace => MainDiagonal.Sum;
+    public Scalar Trace => MainDiagonal.CoefficientSum;
 
     /// <summary>
     /// The transposed matrix.
@@ -1116,13 +1116,13 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
 
     public bool IsPositive => Do(v => v.All(e => e.IsPositive));
 
-    public Scalar Sum => _coefficients.Sum();
+    public Scalar CoefficientSum => _coefficients.Sum();
 
-    public Scalar Avg => _coefficients.Average();
+    public Scalar CoefficientAvg => _coefficients.Average();
 
-    public Scalar Min => _coefficients.Min();
+    public Scalar CoefficientMin => _coefficients.Min();
 
-    public Scalar Max => _coefficients.Max();
+    public Scalar CoefficientMax => _coefficients.Max();
 
     /// <summary>
     /// Indicates whether the matrix is invertible, meaning that its determinant is non-zero and that a multiplicative inverse to this matrix exists.
@@ -1347,8 +1347,8 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix NormalizeMinMax()
     {
-        Scalar min = Min;
-        Scalar fac = Max.Subtract(min);
+        Scalar min = CoefficientMin;
+        Scalar fac = CoefficientMax.Subtract(min);
 
         return FromArray(_columns, _rows, _coefficients.Select(c => c.Subtract(min).Divide(fac)).ToArray());
     }

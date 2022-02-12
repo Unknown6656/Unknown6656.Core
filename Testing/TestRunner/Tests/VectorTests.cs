@@ -222,9 +222,9 @@ namespace Unknown6656.Testing.Tests
             Assert.IsFalse(v.IsPositive);
             Assert.IsFalse(v.IsNegative);
             Assert.IsTrue(v.Length > 0);
-            Assert.AreEqual<Scalar>(8, v.Max);
-            Assert.AreEqual<Scalar>(-.5, v.Min);
-            Assert.AreEqual<Scalar>(9.5, v.Sum);
+            Assert.AreEqual<Scalar>(8, v.CoefficientMax);
+            Assert.AreEqual<Scalar>(-.5, v.CoefficientMin);
+            Assert.AreEqual<Scalar>(9.5, v.CoefficientSum);
             Assert.AreEqual<Scalar>(8, v.X);
             Assert.AreEqual<Scalar>(2, v.Y);
             Assert.AreEqual<Scalar>(-.5, v.Z);

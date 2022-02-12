@@ -233,13 +233,13 @@ public unsafe readonly /* ref */ partial struct Scalar
 
     readonly bool Algebra<Scalar>.IComposite.HasNaNs => IsNaN;
 
-    readonly Scalar Algebra<Scalar>.IComposite.Sum => this;
+    readonly Scalar Algebra<Scalar>.IComposite.CoefficientSum => this;
 
-    readonly Scalar Algebra<Scalar>.IComposite.Avg => this;
+    readonly Scalar Algebra<Scalar>.IComposite.CoefficientAvg => this;
 
-    readonly Scalar Algebra<Scalar>.IComposite.Min => this;
+    readonly Scalar Algebra<Scalar>.IComposite.CoefficientMin => this;
 
-    readonly Scalar Algebra<Scalar>.IComposite.Max => this;
+    readonly Scalar Algebra<Scalar>.IComposite.CoefficientMax => this;
 
     readonly Scalar Algebra<Scalar>.IMatrix<Scalar>.GaussianReduced => IsZero ? Zero : One;
 
@@ -1319,13 +1319,13 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
 
     readonly bool Algebra<Scalar<T>>.IComposite.HasNaNs => IsNaN;
 
-    readonly Scalar<T> Algebra<Scalar<T>>.IComposite.Sum => this;
+    readonly Scalar<T> Algebra<Scalar<T>>.IComposite.CoefficientSum => this;
 
-    readonly Scalar<T> Algebra<Scalar<T>>.IComposite.Avg => this;
+    readonly Scalar<T> Algebra<Scalar<T>>.IComposite.CoefficientAvg => this;
 
-    readonly Scalar<T> Algebra<Scalar<T>>.IComposite.Min => this;
+    readonly Scalar<T> Algebra<Scalar<T>>.IComposite.CoefficientMin => this;
 
-    readonly Scalar<T> Algebra<Scalar<T>>.IComposite.Max => this;
+    readonly Scalar<T> Algebra<Scalar<T>>.IComposite.CoefficientMax => this;
 
     readonly Scalar<T> Algebra<Scalar<T>>.IMetricVectorSpace<Scalar<T>>.SquaredNorm => Multiply(this);
 

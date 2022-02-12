@@ -185,7 +185,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// <summary>
         /// The matrix' trace.
         /// </summary>
-        public readonly Scalar Trace => MainDiagonal.Sum;
+        public readonly Scalar Trace => MainDiagonal.CoefficientSum;
 
         public readonly Scalar FrobeniusNorm => Multiply(this).Trace;
 
@@ -197,13 +197,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         public readonly Matrix2 AdditiveInverse => Negate();
 
-        public readonly Scalar Sum => FlattenedCoefficients.Aggregate(Scalar.Zero, (a, b) => a.Add(b));
+        public readonly Scalar CoefficientSum => FlattenedCoefficients.Aggregate(Scalar.Zero, (a, b) => a.Add(b));
 
-        public readonly Scalar Avg => Sum.Divide(Dimensions.Rows + Dimensions.Columns);
+        public readonly Scalar CoefficientAvg => CoefficientSum.Divide(Dimensions.Rows + Dimensions.Columns);
 
-        public readonly Scalar Min => FlattenedCoefficients.Min();
+        public readonly Scalar CoefficientMin => FlattenedCoefficients.Min();
 
-        public readonly Scalar Max => FlattenedCoefficients.Max();
+        public readonly Scalar CoefficientMax => FlattenedCoefficients.Max();
 
         #endregion
         #region INSTANCE PROPERTIES : TRANSFORMATIONS
@@ -1996,7 +1996,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// <summary>
         /// The matrix' trace.
         /// </summary>
-        public readonly Scalar Trace => MainDiagonal.Sum;
+        public readonly Scalar Trace => MainDiagonal.CoefficientSum;
 
         public readonly Scalar FrobeniusNorm => Multiply(this).Trace;
 
@@ -2008,13 +2008,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         public readonly Matrix3 AdditiveInverse => Negate();
 
-        public readonly Scalar Sum => FlattenedCoefficients.Aggregate(Scalar.Zero, (a, b) => a.Add(b));
+        public readonly Scalar CoefficientSum => FlattenedCoefficients.Aggregate(Scalar.Zero, (a, b) => a.Add(b));
 
-        public readonly Scalar Avg => Sum.Divide(Dimensions.Rows + Dimensions.Columns);
+        public readonly Scalar CoefficientAvg => CoefficientSum.Divide(Dimensions.Rows + Dimensions.Columns);
 
-        public readonly Scalar Min => FlattenedCoefficients.Min();
+        public readonly Scalar CoefficientMin => FlattenedCoefficients.Min();
 
-        public readonly Scalar Max => FlattenedCoefficients.Max();
+        public readonly Scalar CoefficientMax => FlattenedCoefficients.Max();
 
         #endregion
         #region INSTANCE PROPERTIES : TRANSFORMATIONS
@@ -3929,7 +3929,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// <summary>
         /// The matrix' trace.
         /// </summary>
-        public readonly Scalar Trace => MainDiagonal.Sum;
+        public readonly Scalar Trace => MainDiagonal.CoefficientSum;
 
         public readonly Scalar FrobeniusNorm => Multiply(this).Trace;
 
@@ -3941,13 +3941,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         public readonly Matrix4 AdditiveInverse => Negate();
 
-        public readonly Scalar Sum => FlattenedCoefficients.Aggregate(Scalar.Zero, (a, b) => a.Add(b));
+        public readonly Scalar CoefficientSum => FlattenedCoefficients.Aggregate(Scalar.Zero, (a, b) => a.Add(b));
 
-        public readonly Scalar Avg => Sum.Divide(Dimensions.Rows + Dimensions.Columns);
+        public readonly Scalar CoefficientAvg => CoefficientSum.Divide(Dimensions.Rows + Dimensions.Columns);
 
-        public readonly Scalar Min => FlattenedCoefficients.Min();
+        public readonly Scalar CoefficientMin => FlattenedCoefficients.Min();
 
-        public readonly Scalar Max => FlattenedCoefficients.Max();
+        public readonly Scalar CoefficientMax => FlattenedCoefficients.Max();
 
         /// <summary>
         /// Returns a set of the first 2 principal submatrices.
@@ -5917,7 +5917,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// <summary>
         /// The matrix' trace.
         /// </summary>
-        public readonly Scalar Trace => MainDiagonal.Sum;
+        public readonly Scalar Trace => MainDiagonal.CoefficientSum;
 
         public readonly Scalar FrobeniusNorm => Multiply(this).Trace;
 
@@ -5929,13 +5929,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         public readonly Matrix5 AdditiveInverse => Negate();
 
-        public readonly Scalar Sum => FlattenedCoefficients.Aggregate(Scalar.Zero, (a, b) => a.Add(b));
+        public readonly Scalar CoefficientSum => FlattenedCoefficients.Aggregate(Scalar.Zero, (a, b) => a.Add(b));
 
-        public readonly Scalar Avg => Sum.Divide(Dimensions.Rows + Dimensions.Columns);
+        public readonly Scalar CoefficientAvg => CoefficientSum.Divide(Dimensions.Rows + Dimensions.Columns);
 
-        public readonly Scalar Min => FlattenedCoefficients.Min();
+        public readonly Scalar CoefficientMin => FlattenedCoefficients.Min();
 
-        public readonly Scalar Max => FlattenedCoefficients.Max();
+        public readonly Scalar CoefficientMax => FlattenedCoefficients.Max();
 
         /// <summary>
         /// Returns a set of the first 3 principal submatrices.
@@ -7973,7 +7973,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// <summary>
         /// The matrix' trace.
         /// </summary>
-        public readonly Scalar Trace => MainDiagonal.Sum;
+        public readonly Scalar Trace => MainDiagonal.CoefficientSum;
 
         public readonly Scalar FrobeniusNorm => Multiply(this).Trace;
 
@@ -7985,13 +7985,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         public readonly Matrix6 AdditiveInverse => Negate();
 
-        public readonly Scalar Sum => FlattenedCoefficients.Aggregate(Scalar.Zero, (a, b) => a.Add(b));
+        public readonly Scalar CoefficientSum => FlattenedCoefficients.Aggregate(Scalar.Zero, (a, b) => a.Add(b));
 
-        public readonly Scalar Avg => Sum.Divide(Dimensions.Rows + Dimensions.Columns);
+        public readonly Scalar CoefficientAvg => CoefficientSum.Divide(Dimensions.Rows + Dimensions.Columns);
 
-        public readonly Scalar Min => FlattenedCoefficients.Min();
+        public readonly Scalar CoefficientMin => FlattenedCoefficients.Min();
 
-        public readonly Scalar Max => FlattenedCoefficients.Max();
+        public readonly Scalar CoefficientMax => FlattenedCoefficients.Max();
 
         /// <summary>
         /// Returns a set of the first 4 principal submatrices.
@@ -10089,7 +10089,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// <summary>
         /// The matrix' trace.
         /// </summary>
-        public readonly Scalar Trace => MainDiagonal.Sum;
+        public readonly Scalar Trace => MainDiagonal.CoefficientSum;
 
         public readonly Scalar FrobeniusNorm => Multiply(this).Trace;
 
@@ -10101,13 +10101,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         public readonly Matrix7 AdditiveInverse => Negate();
 
-        public readonly Scalar Sum => FlattenedCoefficients.Aggregate(Scalar.Zero, (a, b) => a.Add(b));
+        public readonly Scalar CoefficientSum => FlattenedCoefficients.Aggregate(Scalar.Zero, (a, b) => a.Add(b));
 
-        public readonly Scalar Avg => Sum.Divide(Dimensions.Rows + Dimensions.Columns);
+        public readonly Scalar CoefficientAvg => CoefficientSum.Divide(Dimensions.Rows + Dimensions.Columns);
 
-        public readonly Scalar Min => FlattenedCoefficients.Min();
+        public readonly Scalar CoefficientMin => FlattenedCoefficients.Min();
 
-        public readonly Scalar Max => FlattenedCoefficients.Max();
+        public readonly Scalar CoefficientMax => FlattenedCoefficients.Max();
 
         /// <summary>
         /// Returns a set of the first 5 principal submatrices.
@@ -12268,7 +12268,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// <summary>
         /// The matrix' trace.
         /// </summary>
-        public readonly Scalar Trace => MainDiagonal.Sum;
+        public readonly Scalar Trace => MainDiagonal.CoefficientSum;
 
         public readonly Scalar FrobeniusNorm => Multiply(this).Trace;
 
@@ -12280,13 +12280,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         public readonly Matrix8 AdditiveInverse => Negate();
 
-        public readonly Scalar Sum => FlattenedCoefficients.Aggregate(Scalar.Zero, (a, b) => a.Add(b));
+        public readonly Scalar CoefficientSum => FlattenedCoefficients.Aggregate(Scalar.Zero, (a, b) => a.Add(b));
 
-        public readonly Scalar Avg => Sum.Divide(Dimensions.Rows + Dimensions.Columns);
+        public readonly Scalar CoefficientAvg => CoefficientSum.Divide(Dimensions.Rows + Dimensions.Columns);
 
-        public readonly Scalar Min => FlattenedCoefficients.Min();
+        public readonly Scalar CoefficientMin => FlattenedCoefficients.Min();
 
-        public readonly Scalar Max => FlattenedCoefficients.Max();
+        public readonly Scalar CoefficientMax => FlattenedCoefficients.Max();
 
         /// <summary>
         /// Returns a set of the first 6 principal submatrices.
@@ -14513,7 +14513,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// <summary>
         /// The matrix' trace.
         /// </summary>
-        public readonly Scalar Trace => MainDiagonal.Sum;
+        public readonly Scalar Trace => MainDiagonal.CoefficientSum;
 
         public readonly Scalar FrobeniusNorm => Multiply(this).Trace;
 
@@ -14525,13 +14525,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         public readonly Matrix9 AdditiveInverse => Negate();
 
-        public readonly Scalar Sum => FlattenedCoefficients.Aggregate(Scalar.Zero, (a, b) => a.Add(b));
+        public readonly Scalar CoefficientSum => FlattenedCoefficients.Aggregate(Scalar.Zero, (a, b) => a.Add(b));
 
-        public readonly Scalar Avg => Sum.Divide(Dimensions.Rows + Dimensions.Columns);
+        public readonly Scalar CoefficientAvg => CoefficientSum.Divide(Dimensions.Rows + Dimensions.Columns);
 
-        public readonly Scalar Min => FlattenedCoefficients.Min();
+        public readonly Scalar CoefficientMin => FlattenedCoefficients.Min();
 
-        public readonly Scalar Max => FlattenedCoefficients.Max();
+        public readonly Scalar CoefficientMax => FlattenedCoefficients.Max();
 
         /// <summary>
         /// Returns a set of the first 7 principal submatrices.
@@ -16827,7 +16827,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// <summary>
         /// The matrix' trace.
         /// </summary>
-        public readonly Scalar Trace => MainDiagonal.Sum;
+        public readonly Scalar Trace => MainDiagonal.CoefficientSum;
 
         public readonly Scalar FrobeniusNorm => Multiply(this).Trace;
 
@@ -16839,13 +16839,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
         public readonly Matrix10 AdditiveInverse => Negate();
 
-        public readonly Scalar Sum => FlattenedCoefficients.Aggregate(Scalar.Zero, (a, b) => a.Add(b));
+        public readonly Scalar CoefficientSum => FlattenedCoefficients.Aggregate(Scalar.Zero, (a, b) => a.Add(b));
 
-        public readonly Scalar Avg => Sum.Divide(Dimensions.Rows + Dimensions.Columns);
+        public readonly Scalar CoefficientAvg => CoefficientSum.Divide(Dimensions.Rows + Dimensions.Columns);
 
-        public readonly Scalar Min => FlattenedCoefficients.Min();
+        public readonly Scalar CoefficientMin => FlattenedCoefficients.Min();
 
-        public readonly Scalar Max => FlattenedCoefficients.Max();
+        public readonly Scalar CoefficientMax => FlattenedCoefficients.Max();
 
         /// <summary>
         /// Returns a set of the first 8 principal submatrices.

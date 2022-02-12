@@ -155,13 +155,13 @@ public unsafe readonly /* ref */ struct Complex
 
     public readonly Scalar[] Coefficients => new[] { _re, _im };
 
-    public readonly Scalar Sum => _re + _im;
+    public readonly Scalar CoefficientSum => _re + _im;
 
-    readonly Scalar Algebra<Scalar>.IComposite.Min => _re.Min(_im);
+    readonly Scalar Algebra<Scalar>.IComposite.CoefficientMin => _re.Min(_im);
 
-    readonly Scalar Algebra<Scalar>.IComposite.Max => _re.Max(_im);
+    readonly Scalar Algebra<Scalar>.IComposite.CoefficientMax => _re.Max(_im);
 
-    readonly Scalar Algebra<Scalar>.IComposite.Avg => Sum / 2;
+    readonly Scalar Algebra<Scalar>.IComposite.CoefficientAvg => CoefficientSum / 2;
 
     public readonly Complex AdditiveInverse => Negate();
 
@@ -337,7 +337,7 @@ public unsafe readonly /* ref */ struct Complex
     Polynomial Algebra<Scalar, Polynomial>.IComposite1D.ToPolynomial() => new Polynomial(_re, _im);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    readonly Scalar Algebra<Scalar>.IEucledianVectorSpace<Complex>.Dot(in Complex other) => ComponentwiseMultiply(in other).Sum;
+    readonly Scalar Algebra<Scalar>.IEucledianVectorSpace<Complex>.Dot(in Complex other) => ComponentwiseMultiply(in other).CoefficientSum;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Complex Factorial() => IsReal ? Real.Factorial() : ComplexFunction.Gamma[this];

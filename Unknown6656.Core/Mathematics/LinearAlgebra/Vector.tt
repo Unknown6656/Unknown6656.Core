@@ -242,7 +242,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         /// Returns the combination of the vector's <#=p#>-coefficients.
         /// </summary>
         [DebuggerHidden, DebuggerNonUserCode, DebuggerBrowsable(DebuggerBrowsableState.Never) /* EditorBrowsable(EditorBrowsableState.Never) */]
-        public readonly Vector<#=p.Length + " " + p #> => (<#=string.Join(", ", p as IEnumerable<char>)#>);
+        public readonly Vector<#=p.Length + " " + p #> => new(<#=string.Join(", ", p as IEnumerable<char>)#>);
 <#
                         }
 #>
@@ -429,13 +429,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         #region INSTANCE METHODS
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Negate() => (<#=string.Join(", ", comps.Select(s => '-' + s))#>);
+        public readonly <#=typename#> Negate() => new(<#=string.Join(", ", comps.Select(s => '-' + s))#>);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Add(in <#=typename#> second) => (<#=string.Join(", ", comps.Select(s => $"{s} + second.{s}"))#>);
+        public readonly <#=typename#> Add(in <#=typename#> second) => new(<#=string.Join(", ", comps.Select(s => $"{s} + second.{s}"))#>);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Add(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => (<#=string.Join(", ", comps.Select((s, i) => $"{s} + s{i}"))#>);
+        public readonly <#=typename#> Add(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => new(<#=string.Join(", ", comps.Select((s, i) => $"{s} + s{i}"))#>);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly <#=typename#> Add(params <#=typename#>[] others) => others.Aggregate(this, Add);
@@ -450,7 +450,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly <#=typename#> Subtract(in <#=typename#> second) => Add(second.AdditiveInverse);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Subtract(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => (<#=string.Join(", ", comps.Select((s, i) => $"{s} - s{i}"))#>);
+        public readonly <#=typename#> Subtract(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => new(<#=string.Join(", ", comps.Select((s, i) => $"{s} - s{i}"))#>);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly <#=typename#> Subtract(params <#=typename#>[] others) => others.Aggregate(this, Subtract);
@@ -462,7 +462,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly <#=typename#> Decrement() => Subtract(new <#=typename#>(1));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Multiply(Scalar factor) => (<#=string.Join(", ", comps.Select(s => $"{s} * factor"))#>);
+        public readonly <#=typename#> Multiply(Scalar factor) => new(<#=string.Join(", ", comps.Select(s => $"{s} * factor"))#>);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly <#=typename#> Multiply(params Scalar[] factors) => factors.Aggregate(this, (v, f) => v.Multiply(f));
@@ -488,28 +488,28 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar ComputeMatrixNorm(<#=matname#> matrix) => Dot(matrix.Multiply(this)).Sqrt();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> ComponentwiseMultiply(in <#=typename#> second) => (<#=string.Join(", ", comps.Select(s => $"{s} * second.{s}"))#>);
+        public readonly <#=typename#> ComponentwiseMultiply(in <#=typename#> second) => new(<#=string.Join(", ", comps.Select(s => $"{s} * second.{s}"))#>);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> ComponentwiseMultiply(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => (<#=string.Join(", ", comps.Select((s, i) => $"{s} * s{i}"))#>);
+        public readonly <#=typename#> ComponentwiseMultiply(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => new(<#=string.Join(", ", comps.Select((s, i) => $"{s} * s{i}"))#>);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> ComponentwiseDivide(in <#=typename#> second) => (<#=string.Join(", ", comps.Select(s => $"{s} / second.{s}"))#>);
+        public readonly <#=typename#> ComponentwiseDivide(in <#=typename#> second) => new(<#=string.Join(", ", comps.Select(s => $"{s} / second.{s}"))#>);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> ComponentwiseDivide(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => (<#=string.Join(", ", comps.Select((s, i) => $"{s} / s{i}"))#>);
+        public readonly <#=typename#> ComponentwiseDivide(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => new(<#=string.Join(", ", comps.Select((s, i) => $"{s} / s{i}"))#>);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> ComponentwiseModulus(in <#=typename#> second) => (<#=string.Join(", ", comps.Select(s => $"{s} % second.{s}"))#>);
+        public readonly <#=typename#> ComponentwiseModulus(in <#=typename#> second) => new(<#=string.Join(", ", comps.Select(s => $"{s} % second.{s}"))#>);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> ComponentwiseModulus(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => (<#=string.Join(", ", comps.Select((s, i) => $"{s} % s{i}"))#>);
+        public readonly <#=typename#> ComponentwiseModulus(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => new(<#=string.Join(", ", comps.Select((s, i) => $"{s} % s{i}"))#>);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> ComponentwiseAbsolute() => (<#=string.Join(", ", comps.Select(s => s + ".Abs()"))#>);
+        public readonly <#=typename#> ComponentwiseAbsolute() => new(<#=string.Join(", ", comps.Select(s => s + ".Abs()"))#>);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> ComponentwiseSqrt() => (<#=string.Join(", ", comps.Select(s => s + ".Sqrt()"))#>);
+        public readonly <#=typename#> ComponentwiseSqrt() => new(<#=string.Join(", ", comps.Select(s => s + ".Sqrt()"))#>);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly <#=typename#> Power(int e)
@@ -587,13 +587,13 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly <#=typename#> Clamp() => Clamp(Scalar.Zero, Scalar.One);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Clamp(Scalar low, Scalar high) => (<#=string.Join(", ", comps.Select(s => $"{s}.Clamp(low, high)"))#>);
+        public readonly <#=typename#> Clamp(Scalar low, Scalar high) => new(<#=string.Join(", ", comps.Select(s => $"{s}.Clamp(low, high)"))#>);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar AngleTo(in <#=typename#> second) => Dot(second).Acos();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=matname#> OuterProduct(in <#=typename#> second) => (
+        public readonly <#=matname#> OuterProduct(in <#=typename#> second) => new(
             <#=string.Join("\n            ", r(0, dim).Select(i => string.Join(", ", comps.Select(s => $"{s} * second.{s}")) + (i < dim - 1 ? "," : "")))#>
         );
 
@@ -718,10 +718,10 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly Scalar DistanceTo(in <#=typename#> second) => Subtract(second).Length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T[] ToArray<T>() where T : unmanaged => From.Unmanaged(this).ToArray<T>();
+        public T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToNative<T>(T* dst) where T : unmanaged => From.Unmanaged(this).ToPointer(dst);
+        public void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly Scalar[] ToArray() => Coefficients;

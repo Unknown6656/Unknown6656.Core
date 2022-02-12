@@ -10,8 +10,10 @@ using System.Linq;
 using System.Text;
 using System;
 
-using Unknown6656.Common;
+using Unknown6656.Generics;
 using Unknown6656.Imaging;
+using Unknown6656.Common;
+
 
 namespace Unknown6656.Controls.Console
 {
@@ -845,7 +847,7 @@ namespace Unknown6656.Controls.Console
             BorderStyleChanged += (_, _) => RequestRender();
             RenderableAbsoluteClientAreaChanged += (_, _) => RequestRender();
             FocusedStyleChanged += (_, _) => RequestRender();
-            FocusAcquired += (_, _) => RequestRender();
+            FocusAcquired += _ => RequestRender();
         }
 
         public override string ToString() => $"({Left},{Top}: {Width}x{Height}, {(IsFocused ? 'F' : FocusBehaviour switch { FocusBehaviour.Focusable => 'f', FocusBehaviour.PassFocusThrough => 'p', _ => 'n' })}) {GetType().Name}: {Text}";

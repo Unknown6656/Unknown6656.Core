@@ -6,6 +6,7 @@ using System.Linq;
 using System.IO;
 using System;
 
+using Unknown6656.Generics;
 using Unknown6656.Imaging;
 using Unknown6656.Common;
 
@@ -338,8 +339,8 @@ namespace Unknown6656.Controls.Console
             Foreground = Console.ForegroundColor,
             InputEncoding = Console.InputEncoding,
             OutputEncoding = Console.OutputEncoding,
-            CursorVisible = FunctionExtensions.TryDo<bool?>(() => Console.CursorVisible, null),
-            CursorSize = FunctionExtensions.TryDo<int?>(() => Console.CursorSize, null),
+            CursorVisible = LINQ.TryDo<bool?>(() => Console.CursorVisible, null),
+            CursorSize = LINQ.TryDo<int?>(() => Console.CursorSize, null),
             Mode = IsWindowsConsole ? STDINConsoleMode : default,
         };
 
@@ -356,10 +357,10 @@ namespace Unknown6656.Controls.Console
                     STDINConsoleMode = state.Mode;
 
                 if (state.CursorSize is int sz)
-                    FunctionExtensions.TryDo(() => Console.CursorSize = sz);
+                    LINQ.TryDo(() => Console.CursorSize = sz);
 
                 if (state.CursorVisible is bool vis)
-                    FunctionExtensions.TryDo(() => Console.CursorVisible = vis);
+                    LINQ.TryDo(() => Console.CursorVisible = vis);
             }
         }
     }

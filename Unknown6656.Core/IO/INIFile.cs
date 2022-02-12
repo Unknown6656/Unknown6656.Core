@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using System.Text.Json;
 using System.Collections.Generic;
@@ -9,6 +9,7 @@ using System.Linq;
 using System.IO;
 using System;
 
+using Unknown6656.Generics;
 using Unknown6656.Common;
 
 namespace Unknown6656.IO

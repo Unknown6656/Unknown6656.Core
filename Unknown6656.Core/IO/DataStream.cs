@@ -23,6 +23,7 @@ using Renci.SshNet;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Cryptography;
 using Unknown6656.Controls.Console;
+using Unknown6656.Generics;
 using Unknown6656.Imaging;
 using Unknown6656.Common;
 

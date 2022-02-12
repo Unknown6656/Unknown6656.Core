@@ -59,9 +59,10 @@
         <PackageReference Include="SSH.NET" Version="2020.0.1" />
         <PackageReference Include="System.Drawing.Common" Version="6.0.2-mauipre.1.22054.8" />
         <PackageReference Include="System.Drawing.Primitives" Version="4.3.0" />
-        <PackageReference Include="Unknown6656.Currying" Version="1.0.1" />
-        <PackageReference Include="Unknown6656.DiscriminatedUnions" Version="1.0.0" />
-        <PackageReference Include="Unknown6656.IndexableProperties" Version="1.0.1" />
+        <PackageReference Include="Unknown6656.Currying" Version="1.0.2" />
+        <PackageReference Include="Unknown6656.DiscriminatedUnions" Version="1.0.1" />
+        <PackageReference Include="Unknown6656.Generics" Version="0.9.0" />
+        <PackageReference Include="Unknown6656.IndexableProperties" Version="1.0.2" />
     </ItemGroup>
     <ItemGroup>
         <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
@@ -70,10 +71,6 @@
         <None Include="unknown6656-logo-1024.png" Pack="true" PackagePath="" />
     </ItemGroup>
     <ItemGroup>
-        <None Update="Common\LINQExtensions.tt">
-            <LastGenOutput>LINQExtensions.cs</LastGenOutput>
-            <Generator>TextTemplatingFileGenerator</Generator>
-        </None>
         <None Update="Optimization\LinearEquationSolvers.tt">
             <Generator>TextTemplatingFileGenerator</Generator>
             <LastGenOutput>LinearEquationSolvers.cs</LastGenOutput>

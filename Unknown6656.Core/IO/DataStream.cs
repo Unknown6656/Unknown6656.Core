@@ -34,7 +34,6 @@ namespace Unknown6656.IO;
 // TODO : memory mapped files
 
 
-
 /// <summary>
 /// A class containing serialization/deserialization functions.
 /// </summary>
@@ -68,7 +67,6 @@ public unsafe record DataStream(byte[] Data)
     public ref byte this[Index index] => ref Data[index];
 
     public int ByteCount => Data.Length;
-
 
 
     public bool GetBit(ulong index) => (Data[index / 8] & (1 << (int)(index % 8))) != 0;
@@ -185,7 +183,6 @@ public unsafe record DataStream(byte[] Data)
     public IEnumerator<byte> GetEnumerator() => ((IEnumerable<byte>)Data).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
 
     public override string ToString() => ToString(DefaultDataStreamEncoding);
 
@@ -902,7 +899,7 @@ public unsafe record DataStream(byte[] Data)
         return FromPointer(&__start + offset, size);
     }
 
-
+    public static DataStream operator +(DataStream first, DataStream second) => first.Concat(second);
 
     public static implicit operator byte[](DataStream data) => data.Data;
 

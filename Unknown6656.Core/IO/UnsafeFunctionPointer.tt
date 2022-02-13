@@ -9,6 +9,7 @@
 //   All your changes to this file will be lost upon re-generation.  //
 ///////////////////////////////////////////////////////////////////////
 
+using System.Runtime.CompilerServices;
 using System;
 
 <#
@@ -16,11 +17,11 @@ using System;
 
     IEnumerable<int> r(int f, int t) => Enumerable.Range(f, t);
 #>
+namespace Unknown6656.IO;
 
-namespace Unknown6656.IO
+
+public unsafe sealed partial class UnsafeFunctionPointer
 {
-    public unsafe sealed partial class UnsafeFunctionPointer
-    {
 <#
     for (int i = 0; i <= MAX_SIZE; ++i)
     {
@@ -29,7 +30,9 @@ namespace Unknown6656.IO
         if (!string.IsNullOrEmpty(typestr))
             typestr = "<" + typestr + ">";
 #>
-        public Action<#=typestr#> AsAction<#=typestr#>() => new Action<#=typestr#>(Invoke);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Action<#=typestr#> AsAction<#=typestr#>()
+        => new(Invoke);
 
 <#
     }
@@ -38,7 +41,9 @@ namespace Unknown6656.IO
     {
         string typestr = '<' + string.Join(", ", r(0, i).Select(j => "T" + j).Append("T")) + '>';
 #>
-        public Func<#=typestr#> AsFunction<#=typestr#>() => new Func<#=typestr#>(Invoke<#=typestr#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Func<#=typestr#> AsFunction<#=typestr#>() =>
+        new(Invoke<#=typestr#>);
 
 <#
     }
@@ -47,7 +52,9 @@ namespace Unknown6656.IO
     {
         string typestr = '<' + string.Join(", ", r(0, i).Select(j => "T" + j).Append("T")) + '>';
 #>
-        public delegate*<#=typestr#> AsUnsafe<#=typestr#>() => ((delegate*<#=typestr#>)BufferAddress);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public delegate*<#=typestr#> AsUnsafe<#=typestr#>() =>
+        (delegate*<#=typestr#>)BufferAddress;
 
 <#
     }
@@ -63,12 +70,15 @@ namespace Unknown6656.IO
         if (!string.IsNullOrEmpty(typestr))
             typestr = "<" + typestr + ">";
 #>
-        public void Invoke<#=typestr#>(<#=argstr#>) => ((<#= i == 0 ? "delegate*<void>" : typestr.Replace("<", "delegate*<").Replace(">", ", void>") #>)BufferAddress)(<#=args#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Invoke<#=typestr#>(<#=argstr#>) =>
+        ((<#= i == 0 ? "delegate*<void>" : typestr.Replace("<", "delegate*<").Replace(">", ", void>") #>)BufferAddress)(<#=args#>);
 
-        public T Invoke<#=typestr_e#>(<#=argstr#>) => ((delegate*<#=typestr_e#>)BufferAddress)(<#=args#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public T Invoke<#=typestr_e#>(<#=argstr#>) =>
+        ((delegate*<#=typestr_e#>)BufferAddress)(<#=args#>);
 
 <#
     }
 #>
-    }
 }

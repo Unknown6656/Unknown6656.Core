@@ -28,6 +28,10 @@ using Unknown6656.IO;
 
 using num = System.Numerics;
 
+namespace Unknown6656.Mathematics.LinearAlgebra;
+
+// TODO : fix coefficient naming 'XYZWVU'
+
 <#
     T[][] PowerSet<T>(T[] collection)
     {
@@ -88,14 +92,6 @@ using num = System.Numerics;
         return rec(l, 0, l.Length - 1).ToArray();
     }
 
-
-#>
-
-// TODO : fix coefficient naming 'XYZWVU'
-
-namespace Unknown6656.Mathematics.LinearAlgebra
-{
-<#
     const string comp = "XYZWVU";
     int maxdim = 4;
 
@@ -116,51 +112,47 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         string matname = "Matrix" + dim;
         bool crossable = dim == 3 || dim == 7;
 #>
-    #region <#=typename#>
+#region <#=typename#>
 
-    /// <summary>
-    /// Represents a <#=crossable ? "crossable " : ""#><#=dim#>-dimensional vector.
-    /// </summary>
-    /// <inheritdoc cref="IMatrix{M,V,S}"/>
-    [StructLayout(LayoutKind.Sequential), NativeCppClass, Serializable, CLSCompliant(false)]
-    public unsafe readonly /* ref */ partial struct <#=typename#>
-        : Algebra<Scalar>.IVector<<#=typename#>, <#=matname#>>
+/// <summary>
+/// Represents a <#=crossable ? "crossable " : ""#><#=dim#>-dimensional vector.
+/// </summary>
+/// <inheritdoc cref="IMatrix{M,V,S}"/>
+[StructLayout(LayoutKind.Sequential), NativeCppClass, Serializable, CLSCompliant(false)]
+public unsafe readonly /* ref */ partial struct <#=typename#>
+    : Algebra<Scalar>.IVector<<#=typename#>, <#=matname#>>
 <#
         if (crossable)
-            WriteLine($"        , Algebra<Scalar>.ICrossableVector<{typename}>");
+            WriteLine($"    , Algebra<Scalar>.ICrossableVector<{typename}>");
 #>
-        , Algebra<Scalar, Polynomial>.IComposite1D
-        , IReadonlyNative<<#=typename#>>
-        , IEnumerable<Scalar>
-        , IComparable<<#=typename#>>
-        , IComparable
-        , ICloneable
-    {
-        #region PRIVATE FIELDS
+    , Algebra<Scalar, Polynomial>.IComposite1D
+    , IReadonlyNative<<#=typename#>>
+    , IEnumerable<Scalar>
+    , IComparable<<#=typename#>>
+    , IComparable
+    , ICloneable
+{
+    #region PRIVATE FIELDS
 
 #pragma warning disable IDE0032
 <#
         for (int i = 0; i < dim; ++i)
-        {
-#>
-        private readonly Scalar <#=comps[i]#>;
-<#
-        }
+            WriteLine($"    private readonly Scalar {comps[i]};");
 #>
 #pragma warning restore IDE0032
 
-        #endregion
-        #region STATIC PROPERTIES
+    #endregion
+    #region STATIC PROPERTIES
 
-        /// <inheritdoc cref="Dimension"/>
-        public const int Dimension = <#=dim#>;
+    /// <inheritdoc cref="Dimension"/>
+    public const int Dimension = <#=dim#>;
 
-        /// <summary>
-        /// The zero vector
-        /// </summary>
-        public static <#=typename#> Zero { get; } = new <#=typename#>(0);
+    /// <summary>
+    /// The zero vector
+    /// </summary>
+    public static <#=typename#> Zero { get; } = new <#=typename#>(0);
 
-        public static <#=typename#>[] UnitVectors { get; } = <#=matname#>.Identity.Columns;
+    public static <#=typename#>[] UnitVectors { get; } = <#=matname#>.Identity.Columns;
 <#
         if (dim <= comp.Length)
             for (int i = 0; i < dim; ++i)
@@ -169,55 +161,55 @@ namespace Unknown6656.Mathematics.LinearAlgebra
                 tuple[i] = 1;
 #>
 
-        /// <summary>
-        /// The unit vector in <#=comp[i]#>-direction
-        /// </summary>
-        public static <#=typename#> Unit<#=comp[i]#> { get; } = (<#=string.Join(", ", tuple)#>);
+    /// <summary>
+    /// The unit vector in <#=comp[i]#>-direction
+    /// </summary>
+    public static <#=typename#> Unit<#=comp[i]#> { get; } = (<#=string.Join(", ", tuple)#>);
 <#
             }
 #>
 
-        /// <summary>
-        /// The raw memory size of the <see cref="<#=typename#>"/>-structure in bytes.
-        /// </summary>
-        public static int BinarySize { get; } = sizeof(<#=typename#>);
+    /// <summary>
+    /// The raw memory size of the <see cref="<#=typename#>"/>-structure in bytes.
+    /// </summary>
+    public static int BinarySize { get; } = sizeof(<#=typename#>);
 
-        /// <summary>
-        /// The default compoonent-wise equality comparer for  <see cref="<#=typename#>"/>.
-        /// </summary>
-        public static <#=typename#>EqualityComparer EqualityComparer { get; } = new <#=typename#>EqualityComparer();
+    /// <summary>
+    /// The default compoonent-wise equality comparer for  <see cref="<#=typename#>"/>.
+    /// </summary>
+    public static <#=typename#>EqualityComparer EqualityComparer { get; } = new <#=typename#>EqualityComparer();
 
-        public static VectorSpace<#=dim#> UnitSpace { get; } = VectorSpace<#=dim#>.FromMatrixColumns(<#=matname#>.Identity);
+    public static VectorSpace<#=dim#> UnitSpace { get; } = VectorSpace<#=dim#>.FromMatrixColumns(<#=matname#>.Identity);
 
-        #endregion
-        #region INDEXERS
+    #endregion
+    #region INDEXERS
 
-        public readonly Scalar this[int index] => index switch
+    public readonly Scalar this[int index] => index switch
+    {
+<#=string.Join("\n", r(0, dim).Select(i => $"        {i} => {comps[i]},"))#>
+        _ => throw new IndexOutOfRangeException()
+    };
+
+    public readonly Scalar this[Index index] => this[index.GetOffset(<#=dim#>)];
+
+    public readonly VectorN this[Range rows] => GetEntries(rows);
+
+    public readonly <#=typename#> this[Range rows, in VectorN values] => SetEntries(rows, values);
+
+    public readonly <#=typename#> this[int index, Scalar new_value]
+    {
+        get
         {
-<#=string.Join("\n", r(0, dim).Select(i => $"            {i} => {comps[i]},"))#>
-            _ => throw new IndexOutOfRangeException()
-        };
+            Scalar[] arr = this;
 
-        public readonly Scalar this[Index index] => this[index.GetOffset(<#=dim#>)];
+            arr[index] = new_value;
 
-        public readonly VectorN this[Range rows] => GetEntries(rows);
-
-        public readonly <#=typename#> this[Range rows, in VectorN values] => SetEntries(rows, values);
-
-        public readonly <#=typename#> this[int index, Scalar new_value]
-        {
-            get
-            {
-                Scalar[] arr = this;
-
-                arr[index] = new_value;
-
-                return new <#=typename#>(arr);
-            }
+            return new <#=typename#>(arr);
         }
+    }
 
-        #endregion
-        #region INSTANCE PROPERTIES
+    #endregion
+    #region INSTANCE PROPERTIES
 <#
         const bool use_permutations = false;
 
@@ -229,142 +221,138 @@ namespace Unknown6656.Mathematics.LinearAlgebra
                         {
 #>
 
-        /// <summary>
-        /// Returns the vector's <#=p#>-coefficient (Index = <#=comp.IndexOf(p)#>).
-        /// </summary>
-        public readonly Scalar <#=p#> => <#=comps[comp.IndexOf(p)]#>;
+    /// <summary>
+    /// Returns the vector's <#=p#>-coefficient (Index = <#=comp.IndexOf(p)#>).
+    /// </summary>
+    public readonly Scalar <#=p#> => <#=comps[comp.IndexOf(p)]#>;
 <#
                         }
                         else
                         {
 #>
 
-        /// <summary>
-        /// Returns the combination of the vector's <#=p#>-coefficients.
-        /// </summary>
-        [DebuggerHidden, DebuggerNonUserCode, DebuggerBrowsable(DebuggerBrowsableState.Never) /* EditorBrowsable(EditorBrowsableState.Never) */]
-        public readonly Vector<#=p.Length + " " + p #> => new(<#=string.Join(", ", p as IEnumerable<char>)#>);
+    /// <summary>
+    /// Returns the combination of the vector's <#=p#>-coefficients.
+    /// </summary>
+    [DebuggerHidden, DebuggerNonUserCode, DebuggerBrowsable(DebuggerBrowsableState.Never) /* EditorBrowsable(EditorBrowsableState.Never) */]
+    public readonly Vector<#=p.Length + " " + p #> => new(<#=string.Join(", ", p as IEnumerable<char>)#>);
 <#
                         }
 #>
 
-        [DebuggerHidden, DebuggerNonUserCode, DebuggerBrowsable(DebuggerBrowsableState.Never), EditorBrowsable(EditorBrowsableState.Never)]
-        public readonly <#=typename#> ZeroElement => Zero;
+    [DebuggerHidden, DebuggerNonUserCode, DebuggerBrowsable(DebuggerBrowsableState.Never), EditorBrowsable(EditorBrowsableState.Never)]
+    public readonly <#=typename#> ZeroElement => Zero;
 
-        /// <inheritdoc cref="Dimension"/>
-        public readonly int Size => Dimension;
+    /// <inheritdoc cref="Dimension"/>
+    public readonly int Size => Dimension;
 
-        /// <inheritdoc cref="Dimension"/>
-        readonly int Algebra<Scalar>.IComposite1D.Dimension => Dimension;
+    /// <inheritdoc cref="Dimension"/>
+    readonly int Algebra<Scalar>.IComposite1D.Dimension => Dimension;
 
-        /// <inheritdoc cref="BinarySize"/>
-        readonly int IReadonlyNative<<#=typename#>>.BinarySize => BinarySize;
+    /// <inheritdoc cref="BinarySize"/>
+    readonly int IReadonlyNative<<#=typename#>>.BinarySize => BinarySize;
 
-        public readonly MatrixNM Transposed => new MatrixNM(<#=dim#>, 1, Coefficients);
+    public readonly MatrixNM Transposed => new MatrixNM(<#=dim#>, 1, Coefficients);
 
-        public readonly Scalar[] Coefficients => new[] { <#=string.Join(", ", comps)#> };
+    public readonly Scalar[] Coefficients => new[] { <#=string.Join(", ", comps)#> };
 
-        public readonly bool IsZero => Is(Zero);
+    public readonly bool IsZero => Is(Zero);
 
-        public readonly bool IsNonZero => !IsZero;
+    public readonly bool IsNonZero => !IsZero;
 
-        public readonly <#=typename#> AdditiveInverse => Negate();
+    public readonly <#=typename#> AdditiveInverse => Negate();
 
-        public readonly bool IsBinary => <#=string.Join(" && ", comps.Select(c => c + ".IsBinary"))#>;
+    public readonly bool IsBinary => <#=string.Join(" && ", comps.Select(c => c + ".IsBinary"))#>;
 
-        public readonly bool IsNegative => Coefficients.All(c => c.IsNegative);
+    public readonly bool IsNegative => Coefficients.All(c => c.IsNegative);
 
-        public readonly bool IsPositive => Coefficients.All(c => c.IsPositive);
+    public readonly bool IsPositive => Coefficients.All(c => c.IsPositive);
 
-        public readonly bool HasNegatives => Coefficients.Any(c => c.IsNegative);
+    public readonly bool HasNegatives => Coefficients.Any(c => c.IsNegative);
 
-        public readonly bool HasPositives => Coefficients.Any(c => c.IsPositive);
+    public readonly bool HasPositives => Coefficients.Any(c => c.IsPositive);
 
-        public readonly bool HasNaNs => Coefficients.Any(c => c.IsNaN);
+    public readonly bool HasNaNs => Coefficients.Any(c => c.IsNaN);
 
-        public readonly Scalar Sum => <#=string.Join(" + ", comps)#>;
+    public readonly Scalar Sum => <#=string.Join(" + ", comps)#>;
 
-        public readonly Scalar Avg => Sum / Dimension;
+    public readonly Scalar Avg => Sum / Dimension;
 
-        public readonly Scalar Min => Coefficients.Min();
+    public readonly Scalar Min => Coefficients.Min();
 
-        public readonly Scalar Max => Coefficients.Max();
+    public readonly Scalar Max => Coefficients.Max();
         
-        public readonly Scalar MaximumNorm => Coefficients.Select(Scalar.Abs).Max();
+    public readonly Scalar MaximumNorm => Coefficients.Select(Scalar.Abs).Max();
 
-        public readonly Scalar TaxicabNorm => Coefficients.Select(Scalar.Abs).Sum();
+    public readonly Scalar TaxicabNorm => Coefficients.Select(Scalar.Abs).Sum();
 
-        public readonly Scalar SquaredNorm => Dot(this);
+    public readonly Scalar SquaredNorm => Dot(this);
 
-        public readonly Scalar SquaredLength => SquaredNorm;
+    public readonly Scalar SquaredLength => SquaredNorm;
 
-        public readonly Scalar Length => SquaredNorm.Sqrt();
+    public readonly Scalar Length => SquaredNorm.Sqrt();
 
-        public readonly Scalar EucledianNorm => Length;
+    public readonly Scalar EucledianNorm => Length;
 
-        public readonly <#=typename#> Normalized => Length is Scalar l && l.IsZero ? Zero : Divide(l);
+    public readonly <#=typename#> Normalized => Length is Scalar l && l.IsZero ? Zero : Divide(l);
 
-        public readonly bool IsNormalized => Length.IsOne;
+    public readonly bool IsNormalized => Length.IsOne;
 
-        public readonly bool IsInsideUnitSphere => Length.IsInsideUnitSphere;
+    public readonly bool IsInsideUnitSphere => Length.IsInsideUnitSphere;
 
-        public readonly <#=matname#> HouseholderMatrix => IsZero ? throw new InvalidOperationException("The Householder matrix is undefined for zero vectors.")
-                                                   : OuterProduct(this) * 2 / SquaredNorm;
+    public readonly <#=matname#> HouseholderMatrix => IsZero ? throw new InvalidOperationException("The Householder matrix is undefined for zero vectors.")
+                                                : OuterProduct(this) * 2 / SquaredNorm;
 
-        #endregion
-        #region CONSTRUCTORS
+    #endregion
+    #region CONSTRUCTORS
 
-        /// <summary>
-        /// Creates a new <#=dim#>-dimensional uniform vector
-        /// </summary>
-        /// <param name="s">The coefficients' value</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(Scalar s = default)
-            : this(<#=string.Join(", ", Enumerable.Repeat("s", dim))#>)
-        {
-        }
+    /// <summary>
+    /// Creates a new <#=dim#>-dimensional uniform vector
+    /// </summary>
+    /// <param name="s">The coefficients' value</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(Scalar s = default)
+        : this(<#=string.Join(", ", Enumerable.Repeat("s", dim))#>)
+    {
+    }
 
-        /// <summary>
-        /// Creates a new <#=dim#>-dimensional vector
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => "Scalar x" + i))#>)
-        {
+    /// <summary>
+    /// Creates a new <#=dim#>-dimensional vector
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => "Scalar x" + i))#>)
+    {
 <#
         for (int i = 0; i < dim; ++i)
-        {
+            WriteLine($"        {comps[i]} = x{i};");
 #>
-            <#=comps[i]#> = x<#=i#>;
-<#
-        }
-#>
-        }
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(Scalar* values)
-            : this((<#=typename#>*)values)
-        {
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(Scalar* values)
+        : this((<#=typename#>*)values)
+    {
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(<#=typename#>* vector)
-            : this(*vector)
-        {
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(<#=typename#>* vector)
+        : this(*vector)
+    {
+    }
 <#
         for (int i = dim; i < maxdim; ++i)
         {
 #>
 
-        /// <summary>
-        /// Creates a new <#=dim#>-dimensional vector from the given <#=i#>-dimensional one
-        /// </summary>
-        /// <param name="v">The <#=i#>-dimensional vector</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(in Vector<#=i#> v)
-            : this(<#=string.Join(", ", r(0, dim).Select(j => $"v[{j}]"))#>)
-        {
-        }
+    /// <summary>
+    /// Creates a new <#=dim#>-dimensional vector from the given <#=i#>-dimensional one
+    /// </summary>
+    /// <param name="v">The <#=i#>-dimensional vector</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(in Vector<#=i#> v)
+        : this(<#=string.Join(", ", r(0, dim).Select(j => $"v[{j}]"))#>)
+    {
+    }
 <#
         }
 
@@ -372,172 +360,172 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         {
 #>
 
-        /// <summary>
-        /// Creates a new <#=dim#>-dimensional vector from the given <#=dim-1#>-dimensional one.
-        /// </summary>
-        /// <param name="v">The <#=dim-1#>-dimensional vector</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(in Vector<#=dim-1#> v)
-            : this(v, 0)
-        {
-        }
+    /// <summary>
+    /// Creates a new <#=dim#>-dimensional vector from the given <#=dim-1#>-dimensional one.
+    /// </summary>
+    /// <param name="v">The <#=dim-1#>-dimensional vector</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(in Vector<#=dim-1#> v)
+        : this(v, 0)
+    {
+    }
 
-        /// <summary>
-        /// Creates a new <#=dim#>-dimensional vector from the given <#=dim-1#>-dimensional one and an additional coefficient.
-        /// </summary>
-        /// <param name="v">The <#=dim-1#>-dimensional vector</param>
-        /// <param name="c">The additional coefficient</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(in Vector<#=dim-1#> v, Scalar c)
-            : this(<#=string.Join(", ", r(0, dim - 1).Select(j => $"v[{j}]"))#>, c)
-        {
-        }
+    /// <summary>
+    /// Creates a new <#=dim#>-dimensional vector from the given <#=dim-1#>-dimensional one and an additional coefficient.
+    /// </summary>
+    /// <param name="v">The <#=dim-1#>-dimensional vector</param>
+    /// <param name="c">The additional coefficient</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(in Vector<#=dim-1#> v, Scalar c)
+        : this(<#=string.Join(", ", r(0, dim - 1).Select(j => $"v[{j}]"))#>, c)
+    {
+    }
 <#
         }
 #>
 
-        /// <summary>
-        /// Creates a new <#=dim#>-dimensional vector from the given coefficient array
-        /// </summary>
-        /// <param name="v">The vector's coefficients</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(IEnumerable<Scalar> v)
-            : this(v?.ToArray() ?? new Scalar[<#=dim#>])
-        {
-        }
+    /// <summary>
+    /// Creates a new <#=dim#>-dimensional vector from the given coefficient array
+    /// </summary>
+    /// <param name="v">The vector's coefficients</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(IEnumerable<Scalar> v)
+        : this(v?.ToArray() ?? new Scalar[<#=dim#>])
+    {
+    }
 
-        /// <summary>
-        /// Creates a new <#=dim#>-dimensional vector from the given coefficient array
-        /// </summary>
-        /// <param name="v">The vector's coefficients</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(Scalar[] v)
-            : this(<#=string.Join(", ", r(0, dim).Select(i => $"v[{i}]"))#>)
-        {
-        }
+    /// <summary>
+    /// Creates a new <#=dim#>-dimensional vector from the given coefficient array
+    /// </summary>
+    /// <param name="v">The vector's coefficients</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(Scalar[] v)
+        : this(<#=string.Join(", ", r(0, dim).Select(i => $"v[{i}]"))#>)
+    {
+    }
 
-        /// <summary>
-        /// Creates a new <#=dim#>-dimensional vector from the given coefficient array
-        /// </summary>
-        /// <param name="v">The vector's coefficients</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(IEnumerable<double>? v)
-            : this((v ?? new double[<#=dim#>]).Select(v => (Scalar)v))
-        {
-        }
+    /// <summary>
+    /// Creates a new <#=dim#>-dimensional vector from the given coefficient array
+    /// </summary>
+    /// <param name="v">The vector's coefficients</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(IEnumerable<double>? v)
+        : this((v ?? new double[<#=dim#>]).Select(v => (Scalar)v))
+    {
+    }
 
-        #endregion
-        #region INSTANCE METHODS
+    #endregion
+    #region INSTANCE METHODS
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Negate() => new(<#=string.Join(", ", comps.Select(s => '-' + s))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Negate() => new(<#=string.Join(", ", comps.Select(s => '-' + s))#>);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Add(in <#=typename#> second) => new(<#=string.Join(", ", comps.Select(s => $"{s} + second.{s}"))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Add(in <#=typename#> second) => new(<#=string.Join(", ", comps.Select(s => $"{s} + second.{s}"))#>);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Add(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => new(<#=string.Join(", ", comps.Select((s, i) => $"{s} + s{i}"))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Add(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => new(<#=string.Join(", ", comps.Select((s, i) => $"{s} + s{i}"))#>);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Add(params <#=typename#>[] others) => others.Aggregate(this, Add);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Add(params <#=typename#>[] others) => others.Aggregate(this, Add);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> MoveBy(in <#=typename#> second) => Add(in second);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> MoveBy(in <#=typename#> second) => Add(in second);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> MoveBy(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => Add(<#=string.Join(", ", r(0, dim).Select(i => "s" + i))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> MoveBy(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => Add(<#=string.Join(", ", r(0, dim).Select(i => "s" + i))#>);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Subtract(in <#=typename#> second) => Add(second.AdditiveInverse);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Subtract(in <#=typename#> second) => Add(second.AdditiveInverse);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Subtract(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => new(<#=string.Join(", ", comps.Select((s, i) => $"{s} - s{i}"))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Subtract(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => new(<#=string.Join(", ", comps.Select((s, i) => $"{s} - s{i}"))#>);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Subtract(params <#=typename#>[] others) => others.Aggregate(this, Subtract);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Subtract(params <#=typename#>[] others) => others.Aggregate(this, Subtract);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Increment() => Add(new <#=typename#>(1));
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Increment() => Add(new <#=typename#>(1));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Decrement() => Subtract(new <#=typename#>(1));
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Decrement() => Subtract(new <#=typename#>(1));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Multiply(Scalar factor) => new(<#=string.Join(", ", comps.Select(s => $"{s} * factor"))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Multiply(Scalar factor) => new(<#=string.Join(", ", comps.Select(s => $"{s} * factor"))#>);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Multiply(params Scalar[] factors) => factors.Aggregate(this, (v, f) => v.Multiply(f));
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Multiply(params Scalar[] factors) => factors.Aggregate(this, (v, f) => v.Multiply(f));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Divide(Scalar factor) => Multiply(factor.Inverse);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Divide(Scalar factor) => Multiply(factor.Inverse);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Divide(params Scalar[] factors) => factors.Aggregate(this, (v, f) => v.Divide(f));
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Divide(params Scalar[] factors) => factors.Aggregate(this, (v, f) => v.Divide(f));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar ComputeNorm(VectorNorm norm) => norm switch
-        {
-            VectorNorm.EucledianNorm => EucledianNorm,
-            VectorNorm.TaxicabNorm => TaxicabNorm,
-            VectorNorm.MaximumNorm => MaximumNorm,
-        };
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar ComputePNorm(Scalar p) => Coefficients.Select(c => c.Abs().Power(p)).Sum().Power(p.MultiplicativeInverse);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly Scalar ComputeNorm(VectorNorm norm) => norm switch
+    {
+        VectorNorm.EucledianNorm => EucledianNorm,
+        VectorNorm.TaxicabNorm => TaxicabNorm,
+        VectorNorm.MaximumNorm => MaximumNorm,
+    };
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar ComputeMatrixNorm(<#=matname#> matrix) => Dot(matrix.Multiply(this)).Sqrt();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly Scalar ComputePNorm(Scalar p) => Coefficients.Select(c => c.Abs().Power(p)).Sum().Power(p.MultiplicativeInverse);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> ComponentwiseMultiply(in <#=typename#> second) => new(<#=string.Join(", ", comps.Select(s => $"{s} * second.{s}"))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly Scalar ComputeMatrixNorm(<#=matname#> matrix) => Dot(matrix.Multiply(this)).Sqrt();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> ComponentwiseMultiply(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => new(<#=string.Join(", ", comps.Select((s, i) => $"{s} * s{i}"))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> ComponentwiseMultiply(in <#=typename#> second) => new(<#=string.Join(", ", comps.Select(s => $"{s} * second.{s}"))#>);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> ComponentwiseDivide(in <#=typename#> second) => new(<#=string.Join(", ", comps.Select(s => $"{s} / second.{s}"))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> ComponentwiseMultiply(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => new(<#=string.Join(", ", comps.Select((s, i) => $"{s} * s{i}"))#>);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> ComponentwiseDivide(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => new(<#=string.Join(", ", comps.Select((s, i) => $"{s} / s{i}"))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> ComponentwiseDivide(in <#=typename#> second) => new(<#=string.Join(", ", comps.Select(s => $"{s} / second.{s}"))#>);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> ComponentwiseModulus(in <#=typename#> second) => new(<#=string.Join(", ", comps.Select(s => $"{s} % second.{s}"))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> ComponentwiseDivide(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => new(<#=string.Join(", ", comps.Select((s, i) => $"{s} / s{i}"))#>);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> ComponentwiseModulus(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => new(<#=string.Join(", ", comps.Select((s, i) => $"{s} % s{i}"))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> ComponentwiseModulus(in <#=typename#> second) => new(<#=string.Join(", ", comps.Select(s => $"{s} % second.{s}"))#>);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> ComponentwiseAbsolute() => new(<#=string.Join(", ", comps.Select(s => s + ".Abs()"))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> ComponentwiseModulus(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => new(<#=string.Join(", ", comps.Select((s, i) => $"{s} % s{i}"))#>);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> ComponentwiseSqrt() => new(<#=string.Join(", ", comps.Select(s => s + ".Sqrt()"))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> ComponentwiseAbsolute() => new(<#=string.Join(", ", comps.Select(s => s + ".Abs()"))#>);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Power(int e)
-        {
-            if (e < 0)
-                throw new ArgumentOutOfRangeException(nameof(e));
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> ComponentwiseSqrt() => new(<#=string.Join(", ", comps.Select(s => s + ".Sqrt()"))#>);
 
-            <#=typename#> r = (<#=string.Join(", ", Enumerable.Repeat(1, dim))#>);
-            <#=typename#> p = this;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Power(int e)
+    {
+        if (e < 0)
+            throw new ArgumentOutOfRangeException(nameof(e));
 
-            while (e > 0)
-                if ((e & 1) == 1)
-                {
-                    --e;
-                    r = r.ComponentwiseMultiply(p);
-                }
-                else
-                {
-                    e /= 2;
-                    p = p.ComponentwiseMultiply(p);
-                }
+        <#=typename#> r = (<#=string.Join(", ", Enumerable.Repeat(1, dim))#>);
+        <#=typename#> p = this;
 
-            return r;
-        }
+        while (e > 0)
+            if ((e & 1) == 1)
+            {
+                --e;
+                r = r.ComponentwiseMultiply(p);
+            }
+            else
+            {
+                e /= 2;
+                p = p.ComponentwiseMultiply(p);
+            }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar Dot(in <#=typename#> second) => ComponentwiseMultiply(second).Sum;
+        return r;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly Scalar Dot(in <#=typename#> second) => ComponentwiseMultiply(second).Sum;
 <#
         if (crossable)
         {

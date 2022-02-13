@@ -26,13 +26,10 @@ public abstract class Function<Func, Domain, Codomain>
     /// </summary>
     public abstract FunctionCache<Func, Domain, Codomain> Cached { get; }
 
-    /// <inheritdoc/>
     public Func AdditiveInverse => Negate();
 
-    /// <inheritdoc/>
     public virtual bool IsZero => false;
 
-    /// <inheritdoc/>
     public bool IsNonZero => !IsZero;
 
 

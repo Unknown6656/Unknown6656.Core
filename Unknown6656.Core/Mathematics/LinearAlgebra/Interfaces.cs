@@ -110,11 +110,9 @@ public interface IEquality<Object>
     /// <returns>Inequality comparison result</returns>
     bool IsNot(Object? o);
 
-    /// <inheritdoc/>
     bool IStructuralEquatable.Equals(object? other, IEqualityComparer comparer) =>
         other is Object o && comparer.GetHashCode(o) == comparer.GetHashCode(this);
 
-    /// <inheritdoc/>
     int IStructuralEquatable.GetHashCode(IEqualityComparer comparer) => comparer.GetHashCode(this);
 
     static abstract bool operator ==(Object first, Object second);
@@ -181,7 +179,7 @@ public interface INumericGroup<Group>
         ;
 #endif
 
-    static abstract Group operator +(Group first, Group second);
+    static abstract Group operator +(in Group first, in Group second);
 }
 
 /// <summary>
@@ -229,11 +227,11 @@ public interface IGroup<Group>
         ;
 #endif
 
-    static abstract Group operator +(Group group);
+    static abstract Group operator +(in Group group);
 
-    static abstract Group operator -(Group group);
+    static abstract Group operator -(in Group group);
 
-    static abstract Group operator -(Group first, Group second);
+    static abstract Group operator -(in Group first, in Group second);
 }
 
 public interface IRing
@@ -338,11 +336,11 @@ public interface IRing<Ring>
         ;
 #endif
 
-    static abstract Ring operator ++(Ring ring);
+    static abstract Ring operator ++(in Ring ring);
 
-    static abstract Ring operator --(Ring ring);
+    static abstract Ring operator --(in Ring ring);
 
-    static abstract Ring operator *(Ring first, Ring second);
+    static abstract Ring operator *(in Ring first, in Ring second);
 }
 
 public interface IField
@@ -393,9 +391,9 @@ public interface IField<Field>
         ;
 #endif
 
-    static abstract Field operator /(Field first, Field second);
+    static abstract Field operator /(in Field first, in Field second);
 
-    static abstract Field operator %(Field first, Field second);
+    static abstract Field operator %(in Field first, in Field second);
 }
 
 public interface INumericRing<Field>
@@ -636,13 +634,13 @@ public static class Algebra<Scalar>
             ;
 #endif
 
-        static abstract Vector operator *(Scalar scalar, Vector vector);
+        static abstract Vector operator *(Scalar scalar, in Vector vector);
 
-        static abstract Vector operator *(Vector vector, Scalar scalar);
+        static abstract Vector operator *(in Vector vector, Scalar scalar);
 
-        static abstract Vector operator /(Vector vector, Scalar scalar);
+        static abstract Vector operator /(in Vector vector, Scalar scalar);
 
-        static abstract Vector operator %(Vector vector, Scalar scalar);
+        static abstract Vector operator %(in Vector vector, Scalar scalar);
     }
 
     public interface IComposite
@@ -886,7 +884,7 @@ public static class Algebra<Scalar>
             ;
 #endif
 
-        static abstract Scalar operator*(Vector first, Vector second);
+        static abstract Scalar operator*(in Vector first, in Vector second);
     }
 
     public interface IMetricVectorSpace

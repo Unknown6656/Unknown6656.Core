@@ -27,10 +27,8 @@ namespace Unknown6656.Optimization.ParticleSwarmOptimization
             YValue = y;
         }
 
-        /// <inheritdoc/>
         public override Scalar GetValue(Domain x) => Function.Evaluate(x).DistanceTo(YValue).Abs();
 
-        /// <inheritdoc/>
         internal protected override bool IsValidSearchPosition(Domain position)
         {
             try

@@ -141,28 +141,24 @@ public partial struct HDRColor
     private double _α, _r, _g, _b;
 
 
-    /// <inheritdoc/>
     public double R
     {
         readonly get => _r;
         set => _r = value.Clamp();
     }
 
-    /// <inheritdoc/>
     public double G
     {
         readonly get => _g;
         set => _g = value.Clamp();
     }
 
-    /// <inheritdoc/>
     public double B
     {
         readonly get => _b;
         set => _b = value.Clamp();
     }
 
-    /// <inheritdoc/>
     public double A
     {
         readonly get => _α;
@@ -340,16 +336,12 @@ public unsafe partial struct RGBAColor
         readonly get => B / 255.0;
     }
 
-    /// <inheritdoc/>
     readonly byte IColor<RGBAColor, byte>.R => R;
 
-    /// <inheritdoc/>
     readonly byte IColor<RGBAColor, byte>.G => G;
 
-    /// <inheritdoc/>
     readonly byte IColor<RGBAColor, byte>.B => B;
 
-    /// <inheritdoc/>
     readonly byte IColor<RGBAColor, byte>.A => A;
 
     public readonly double EucledianLength => Math.Sqrt(Rf * Rf + Gf * Gf + Bf * Bf);
@@ -422,11 +414,9 @@ public unsafe partial struct RGBAColor
     //    );
     //}
 
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(out byte r, out byte g, out byte b) => Deconstruct(out r, out g, out b, out _);
 
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(out byte r, out byte g, out byte b, out byte α)
     {

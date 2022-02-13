@@ -865,7 +865,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
         return FromArray(m);
     });
 
-    /// <inheritdoc/>
     [DebuggerHidden, DebuggerBrowsable(DebuggerBrowsableState.Never), Obsolete("Use the member 'T Matrix3::Inverse' instead.")]
     public Matrix MultiplicativeInverse => Inverse;
 
@@ -1019,7 +1018,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
 
     public bool IsSquareIdentity => IsSquare && IsIdentity;
 
-    /// <inheritdoc/>
     bool IRing.IsOne => IsIdentity;
 
     /// <summary>

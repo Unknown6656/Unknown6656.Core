@@ -19,7 +19,8 @@ namespace Unknown6656.Mathematics.Statistics
     /// </summary>
     /// <typeparam name="Scalar">Generic data parameter type</typeparam>
     public interface IRegressionDataSet<Set, Scalar>
-        : IEnumerable<Scalar>
+        : ISet<Scalar>
+        // : IEnumerable<Scalar>
         , ICloneable
         where Set : IRegressionDataSet<Set, Scalar>
         where Scalar : IComparable<Scalar>
@@ -28,50 +29,60 @@ namespace Unknown6656.Mathematics.Statistics
         /// Returns the sum of the current data set.
         /// </summary>
         Scalar Sum { get; }
+
         /// <summary>
         /// Returns the Average of the current data set.
         /// </summary>
         Scalar Average { get; }
+
         /// <summary>
         /// Returns the variance of the current data set.
         /// </summary>
         Scalar Variance { get; }
+
         /// <summary>
         /// Returns the median of the current data set.
         /// </summary>
         Scalar Median { get; }
+
         /// <summary>
         /// Returns the standard deviation of the current data set.
         /// </summary>
         Scalar StandardDeviation { get; }
+
         /// <summary>
         /// Retruns the variation coefficient of the current data set.
         /// </summary>
         Scalar VariationCoefficient { get; }
+
         /// <summary>
         /// Returns the current data set in a sorted order.
         /// </summary>
         Set Sorted { get; }
+
         /// <summary>
         /// The number of elements in the current data set.
         /// </summary>
         int Count { get; }
 
         void Clear();
+
         /// <summary>
         /// Adds the given value to the end of the current collection.
         /// </summary>
         /// <param name="value">Value to be added</param>
         /// <returns>Current data set</returns>
         void Add(Scalar value);
+
         /// <summary>
         /// Adds the given value collection to the end of the current one.
         /// </summary>
         /// <param name="values">Values to be added</param>
         void AddRange(IEnumerable<Scalar> values);
+
         /// <inheritdoc cref="ICloneable.Clone"/>
         new Set Clone();
-        /// <inheritdoc/>
+
         object ICloneable.Clone() => Clone();
     }
 

@@ -788,10 +788,7 @@ namespace Unknown6656.Imaging
 
             if (string.IsNullOrWhiteSpace(content))
                 continue;
-            else if (!content.StartsWith("///"))
-                WriteLine("        /// <inheritdoc/>");
-
-            if (content.Count(c => c is '\n') < 8 &&
+            else if (content.Count(c => c is '\n') < 8 &&
                 !content.Contains("MethodImplOptions") &&
                 !M(content, @"^[^\n]+\w+\s*=>", out _))
                 WriteLine("        [MethodImpl(MethodImplOptions.AggressiveInlining)]");

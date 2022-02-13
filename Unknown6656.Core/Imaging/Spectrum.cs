@@ -93,19 +93,14 @@ namespace Unknown6656.Imaging
 
         public readonly RGBAColor ToRGBAColor(double α) => ToColor(α);
 
-        /// <inheritdoc/>
         public override string ToString() => $"{InNanometers} nm / {Frequency} Hz ({(IsVisible ? "" : "in")}visible)";
 
-        /// <inheritdoc/>
         public override bool Equals(object? obj) => obj is Wavelength other && Equals(other);
 
-        /// <inheritdoc/>
         public bool Equals(Wavelength other) => InNanometers.Is(other.InNanometers);
 
-        /// <inheritdoc/>
         public override int GetHashCode() => InNanometers.GetHashCode();
 
-        /// <inheritdoc/>
         public int CompareTo(Wavelength other) => InNanometers.CompareTo(other.InNanometers);
 
         /// <summary>

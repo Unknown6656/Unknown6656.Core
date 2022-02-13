@@ -1142,7 +1142,6 @@ public unsafe readonly /* ref */ partial struct Scalar
                 pdst[i] = *((byte*)ptr + i);
     }
 
-    /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void FromNative<T>(T* src)
         where T : unmanaged

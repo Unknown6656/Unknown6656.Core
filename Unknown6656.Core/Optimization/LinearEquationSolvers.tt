@@ -60,7 +60,6 @@ namespace Unknown6656.Optimization.ParticleSwarmOptimization
         /// <param name="b">The <#=dim#>-dimensional vector b.</param>
         public <#=typename#>(<#=matname#> A, <#=vecname#> b) : base(new Function<<#=vecname#>, <#=vecname#>>(x => A.Multiply(x)), b) => (this.A, this.b) = (A, b);
 
-        /// <inheritdoc/>
         internal protected override bool IsValidSearchPosition(<#=vecname#> position) => true;
     }
 

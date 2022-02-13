@@ -386,16 +386,12 @@ namespace Unknown6656.Mathematics.Geometry
         public Scalar AngleB => SideA.Direction.AngleTo(-SideC.Direction);
         public Scalar AngleC => SideB.Direction.AngleTo(-SideA.Direction);
 
-        /// <inheritdoc/>
         public override AxisAlignedRectangle3D AxisAlignedBoundingBox => Rectangle3D.CreateAxisAlignedBoundingBox(CornerA, CornerB, CornerC);
 
-        /// <inheritdoc/>
         public override Scalar Circumference => SideA.Length + SideB.Length + SideC.Length;
 
-        /// <inheritdoc/>
         public override Scalar SurfaceArea => .5 * AltitudeA.Length * SideA.Length;
 
-        /// <inheritdoc/>
         public override Vector3 CenterPoint => MedianA.GetLenientIntersection(MedianB).Value; // TODO
 
         public Vector3 Centroid => CenterPoint;

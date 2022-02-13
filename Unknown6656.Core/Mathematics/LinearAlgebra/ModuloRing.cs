@@ -86,7 +86,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly ModuloRing Invert()
         {
-            Stack<bint> q = new Stack<bint>();
+            Stack<bint> q = new();
             bint a = Value, b = Modulus, r;
 
             do
@@ -116,19 +116,19 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly ModuloRing Negate() => new ModuloRing(Modulus - Value, Modulus);
+        public readonly ModuloRing Negate() => new(Modulus - Value, Modulus);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly ModuloRing Add(bint value) => new ModuloRing(Value + value, Modulus);
+        public readonly ModuloRing Add(bint value) => new(Value + value, Modulus);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly ModuloRing Add(in ModuloRing second) => new ModuloRing(Value + second.Value, bint.Min(Modulus, second.Modulus));
+        public readonly ModuloRing Add(in ModuloRing second) => new(Value + second.Value, bint.Min(Modulus, second.Modulus));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly ModuloRing Add(params ModuloRing[] others) => others.Aggregate(this, (x, y) => x.Add(y));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly ModuloRing Subtract(bint value) => new ModuloRing(Value - value, Modulus);
+        public readonly ModuloRing Subtract(bint value) => new(Value - value, Modulus);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly ModuloRing Subtract(in ModuloRing second) => Add(second.Negate());
@@ -143,28 +143,28 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly ModuloRing Decrement() => Subtract(1);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly ModuloRing Multiply(bint value) => new ModuloRing(Value * value, Modulus);
+        public readonly ModuloRing Multiply(bint value) => new(Value * value, Modulus);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly ModuloRing Multiply(in ModuloRing second) => new ModuloRing(Value * second.Value, bint.Min(Modulus, second.Modulus));
+        public readonly ModuloRing Multiply(in ModuloRing second) => new(Value * second.Value, bint.Min(Modulus, second.Modulus));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly ModuloRing Multiply(params ModuloRing[] others) => others.Aggregate(this, (x, y) => x.Multiply(y));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly ModuloRing Divide(bint value) => new ModuloRing(Value / value, Modulus);
+        public readonly ModuloRing Divide(bint value) => new(Value / value, Modulus);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly ModuloRing Divide(in ModuloRing second) => Multiply(second.MultiplicativeInverse);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly ModuloRing Modulo(bint value) => new ModuloRing(Value % value, Modulus);
+        public readonly ModuloRing Modulo(bint value) => new(Value % value, Modulus);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly ModuloRing Modulo(in ModuloRing second) => new ModuloRing(Value % second.Value, Modulus);
+        public readonly ModuloRing Modulo(in ModuloRing second) => new(Value % second.Value, Modulus);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly ModuloRing Power(int e) => new ModuloRing(bint.ModPow(Value, e, Modulus), Modulus);
+        public readonly ModuloRing Power(int e) => new(bint.ModPow(Value, e, Modulus), Modulus);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly (ModuloRing P, ModuloRing Q)? DecomposePQ(ModuloRing phi)
@@ -185,7 +185,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         public readonly ModuloRing Max(ModuloRing second) => CompareTo(second) >= 0 ? this : second;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly ModuloRing Clamp() => new ModuloRing(IsZero ? 0 : 1, Modulus);
+        public readonly ModuloRing Clamp() => new(IsZero ? 0 : 1, Modulus);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly ModuloRing Clamp(ModuloRing low, ModuloRing high) => Max(low).Min(high);
@@ -219,25 +219,25 @@ namespace Unknown6656.Mathematics.LinearAlgebra
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ModuloRing(sbyte b) => new ModuloRing(b, (bint)sbyte.MaxValue + 1);
+        public static implicit operator ModuloRing(sbyte b) => new(b, (bint)sbyte.MaxValue + 1);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ModuloRing(byte b) => new ModuloRing(b, (bint)byte.MaxValue + 1);
+        public static implicit operator ModuloRing(byte b) => new(b, (bint)byte.MaxValue + 1);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ModuloRing(short s) => new ModuloRing(s, (bint)short.MaxValue + 1);
+        public static implicit operator ModuloRing(short s) => new(s, (bint)short.MaxValue + 1);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ModuloRing(ushort s) => new ModuloRing(s, (bint)ushort.MaxValue + 1);
+        public static implicit operator ModuloRing(ushort s) => new(s, (bint)ushort.MaxValue + 1);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ModuloRing(int i) => new ModuloRing(i, (bint)int.MaxValue + 1);
+        public static implicit operator ModuloRing(int i) => new(i, (bint)int.MaxValue + 1);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ModuloRing(uint i) => new ModuloRing(i, (bint)uint.MaxValue + 1);
+        public static implicit operator ModuloRing(uint i) => new(i, (bint)uint.MaxValue + 1);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ModuloRing(long l) => new ModuloRing(l, (bint)long.MaxValue + 1);
+        public static implicit operator ModuloRing(long l) => new(l, (bint)long.MaxValue + 1);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ModuloRing(ulong l) => new ModuloRing(l, (bint)ulong.MaxValue + 1);
+        public static implicit operator ModuloRing(ulong l) => new(l, (bint)ulong.MaxValue + 1);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static explicit operator ModuloRing(bint b) => new ModuloRing(b, b + 1);
+        public static explicit operator ModuloRing(bint b) => new(b, b + 1);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ModuloRing((bint val, bint mod) t) => new ModuloRing(t.val, t.mod);
+        public static implicit operator ModuloRing((bint val, bint mod) t) => new(t.val, t.mod);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator bint(ModuloRing r) => r.Value;
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -304,8 +304,8 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ModuloRing operator ^(ModuloRing r1, ModuloRing r2) => r1.Power(r2);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ModuloRing operator <<(ModuloRing r, int i) => new ModuloRing(r.Value << i, r.Modulus);
+        public static ModuloRing operator <<(ModuloRing r, int i) => new(r.Value << i, r.Modulus);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ModuloRing operator >>(ModuloRing r, int i) => new ModuloRing(r.Value >> i, r.Modulus);
+        public static ModuloRing operator >>(ModuloRing r, int i) => new(r.Value >> i, r.Modulus);
     }
 }

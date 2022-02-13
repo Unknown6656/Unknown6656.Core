@@ -610,12 +610,10 @@ namespace Unknown6656.Mathematics.Numerics
         public static UInt128 Modulus(UInt128 x, UInt128 y) => DivideModulus(x, y).Mod;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static UInt128 GreatestCommonDivisor(UInt128 a, UInt128 b)
-        {
+        public static UInt128 GreatestCommonDivisor(UInt128 a, UInt128 b) =>
             // TODO : extended euler algorithm
 
             throw new NotImplementedException();
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static byte bit_count(UInt128 v)

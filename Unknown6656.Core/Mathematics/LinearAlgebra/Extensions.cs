@@ -732,10 +732,10 @@ public partial struct Vector4
     public readonly RGBAColor ToRGBAColor() => (RGBAColor)this;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Vector4(num.Vector4 v) => new Vector4(v.X, v.Y, v.Z, v.W);
+    public static implicit operator Vector4(num.Vector4 v) => new(v.X, v.Y, v.Z, v.W);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator num.Vector4(Vector4 v) => new num.Vector4(v.X, v.Y, v.Z, v.W);
+    public static implicit operator num.Vector4(Vector4 v) => new(v.X, v.Y, v.Z, v.W);
 }
 
 public enum PlusCodePreicsionLevel

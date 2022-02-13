@@ -1823,10 +1823,7 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected abstract (Vector Eigenvector, Scalar Eigenvalue) DoInverseVectoriteration(Scalar offset, IEqualityComparer<Scalar> comparer);
 
-    public (Matrix U, Matrix Σ, Matrix V) GetSingularvalueDecomposition()
-    {
-        throw new NotImplementedException(); // TODO
-    }
+    public (Matrix U, Matrix Σ, Matrix V) GetSingularvalueDecomposition() => throw new NotImplementedException(); // TODO
 
     #region STATIC METHODS
 

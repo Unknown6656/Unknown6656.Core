@@ -126,7 +126,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
             WriteLine($"    , Algebra<Scalar>.ICrossableVector<{typename}>");
 #>
     , Algebra<Scalar, Polynomial>.IComposite1D
-    , IReadonlyNative<<#=typename#>>
+    , INative<<#=typename#>>
     , IEnumerable<Scalar>
     , IComparable<<#=typename#>>
     , IComparable
@@ -151,6 +151,8 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// The zero vector
     /// </summary>
     public static <#=typename#> Zero { get; } = new <#=typename#>(0);
+
+    static <#=typename#> INumericGroup<<#=typename#>>.ZeroElement => Zero;
 
     public static <#=typename#>[] UnitVectors { get; } = <#=matname#>.Identity.Columns;
 <#
@@ -240,9 +242,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
                         }
 #>
 
-    [DebuggerHidden, DebuggerNonUserCode, DebuggerBrowsable(DebuggerBrowsableState.Never), EditorBrowsable(EditorBrowsableState.Never)]
-    public readonly <#=typename#> ZeroElement => Zero;
-
     /// <inheritdoc cref="Dimension"/>
     public readonly int Size => Dimension;
 
@@ -250,7 +249,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     readonly int Algebra<Scalar>.IComposite1D.Dimension => Dimension;
 
     /// <inheritdoc cref="BinarySize"/>
-    readonly int IReadonlyNative<<#=typename#>>.BinarySize => BinarySize;
+    readonly int INative<<#=typename#>>.BinarySize => BinarySize;
 
     public readonly MatrixNM Transposed => new MatrixNM(<#=dim#>, 1, Coefficients);
 
@@ -274,13 +273,13 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 
     public readonly bool HasNaNs => Coefficients.Any(c => c.IsNaN);
 
-    public readonly Scalar Sum => <#=string.Join(" + ", comps)#>;
+    public readonly Scalar CoefficientSum => <#=string.Join(" + ", comps)#>;
 
-    public readonly Scalar Avg => Sum / Dimension;
+    public readonly Scalar CoefficientAvg => Sum / Dimension;
 
-    public readonly Scalar Min => Coefficients.Min();
+    public readonly Scalar CoefficientMin => Coefficients.Min();
 
-    public readonly Scalar Max => Coefficients.Max();
+    public readonly Scalar CoefficientMax => Coefficients.Max();
         
     public readonly Scalar MaximumNorm => Coefficients.Select(Scalar.Abs).Max();
 
@@ -495,6 +494,9 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     public readonly <#=typename#> ComponentwiseModulus(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar s{i}"))#>) => new(<#=string.Join(", ", comps.Select((s, i) => $"{s} % s{i}"))#>);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    readonly <#=typename#> Algebra<Scalar>.IVectorSpace<<#=typename#>>.Modulus(Scalar scalar) => ComponentwiseModulus(<#=string.Join(", ", comps.Select(s => $"scalar"))#>);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> ComponentwiseAbsolute() => new(<#=string.Join(", ", comps.Select(s => s + ".Abs()"))#>);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -531,693 +533,684 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         {
 #>
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Cross(in <#=typename#> v) => Cross(this, v);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Cross(in <#=typename#> v) => Cross(this, v);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar TripleProduct(in <#=typename#> b, in <#=typename#> c) => TripleProduct(this, b, c);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly Scalar TripleProduct(in <#=typename#> b, in <#=typename#> c) => TripleProduct(this, b, c);
 <#
         }
 #>
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly bool IsLinearDependant(in <#=typename#> other, out Scalar? factor)
-        {
-            factor = null;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly bool IsLinearDependant(in <#=typename#> other, out Scalar? factor)
+    {
+        factor = null;
 
-            if (IsZero || other.IsZero)
+        if (IsZero || other.IsZero)
+            return false;
+
+        Scalar div = Scalar.Zero;
+
+        for (int i = 0; i < <#=dim#>; ++i)
+            if (this[i].IsZero ^ other[i].IsZero && !this[i].Is(other[i], Scalar.ComputationalEpsilon ^ 2))
                 return false;
+            else if (this[i].IsNonZero)
+            {
+                Scalar f = this[i] / other[i];
 
-            Scalar div = Scalar.Zero;
-
-            for (int i = 0; i < <#=dim#>; ++i)
-                if (this[i].IsZero ^ other[i].IsZero && !this[i].Is(other[i], Scalar.ComputationalEpsilon ^ 2))
+                if (div.IsZero)
+                    div = f;
+                else if (div.IsNot(f))
                     return false;
-                else if (this[i].IsNonZero)
-                {
-                    Scalar f = this[i] / other[i];
+            }
 
-                    if (div.IsZero)
-                        div = f;
-                    else if (div.IsNot(f))
-                        return false;
-                }
+        factor = div;
 
-            factor = div;
+        return true;
+    }
 
-            return true;
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> LinearInterpolate(in <#=typename#> other, Scalar factor) => Multiply(1 - factor) + other.Multiply(factor);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> LinearInterpolate(in <#=typename#> other, Scalar factor) => Multiply(1 - factor) + other.Multiply(factor);
+    /// <inheritdoc cref="IVector{V, S}.Clamp(S, S)"/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Clamp() => Clamp(Scalar.Zero, Scalar.One);
 
-        /// <inheritdoc cref="IVector{V, S}.Clamp(S, S)"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Clamp() => Clamp(Scalar.Zero, Scalar.One);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Clamp(Scalar low, Scalar high) => new(<#=string.Join(", ", comps.Select(s => $"{s}.Clamp(low, high)"))#>);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Clamp(Scalar low, Scalar high) => new(<#=string.Join(", ", comps.Select(s => $"{s}.Clamp(low, high)"))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly Scalar AngleTo(in <#=typename#> second) => Dot(second).Acos();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar AngleTo(in <#=typename#> second) => Dot(second).Acos();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=matname#> OuterProduct(in <#=typename#> second) => new(
+        <#=string.Join("\n        ", r(0, dim).Select(i => string.Join(", ", comps.Select(s => $"{s} * second.{s}")) + (i < dim - 1 ? "," : "")))#>
+    );
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=matname#> OuterProduct(in <#=typename#> second) => new(
-            <#=string.Join("\n            ", r(0, dim).Select(i => string.Join(", ", comps.Select(s => $"{s} * second.{s}")) + (i < dim - 1 ? "," : "")))#>
-        );
-
-        /// <summary>
-        /// Returns the vector' <#=dim-1#>D-minor at the given index
-        /// </summary>
-        /// <param name="row">Zero-based row index</param>
-        /// <returns><#=dim-1#>D-minor</returns>
+    /// <summary>
+    /// Returns the vector' <#=dim-1#>D-minor at the given index
+    /// </summary>
+    /// <param name="row">Zero-based row index</param>
+    /// <returns><#=dim-1#>D-minor</returns>
 <#
         if (dim == 2)
         {
 #>
-        public readonly Scalar Minor(int row) => row switch
-        {
-            0 => _1,
-            1 => _0,
-            _ => throw new IndexOutOfRangeException()
-        };
+    public readonly Scalar Minor(int row) => row switch
+    {
+        0 => _1,
+        1 => _0,
+        _ => throw new IndexOutOfRangeException()
+    };
 <#
         }
         else if (dim > 2)
         {
 #>
-        public readonly Vector<#=dim-1#> Minor(int row)
-        {
-            Scalar[] f = ToArray();
+    public readonly Vector<#=dim-1#> Minor(int row)
+    {
+        Scalar[] f = ToArray();
 
-            return new Vector<#=dim-1#>(f.Take(row).Concat(f.Skip(row + 1)));
-        }
+        return new Vector<#=dim-1#>(f.Take(row).Concat(f.Skip(row + 1)));
+    }
 <#
         }
 #>
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly bool Equals(<#=typename#> other) => Is(other);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly bool Equals(<#=typename#> other) => Is(other);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override bool Equals(object? obj) => obj is <#=typename#> v && Equals(v);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly override bool Equals(object? obj) => obj is <#=typename#> v && Equals(v);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override string ToString() => $"(<#=string.Join(", ", comps.Select(s => "{" + s + "}"))#>)";
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly override string ToString() => $"(<#=string.Join(", ", comps.Select(s => "{" + s + "}"))#>)";
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly override int GetHashCode() => LINQ.GetHashCode(Coefficients);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly override int GetHashCode() => LINQ.GetHashCode(Coefficients);
 
-        // TODO : warning
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly int CompareTo(<#=typename#> other) => Length.CompareTo(other.Length);
+    // TODO : warning
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly int CompareTo(<#=typename#> other) => Length.CompareTo(other.Length);
 
-        // TODO : warning
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly int CompareTo(object? other) => CompareTo((<#=typename#>)other);
+    // TODO : warning
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly int CompareTo(object? other) => CompareTo((<#=typename#>)other);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly IEnumerator<Scalar> GetEnumerator()
-        {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly IEnumerator<Scalar> GetEnumerator()
+    {
 <#
         for (int i = 0; i < dim; ++i)
-        {
+            WriteLine($"        yield return _{i};");
 #>
-            yield return _<#=i#>;
-<#
-        }
-#>
-        }
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        readonly IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    readonly IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly object Clone() => new <#=typename#>(this);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly object Clone() => new <#=typename#>(this);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void Deconstruct(<#=string.Join(", ", r(0, dim).Select(i => $"out Scalar x{i}"))#>) => (<#=string.Join(", ", r(0, dim).Select(i => "x" + i))#>) = (<#=string.Join(", ", r(0, dim).Select(i => "_" + i))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly void Deconstruct(<#=string.Join(", ", r(0, dim).Select(i => $"out Scalar x{i}"))#>) => (<#=string.Join(", ", r(0, dim).Select(i => "x" + i))#>) = (<#=string.Join(", ", r(0, dim).Select(i => "_" + i))#>);
 <#
         if (dim > 2)
         {
 #>
 
-        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        // public readonly void Deconstruct(out Scalar x0, out Vector<#=dim-1#> v1) => (x0, v1) = (_0, (<#=string.Join(", ", r(1, dim - 1).Select(i => "_" + i))#>));
-        //
-        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        // public readonly void Deconstruct(out Vector<#=dim-1#> v0, out Scalar x1) => (v0, x1) = ((<#=string.Join(", ", r(0, dim - 1).Select(i => "_" + i))#>), _<#=dim-1#>);
+    // [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    // public readonly void Deconstruct(out Scalar x0, out Vector<#=dim-1#> v1) => (x0, v1) = (_0, (<#=string.Join(", ", r(1, dim - 1).Select(i => "_" + i))#>));
+    //
+    // [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    // public readonly void Deconstruct(out Vector<#=dim-1#> v0, out Scalar x1) => (v0, x1) = ((<#=string.Join(", ", r(0, dim - 1).Select(i => "_" + i))#>), _<#=dim-1#>);
 <#
         }
 #>
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly bool Is(<#=typename#> o, Scalar tolerance) => <#=string.Join(" && ", comps.Select(s => $"{s}.Is(o.{s}, tolerance)"))#>;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly bool Is(<#=typename#> o, Scalar tolerance) => <#=string.Join(" && ", comps.Select(s => $"{s}.Is(o.{s}, tolerance)"))#>;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly bool Is(<#=typename#> o) => Is(o, Scalar.ComputationalEpsilon);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly bool Is(<#=typename#> o) => Is(o, Scalar.ComputationalEpsilon);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly bool IsNot(<#=typename#> o) => !Is(o);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly bool IsNot(<#=typename#> o) => !Is(o);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly bool IsOrthogonal(in <#=typename#> second) => Dot(second).IsZero;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly bool IsOrthogonal(in <#=typename#> second) => Dot(second).IsZero;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Reflect(in <#=typename#> normal)
-        {
-            Scalar θ = Dot(normal);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Reflect(in <#=typename#> normal)
+    {
+        Scalar θ = Dot(normal);
 
-            return (normal * (2 * θ)) - this;
-        }
+        return (normal * (2 * θ)) - this;
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly bool Refract(in <#=typename#> normal, Scalar eta, out <#=typename#> refracted)
-        {
-            Scalar θ = Dot(normal);
-            Scalar k = 1 - (eta * eta * (1 - (θ * θ)));
-            bool res = k.IsNegative;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly bool Refract(in <#=typename#> normal, Scalar eta, out <#=typename#> refracted)
+    {
+        Scalar θ = Dot(normal);
+        Scalar k = 1 - (eta * eta * (1 - (θ * θ)));
+        bool res = k.IsNegative;
 
-            refracted = res ? Reflect(-normal) : (this * eta) + normal * ((eta * θ) - k.Sqrt());
+        refracted = res ? Reflect(-normal) : (this * eta) + normal * ((eta * θ) - k.Sqrt());
 
-            return res;
-        }
+        return res;
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar DistanceTo(in <#=typename#> second) => Subtract(second).Length;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly Scalar DistanceTo(in <#=typename#> second) => Subtract(second).Length;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar[] ToArray() => Coefficients;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly Scalar[] ToArray() => Coefficients;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Polynomial ToPolynomial() => new Polynomial(Coefficients);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly Polynomial ToPolynomial() => new Polynomial(Coefficients);
 <#
         if (dim > 2)
         {
 #>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Vector<#=dim-1#> FromHomogeneousCoordinates() => new Vector<#=dim-1#>(<#=string.Join(", ", comps.Take(dim - 1).Select(c => $"{c} / {comps.Last()}"))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly Vector<#=dim-1#> FromHomogeneousCoordinates() => new Vector<#=dim-1#>(<#=string.Join(", ", comps.Take(dim - 1).Select(c => $"{c} / {comps.Last()}"))#>);
 <#
         }
 
         if (dim < maxdim - 1)
         {
 #>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Vector<#=dim+1#> ToHomogeneousCoordinates() => new Vector<#=dim+1#>(<#=string.Join(", ", comps)#>, Scalar.One);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly Vector<#=dim+1#> ToHomogeneousCoordinates() => new Vector<#=dim+1#>(<#=string.Join(", ", comps)#>, Scalar.One);
 <#
         }
 #>
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly VectorN GetEntries(Range rows) => new VectorN(Coefficients[rows]); // TODO : range checks
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly VectorN GetEntries(Range rows) => new VectorN(Coefficients[rows]); // TODO : range checks
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> SetEntries(Range rows, VectorN values)
-        {
-            // TODO : range checks
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> SetEntries(Range rows, VectorN values)
+    {
+        // TODO : range checks
 
-            int[] idxs = rows.GetOffsets(<#=dim#>);
-            Scalar[] v = values;
-            Scalar[] t = this;
+        int[] idxs = rows.GetOffsets(<#=dim#>);
+        Scalar[] v = values;
+        Scalar[] t = this;
 
-            for (int i = 0; i < idxs.Length; ++i)
-                t[idxs[i]] = v[i];
+        for (int i = 0; i < idxs.Length; ++i)
+            t[idxs[i]] = v[i];
 
-            return new <#=typename#>(t);
-        }
+        return new <#=typename#>(t);
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> SwapEntries(int src_idx, int dst_idx)
-        {
-            Scalar[] res = ToArray();
-            Scalar tmp = res[dst_idx];
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> SwapEntries(int src_idx, int dst_idx)
+    {
+        Scalar[] res = ToArray();
+        Scalar tmp = res[dst_idx];
 
-            res[dst_idx] = res[src_idx];
-            res[src_idx] = tmp;
+        res[dst_idx] = res[src_idx];
+        res[src_idx] = tmp;
 
-            return FromArray(res);
-        }
+        return FromArray(res);
+    }
 
-        #endregion
-        #region STATIC METHODS
+    #endregion
+    #region STATIC METHODS
 <#
         if (crossable)
         {
 #>
 
-        /// <inheritdoc cref="ICrossableVector{V, S}.Cross(V)"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> Cross(in <#=typename#> x, in <#=typename#> y)
+    /// <inheritdoc cref="ICrossableVector{V, S}.Cross(V)"/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> Cross(in <#=typename#> x, in <#=typename#> y)
 <#
         if (dim == 3)
         {
 #> => (
-            x.Y * y.Z - y.Y * x.Z,
-            x.Z * y.X - y.Z * x.X,
-            x.X * y.Y - y.X * x.Y
-        );
+        x.Y * y.Z - y.Y * x.Z,
+        x.Z * y.X - y.Z * x.X,
+        x.X * y.Y - y.X * x.Y
+    );
 <#
         }
         else if (dim == 7)
         {
 #>
-        {
-            var (a, b, c, d, e, f, g) = x;
-            Matrix7 T = (
-                0, -d, -g, b, -f, e, c,
-                d, 0, -e, -a, c, -g, f,
-                g, e, 0, -f, -b, d, -a,
-                -b, a, f, 0, -g, -c, e,
-                f, -c, b, g, 0, -a, -d,
-                -e, g, -d, c, a, 0, -b,
-                -c, -f, a, -e, d, b, 0
-            );
+    {
+        var (a, b, c, d, e, f, g) = x;
+        Matrix7 T = (
+            0, -d, -g, b, -f, e, c,
+            d, 0, -e, -a, c, -g, f,
+            g, e, 0, -f, -b, d, -a,
+            -b, a, f, 0, -g, -c, e,
+            f, -c, b, g, 0, -a, -d,
+            -e, g, -d, c, a, 0, -b,
+            -c, -f, a, -e, d, b, 0
+        );
 
-            return T * y;
-        }
+        return T * y;
+    }
 <#
         }
 #>
 
-        /// <inheritdoc cref="ICrossableVector{V, S}.TripleProduct(V, V)"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Scalar TripleProduct(in <#=typename#> a, in <#=typename#> b, in <#=typename#> c) => Dot(a, Cross(b, c));
+    /// <inheritdoc cref="ICrossableVector{V, S}.TripleProduct(V, V)"/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar TripleProduct(in <#=typename#> a, in <#=typename#> b, in <#=typename#> c) => Dot(a, Cross(b, c));
 <#
         }
 #>
 
-        public static <#=typename #> FromArray(params Scalar[] v) => v switch
-        {
-            null => throw new ArgumentNullException(nameof(v)),
-            _ when v.Length < Dimension => throw new ArgumentException($"The array must have a minimum length of {Dimension}.", nameof(v)),
-            _ => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"v[{i}]"))#>)
-        };
+    public static <#=typename #> FromArray(params Scalar[] v) => v switch
+    {
+        null => throw new ArgumentNullException(nameof(v)),
+        _ when v.Length < Dimension => throw new ArgumentException($"The array must have a minimum length of {Dimension}.", nameof(v)),
+        _ => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"v[{i}]"))#>)
+    };
 
-        /// <inheritdoc cref="FromNative{T}"/>
-        public static <#=typename#> FromPointer<T>(T* src) where T : unmanaged => new <#=typename#>((<#=typename#>*)src);
+    /// <inheritdoc cref="FromNative{T}"/>
+    public static <#=typename#> FromPointer<T>(T* src) where T : unmanaged => new <#=typename#>((<#=typename#>*)src);
 <#
         if (dim < maxdim - 1)
         {
 #>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> FromHomogeneousCoordinates(Vector<#=dim+1#> homogeneous) => homogeneous.FromHomogeneousCoordinates();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> FromHomogeneousCoordinates(Vector<#=dim+1#> homogeneous) => homogeneous.FromHomogeneousCoordinates();
 <#
         }
 #>
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> Add(<#=typename#> m1, <#=typename#> m2) => m1.Add(m2);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> Add(<#=typename#> m1, <#=typename#> m2) => m1.Add(m2);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> Subtract(<#=typename#> m1, <#=typename#> m2) => m1.Subtract(m2);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> Subtract(<#=typename#> m1, <#=typename#> m2) => m1.Subtract(m2);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> Multiply(<#=typename#> m, Scalar s) => m.Multiply(s);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> Multiply(<#=typename#> m, Scalar s) => m.Multiply(s);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> Divide(<#=typename#> m, Scalar s) => m.Divide(s);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> Divide(<#=typename#> m, Scalar s) => m.Divide(s);
 
-        /// <inheritdoc cref="Algebra{S}.IEucledianVectorSpace{V}.Dot(V)"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Scalar Dot(in <#=typename#> v1, in <#=typename#> v2) => v1.Dot(v2);
+    /// <inheritdoc cref="Algebra{S}.IEucledianVectorSpace{V}.Dot(V)"/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar Dot(in <#=typename#> v1, in <#=typename#> v2) => v1.Dot(v2);
 
-        /// <inheritdoc cref="AngleTo"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Scalar AngleBetween(in <#=typename#> v1, in <#=typename#> v2) => v1.AngleTo(v2);
+    /// <inheritdoc cref="AngleTo"/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar AngleBetween(in <#=typename#> v1, in <#=typename#> v2) => v1.AngleTo(v2);
 
-        /// <inheritdoc cref="Algebra{S}.IVectorSpace{V}.IsLinearDependant(V, out S?)"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsLinearDependant(in <#=typename#> v1, in <#=typename#> v2) => v1.IsLinearDependant(v2, out _);
+    /// <inheritdoc cref="Algebra{S}.IVectorSpace{V}.IsLinearDependant(V, out S?)"/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsLinearDependant(in <#=typename#> v1, in <#=typename#> v2) => v1.IsLinearDependant(v2, out _);
 
-        /// <inheritdoc cref="Algebra{S}.IVector{V, M}.OuterProduct"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=matname#> OuterProduct(in <#=typename#> v1, in <#=typename#> v2) => v1.OuterProduct(v2);
+    /// <inheritdoc cref="Algebra{S}.IVector{V, M}.OuterProduct"/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=matname#> OuterProduct(in <#=typename#> v1, in <#=typename#> v2) => v1.OuterProduct(v2);
 
-        /// <inheritdoc cref="Algebra{S}.IVectorSpace{V}.LinearInterpolate(V, S)"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> LinearInterpolate(in <#=typename#> v1, in <#=typename#> v2, Scalar factor) => v1.LinearInterpolate(v2, factor);
+    /// <inheritdoc cref="Algebra{S}.IVectorSpace{V}.LinearInterpolate(V, S)"/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> LinearInterpolate(in <#=typename#> v1, in <#=typename#> v2, Scalar factor) => v1.LinearInterpolate(v2, factor);
 
-        /// <inheritdoc cref="IsLinearDependant(<#=typename#>, out Scalar?)"/>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsLinearDependant(in <#=typename#> v1, in <#=typename#> v2, out Scalar? factor) => v1.IsLinearDependant(v2, out factor);
+    /// <inheritdoc cref="IsLinearDependant(<#=typename#>, out Scalar?)"/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsLinearDependant(in <#=typename#> v1, in <#=typename#> v2, out Scalar? factor) => v1.IsLinearDependant(v2, out factor);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> GetRandomCartesianUnitVector<T>(T generator) where T : Numerics.Random => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(_ => "generator.NextScalar()"))#>).Normalized;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> GetRandomCartesianUnitVector<T>(T generator) where T : Numerics.Random => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(_ => "generator.NextScalar()"))#>).Normalized;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> GetRandomCartesianUnitVector() => GetRandomCartesianUnitVector(new XorShift());
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> GetRandomCartesianUnitVector() => GetRandomCartesianUnitVector(new XorShift());
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> GetNthUnitVector(int n)
-        {
-            if (n < 0 || n >= <#=dim#>)
-                throw new ArgumentOutOfRangeException(nameof(n), "The parameter must be an integer between (inclusive) 0 and <#=dim - 1#>.");
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> GetNthUnitVector(int n)
+    {
+        if (n < 0 || n >= <#=dim#>)
+            throw new ArgumentOutOfRangeException(nameof(n), "The parameter must be an integer between (inclusive) 0 and <#=dim - 1#>.");
 
-            Scalar[] coeff = new Scalar[<#=dim#>];
+        Scalar[] coeff = new Scalar[<#=dim#>];
 
-            coeff[n] = Scalar.One;
+        coeff[n] = Scalar.One;
 
-            return new <#=typename#>(coeff);
-        }
+        return new <#=typename#>(coeff);
+    }
 
-        // TODO : parse
+    // TODO : parse
 
-        #endregion
-        #region OPERATORS
+    #endregion
+    #region OPERATORS
 
-        /// <summary>
-        /// Compares whether the two given vectors are equal regarding their coefficients.
-        /// </summary>
-        /// <param name="v1">First Vector</param>
-        /// <param name="v2">Second Vector</param>
-        /// <returns>Comparison result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator ==(in <#=typename#> v1, in <#=typename#> v2) => v1.Is(v2);
+    /// <summary>
+    /// Compares whether the two given vectors are equal regarding their coefficients.
+    /// </summary>
+    /// <param name="v1">First Vector</param>
+    /// <param name="v2">Second Vector</param>
+    /// <returns>Comparison result</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator ==(<#=typename#> v1, <#=typename#> v2) => v1.Is(v2);
 
-        /// <summary>
-        /// Compares whether the two given vectors are unequal regarding their coefficients.
-        /// </summary>
-        /// <param name="v1">First Vector</param>
-        /// <param name="v2">Second Vector</param>
-        /// <returns>Comparison result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator !=(in <#=typename#> v1, in <#=typename#> v2) => v2.IsNot(v2);
+    /// <summary>
+    /// Compares whether the two given vectors are unequal regarding their coefficients.
+    /// </summary>
+    /// <param name="v1">First Vector</param>
+    /// <param name="v2">Second Vector</param>
+    /// <returns>Comparison result</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator !=(<#=typename#> v1, <#=typename#> v2) => v2.IsNot(v2);
 
-        /// <summary>
-        /// Compares the lengths of the two given vectors and returns whether the first is shorter than the second one.
-        /// </summary>
-        /// <param name="v1">First Vector</param>
-        /// <param name="v2">Second Vector</param>
-        /// <returns>Comparison result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator <(in <#=typename#> v1, in <#=typename#> v2) => v1.Length < v2.Length;
+    /// <summary>
+    /// Compares the lengths of the two given vectors and returns whether the first is shorter than the second one.
+    /// </summary>
+    /// <param name="v1">First Vector</param>
+    /// <param name="v2">Second Vector</param>
+    /// <returns>Comparison result</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator <(in <#=typename#> v1, in <#=typename#> v2) => v1.Length < v2.Length;
 
-        /// <summary>
-        /// Compares the lengths of the two given vectors and returns whether the first is longer than the second one.
-        /// </summary>
-        /// <param name="v1">First Vector</param>
-        /// <param name="v2">Second Vector</param>
-        /// <returns>Comparison result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator >(in <#=typename#> v1, in <#=typename#> v2) => v1.Length > v2.Length;
+    /// <summary>
+    /// Compares the lengths of the two given vectors and returns whether the first is longer than the second one.
+    /// </summary>
+    /// <param name="v1">First Vector</param>
+    /// <param name="v2">Second Vector</param>
+    /// <returns>Comparison result</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator >(in <#=typename#> v1, in <#=typename#> v2) => v1.Length > v2.Length;
 
-        /// <summary>
-        /// Compares the lengths of the two given vectors and returns whether the first is shorter or equally long to the second vector.
-        /// </summary>
-        /// <param name="v1">First Vector</param>
-        /// <param name="v2">Second Vector</param>
-        /// <returns>Comparison result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator <=(in <#=typename#> v1, in <#=typename#> v2) => v1.Length <= v2.Length;
+    /// <summary>
+    /// Compares the lengths of the two given vectors and returns whether the first is shorter or equally long to the second vector.
+    /// </summary>
+    /// <param name="v1">First Vector</param>
+    /// <param name="v2">Second Vector</param>
+    /// <returns>Comparison result</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator <=(in <#=typename#> v1, in <#=typename#> v2) => v1.Length <= v2.Length;
 
-        /// <summary>
-        /// Compares the lengths of the two given vectors and returns whether the first is longer or equally long to the second vector.
-        /// </summary>
-        /// <param name="v1">First Vector</param>
-        /// <param name="v2">Second Vector</param>
-        /// <returns>Comparison result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool operator >=(in <#=typename#> v1, in <#=typename#> v2) => v1.Length >= v2.Length;
+    /// <summary>
+    /// Compares the lengths of the two given vectors and returns whether the first is longer or equally long to the second vector.
+    /// </summary>
+    /// <param name="v1">First Vector</param>
+    /// <param name="v2">Second Vector</param>
+    /// <returns>Comparison result</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator >=(in <#=typename#> v1, in <#=typename#> v2) => v1.Length >= v2.Length;
 
-        /// <summary>
-        /// Normalizes the given vector
-        /// </summary>
-        /// <param name="v">Original vector</param>
-        /// <returns>Normalized vector</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> operator ~(in <#=typename#> v) => v.Normalized;
+    /// <summary>
+    /// Normalizes the given vector
+    /// </summary>
+    /// <param name="v">Original vector</param>
+    /// <returns>Normalized vector</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> operator ~(in <#=typename#> v) => v.Normalized;
 
-        /// <summary>
-        /// Negates the given vector
-        /// </summary>
-        /// <param name="v">Original vector</param>
-        /// <returns>Negated vector</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> operator -(in <#=typename#> v) => v * -1;
+    /// <summary>
+    /// Negates the given vector
+    /// </summary>
+    /// <param name="v">Original vector</param>
+    /// <returns>Negated vector</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> operator -(in <#=typename#> v) => v * -1;
 
-        /// <summary>
-        /// Identity function (returns the given vector unchanged)
-        /// </summary>
-        /// <param name="v">Original vector</param>
-        /// <returns>Unchanged vector</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> operator +(in <#=typename#> v) => v;
+    /// <summary>
+    /// Identity function (returns the given vector unchanged)
+    /// </summary>
+    /// <param name="v">Original vector</param>
+    /// <returns>Unchanged vector</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> operator +(in <#=typename#> v) => v;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> operator ++(in <#=typename#> v) => v.Increment();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> operator ++(in <#=typename#> v) => v.Increment();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> operator --(in <#=typename#> v) => v.Decrement();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> operator --(in <#=typename#> v) => v.Decrement();
 
-        /// <summary>
-        /// Performs the addition of two vectors by adding their respective coefficients.
-        /// </summary>
-        /// <param name="v1">First vector</param>
-        /// <param name="v2">Second vector</param>
-        /// <returns>Addition result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> operator +(in <#=typename#> v1, in <#=typename#> v2) => v1.Add(v2);
+    /// <summary>
+    /// Performs the addition of two vectors by adding their respective coefficients.
+    /// </summary>
+    /// <param name="v1">First vector</param>
+    /// <param name="v2">Second vector</param>
+    /// <returns>Addition result</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> operator +(in <#=typename#> v1, in <#=typename#> v2) => v1.Add(v2);
 
-        /// <summary>
-        /// Performs the addition of a vector with the given Scalar by adding the Scalar to each of the vector's coefficents.
-        /// </summary>
-        /// <param name="v">Vector</param>
-        /// <param name="f">Scalar value</param>
-        /// <returns>Addition result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> operator +(in <#=typename#> v, Scalar f) => v + new <#=typename#>(f);
+    /// <summary>
+    /// Performs the addition of a vector with the given Scalar by adding the Scalar to each of the vector's coefficents.
+    /// </summary>
+    /// <param name="v">Vector</param>
+    /// <param name="f">Scalar value</param>
+    /// <returns>Addition result</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> operator +(in <#=typename#> v, Scalar f) => v + new <#=typename#>(f);
 
-        /// <summary>
-        /// Performs the addition of a vector with the given Scalar by adding the Scalar to each of the vector's coefficents.
-        /// </summary>
-        /// <param name="v">Vector</param>
-        /// <param name="f">Scalar value</param>
-        /// <returns>Addition result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> operator +(Scalar f, in <#=typename#> v) => v + f;
+    /// <summary>
+    /// Performs the addition of a vector with the given Scalar by adding the Scalar to each of the vector's coefficents.
+    /// </summary>
+    /// <param name="v">Vector</param>
+    /// <param name="f">Scalar value</param>
+    /// <returns>Addition result</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> operator +(Scalar f, in <#=typename#> v) => v + f;
 
-        /// <summary>
-        /// Performs the subtraction of two vectors by subtracting their respective coefficients.
-        /// </summary>
-        /// <param name="v1">First vector</param>
-        /// <param name="v2">Second vector</param>
-        /// <returns>Subtraction result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> operator -(in <#=typename#> v1, in <#=typename#> v2) => v1 + -v2;
+    /// <summary>
+    /// Performs the subtraction of two vectors by subtracting their respective coefficients.
+    /// </summary>
+    /// <param name="v1">First vector</param>
+    /// <param name="v2">Second vector</param>
+    /// <returns>Subtraction result</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> operator -(in <#=typename#> v1, in <#=typename#> v2) => v1 + -v2;
 
-        /// <summary>
-        /// Performs the subtraction of a Scalar from vector by subtracting the Scalar from each of the vector's coefficents.
-        /// </summary>
-        /// <param name="v">Vector</param>
-        /// <param name="f">Scalar value</param>
-        /// <returns>Subtraction result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> operator -(in <#=typename#> v, Scalar f) => v + -f;
+    /// <summary>
+    /// Performs the subtraction of a Scalar from vector by subtracting the Scalar from each of the vector's coefficents.
+    /// </summary>
+    /// <param name="v">Vector</param>
+    /// <param name="f">Scalar value</param>
+    /// <returns>Subtraction result</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> operator -(in <#=typename#> v, Scalar f) => v + -f;
 
-        /// <summary>
-        /// Performs the subtraction of a vector from a Scalar value.
-        /// </summary>
-        /// <param name="v">Vector</param>
-        /// <param name="f">Scalar value</param>
-        /// <returns>Subtraction result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> operator -(Scalar f, in <#=typename#> v) => -v + f;
+    /// <summary>
+    /// Performs the subtraction of a vector from a Scalar value.
+    /// </summary>
+    /// <param name="v">Vector</param>
+    /// <param name="f">Scalar value</param>
+    /// <returns>Subtraction result</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> operator -(Scalar f, in <#=typename#> v) => -v + f;
 
-        /// <summary>
-        /// Performs the multiplication of a vector with the given Scalar by mulitplying the Scalar with each of the vector's coefficents.
-        /// </summary>
-        /// <param name="v">Vector</param>
-        /// <param name="f">Scalar value</param>
-        /// <returns>Multiplication result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> operator *(in <#=typename#> v, Scalar f) => v.Multiply(f);
+    /// <summary>
+    /// Performs the multiplication of a vector with the given Scalar by mulitplying the Scalar with each of the vector's coefficents.
+    /// </summary>
+    /// <param name="v">Vector</param>
+    /// <param name="f">Scalar value</param>
+    /// <returns>Multiplication result</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> operator *(in <#=typename#> v, Scalar f) => v.Multiply(f);
 
-        /// <summary>
-        /// Performs the multiplication of a vector with the given Scalar by mulitplying the Scalar with each of the vector's coefficents.
-        /// </summary>
-        /// <param name="v">Vector</param>
-        /// <param name="f">Scalar value</param>
-        /// <returns>Multiplication result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> operator *(Scalar f, in <#=typename#> v) => v.Multiply(f);
+    /// <summary>
+    /// Performs the multiplication of a vector with the given Scalar by mulitplying the Scalar with each of the vector's coefficents.
+    /// </summary>
+    /// <param name="v">Vector</param>
+    /// <param name="f">Scalar value</param>
+    /// <returns>Multiplication result</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> operator *(Scalar f, in <#=typename#> v) => v.Multiply(f);
 
-        /// <summary>
-        /// Calculates the dot product of two vectors by multiplying their respective coefficients and summing them. THIS IS NOT TO BE CONFUSED WITH THE COMPONENT-WISE PRODUCT!
-        /// </summary>
-        /// <param name="v1">First vector</param>
-        /// <param name="v2">Second vector</param>
-        /// <returns>Dot product</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Scalar operator *(in <#=typename#> v1, in <#=typename#> v2) => v1.Dot(in v2);
+    /// <summary>
+    /// Calculates the dot product of two vectors by multiplying their respective coefficients and summing them. THIS IS NOT TO BE CONFUSED WITH THE COMPONENT-WISE PRODUCT!
+    /// </summary>
+    /// <param name="v1">First vector</param>
+    /// <param name="v2">Second vector</param>
+    /// <returns>Dot product</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar operator *(in <#=typename#> v1, in <#=typename#> v2) => v1.Dot(in v2);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> operator ^(in <#=typename#> m, int c) => m.Power(c);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> operator ^(in <#=typename#> m, int c) => m.Power(c);
 
-        /// <summary>
-        /// Performs the division of a vector by the given Scalar by dividing each of the vector's coefficents by the Scalar.
-        /// </summary>
-        /// <param name="v">Vector</param>
-        /// <param name="f">Scalar value</param>
-        /// <returns>Division result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> operator /(in <#=typename#> v, Scalar f) => v.Divide(f);
+    /// <summary>
+    /// Performs the division of a vector by the given Scalar by dividing each of the vector's coefficents by the Scalar.
+    /// </summary>
+    /// <param name="v">Vector</param>
+    /// <param name="f">Scalar value</param>
+    /// <returns>Division result</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> operator /(in <#=typename#> v, Scalar f) => v.Divide(f);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> operator /(Scalar f, in <#=typename#> v) => new <#=typename#>(f).ComponentwiseDivide(in v);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> operator /(Scalar f, in <#=typename#> v) => new <#=typename#>(f).ComponentwiseDivide(in v);
 
-        /// <summary>
-        /// Performs the division of two vectors by dividing each of the vector's respective coefficents by each other.
-        /// </summary>
-        /// <param name="v1">First Vector</param>
-        /// <param name="v2">Second Vector</param>
-        /// <returns>Division result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Scalar operator /(in <#=typename#> v1, in <#=typename#> v2)
-        {
-            Scalar[] components = v1.ToArray().Zip(v2.ToArray(), (x1, x2) => x1 / x2).Distinct().ToArray();
+    /// <summary>
+    /// Performs the division of two vectors by dividing each of the vector's respective coefficents by each other.
+    /// </summary>
+    /// <param name="v1">First Vector</param>
+    /// <param name="v2">Second Vector</param>
+    /// <returns>Division result</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar operator /(in <#=typename#> v1, in <#=typename#> v2)
+    {
+        Scalar[] components = v1.ToArray().Zip(v2.ToArray(), (x1, x2) => x1 / x2).Distinct().ToArray();
 
-            return components.Length == 1 ? components[0] : Scalar.NaN;
-        }
+        return components.Length == 1 ? components[0] : Scalar.NaN;
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> operator %(in <#=typename#> v, Scalar f) => v % new <#=typename#>(f);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> operator %(in <#=typename#> v, Scalar f) => v % new <#=typename#>(f);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> operator %(in <#=typename#> v1, in <#=typename#> v2) => v1.ComponentwiseModulus(in v2);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> operator %(in <#=typename#> v1, in <#=typename#> v2) => v1.ComponentwiseModulus(in v2);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator num.Vector<Scalar>(<#=typename#> v) => new num.Vector<Scalar>(v.Coefficients.Cast<Scalar>().ToArray());
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator num.Vector<Scalar>(<#=typename#> v) => new num.Vector<Scalar>(v.Coefficients.Cast<Scalar>().ToArray());
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator num.Vector<double>(<#=typename#> v) => new num.Vector<double>(v.Coefficients.Cast<double>().ToArray());
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator num.Vector<double>(<#=typename#> v) => new num.Vector<double>(v.Coefficients.Cast<double>().ToArray());
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator num.Vector<float>(<#=typename#> v) => new num.Vector<float>(v.Coefficients.Cast<float>().ToArray());
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator num.Vector<float>(<#=typename#> v) => new num.Vector<float>(v.Coefficients.Cast<float>().ToArray());
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator num.Vector<long>(<#=typename#> v) => new num.Vector<long>(v.Coefficients.Cast<long>().ToArray());
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator num.Vector<long>(<#=typename#> v) => new num.Vector<long>(v.Coefficients.Cast<long>().ToArray());
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator num.Vector<int>(<#=typename#> v) => new num.Vector<int>(v.Coefficients.Cast<int>().ToArray());
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator num.Vector<int>(<#=typename#> v) => new num.Vector<int>(v.Coefficients.Cast<int>().ToArray());
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator <#=typename#>(num.Vector<Scalar> v) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"v[{i}]"))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator <#=typename#>(num.Vector<Scalar> v) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"v[{i}]"))#>);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator <#=typename#>(num.Vector<double> v) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"v[{i}]"))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator <#=typename#>(num.Vector<double> v) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"v[{i}]"))#>);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator <#=typename#>(num.Vector<float> v) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"v[{i}]"))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator <#=typename#>(num.Vector<float> v) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"v[{i}]"))#>);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator <#=typename#>(num.Vector<long> v) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"v[{i}]"))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator <#=typename#>(num.Vector<long> v) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"v[{i}]"))#>);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator <#=typename#>(num.Vector<int> v) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"v[{i}]"))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator <#=typename#>(num.Vector<int> v) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"v[{i}]"))#>);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator Scalar[](in <#=typename#> v) => v.Coefficients;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator Scalar[](in <#=typename#> v) => v.Coefficients;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static explicit operator <#=typename#>(Scalar[] arr) => new <#=typename#>(arr);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static explicit operator <#=typename#>(Scalar[] arr) => new <#=typename#>(arr);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static explicit operator <#=typename#>(Scalar s) => new <#=typename#>(s);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static explicit operator <#=typename#>(Scalar s) => new <#=typename#>(s);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator (<#=string.Join(", ", r(0, dim).Select(i => "Scalar x" + i))#>) (in <#=typename#> v) => (<#=string.Join(", ", comps.Select(s => "v." + s))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator (<#=string.Join(", ", r(0, dim).Select(i => "Scalar x" + i))#>) (in <#=typename#> v) => (<#=string.Join(", ", comps.Select(s => "v." + s))#>);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator <#=typename#>((<#=string.Join(", ", r(0, dim).Select(i => "Scalar x" + i))#>) t) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => "t.x" + i))#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator <#=typename#>((<#=string.Join(", ", r(0, dim).Select(i => "Scalar x" + i))#>) t) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => "t.x" + i))#>);
 <#
         if (dim > 2)
         {
 #>
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator (Scalar x0, Vector<#=dim-1#> v1)(in <#=typename#> v) => (v._0, (<#=string.Join(", ", r(1, dim - 1).Select(i => "v._" + i))#>));
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator (Scalar x0, Vector<#=dim-1#> v1)(in <#=typename#> v) => (v._0, (<#=string.Join(", ", r(1, dim - 1).Select(i => "v._" + i))#>));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator (Vector<#=dim-1#> v0, Scalar x1)(in <#=typename#> v) => ((<#=string.Join(", ", r(0, dim - 1).Select(i => "v._" + i))#>), v._<#=dim-1#>);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator (Vector<#=dim-1#> v0, Scalar x1)(in <#=typename#> v) => ((<#=string.Join(", ", r(0, dim - 1).Select(i => "v._" + i))#>), v._<#=dim-1#>);
 <#
         }
 #>
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator Polynomial(in <#=typename#> v) => v.ToPolynomial();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator Polynomial(in <#=typename#> v) => v.ToPolynomial();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static explicit operator <#=typename#>(in Polynomial p) => new <#=typename#>(p.Coefficients);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static explicit operator <#=typename#>(in Polynomial p) => new <#=typename#>(p.Coefficients);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator VectorN(in <#=typename#> v) => new VectorN(v.ToArray());
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator VectorN(in <#=typename#> v) => new VectorN(v.ToArray());
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static explicit operator <#=typename#>(in VectorN v) => new <#=typename#>(v.Coefficients);
-
-        #endregion
-
-        public sealed class <#=typename#>EqualityComparer
-            : IEqualityComparer<<#=typename#>>
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public bool Equals(<#=typename#> x, <#=typename#> y) => x.Is(y);
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public int GetHashCode(<#=typename#> obj) => obj.GetHashCode();
-        }
-    }
-
-    public static class <#=typename#>Extensions
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> Sum(this IEnumerable<<#=typename#>> vectors) => <#=typename#>.Zero.Add(vectors.ToArray());
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> Average(this IEnumerable<<#=typename#>> vectors)
-        {
-            <#=typename#> vec = <#=typename#>.Zero;
-            long count = 0;
-
-            foreach (<#=typename#> v in vectors)
-            {
-                vec = vec.Add(in v);
-                ++count;
-            }
-
-            return vec.Divide(count);
-        }
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static explicit operator <#=typename#>(in VectorN v) => new <#=typename#>(v.Coefficients);
 
     #endregion
+
+    public sealed class <#=typename#>EqualityComparer
+        : IEqualityComparer<<#=typename#>>
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Equals(<#=typename#> x, <#=typename#> y) => x.Is(y);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int GetHashCode(<#=typename#> obj) => obj.GetHashCode();
+    }
+}
+
+public static class <#=typename#>Extensions
+{
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> Sum(this IEnumerable<<#=typename#>> vectors) => <#=typename#>.Zero.Add(vectors.ToArray());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> Average(this IEnumerable<<#=typename#>> vectors)
+    {
+        <#=typename#> vec = <#=typename#>.Zero;
+        long count = 0;
+
+        foreach (<#=typename#> v in vectors)
+        {
+            vec = vec.Add(in v);
+            ++count;
+        }
+
+        return vec.Divide(count);
+    }
+}
+
+#endregion
 <#
     }
 #>
-    #region VectorN (Extensions)
+#region VectorN (Extensions)
 
-    public partial class VectorN
+public partial class VectorN
+{
+    public Algebra<Scalar>.IVector Cast() => Size switch
     {
-        public Algebra<Scalar>.IVector Cast() => Size switch
-        {
-            1 => this[0],
+        1 => this[0],
 <#
     for (int i = 2; i < maxdim; ++i)
-    {
+        WriteLine($"        {i} => (Vector{i})this,");
 #>
-            <#=i#> => (Vector<#=i#>)this,
-<#
-    }
-#>
-            _ => new VectorN(this) as Algebra<Scalar>.IVector
-        };
-    }
-
-    #endregion
+        _ => new VectorN(this) as Algebra<Scalar>.IVector
+    };
 }
+
+#endregion

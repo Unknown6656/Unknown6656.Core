@@ -27,11 +27,11 @@ using Unknown6656.IO;
 
 using static System.Math;
 
+namespace Unknown6656.Mathematics.LinearAlgebra;
 
 // TODO: schatten-p-norm
 
-namespace Unknown6656.Mathematics.LinearAlgebra
-{
+
 <#
     int maxdim = 4;
 
@@ -52,203 +52,199 @@ namespace Unknown6656.Mathematics.LinearAlgebra
         string vecname = "Vector" + dim;
         string vecspace = "VectorSpace" + dim;
 #>
-    #region <#=typename#>
+#region <#=typename#>
 
-    /// <summary>
-    /// Represents a square <#=dim#>x<#=dim#> matrix.
-    /// </summary>
-    /// <inheritdoc cref="IMatrix{M,V,S}"/>
-    [StructLayout(LayoutKind.Sequential), NativeCppClass, Serializable, CLSCompliant(false)]
-    public unsafe readonly /* ref */ partial struct <#=typename#>
-        : Algebra<Scalar>.IMatrix<<#=vecname#>, <#=typename#>>
-        , Algebra<Scalar, Polynomial>.IMatrix<<#=typename#>, MatrixNM>
-        , IReadonlyNative<<#=typename#>>
-        , IEnumerable<<#=vecname#>>
-        // , Function<<#=typename#>, <#=vecname#>>
-        , IEnumerable<Scalar>
-        , IComparable<<#=typename#>>
-        , IComparable
-        , IDisplayable
-        , ICloneable
-    {
-        #region PRIVATE FIELDS
+/// <summary>
+/// Represents a square <#=dim#>x<#=dim#> matrix.
+/// </summary>
+/// <inheritdoc cref="IMatrix{M,V,S}"/>
+[StructLayout(LayoutKind.Sequential), NativeCppClass, Serializable, CLSCompliant(false)]
+public unsafe readonly /* ref */ partial struct <#=typename#>
+    : Algebra<Scalar>.IMatrix<<#=vecname#>, <#=typename#>>
+    , Algebra<Scalar, Polynomial>.IMatrix<<#=typename#>, MatrixNM>
+    , INative<<#=typename#>>
+    , IEnumerable<<#=vecname#>>
+    // , Function<<#=typename#>, <#=vecname#>>
+    , IEnumerable<Scalar>
+    , IComparable<<#=typename#>>
+    , IComparable
+    , IDisplayable
+    , ICloneable
+{
+    #region PRIVATE FIELDS
 
 <#
         foreach (string col in cols)
-        {
-#>
-        private readonly <#=vecname#> <#=col#>;
-<#
-        }
+            Write($"    private readonly {vecname} {col};\r\n");
 #>
 
-        #endregion
-        #region STATIC PROPERTIES
+    #endregion
+    #region STATIC PROPERTIES
 
-        public static (int Columns, int Rows) Dimensions { get; } = (<#=dim#>, <#=dim#>);
+    public static (int Columns, int Rows) Dimensions { get; } = (<#=dim#>, <#=dim#>);
 
-        /// <summary>
-        /// The <#=dim#>x<#=dim#> zero matrix
-        /// </summary>
-        public static <#=typename#> Zero { get; } = new <#=typename#>(0);
+    /// <summary>
+    /// The <#=dim#>x<#=dim#> zero matrix
+    /// </summary>
+    public static <#=typename#> Zero { get; } = new <#=typename#>(0);
 
-        /// <summary>
-        /// The <#=dim#>x<#=dim#> identity (unit) matrix
-        /// </summary>
-        public static <#=typename#> Identity { get; } = new <#=typename#>(1);
+    /// <summary>
+    /// The <#=dim#>x<#=dim#> identity (unit) matrix
+    /// </summary>
+    public static <#=typename#> Identity { get; } = new <#=typename#>(1);
 
-        /// <summary>
-        /// The default compoonent-wise equality comparer for  <see cref="<#=typename#>"/>.
-        /// </summary>
-        public static <#=typename#>EqualityComparer EqualityComparer { get; } = new <#=typename#>EqualityComparer();
+    /// <summary>
+    /// The default compoonent-wise equality comparer for  <see cref="<#=typename#>"/>.
+    /// </summary>
+    public static <#=typename#>EqualityComparer EqualityComparer { get; } = new <#=typename#>EqualityComparer();
 
-        /// <summary>
-        /// The raw memory size of the <see cref="<#=typename#>"/>-structure in bytes.
-        /// </summary>
-        public static int BinarySize => sizeof(<#=typename#>);
+    /// <summary>
+    /// The raw memory size of the <see cref="<#=typename#>"/>-structure in bytes.
+    /// </summary>
+    public static int BinarySize => sizeof(<#=typename#>);
 
-        #endregion
-        #region INDEXERS
+    #endregion
+    #region INDEXERS
 
-        /// <summary>
-        /// Gets the matrix' column vector at the given index.
-        /// </summary>
-        /// <param name="column">Column vector index (zero-based)</param>
-        /// <returns>Column vector</returns>
-        public readonly <#=vecname#> this[int column] => GetColumn(column);
+    /// <summary>
+    /// Gets the matrix' column vector at the given index.
+    /// </summary>
+    /// <param name="column">Column vector index (zero-based)</param>
+    /// <returns>Column vector</returns>
+    public readonly <#=vecname#> this[int column] => GetColumn(column);
 
-        public readonly <#=vecname#> this[Index column] => this[column.GetOffset(<#=dim#>)];
+    public readonly <#=vecname#> this[Index column] => this[column.GetOffset(<#=dim#>)];
 
-        public readonly MatrixNM this[Range columns] => GetColumns(columns);
+    public readonly MatrixNM this[Range columns] => GetColumns(columns);
 
-        /// <summary>
-        /// Sets the matrix' column vector at the given index and returns the modified matrix.
-        /// </summary>
-        /// <param name="column">Column vector index (zero-based)</param>
-        /// <param name="vector">New column vector</param>
-        /// <returns>Modified matrix</returns>
-        public readonly <#=typename#> this[int column, in <#=vecname#> value] => SetColumn(column, value);
+    /// <summary>
+    /// Sets the matrix' column vector at the given index and returns the modified matrix.
+    /// </summary>
+    /// <param name="column">Column vector index (zero-based)</param>
+    /// <param name="vector">New column vector</param>
+    /// <returns>Modified matrix</returns>
+    public readonly <#=typename#> this[int column, in <#=vecname#> value] => SetColumn(column, value);
 
-        public readonly <#=typename#> this[Index column, in <#=vecname#> value] => this[column.GetOffset(<#=dim#>), value];
+    public readonly <#=typename#> this[Index column, in <#=vecname#> value] => this[column.GetOffset(<#=dim#>), value];
 
-        public readonly <#=typename#> this[Range columns, in MatrixNM values] => SetColumns(columns, values);
+    public readonly <#=typename#> this[Range columns, in MatrixNM values] => SetColumns(columns, values);
 
-        public readonly Scalar this[int column, int row] => this[column][row];
+    public readonly Scalar this[int column, int row] => this[column][row];
 
-        public readonly Scalar this[Index column, Index row] => this[column][row];
+    public readonly Scalar this[Index column, Index row] => this[column][row];
 
-        public readonly MatrixNM this[Range columns, Range rows] => GetRegion(columns, rows);
+    public readonly MatrixNM this[Range columns, Range rows] => GetRegion(columns, rows);
 
-        public readonly <#=typename#> this[int column, int row, Scalar value]
+    public readonly <#=typename#> this[int column, int row, Scalar value]
+    {
+        get
         {
-            get
-            {
-                if (row < 0 || row >= <#=dim#> || column < 0 || column >= <#=dim#>)
-                    throw new IndexOutOfRangeException($"The indices ({column}, {row}) is invalid: The indices must each be a value between (inclusive) zero and <#=dim-1#>.");
+            if (row < 0 || row >= <#=dim#> || column < 0 || column >= <#=dim#>)
+                throw new IndexOutOfRangeException($"The indices ({column}, {row}) is invalid: The indices must each be a value between (inclusive) zero and <#=dim-1#>.");
 
-                Scalar[,] scalars = Coefficients;
+            Scalar[,] scalars = Coefficients;
 
-                scalars[column, row] = value;
+            scalars[column, row] = value;
 
-                return new <#=typename#>(scalars);
-            }
+            return new <#=typename#>(scalars);
         }
+    }
 
-        public readonly <#=typename#> this[Index column, Index row, Scalar value] => this[column.GetOffset(<#=dim#>), row.GetOffset(<#=dim#>), value];
+    public readonly <#=typename#> this[Index column, Index row, Scalar value] => this[column.GetOffset(<#=dim#>), row.GetOffset(<#=dim#>), value];
 
-        public readonly <#=typename#> this[Range columns, Range rows, in MatrixNM values] => SetRegion(columns, rows, values);
+    public readonly <#=typename#> this[Range columns, Range rows, in MatrixNM values] => SetRegion(columns, rows, values);
 
-        public readonly ReadOnlyIndexer<Range, Range, MatrixNM> Region => new ReadOnlyIndexer<Range, Range, MatrixNM>(GetRegion);
+    public readonly ReadOnlyIndexer<Range, Range, MatrixNM> Region => new ReadOnlyIndexer<Range, Range, MatrixNM>(GetRegion);
 
 <#
         if (dim == 2)
         {
 #>
-        public readonly ReadOnlyIndexer<int, int, Scalar> Minors
+    public readonly ReadOnlyIndexer<int, int, Scalar> Minors
+    {
+        get
         {
-            get
-            {
-                Scalar[,] c = Coefficients;
+            Scalar[,] c = Coefficients;
 
-                return new ReadOnlyIndexer<int, int, Scalar>((col, row) => (col, row) switch {
-                    (0, 0) => c[1, 1],
-                    (0, 1) => c[1, 0],
-                    (1, 0) => c[0, 1],
-                    (1, 1) => c[0, 0],
-                    _ => throw new ArgumentOutOfRangeException($"The indices ({col}, {row}) are invalid for this matrix: The indices must be values between (inclusive) zero and one.")
-                });
-            }
+            return new ReadOnlyIndexer<int, int, Scalar>((col, row) => (col, row) switch {
+                (0, 0) => c[1, 1],
+                (0, 1) => c[1, 0],
+                (1, 0) => c[0, 1],
+                (1, 1) => c[0, 0],
+                _ => throw new ArgumentOutOfRangeException($"The indices ({col}, {row}) are invalid for this matrix: The indices must be values between (inclusive) zero and one.")
+            });
         }
+    }
 <#
         }
         else
         {
 #>
-        public readonly ReadOnlyIndexer<int, int, Matrix<#=dim - 1#>> Minors => new ReadOnlyIndexer<int, int, Matrix<#=dim-1#>>(GetMinor);
+    public readonly ReadOnlyIndexer<int, int, Matrix<#=dim - 1#>> Minors => new ReadOnlyIndexer<int, int, Matrix<#=dim-1#>>(GetMinor);
 <#
         }
 #>
 
-        #endregion
-        #region INSTANCE PROPERTIES : BASIC PROPERTIES
+    #endregion
+    #region INSTANCE PROPERTIES : BASIC PROPERTIES
 
-        /// <inheritdoc cref="Dimension"/>
-        public readonly (int Columns, int Rows) Size => (<#=dim#>, <#=dim#>);
+    /// <inheritdoc cref="Dimension"/>
+    public readonly (int Columns, int Rows) Size => (<#=dim#>, <#=dim#>);
         
-        /// <inheritdoc cref="BinarySize"/>
-        readonly int IReadonlyNative<<#=typename#>>.BinarySize => BinarySize;
+    /// <inheritdoc cref="BinarySize"/>
+    readonly int IReadonlyNative<<#=typename#>>.BinarySize => BinarySize;
 
-        /// <inheritdoc cref="Dimensions"/>
-        readonly (int Columns, int Rows) Algebra<Scalar>.IComposite2D.Dimensions => Size;
+    /// <inheritdoc cref="Dimensions"/>
+    readonly (int Columns, int Rows) Algebra<Scalar>.IComposite2D.Dimensions => Size;
 
-        /// <summary>
-        /// Returns a two-dimensional array of the matrix' coefficients. The first zero-based index addresses the columns, the second one the rows.
-        /// </summary>
-        public readonly Scalar[,] Coefficients => new Scalar[<#=dim#>, <#=dim#>]
-        {
-<#=string.Join(",\n", r(0, dim).Select(col => $"            {{ {string.Join(", ", r(0, dim).Select(row => $"_c{col}[{row}]"))} }}"))#>
-        };
+    /// <summary>
+    /// Returns a two-dimensional array of the matrix' coefficients. The first zero-based index addresses the columns, the second one the rows.
+    /// </summary>
+    public readonly Scalar[,] Coefficients => new Scalar[<#=dim#>, <#=dim#>]
+    {
+<#=string.Join(",\n", r(0, dim).Select(col => $"        {{ {string.Join(", ", r(0, dim).Select(row => $"_c{col}[{row}]"))} }}"))#>
+    };
 
-        [DebuggerHidden, DebuggerNonUserCode, DebuggerBrowsable(DebuggerBrowsableState.Never), EditorBrowsable(EditorBrowsableState.Never)]
-        public readonly IEnumerable<Scalar> FlattenedCoefficients => new Scalar[<#=dim * dim#>] { <#=string.Join(", ", r(0, dim * dim).Select(i => $"_c{i % dim}[{i / dim}]"))#> };
+    [DebuggerHidden, DebuggerNonUserCode, DebuggerBrowsable(DebuggerBrowsableState.Never), EditorBrowsable(EditorBrowsableState.Never)]
+    public readonly IEnumerable<Scalar> FlattenedCoefficients => new Scalar[<#=dim * dim#>] { <#=string.Join(", ", r(0, dim * dim).Select(i => $"_c{i % dim}[{i / dim}]"))#> };
 
-        /// <summary>
-        /// The matrix' main diagonal.
-        /// </summary>
-        public readonly <#=vecname#> MainDiagonal => (<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}[{i}]"))#>);
+    /// <summary>
+    /// The matrix' main diagonal.
+    /// </summary>
+    public readonly <#=vecname#> MainDiagonal => (<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}[{i}]"))#>);
 
-        /// <summary>
-        /// The matrix' column vectors.
-        /// </summary>
-        public readonly <#=vecname#>[] Columns => new[] { <#=string.Join(", ", cols)#> };
+    /// <summary>
+    /// The matrix' column vectors.
+    /// </summary>
+    public readonly <#=vecname#>[] Columns => new[] { <#=string.Join(", ", cols)#> };
 
-        /// <summary>
-        /// The matrix' row vectors.
-        /// </summary>
-        public readonly <#=vecname#>[] Rows => Transposed.Columns;
+    /// <summary>
+    /// The matrix' row vectors.
+    /// </summary>
+    public readonly <#=vecname#>[] Rows => Transposed.Columns;
 
-        /// <summary>
-        /// The matrix' trace.
-        /// </summary>
-        public readonly Scalar Trace => MainDiagonal.Sum;
+    /// <summary>
+    /// The matrix' trace.
+    /// </summary>
+    public readonly Scalar Trace => MainDiagonal.Sum;
 
-        public readonly Scalar FrobeniusNorm => Multiply(this).Trace;
+    public readonly Scalar FrobeniusNorm => Multiply(this).Trace;
 
-        public readonly Scalar SpectralNorm => Transposed.Multiply(this).Eigenvalues.Max().Sqrt();
+    public readonly Scalar SpectralNorm => Transposed.Multiply(this).Eigenvalues.Max().Sqrt();
 
-        public readonly Scalar ColumnSumNorm => Columns.Select(c => c.Select(Scalar.Abs).Sum()).Max();
+    public readonly Scalar ColumnSumNorm => Columns.Select(c => c.Select(Scalar.Abs).Sum()).Max();
 
-        public readonly Scalar RowSumNorm => Rows.Select(c => c.Select(Scalar.Abs).Sum()).Max();
+    public readonly Scalar RowSumNorm => Rows.Select(c => c.Select(Scalar.Abs).Sum()).Max();
 
-        public readonly <#=typename#> AdditiveInverse => Negate();
+    public readonly <#=typename#> AdditiveInverse => Negate();
 
-        public readonly Scalar Sum => FlattenedCoefficients.Aggregate(Scalar.Zero, (a, b) => a.Add(b));
+    public readonly Scalar Sum => FlattenedCoefficients.Aggregate(Scalar.Zero, (a, b) => a.Add(b));
 
-        public readonly Scalar Avg => Sum.Divide(Dimensions.Rows + Dimensions.Columns);
+    public readonly Scalar Avg => Sum.Divide(Dimensions.Rows + Dimensions.Columns);
 
-        public readonly Scalar Min => FlattenedCoefficients.Min();
+    public readonly Scalar Min => FlattenedCoefficients.Min();
 
-        public readonly Scalar Max => FlattenedCoefficients.Max();
+    public readonly Scalar Max => FlattenedCoefficients.Max();
 <#
         if (dim > 3)
         {
@@ -2318,4 +2314,4 @@ namespace Unknown6656.Mathematics.LinearAlgebra
     }
 
     #endregion
-}
+

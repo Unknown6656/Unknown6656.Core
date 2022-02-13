@@ -20,8 +20,8 @@ public sealed class INIFile
     , IDictionary<string, INISection>
     , ICloneable
 {
-    private static readonly Regex INI_REGEX_SECTION = new Regex(@"^\s*\[\s*(?<sec>[\w\-]+)\s*\]", RegexOptions.Compiled);
-    private static readonly Regex INI_REGEX_PROPERTY = new Regex(@"^\s*(?<prop>[\w\-]+)\s*\=\s*(?<val>.*)\s*$", RegexOptions.Compiled);
+    private static readonly Regex INI_REGEX_SECTION = new(@"^\s*\[\s*(?<sec>[\w\-]+)\s*\]", RegexOptions.Compiled);
+    private static readonly Regex INI_REGEX_PROPERTY = new(@"^\s*(?<prop>[\w\-]+)\s*\=\s*(?<val>.*)\s*$", RegexOptions.Compiled);
 
     private readonly Dictionary<string, INISection> _sections;
     private readonly bool _case_insensitive;
@@ -273,7 +273,7 @@ public sealed class INISection
     private readonly bool _case_insensitive;
 
 
-    public static INISection Empty => new INISection();
+    public static INISection Empty => new();
 
     public int Count => _dictionary.Count;
 

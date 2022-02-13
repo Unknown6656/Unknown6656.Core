@@ -47,8 +47,8 @@ namespace Unknown6656.Imaging
 
         public (Bitmap masked, Bitmap inverted) Split(Bitmap bitmap)
         {
-            Bitmap destination = new Bitmap(bitmap.Width, bitmap.Height, PixelFormat.Format32bppArgb);
-            Bitmap inverted = new Bitmap(bitmap.Width, bitmap.Height, PixelFormat.Format32bppArgb);
+            Bitmap destination = new(bitmap.Width, bitmap.Height, PixelFormat.Format32bppArgb);
+            Bitmap inverted = new(bitmap.Width, bitmap.Height, PixelFormat.Format32bppArgb);
 
             Bitmap.LockRGBAPixels((mask, mw, mh) =>
             bitmap.LockRGBAPixels((source, w, h) =>
@@ -88,7 +88,7 @@ namespace Unknown6656.Imaging
             return hist;
         }
 
-        public BitmapMask ToBinaryMask(Scalar threshold) => new BitmapMask(Bitmap.ApplyEffect(new ColorEffect.Delegated(c => c.Average < threshold ? (0, 0, 0, c.Af) : (1, 1, 1, c.Af))));
+        public BitmapMask ToBinaryMask(Scalar threshold) => new(Bitmap.ApplyEffect(new ColorEffect.Delegated(c => c.Average < threshold ? (0, 0, 0, c.Af) : (1, 1, 1, c.Af))));
 
         // entire picture
         // rectangle
@@ -132,11 +132,11 @@ namespace Unknown6656.Imaging
 
         public static BitmapMask FromHue(Bitmap bitmap) => FromBitmap(bitmap, c => c.ToHSL().H / Scalar.Tau);
 
-        public static BitmapMask BlendMasks(BitmapMask bottom, BitmapMask top, BlendMode mode) => new BitmapMask(new BlendEffect(bottom, mode, 1).ApplyTo(top));
+        public static BitmapMask BlendMasks(BitmapMask bottom, BitmapMask top, BlendMode mode) => new(new BlendEffect(bottom, mode, 1).ApplyTo(top));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BitmapMask FromBitmap(Bitmap bitmap, Func<RGBAColor, Scalar> func, bool ignore_alpha = false) =>
-            new BitmapMask(bitmap.ApplyEffect(new ColorEffect.Delegated(c => func(c).Clamp() * new Vector4(1, 1, 1, 0) + (0, 0, 0, ignore_alpha ? c.Af : 1))));
+            new(bitmap.ApplyEffect(new ColorEffect.Delegated(c => func(c).Clamp() * new Vector4(1, 1, 1, 0) + (0, 0, 0, ignore_alpha ? c.Af : 1))));
 
         public static implicit operator Bitmap(BitmapMask mask) => mask.Bitmap;
     }

@@ -366,7 +366,7 @@ namespace Unknown6656.Mathematics.Geometry
         public virtual Triangle2D[] Triangulize(long triangle_count_hint)
         {
             Vector2[] corners = Corners;
-            List<Triangle2D> triangles = new List<Triangle2D>();
+            List<Triangle2D> triangles = new();
 
             if (corners.Length < 3)
                 throw new InvalidOperationException($"A shape with only {corners.Length} corners cannot be triangulized. At least 3 corners are necessary.");
@@ -411,7 +411,7 @@ namespace Unknown6656.Mathematics.Geometry
         /// </summary>
         public Vector2 NormalizedDirection => ~Direction;
 
-        public Line2D Normalized => new Line2D(From, Direction, 1);
+        public Line2D Normalized => new(From, Direction, 1);
 
         /// <summary>
         /// The line's length.
@@ -455,13 +455,13 @@ namespace Unknown6656.Mathematics.Geometry
         }
 
         /// <inheritdoc/>
-        public override Line2D TransformHomogeneous(Matrix3 matrix) => new Line2D(matrix.HomogeneousMultiply(From), matrix.HomogeneousMultiply(To));
+        public override Line2D TransformHomogeneous(Matrix3 matrix) => new(matrix.HomogeneousMultiply(From), matrix.HomogeneousMultiply(To));
 
         /// <inheritdoc/>
-        public override Line2D MirrorAt(Line2D axis) => new Line2D(From.MirrorAt(axis), To.MirrorAt(axis));
+        public override Line2D MirrorAt(Line2D axis) => new(From.MirrorAt(axis), To.MirrorAt(axis));
 
         /// <inheritdoc/>
-        public override Line2D MoveBy(Vector2 offset) => new Line2D(From + offset, To + offset);
+        public override Line2D MoveBy(Vector2 offset) => new(From + offset, To + offset);
 
         /// <inheritdoc/>
         public override Line2D Rotate(Scalar angle) => Transform(Matrix2.CreateRotation(angle));
@@ -552,9 +552,9 @@ namespace Unknown6656.Mathematics.Geometry
         }
 
 
-        public static Line2D Between(Vector2 from, Vector2 to) => new Line2D(from, to);
+        public static Line2D Between(Vector2 from, Vector2 to) => new(from, to);
 
-        public static Line2D FromDirection(Vector2 from, Vector2 direction) => new Line2D(from, from + direction);
+        public static Line2D FromDirection(Vector2 from, Vector2 direction) => new(from, from + direction);
 
         public static Line2D FromDirection(Vector2 from, Vector2 direction, Scalar length) => FromDirection(from, ~direction * length);
 
@@ -563,7 +563,7 @@ namespace Unknown6656.Mathematics.Geometry
             if (first.GetLenientIntersection(second) is Vector2 vec)
             {
                 Vector2 dir = ~(first.NormalizedDirection + second.NormalizedDirection);
-                Line2D bisec = new Line2D(vec, vec + dir);
+                Line2D bisec = new(vec, vec + dir);
 
                 return (bisec, bisec.Rotate(bisec.From, Scalar.PiHalf));
             }
@@ -572,9 +572,9 @@ namespace Unknown6656.Mathematics.Geometry
         }
 
 
-        public static explicit operator Line2D(Vector2 to) => new Line2D(to);
+        public static explicit operator Line2D(Vector2 to) => new(to);
 
-        public static implicit operator Line2D((Vector2 from, Vector2 to) end_points) => new Line2D(end_points.from, end_points.to);
+        public static implicit operator Line2D((Vector2 from, Vector2 to) end_points) => new(end_points.from, end_points.to);
 
         public static implicit operator (Vector2 From, Vector2 To)(Line2D line) => (line.From, line.To);
 
@@ -691,11 +691,11 @@ namespace Unknown6656.Mathematics.Geometry
 
         public override bool Equals(Triangle2D? other) => Corners.SetEquals(other?.Corners);
 
-        public override Triangle2D MirrorAt(Line2D axis) => new Triangle2D(CornerA.MirrorAt(axis), CornerB.MirrorAt(axis), CornerC.MirrorAt(axis));
+        public override Triangle2D MirrorAt(Line2D axis) => new(CornerA.MirrorAt(axis), CornerB.MirrorAt(axis), CornerC.MirrorAt(axis));
 
-        public override Triangle2D MoveBy(Vector2 offset) => new Triangle2D(CornerA + offset, CornerB + offset, CornerC + offset);
+        public override Triangle2D MoveBy(Vector2 offset) => new(CornerA + offset, CornerB + offset, CornerC + offset);
 
-        public override Triangle2D Rotate(Scalar angle) => new Triangle2D(CornerA.Rotate(angle), CornerB.Rotate(angle), CornerC.Rotate(angle));
+        public override Triangle2D Rotate(Scalar angle) => new(CornerA.Rotate(angle), CornerB.Rotate(angle), CornerC.Rotate(angle));
 
         public override Triangle2D Scale(Scalar x, Scalar y) => Transform((x, 0, 0, y));
 
@@ -718,7 +718,7 @@ namespace Unknown6656.Mathematics.Geometry
         }
 
 
-        public static implicit operator Triangle2D((Vector2 a, Vector2 b, Vector2 c) corners) => new Triangle2D(corners.a, corners.b, corners.c);
+        public static implicit operator Triangle2D((Vector2 a, Vector2 b, Vector2 c) corners) => new(corners.a, corners.b, corners.c);
 
         public static implicit operator (Vector2 a, Vector2 b, Vector2 c)(Triangle2D triangle) => (triangle.CornerA, triangle.CornerB, triangle.CornerC);
     }
@@ -849,11 +849,11 @@ namespace Unknown6656.Mathematics.Geometry
 
         public override bool Equals(Parallelogram2D? other) => Corners.SetEquals(other?.Corners);
 
-        public override Parallelogram2D MirrorAt(Line2D axis) => new Parallelogram2D(BottomLeft.MirrorAt(axis), BottomRight.MirrorAt(axis), TopRight.MirrorAt(axis), TopLeft.MirrorAt(axis));
+        public override Parallelogram2D MirrorAt(Line2D axis) => new(BottomLeft.MirrorAt(axis), BottomRight.MirrorAt(axis), TopRight.MirrorAt(axis), TopLeft.MirrorAt(axis));
 
-        public override Parallelogram2D MoveBy(Vector2 offset) => new Parallelogram2D(_bl_corner + offset, _right_dir, _up_dir);
+        public override Parallelogram2D MoveBy(Vector2 offset) => new(_bl_corner + offset, _right_dir, _up_dir);
 
-        public override Parallelogram2D Rotate(Scalar angle) => new Parallelogram2D(BottomLeft.Rotate(angle), BottomRight.Rotate(angle), TopRight.Rotate(angle), TopLeft.Rotate(angle));
+        public override Parallelogram2D Rotate(Scalar angle) => new(BottomLeft.Rotate(angle), BottomRight.Rotate(angle), TopRight.Rotate(angle), TopLeft.Rotate(angle));
 
         public override Parallelogram2D Scale(Scalar x, Scalar y) => Transform(Matrix2.DiagonalMatrix(x, y));
 
@@ -989,9 +989,9 @@ namespace Unknown6656.Mathematics.Geometry
                 throw new ArgumentException("The mirror axis must be either the horizontal (X) or vertical (Y) axis.");
         }
 
-        public new AxisAlignedRectangle2D MoveBy(Vector2 offset) => new AxisAlignedRectangle2D(BottomLeft + offset, Width, Height);
+        public new AxisAlignedRectangle2D MoveBy(Vector2 offset) => new(BottomLeft + offset, Width, Height);
 
-        public new AxisAlignedRectangle2D Scale(Scalar x, Scalar y) => new AxisAlignedRectangle2D(BottomLeft, Width * x, Height * y);
+        public new AxisAlignedRectangle2D Scale(Scalar x, Scalar y) => new(BottomLeft, Width * x, Height * y);
 
         //convert to rectangle, rectanglef, bounds
 
@@ -1042,7 +1042,7 @@ namespace Unknown6656.Mathematics.Geometry
 
         public Scalar SemiLatusRectum => Distance * (1 - (Eccentricity ^ 2));
 
-        public Line2D SemiMajorAxis => new Line2D(CenterPoint, _fp1 - CenterPoint, Distance);
+        public Line2D SemiMajorAxis => new(CenterPoint, _fp1 - CenterPoint, Distance);
 
         public Line2D SemiMinorAxis => SemiMajorAxis.Rotate(CenterPoint, - Scalar.PiHalf); // TODO
 
@@ -1133,13 +1133,13 @@ namespace Unknown6656.Mathematics.Geometry
                 return null;
         }
 
-        public override Ellipse2D MirrorAt(Line2D axis) => new Ellipse2D(_fp1.MirrorAt(axis), _fp2.MirrorAt(axis), Distance);
+        public override Ellipse2D MirrorAt(Line2D axis) => new(_fp1.MirrorAt(axis), _fp2.MirrorAt(axis), Distance);
 
-        public override Ellipse2D MoveBy(Vector2 offset) => new Ellipse2D(_fp1 + offset, _fp2 + offset, Distance);
+        public override Ellipse2D MoveBy(Vector2 offset) => new(_fp1 + offset, _fp2 + offset, Distance);
 
-        public override Ellipse2D Rotate(Scalar angle) => new Ellipse2D(_fp1.Rotate(angle), _fp2.Rotate(angle), Distance);
+        public override Ellipse2D Rotate(Scalar angle) => new(_fp1.Rotate(angle), _fp2.Rotate(angle), Distance);
 
-        public override Ellipse2D Scale(Scalar x, Scalar y) => new Ellipse2D(_fp2.ComponentwiseMultiply(x, y), _fp1.ComponentwiseMultiply(x, y), SemiMajorAxis.Scale(x, y).Length);
+        public override Ellipse2D Scale(Scalar x, Scalar y) => new(_fp2.ComponentwiseMultiply(x, y), _fp1.ComponentwiseMultiply(x, y), SemiMajorAxis.Scale(x, y).Length);
 
         public Triangle2D[] Triangulize(long triangle_count_hint)
         {
@@ -1201,7 +1201,7 @@ namespace Unknown6656.Mathematics.Geometry
 
         public override Scalar Circumference => Radius.Multiply(Scalar.Tau);
 
-        public override AxisAlignedRectangle2D AxisAlignedBoundingBox => new AxisAlignedRectangle2D(CenterPoint - (Radius, Radius), Diameter, Diameter);
+        public override AxisAlignedRectangle2D AxisAlignedBoundingBox => new(CenterPoint - (Radius, Radius), Diameter, Diameter);
 
 
         public Circle2D(Vector2 center, Scalar radius)
@@ -1211,7 +1211,7 @@ namespace Unknown6656.Mathematics.Geometry
             CenterPoint = center;
         }
 
-        public new Circle2D MoveBy(Vector2 offset) => new Circle2D(CenterPoint + offset, Radius);
+        public new Circle2D MoveBy(Vector2 offset) => new(CenterPoint + offset, Radius);
 
         public override bool Touches(Vector2 point) => point.DistanceTo(CenterPoint) == Radius;
 

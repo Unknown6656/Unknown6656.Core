@@ -27,6 +27,6 @@ namespace Unknown6656
 
         public static implicit operator T(Box<T> box) => box.Data;
 
-        public static implicit operator Box<T>(T data) => new Box<T> { Data = data };
+        public static implicit operator Box<T>(T data) => new() { Data = data };
     }
 }

@@ -163,7 +163,7 @@ namespace Unknown6656.Mathematics.Analysis
         #region STATIC METHODS
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static DensityFunction<T> FromCollection(IEnumerable<T> collection) => new DensityFunction<T>(collection);
+        public static DensityFunction<T> FromCollection(IEnumerable<T> collection) => new(collection);
 
         #endregion
     }

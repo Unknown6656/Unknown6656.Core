@@ -30,7 +30,7 @@ namespace Unknown6656.Imaging
 
         private void ReadFromBitmap(Bitmap bmp)
         {
-            using Bitmap tmp = new Bitmap(bmp);
+            using Bitmap tmp = new(bmp);
             using Bitmap copy = tmp.Clone(new Rectangle(0, 0, tmp.Width, tmp.Height), PixelFormat.Format32bppArgb);
             BitmapLocker lck = copy;
             Scalar factor = new Scalar(255d).Inverse;
@@ -49,7 +49,7 @@ namespace Unknown6656.Imaging
 
         public Bitmap ToBitmap()
         {
-            Bitmap bmp = new Bitmap(Width, Height, PixelFormat.Format32bppArgb);
+            Bitmap bmp = new(Width, Height, PixelFormat.Format32bppArgb);
             BitmapLocker lck = bmp;
             Scalar factor = 255;
 

@@ -25,9 +25,9 @@ namespace Unknown6656.IO
     {
         public override byte[] CompressData(byte[] data)
         {
-            using MemoryStream mso = new MemoryStream();
-            using GZipStream compr = new GZipStream(mso, CompressionLevel.Optimal);
-            using BinaryWriter wr = new BinaryWriter(compr);
+            using MemoryStream mso = new();
+            using GZipStream compr = new(mso, CompressionLevel.Optimal);
+            using BinaryWriter wr = new(compr);
 
             wr.Write(data.Length);
             wr.Write(data, 0, data.Length);
@@ -40,10 +40,10 @@ namespace Unknown6656.IO
 
         public override byte[] UncompressData(byte[] data)
         {
-            using MemoryStream msi = new MemoryStream(data);
-            using GZipStream decompr = new GZipStream(msi, CompressionMode.Decompress);
-            using MemoryStream mso = new MemoryStream();
-            using BinaryReader rd = new BinaryReader(mso);
+            using MemoryStream msi = new(data);
+            using GZipStream decompr = new(msi, CompressionMode.Decompress);
+            using MemoryStream mso = new();
+            using BinaryReader rd = new(mso);
 
             decompr.CopyTo(mso);
             decompr.Close();
@@ -60,9 +60,9 @@ namespace Unknown6656.IO
     {
         public override byte[] CompressData(byte[] data)
         {
-            using MemoryStream mso = new MemoryStream();
-            using DeflateStream compr = new DeflateStream(mso, CompressionLevel.Optimal);
-            using BinaryWriter wr = new BinaryWriter(compr);
+            using MemoryStream mso = new();
+            using DeflateStream compr = new(mso, CompressionLevel.Optimal);
+            using BinaryWriter wr = new(compr);
 
             wr.Write(data.Length);
             wr.Write(data, 0, data.Length);
@@ -75,10 +75,10 @@ namespace Unknown6656.IO
 
         public override byte[] UncompressData(byte[] data)
         {
-            using MemoryStream msi = new MemoryStream(data);
-            using DeflateStream decompr = new DeflateStream(msi, CompressionMode.Decompress);
-            using MemoryStream mso = new MemoryStream();
-            using BinaryReader rd = new BinaryReader(mso);
+            using MemoryStream msi = new(data);
+            using DeflateStream decompr = new(msi, CompressionMode.Decompress);
+            using MemoryStream mso = new();
+            using BinaryReader rd = new(mso);
 
             decompr.CopyTo(mso);
             decompr.Close();
@@ -95,9 +95,9 @@ namespace Unknown6656.IO
     {
         public override byte[] CompressData(byte[] data)
         {
-            using MemoryStream mso = new MemoryStream();
-            using BrotliStream compr = new BrotliStream(mso, CompressionLevel.Optimal);
-            using BinaryWriter wr = new BinaryWriter(compr);
+            using MemoryStream mso = new();
+            using BrotliStream compr = new(mso, CompressionLevel.Optimal);
+            using BinaryWriter wr = new(compr);
 
             wr.Write(data.Length);
             wr.Write(data, 0, data.Length);
@@ -110,10 +110,10 @@ namespace Unknown6656.IO
 
         public override byte[] UncompressData(byte[] data)
         {
-            using MemoryStream msi = new MemoryStream(data);
-            using BrotliStream decompr = new BrotliStream(msi, CompressionMode.Decompress);
-            using MemoryStream mso = new MemoryStream();
-            using BinaryReader rd = new BinaryReader(mso);
+            using MemoryStream msi = new(data);
+            using BrotliStream decompr = new(msi, CompressionMode.Decompress);
+            using MemoryStream mso = new();
+            using BinaryReader rd = new(mso);
 
             decompr.CopyTo(mso);
             decompr.Close();

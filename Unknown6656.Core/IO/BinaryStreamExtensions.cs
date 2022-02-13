@@ -13,8 +13,8 @@ namespace Unknown6656.IO
 
         public static byte[] SerializeCallback(this Action<BinaryWriter> callback)
         {
-            using MemoryStream ms = new MemoryStream();
-            using BinaryWriter wr = new BinaryWriter(ms);
+            using MemoryStream ms = new();
+            using BinaryWriter wr = new(ms);
 
             callback(wr);
             ms.Seek(0, SeekOrigin.Begin);
@@ -55,7 +55,7 @@ namespace Unknown6656.IO
             where T : unmanaged
         {
             byte* ptr = (byte*)&data;
-            ReadOnlySpan<byte> rspan = new ReadOnlySpan<byte>(ptr, sizeof(T));
+            ReadOnlySpan<byte> rspan = new(ptr, sizeof(T));
 
             writer.Write(rspan);
         }

@@ -35,7 +35,7 @@ namespace Unknown6656.Mathematics.Analysis
 
         private static readonly Complex[,][] _rot = new Complex[MAX_BITS, 2][];
         private static readonly int[][] _rev = new int[MAX_BITS][];
-        private static readonly object _mutex = new object();
+        private static readonly object _mutex = new();
 
 
         /// <summary>

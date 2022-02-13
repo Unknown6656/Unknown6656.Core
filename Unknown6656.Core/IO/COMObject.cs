@@ -145,9 +145,9 @@ public class COMObject
         }
     }
 
-    public static COMObject CreateObject(string progID) => new COMObject(progID);
+    public static COMObject CreateObject(string progID) => new(progID);
 
-    public static COMObject CreateObject(Guid clsid) => new COMObject(clsid);
+    public static COMObject CreateObject(Guid clsid) => new(clsid);
 
     public static COMObject CreateFirstFrom(params string[] progids)
     {

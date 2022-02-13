@@ -14,7 +14,7 @@ namespace Unknown6656.IO
 
         public static string GetShortPath(string path)
         {
-            StringBuilder sb = new StringBuilder(256);
+            StringBuilder sb = new(256);
 
             NativeInterop.GetShortPathName(path, sb, sb.Capacity);
 
@@ -39,7 +39,7 @@ namespace Unknown6656.IO
         {
             string dir = Path.GetDirectoryName(path_with_wildcards) ?? ".";
             string file = Path.GetFileName(path_with_wildcards);
-            DirectoryInfo d = new DirectoryInfo(dir);
+            DirectoryInfo d = new(dir);
 
             return d.EnumerateFileSystemInfos(file).ToArray();
         }

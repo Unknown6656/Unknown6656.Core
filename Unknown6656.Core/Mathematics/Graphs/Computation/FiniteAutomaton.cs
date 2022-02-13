@@ -87,7 +87,7 @@ public class DeterministicFiniteAutomaton<S, T>
         string gen_for(Vertex<DirectedGraph<S, IEnumerable<T>?>, S, IEnumerable<T>?> vertex)
         {
             var edges = vertex.OutboundEdges.ToArray();
-            List<string> branches = new List<string>();
+            List<string> branches = new();
             string res;
 
             foreach (var e in edges)
@@ -156,7 +156,7 @@ public class DeterministicFiniteAutomaton<S, T>
         if (_accepted.Count == 0)
             return AutomatonResult.Reject;
 
-        List<Vertex<DirectedGraph<S, IEnumerable<T>?>, S, IEnumerable<T>?>> path = new List<Vertex<DirectedGraph<S, IEnumerable<T>?>, S, IEnumerable<T>?>> { Start };
+        List<Vertex<DirectedGraph<S, IEnumerable<T>?>, S, IEnumerable<T>?>> path = new() { Start };
         Vertex<DirectedGraph<S, IEnumerable<T>?>, S, IEnumerable<T>?> last = Start;
 
         foreach (T i in input)
@@ -193,7 +193,7 @@ public sealed class ParserBuilder<T>
         _start = _graph.AddVertex("[start]");
     }
 
-    public BuilderState Start() => new BuilderState(this, _start);
+    public BuilderState Start() => new(this, _start);
 
 
     public sealed class BuilderState
@@ -323,7 +323,7 @@ public sealed class ParserBuilder<T>
 
         public DeterministicFiniteAutomaton<string, T> GenerateParser()
         {
-            DeterministicFiniteAutomaton<string, T> dfa = new DeterministicFiniteAutomaton<string, T>(Graph, Builder._start);
+            DeterministicFiniteAutomaton<string, T> dfa = new(Graph, Builder._start);
 
             foreach (var v in Builder._accepted)
                 dfa.Accepted[v] = true;

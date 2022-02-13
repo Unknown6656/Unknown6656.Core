@@ -67,7 +67,7 @@ public class Polynomial<Function, T>
     /// <summary>
     /// The polynomial's coefficient in ascending order
     /// </summary>
-    public ReadOnlyCollection<T> Coefficients => new ReadOnlyCollection<T>(_coefficients);
+    public ReadOnlyCollection<T> Coefficients => new(_coefficients);
 
     /// <summary>
     /// The polynomial's leading coefficient
@@ -443,14 +443,14 @@ public class Polynomial<Function, T>
     /// </summary>
     /// <param name="f">Scalar</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Polynomial<Function, T>(T f) => new Polynomial<Function, T>(new[] { f });
+    public static implicit operator Polynomial<Function, T>(T f) => new(new[] { f });
 
     /// <summary>
     /// Implicitly converts the given array of scalar coefficients to their respective polynomial representation.
     /// </summary>
     /// <param name="c">Scalar coefficients</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Polynomial<Function, T>(T[] c) => new Polynomial<Function, T>(c);
+    public static implicit operator Polynomial<Function, T>(T[] c) => new(c);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator T[](Polynomial<Function, T> p) => p.Coefficients.ToArray();
@@ -618,7 +618,7 @@ public class ComplexPolynomial
     {
     }
 
-    public virtual YValueFinder<Complex> CreateZeroPointFinder() => new YValueFinder<Complex>(this, Complex.Zero);
+    public virtual YValueFinder<Complex> CreateZeroPointFinder() => new(this, Complex.Zero);
 
     public override IEnumerable<Complex> Solve(Complex y) => Solve(y, PSOSolverConfiguration<Complex>.CreateDefault(Complex.Zero));
 
@@ -790,7 +790,7 @@ public partial class Polynomial
             yield return x;
     }
 
-    public virtual YValueFinder<Scalar> CreateZeroPointFinder() => new YValueFinder<Scalar>(this, Scalar.Zero);
+    public virtual YValueFinder<Scalar> CreateZeroPointFinder() => new(this, Scalar.Zero);
 
     public IEnumerable<Scalar> SolvePSO(Scalar y) => SolvePSO(y, PSOSolverConfiguration<Scalar>.CreateDefault(Scalar.Zero));
 
@@ -964,7 +964,7 @@ public partial class Polynomial
                      _ => throw new ArgumentException($"Invalid exponent character '{c}'.")
                  })));
 
-        List<Polynomial> terms = new List<Polynomial>();
+        List<Polynomial> terms = new();
 
         while (str.Match(/* lang=regex */@"^(?<sign>[+\-]?)((?<coeff>(\d*\.)?\b\d+(e[+\-]?\d+)?)[fdm]?(\*?x\b(\^\+?(?<exp>[0-9]+)\b)?)?|\bx\b(\^\+?(?<exp2>[0-9]+)\b)?)", out Match match))
         {

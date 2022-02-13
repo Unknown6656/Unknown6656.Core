@@ -90,7 +90,7 @@ namespace Unknown6656.Imaging
         {
             RGBAColor line_clr = settings.LineColor;
             RGBAColor fill_clr = settings.FillColor;
-            using RenderPass pass = new RenderPass(this, settings.LineThickness);
+            using RenderPass pass = new(this, settings.LineThickness);
 
             callback(pass);
 
@@ -225,7 +225,7 @@ namespace Unknown6656.Imaging
             bool additive = mode != RenderPassDrawMode.Subtractive;
             PointF[] gdi_points = points.ToArray(p => _matrix.HomogeneousMultiply(p).ToPointF());
 
-            using Pen pen = new Pen(additive ? _brush_add : _brush_sub, 1);
+            using Pen pen = new(additive ? _brush_add : _brush_sub, 1);
 
             fill(additive ? _brush_add : _brush_sub, gdi_points);
             draw(pen, gdi_points);

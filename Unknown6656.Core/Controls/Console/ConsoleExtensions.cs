@@ -226,7 +226,7 @@ namespace Unknown6656.Controls.Console
 
             width -= 16;
 
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
             int horizontal_count = (width - 3) / 4;
             byte b;
 

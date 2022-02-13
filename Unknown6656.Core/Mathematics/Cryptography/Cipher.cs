@@ -28,7 +28,7 @@ namespace Unknown6656.Mathematics.Cryptography
 
         public virtual byte[] Encrypt(byte[] key, Stream message)
         {
-            using MemoryStream ms = new MemoryStream();
+            using MemoryStream ms = new();
 
             message.CopyTo(ms);
             ms.Seek(0, SeekOrigin.Begin);
@@ -38,7 +38,7 @@ namespace Unknown6656.Mathematics.Cryptography
 
         public virtual byte[] Decrypt(byte[] key, Stream cipher)
         {
-            using MemoryStream ms = new MemoryStream();
+            using MemoryStream ms = new();
 
             cipher.CopyTo(ms);
             ms.Seek(0, SeekOrigin.Begin);
@@ -48,7 +48,7 @@ namespace Unknown6656.Mathematics.Cryptography
 
         public virtual async Task<byte[]> EncryptAsync(byte[] key, Stream message)
         {
-            using MemoryStream ms = new MemoryStream();
+            using MemoryStream ms = new();
             await message.CopyToAsync(ms);
 
             ms.Seek(0, SeekOrigin.Begin);
@@ -58,7 +58,7 @@ namespace Unknown6656.Mathematics.Cryptography
 
         public virtual async Task<byte[]> DecryptAsync(byte[] key, Stream cipher)
         {
-            using MemoryStream ms = new MemoryStream();
+            using MemoryStream ms = new();
             await cipher.CopyToAsync(ms);
 
             ms.Seek(0, SeekOrigin.Begin);
@@ -142,11 +142,11 @@ namespace Unknown6656.Mathematics.Cryptography
 
         public abstract byte[] Decrypt<T>(T encrpytion, byte[] key, byte[] cipher) where T : BlockCipher<T>;
 
-        public static ElectronicCodebookMode ECB(int blocksize) => new ElectronicCodebookMode(blocksize);
+        public static ElectronicCodebookMode ECB(int blocksize) => new(blocksize);
 
-        public static CipherBlockChainingMode CBC(int blocksize, byte[] iv) => new CipherBlockChainingMode(blocksize, iv);
+        public static CipherBlockChainingMode CBC(int blocksize, byte[] iv) => new(blocksize, iv);
 
-        public static CounterMode CTR(int blocksize, byte[] iv) => new CounterMode(blocksize, iv);
+        public static CounterMode CTR(int blocksize, byte[] iv) => new(blocksize, iv);
 
         // public static ElectronicCodebookMode GCM(int blocksize, byte[] iv);
 

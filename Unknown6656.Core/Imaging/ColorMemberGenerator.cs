@@ -222,7 +222,7 @@ namespace Unknown6656.Imaging
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly HDRColor CorrectGamma(Scalar gamma) => new HDRColor(
+        public readonly HDRColor CorrectGamma(Scalar gamma) => new(
             Math.Pow(R, 1 / gamma),
             Math.Pow(G, 1 / gamma),
             Math.Pow(B, 1 / gamma),
@@ -676,7 +676,7 @@ namespace Unknown6656.Imaging
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static HDRColor FromYCbCr(double Y, double Cb, double Cr, double α) => new HDRColor(
+        public static HDRColor FromYCbCr(double Y, double Cb, double Cr, double α) => new(
             Y + (Cr - 128) * 1.402,
             Y + (Cb - 128) * -.34414 + (Cr - 128) * -.71414,
             Y + (Cb - 128) * 1.772,
@@ -859,11 +859,11 @@ namespace Unknown6656.Imaging
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static HDRColor FromARGB(int argb) => new HDRColor(argb);
+        public static HDRColor FromARGB(int argb) => new(argb);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static HDRColor FromARGB(uint argb) => new HDRColor(argb);
+        public static HDRColor FromARGB(uint argb) => new(argb);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -911,19 +911,19 @@ namespace Unknown6656.Imaging
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator HDRColor((double r, double g, double b) color) => new HDRColor(color.r, color.g, color.b, 1);
+        public static implicit operator HDRColor((double r, double g, double b) color) => new(color.r, color.g, color.b, 1);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator HDRColor((double r, double g, double b, double α) color) => new HDRColor(color.r, color.g, color.b, color.α);
+        public static implicit operator HDRColor((double r, double g, double b, double α) color) => new(color.r, color.g, color.b, color.α);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator Vector3(HDRColor color) => new Vector3(color.R, color.G, color.B);
+        public static implicit operator Vector3(HDRColor color) => new(color.R, color.G, color.B);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator Vector4(HDRColor color) => new Vector4(color.R, color.G, color.B, color.A);
+        public static implicit operator Vector4(HDRColor color) => new(color.R, color.G, color.B, color.A);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -935,19 +935,19 @@ namespace Unknown6656.Imaging
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator HDRColor(Vector3 color) => new HDRColor(color.X, color.Y, color.Z, 1d);
+        public static implicit operator HDRColor(Vector3 color) => new(color.X, color.Y, color.Z, 1d);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator HDRColor(Vector4 color) => new HDRColor(color.X, color.Y, color.Z, color.W);
+        public static implicit operator HDRColor(Vector4 color) => new(color.X, color.Y, color.Z, color.W);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator HDRColor((Vector3 color, Scalar α) rgba) => new HDRColor(rgba.color.X, rgba.color.Y, rgba.color.Z, rgba.α);
+        public static implicit operator HDRColor((Vector3 color, Scalar α) rgba) => new(rgba.color.X, rgba.color.Y, rgba.color.Z, rgba.α);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator HDRColor((Vector3 color, double α) rgba) => new HDRColor(rgba.color.X, rgba.color.Y, rgba.color.Z, rgba.α);
+        public static implicit operator HDRColor((Vector3 color, double α) rgba) => new(rgba.color.X, rgba.color.Y, rgba.color.Z, rgba.α);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2095,7 +2095,7 @@ namespace Unknown6656.Imaging
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly RGBAColor CorrectGamma(Scalar gamma) => new RGBAColor(
+        public readonly RGBAColor CorrectGamma(Scalar gamma) => new(
             Math.Pow(Rf, 1 / gamma),
             Math.Pow(Gf, 1 / gamma),
             Math.Pow(Bf, 1 / gamma),
@@ -2549,7 +2549,7 @@ namespace Unknown6656.Imaging
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RGBAColor FromYCbCr(double Y, double Cb, double Cr, double α) => new RGBAColor(
+        public static RGBAColor FromYCbCr(double Y, double Cb, double Cr, double α) => new(
             Y + (Cr - 128) * 1.402,
             Y + (Cb - 128) * -.34414 + (Cr - 128) * -.71414,
             Y + (Cb - 128) * 1.772,
@@ -2732,11 +2732,11 @@ namespace Unknown6656.Imaging
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RGBAColor FromARGB(int argb) => new RGBAColor(argb);
+        public static RGBAColor FromARGB(int argb) => new(argb);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static RGBAColor FromARGB(uint argb) => new RGBAColor(argb);
+        public static RGBAColor FromARGB(uint argb) => new(argb);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2784,19 +2784,19 @@ namespace Unknown6656.Imaging
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator RGBAColor((double r, double g, double b) color) => new RGBAColor(color.r, color.g, color.b, 1);
+        public static implicit operator RGBAColor((double r, double g, double b) color) => new(color.r, color.g, color.b, 1);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator RGBAColor((double r, double g, double b, double α) color) => new RGBAColor(color.r, color.g, color.b, color.α);
+        public static implicit operator RGBAColor((double r, double g, double b, double α) color) => new(color.r, color.g, color.b, color.α);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator Vector3(RGBAColor color) => new Vector3(color.Rf, color.Gf, color.Bf);
+        public static implicit operator Vector3(RGBAColor color) => new(color.Rf, color.Gf, color.Bf);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator Vector4(RGBAColor color) => new Vector4(color.Rf, color.Gf, color.Bf, color.Af);
+        public static implicit operator Vector4(RGBAColor color) => new(color.Rf, color.Gf, color.Bf, color.Af);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2808,19 +2808,19 @@ namespace Unknown6656.Imaging
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator RGBAColor(Vector3 color) => new RGBAColor(color.X, color.Y, color.Z, 1d);
+        public static implicit operator RGBAColor(Vector3 color) => new(color.X, color.Y, color.Z, 1d);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator RGBAColor(Vector4 color) => new RGBAColor(color.X, color.Y, color.Z, color.W);
+        public static implicit operator RGBAColor(Vector4 color) => new(color.X, color.Y, color.Z, color.W);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator RGBAColor((Vector3 color, Scalar α) rgba) => new RGBAColor(rgba.color.X, rgba.color.Y, rgba.color.Z, rgba.α);
+        public static implicit operator RGBAColor((Vector3 color, Scalar α) rgba) => new(rgba.color.X, rgba.color.Y, rgba.color.Z, rgba.α);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator RGBAColor((Vector3 color, double α) rgba) => new RGBAColor(rgba.color.X, rgba.color.Y, rgba.color.Z, rgba.α);
+        public static implicit operator RGBAColor((Vector3 color, double α) rgba) => new(rgba.color.X, rgba.color.Y, rgba.color.Z, rgba.α);
 
         /// <inheritdoc/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

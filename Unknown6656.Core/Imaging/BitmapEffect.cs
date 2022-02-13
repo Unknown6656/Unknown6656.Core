@@ -49,7 +49,7 @@ namespace Unknown6656.Imaging
         public Bitmap ApplyTo(Bitmap bmp, Rectangle region, Scalar intensity)
         {
             using Bitmap fx = ApplyTo(bmp, region);
-            Bitmap res = new Bitmap(bmp.Width, bmp.Height);
+            Bitmap res = new(bmp.Width, bmp.Height);
             BitmapLocker l_src = bmp;
             BitmapLocker l_fx = fx;
             BitmapLocker l_dst = res;
@@ -71,7 +71,7 @@ namespace Unknown6656.Imaging
             int he = region.Horizontal.End.GetOffset(bmp.Width);
             int vs = region.Vertical.Start.GetOffset(bmp.Height);
             int ve = region.Vertical.End.GetOffset(bmp.Height);
-            Rectangle rect = new Rectangle(hs, vs, he - hs, ve - vs);
+            Rectangle rect = new(hs, vs, he - hs, ve - vs);
 
             return ApplyTo(bmp, rect, intensity);
         }
@@ -104,7 +104,7 @@ namespace Unknown6656.Imaging
                 if (bmp.PixelFormat != PixelFormat.Format32bppArgb)
                     bmp = bmp.ToARGB32();
 
-                Bitmap result = new Bitmap(bmp.Width, bmp.Height, PixelFormat.Format32bppArgb);
+                Bitmap result = new(bmp.Width, bmp.Height, PixelFormat.Format32bppArgb);
                 BitmapLocker src = bmp;
                 BitmapLocker dst = result;
 

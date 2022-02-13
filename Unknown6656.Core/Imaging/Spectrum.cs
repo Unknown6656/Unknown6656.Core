@@ -113,9 +113,9 @@ namespace Unknown6656.Imaging
         /// </summary>
         /// <param name="frequency">Frequency (in Hz).</param>
         /// <returns>Wavelength</returns>
-        public static Wavelength FromFrequency(double frequency) => new Wavelength((C / 1e9) / frequency);
+        public static Wavelength FromFrequency(double frequency) => new((C / 1e9) / frequency);
 
-        public static Wavelength FromAngstrom(double ångström) => new Wavelength(ångström * .1);
+        public static Wavelength FromAngstrom(double ångström) => new(ångström * .1);
 
 
         public static Wavelength operator +(Wavelength wavelength) => wavelength;
@@ -164,7 +164,7 @@ namespace Unknown6656.Imaging
 
         public virtual Spectrum ScaleSpectrumIntensities(double factor) => new ContinuousSpectrum(λ => GetIntensity(λ) * factor);
 
-        public virtual ContinuousSpectrum ToContinuous() => new ContinuousSpectrum(GetIntensity);
+        public virtual ContinuousSpectrum ToContinuous() => new(GetIntensity);
 
         //public virtual ContinuousColorMap ToColorMap(Wavelength lowest, Wavelength highest)
         //{
@@ -189,7 +189,7 @@ namespace Unknown6656.Imaging
 
             wavelength_resolution_in_nm = Math.Max(wavelength_resolution_in_nm, Scalar.ComputationalEpsilon);
 
-            HDRColor color = new HDRColor();
+            HDRColor color = new();
 
             for (Wavelength nm = lowest; nm <= highest; nm += wavelength_resolution_in_nm)
                 if (nm.IsVisible)
@@ -289,7 +289,7 @@ namespace Unknown6656.Imaging
             if (lowest > highest)
                 (lowest, highest) = (highest, lowest);
 
-            HDRColor color = new HDRColor();
+            HDRColor color = new();
 
             foreach (KeyValuePair<Wavelength, double> kvp in Intensities)
                 if (kvp.Key.IsVisible && kvp.Key >= lowest && kvp.Key <= highest)

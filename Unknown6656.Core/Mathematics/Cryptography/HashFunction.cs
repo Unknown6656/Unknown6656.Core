@@ -26,7 +26,7 @@ namespace Unknown6656.Mathematics.Cryptography
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual byte[] Hash(Stream stream)
         {
-            using MemoryStream ms = new MemoryStream();
+            using MemoryStream ms = new();
 
             stream.CopyTo(ms);
             ms.Seek(0, SeekOrigin.Begin);
@@ -60,7 +60,7 @@ namespace Unknown6656.Mathematics.Cryptography
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public OAEP<T, Random> CreateOAEP<Random>(Random random) where Random : Numerics.Random => new OAEP<T, Random>((T)this, random);
+        public OAEP<T, Random> CreateOAEP<Random>(Random random) where Random : Numerics.Random => new((T)this, random);
     }
 
 //  public abstract class HashFunction<T, Algorithm>
@@ -194,7 +194,7 @@ namespace Unknown6656.Mathematics.Cryptography
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public byte[] Pad(Stream stream)
         {
-            using MemoryStream ms = new MemoryStream();
+            using MemoryStream ms = new();
 
             stream.CopyTo(ms);
             ms.Seek(0, SeekOrigin.Begin);

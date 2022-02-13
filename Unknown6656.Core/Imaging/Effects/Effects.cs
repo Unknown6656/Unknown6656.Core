@@ -717,7 +717,7 @@ namespace Unknown6656.Imaging.Effects
             for (int i = 0; i < c; ++i)
                 m[i, 0] = Scalar.One / c;
 
-            MatrixNM h = new MatrixNM(m);
+            MatrixNM h = new(m);
             MatrixNM v = h.Transposed;
 
             return new AcceleratedChainedPartialBitmapEffect(
@@ -863,11 +863,11 @@ namespace Unknown6656.Imaging.Effects
         }
 
 
-        public static ScaleTransform Uniform(Scalar factor) => new ScaleTransform(factor);
+        public static ScaleTransform Uniform(Scalar factor) => new(factor);
 
-        public static ScaleTransform X(Scalar factor) => new ScaleTransform(factor, 0);
+        public static ScaleTransform X(Scalar factor) => new(factor, 0);
 
-        public static ScaleTransform Y(Scalar factor) => new ScaleTransform(0, factor);
+        public static ScaleTransform Y(Scalar factor) => new(0, factor);
     }
 
     public sealed class FlipTransform
@@ -881,9 +881,9 @@ namespace Unknown6656.Imaging.Effects
         {
         }
 
-        public static FlipTransform FlipX => new FlipTransform(true, false);
+        public static FlipTransform FlipX => new(true, false);
 
-        public static FlipTransform FlipY => new FlipTransform(false, true);
+        public static FlipTransform FlipY => new(false, true);
     }
 
     public sealed class RotateTransform
@@ -946,7 +946,7 @@ namespace Unknown6656.Imaging.Effects
             Parallel.For(0, indices.Length, i =>
             {
                 int index = indices[i];
-                RGBAColor c = new RGBAColor(RandomNumberGenerator.NextByte(), RandomNumberGenerator.NextByte(), RandomNumberGenerator.NextByte(), destination[index].A);
+                RGBAColor c = new(RandomNumberGenerator.NextByte(), RandomNumberGenerator.NextByte(), RandomNumberGenerator.NextByte(), destination[index].A);
 
                 if (gray)
                     c = new RGBAColor(c.R, c.R, c.R, c.A);
@@ -1111,7 +1111,7 @@ namespace Unknown6656.Imaging.Effects
 
         public override Bitmap ApplyTo(Bitmap bmp, Rectangle region)
         {
-            XorShift random = new XorShift(_curr);
+            XorShift random = new(_curr);
 
             bmp = new RGBSplit(0, 10 + random.NextFloat())
             {

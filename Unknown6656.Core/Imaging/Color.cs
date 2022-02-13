@@ -196,18 +196,18 @@ public partial struct HDRColor
 
     public RGBAColor ARGB32
     {
-        readonly get => new RGBAColor(R, G, B, A);
+        readonly get => new(R, G, B, A);
         set => (R, G, B, A) = (value.Rf, value.Gf, value.Bf, value.Af);
     }
 
-    public readonly HDRColor Complement => new HDRColor(1 - R, 1 - G, 1 - B, A);
+    public readonly HDRColor Complement => new(1 - R, 1 - G, 1 - B, A);
 
 
     public int CompareTo(HDRColor other) => throw new NotImplementedException();
 
     public readonly override string ToString() => $"(R:{Math.Round(R, 6)}, G:{Math.Round(G, 6)}, B:{Math.Round(B, 6)}, α:{Math.Round(A, 6)})";
 
-    public static implicit operator HDRColor(RGBAColor color) => new HDRColor { ARGB32 = color };
+    public static implicit operator HDRColor(RGBAColor color) => new() { ARGB32 = color };
 
     public static implicit operator RGBAColor(HDRColor color) => color.ARGB32;
 }
@@ -354,7 +354,7 @@ public unsafe partial struct RGBAColor
 
     public readonly double EucledianLength => Math.Sqrt(Rf * Rf + Gf * Gf + Bf * Bf);
 
-    public readonly RGBAColor Complement => new RGBAColor((byte)(255 - R), (byte)(255 - G), (byte)(255 - B), A);
+    public readonly RGBAColor Complement => new((byte)(255 - R), (byte)(255 - G), (byte)(255 - B), A);
 
     #endregion
     #region CONSTRUCTORS
@@ -508,10 +508,10 @@ public unsafe partial struct RGBAColor
     public static implicit operator Color(RGBAColor color) => Color.FromArgb(color.ARGB);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator RGBAColor(Color color) => new RGBAColor(color.ToArgb());
+    public static implicit operator RGBAColor(Color color) => new(color.ToArgb());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator RGBAColor((byte r, byte g, byte b, byte α) color) => new RGBAColor(color.r, color.g, color.b, color.α);
+    public static implicit operator RGBAColor((byte r, byte g, byte b, byte α) color) => new(color.r, color.g, color.b, color.α);
 
     #endregion
 

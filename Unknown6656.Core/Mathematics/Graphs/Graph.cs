@@ -103,8 +103,8 @@ public class Vertex<G, V, E>
 
     public bool TryFindPath(Predicate<Vertex<G, V, E>> selector, out Path<G, V, E>? path, SearchStrategy strategy)
     {
-        List<Vertex<G, V, E>> p = new List<Vertex<G, V, E>>();
-        HashSet<Vertex<G, V, E>> d = new HashSet<Vertex<G, V, E>>();
+        List<Vertex<G, V, E>> p = new();
+        HashSet<Vertex<G, V, E>> d = new();
         bool res = strategy == SearchStrategy.BreadthFirst ? find_breadth(selector, new Queue<Vertex<G, V, E>>(), d, p) : find_depth(selector, d, p);
 
         if (res && strategy == SearchStrategy.BreadthFirst)
@@ -292,8 +292,8 @@ public abstract class Graph<G, V, E>
     , ICloneable
     where G : Graph<G, V, E>
 {
-    private readonly HashSet<Vertex<G, V, E>> _vertices = new HashSet<Vertex<G, V, E>>();
-    private readonly HashSet<Edge<G, V, E>> _edges = new HashSet<Edge<G, V, E>>();
+    private readonly HashSet<Vertex<G, V, E>> _vertices = new();
+    private readonly HashSet<Edge<G, V, E>> _edges = new();
 
     public event GraphVertexEvent<G, V, E> VertexRemoved;
     public event GraphVertexEvent<G, V, E> VertexAdded;
@@ -346,7 +346,7 @@ public abstract class Graph<G, V, E>
     public Vertex<G, V, E> AddVertex()
     {
         int id = Enumerable.Range(0, VertexCount + 1).Except(_vertices.Select(ve => ve.ID)).Min();
-        Vertex<G, V, E> v = new Vertex<G, V, E>(Instance, id);
+        Vertex<G, V, E> v = new(Instance, id);
 
         _vertices.Add(v);
 
@@ -381,7 +381,7 @@ public abstract class Graph<G, V, E>
             throw new KeyNotFoundException();
         else if (!HasEdge(from, to))
         {
-            Edge<G, V, E> e = new Edge<G, V, E>(Instance, from.ID, to.ID);
+            Edge<G, V, E> e = new(Instance, from.ID, to.ID);
 
             _edges.Add(e);
 
@@ -523,8 +523,8 @@ public abstract class Graph<G, V, E>
     public G2 Cast<G2, V2, E2>(Func<V, V2> vertex_cast, Func<E, E2> edge_cast)
         where G2 : Graph<G2, V2, E2>, new()
     {
-        Dictionary<Vertex<G, V, E>, Vertex<G2, V2, E2>> d = new Dictionary<Vertex<G, V, E>, Vertex<G2, V2, E2>>();
-        G2 g = new G2();
+        Dictionary<Vertex<G, V, E>, Vertex<G2, V2, E2>> d = new();
+        G2 g = new();
 
         foreach (Vertex<G, V, E> v in Vertices)
             (d[v] = g.AddVertex()).Data = vertex_cast(v.Data);
@@ -558,9 +558,9 @@ public abstract class Graph<G, V, E>
         if (!HasVertex(start))
             throw new KeyNotFoundException($"The graph does not contain the given start vertex '{start}'.");
 
-        Dictionary<Vertex<G, V, E>, Vertex<G, V, E>?> prev = new Dictionary<Vertex<G, V, E>, Vertex<G, V, E>?>();
-        Dictionary<Vertex<G, V, E>, double> dist = new Dictionary<Vertex<G, V, E>, double>();
-        HashSet<Vertex<G, V, E>> q = new HashSet<Vertex<G, V, E>>();
+        Dictionary<Vertex<G, V, E>, Vertex<G, V, E>?> prev = new();
+        Dictionary<Vertex<G, V, E>, double> dist = new();
+        HashSet<Vertex<G, V, E>> q = new();
         Vertex<G, V, E>? dest = null;
 
         foreach (Vertex<G, V, E> v in Vertices)
@@ -597,7 +597,7 @@ public abstract class Graph<G, V, E>
             path = new[] { start, dest };
         else
         {
-            List<Vertex<G, V, E>> s = new List<Vertex<G, V, E>> { dest };
+            List<Vertex<G, V, E>> s = new() { dest };
 
             while (prev.TryGetValue(dest, out Vertex<G, V, E>? p) && p is { })
             {
@@ -637,7 +637,7 @@ public abstract class Graph<G, V, E>
 #if DEBUG
     public void DebugPrintToConsole()
     {
-        Dictionary<Vertex<G, V, E>, int> ypos = new Dictionary<Vertex<G, V, E>, int>();
+        Dictionary<Vertex<G, V, E>, int> ypos = new();
         string sfx = string.Concat(Enumerable.Repeat("·  ", _edges.Count));
         int wdh = Vertices.Max(v => (int)Math.Log10(v.ID) + 2);
         Edge<G, V, E>[] edges = Edges.Take(0x100).ToArray();

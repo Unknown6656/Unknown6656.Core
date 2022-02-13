@@ -85,7 +85,7 @@ namespace Unknown6656.Imaging
             return arr!;
         }
 
-        public static implicit operator BitmapLocker(Bitmap bmp) => new BitmapLocker(bmp);
+        public static implicit operator BitmapLocker(Bitmap bmp) => new(bmp);
 
         public static implicit operator Bitmap(BitmapLocker lck) => lck.Bitmap;
     }

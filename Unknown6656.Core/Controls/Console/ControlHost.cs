@@ -41,7 +41,7 @@ namespace Unknown6656.Controls.Console
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             foreach (ConsoleModifiers m in Enum.GetValues(typeof(ConsoleModifiers)))
                 if (Modifiers.HasFlag(m))
@@ -52,15 +52,15 @@ namespace Unknown6656.Controls.Console
 
         public bool Handles(ConsoleKeyInfo keyinfo) => Key == keyinfo.Key && Modifiers == keyinfo.Modifiers;
 
-        public static implicit operator ConsoleKeyShortcut(ConsoleKey key) => new ConsoleKeyShortcut(key, default);
+        public static implicit operator ConsoleKeyShortcut(ConsoleKey key) => new(key, default);
 
-        public static implicit operator ConsoleKeyShortcut((ConsoleModifiers modifiers, ConsoleKey key) keycut) => new ConsoleKeyShortcut(keycut.key, keycut.modifiers);
+        public static implicit operator ConsoleKeyShortcut((ConsoleModifiers modifiers, ConsoleKey key) keycut) => new(keycut.key, keycut.modifiers);
 
-        public static implicit operator ConsoleKeyShortcut((ConsoleKey key, ConsoleModifiers modifiers) keycut) => new ConsoleKeyShortcut(keycut.key, keycut.modifiers);
+        public static implicit operator ConsoleKeyShortcut((ConsoleKey key, ConsoleModifiers modifiers) keycut) => new(keycut.key, keycut.modifiers);
 
         public static ConsoleKeyShortcut operator +(ConsoleModifiers modifiers, ConsoleKeyShortcut keycut) => keycut + modifiers;
 
-        public static ConsoleKeyShortcut operator +(ConsoleKeyShortcut keycut, ConsoleModifiers modifiers) => new ConsoleKeyShortcut(keycut.Key, keycut.Modifiers | modifiers);
+        public static ConsoleKeyShortcut operator +(ConsoleKeyShortcut keycut, ConsoleModifiers modifiers) => new(keycut.Key, keycut.Modifiers | modifiers);
     }
 
     public sealed class ConsoleKeyMap
@@ -129,7 +129,7 @@ namespace Unknown6656.Controls.Console
         private const int INTERVAL_RENDER = 10;
         private const int INTERVAL_BLINK = 400;
 
-        private readonly ConcurrentQueue<Control> _renderqueue = new ConcurrentQueue<Control>();
+        private readonly ConcurrentQueue<Control> _renderqueue = new();
         private volatile bool _running;
         private ConsoleState? _old_state;
         private Task? _keyboard_watcher;
@@ -243,7 +243,7 @@ namespace Unknown6656.Controls.Console
         {
             while (_running)
             {
-                Size size = new Size(Console.WindowWidth, Console.WindowHeight);
+                Size size = new(Console.WindowWidth, Console.WindowHeight);
 
                 if (size != Size)
                 {
@@ -442,7 +442,7 @@ namespace Unknown6656.Controls.Console
 
         private int _relativezindex = 0;
         private int _relativetabindex = 0;
-        private ScrollBarInformation _scrollbars = new ScrollBarInformation(null, null);
+        private ScrollBarInformation _scrollbars = new(null, null);
         private FocusedStyle _focusedstyle = FocusedStyle.ReverseColors;
         private FocusBehaviour _focusbehaviour = FocusBehaviour.Focusable;
         private ControlVisiblity _visiblity = ControlVisiblity.Visible;
@@ -452,8 +452,8 @@ namespace Unknown6656.Controls.Console
         private bool _isvisible = true;
         private Size _clientsize = Size.Empty;
         private Size _size = Size.Empty;
-        private Size _minimumsize = new Size(2, 2);
-        private Size _maximumsize = new Size(1000, 1000);
+        private Size _minimumsize = new(2, 2);
+        private Size _maximumsize = new(1000, 1000);
         private Point _position = Point.Empty;
         private Point _absoluteposition = Point.Empty;
         private ContainerControl? _parent = null;
@@ -790,7 +790,7 @@ namespace Unknown6656.Controls.Console
 
         // protected Size BorderSize => BorderStyle == BorderStyle.None
 
-        protected Rectangle BoundingBox => new Rectangle(AbsolutePosition, Size);
+        protected Rectangle BoundingBox => new(AbsolutePosition, Size);
 
         public Control[] Siblings => Parent is { Children: IEnumerable<Control> ch } ? ch.ToArrayWhere(c => c != this) : Array.Empty<Control>();
 
@@ -1049,8 +1049,8 @@ namespace Unknown6656.Controls.Console
                     if (text is { Length: int l } && l > Width - 2 && l > 3)
                         text = Width < 5 ? new string('.', Width - 2) : text[..(Width - 5)] + "...";
 
-                    Rectangle content = new Rectangle(AbsolutePosition.X + b, AbsolutePosition.Y + b + (text is null ? 0 : 2), render_area.Width - 2 * b, render_area.Height - (2 * b) - (text is null ? 0 : 2));
-                    RenderInformation info = new RenderInformation(render_area, content, text, Host._blinkstate, fg, bg);
+                    Rectangle content = new(AbsolutePosition.X + b, AbsolutePosition.Y + b + (text is null ? 0 : 2), render_area.Width - 2 * b, render_area.Height - (2 * b) - (text is null ? 0 : 2));
+                    RenderInformation info = new(render_area, content, text, Host._blinkstate, fg, bg);
                     ConsoleExtensions.RGBForegroundColor = fg;
                     ConsoleExtensions.RGBBackgroundColor = bg;
 
@@ -1100,7 +1100,7 @@ namespace Unknown6656.Controls.Console
         protected void Clear(RenderInformation render_information)
         {
             Rectangle area = render_information.ControlRenderArea;
-            string line = new string(' ', area.Width);
+            string line = new(' ', area.Width);
 
             for (int yoffs = 0, h = area.Height, x = area.X, y = area.Y; yoffs < h; ++yoffs)
             {
@@ -1204,7 +1204,7 @@ namespace Unknown6656.Controls.Console
             Console.BackgroundColor = ConsoleColor.Red;
 
             Rectangle area = RenderableAbsoluteClientArea;
-            string line = new string('░', area.Width);
+            string line = new('░', area.Width);
             int x = area.X;
             int y = area.Y;
 
@@ -1252,7 +1252,7 @@ namespace Unknown6656.Controls.Console
     public class ContainerControl
         : Control
     {
-        private readonly HashSet<Control> _children = new HashSet<Control>();
+        private readonly HashSet<Control> _children = new();
 
 
         protected override bool UseDefaultTextRenderer { get; } = true;

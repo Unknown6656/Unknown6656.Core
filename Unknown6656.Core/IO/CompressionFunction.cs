@@ -92,7 +92,7 @@ public sealed class RLECompression__old__
 
     public override byte[] UncompressData(byte[] data)
     {
-        using MemoryStream ms = new MemoryStream(data);
+        using MemoryStream ms = new(data);
         List<VarInt> input = new();
         List<byte> output = new();
 

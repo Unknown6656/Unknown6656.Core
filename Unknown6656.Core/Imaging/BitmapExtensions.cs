@@ -26,7 +26,7 @@ namespace Unknown6656.Imaging
         /// <returns>32-Bit bitmap</returns>
         public static Bitmap ToARGB32(this Bitmap bmp)
         {
-            Bitmap res = new Bitmap(bmp.Width, bmp.Height, PixelFormat.Format32bppArgb);
+            Bitmap res = new(bmp.Width, bmp.Height, PixelFormat.Format32bppArgb);
 
             using (Graphics g = Graphics.FromImage(res))
                 g.DrawImage(bmp, 0, 0, bmp.Width, bmp.Height);
@@ -92,7 +92,7 @@ namespace Unknown6656.Imaging
                 }));
         }
 
-        public static HDRBitmap ToHDR(this Bitmap bmp) => new HDRBitmap(bmp);
+        public static HDRBitmap ToHDR(this Bitmap bmp) => new(bmp);
 
         public static BitmapMask ToMask(this Bitmap bmp, Func<RGBAColor, Scalar> func, bool ignore_alpha = false) => BitmapMask.FromBitmap(bmp, func, ignore_alpha);
 
@@ -122,7 +122,7 @@ namespace Unknown6656.Imaging
 
         public static RegressionDataSet1D GetSaturationHistogram(this Bitmap bmp) => bmp.ToSaturationMask().GetHistogram();
 
-        public static Shape2DRasterizer GetShape2DRasterizer(this Bitmap bmp) => new Shape2DRasterizer(bmp);
+        public static Shape2DRasterizer GetShape2DRasterizer(this Bitmap bmp) => new(bmp);
 
         /// <summary>
         /// Crops or extends the bitmap to the given dimensions.
@@ -156,7 +156,7 @@ namespace Unknown6656.Imaging
             else if (height < 0)
                 throw new ArgumentException($"The sum of the top ({top}) and bottom ({bottom}) values must be greater than {1 - bmp.Height}.");
 
-            Bitmap result = new Bitmap(width, height, bmp.PixelFormat);
+            Bitmap result = new(width, height, bmp.PixelFormat);
             using Graphics g = Graphics.FromImage(result);
 
             g.DrawImageUnscaled(bmp, left, right);
@@ -199,7 +199,7 @@ namespace Unknown6656.Imaging
         /// <param name="width">The new bitmap width.</param>
         /// <param name="height">The new bitmap height.</param>
         /// <returns>The resized bitmap.</returns>
-        public static Bitmap ResizeBitmap(this Bitmap bmp, int width, int height) => new Bitmap(bmp, width, height);
+        public static Bitmap ResizeBitmap(this Bitmap bmp, int width, int height) => new(bmp, width, height);
 
         /// <summary>
         /// Resizes the bitmap to match the given new aspect ratio. This is a non-destructive operation.

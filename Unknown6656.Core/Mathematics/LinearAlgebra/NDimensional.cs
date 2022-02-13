@@ -43,9 +43,9 @@ public sealed unsafe class CompressedStorageFormat<Field>
     {
         Dimensions = (matrix.GetLength(0), matrix.GetLength(1));
 
-        List<Field> vals = new List<Field>();
-        List<int> rows = new List<int>();
-        List<int> cols = new List<int>();
+        List<Field> vals = new();
+        List<int> rows = new();
+        List<int> cols = new();
 
         for (int c = 0; c < Dimensions.Columns; ++c)
         {
@@ -146,11 +146,11 @@ public sealed unsafe class CompressedStorageFormat<Field>
         return mat;
     }
 
-    public static CompressedStorageFormat<Field> FromBytes(byte[] bytes) => new CompressedStorageFormat<Field>(bytes);
+    public static CompressedStorageFormat<Field> FromBytes(byte[] bytes) => new(bytes);
 
-    public static CompressedStorageFormat<Field> FromMatrix(Field[,] matrix) => new CompressedStorageFormat<Field>(matrix);
+    public static CompressedStorageFormat<Field> FromMatrix(Field[,] matrix) => new(matrix);
 
-    public static CompressedStorageFormat<Field> FromMatrix<T>(T matrix) where T : Algebra<Field>.IComposite2D => new CompressedStorageFormat<Field>(matrix);
+    public static CompressedStorageFormat<Field> FromMatrix<T>(T matrix) where T : Algebra<Field>.IComposite2D => new(matrix);
 
     public static implicit operator byte[](CompressedStorageFormat<Field> compressed) => compressed.ToBytes();
 
@@ -792,9 +792,9 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
 
     public Matrix this[Range columns, Range rows, in Matrix values] => SetRegion(columns, rows, values);
 
-    public ReadOnlyIndexer<Range, Range, Matrix> Region => new ReadOnlyIndexer<Range, Range, Matrix>(GetRegion);
+    public ReadOnlyIndexer<Range, Range, Matrix> Region => new(GetRegion);
 
-    public ReadOnlyIndexer<int, int, Matrix> Minors => new ReadOnlyIndexer<int, int, Matrix>(GetMinor);
+    public ReadOnlyIndexer<int, int, Matrix> Minors => new(GetMinor);
 
     #endregion
     #region INSTANCE PROPERTIES
@@ -2051,7 +2051,7 @@ public abstract class VectorSpace<Space, Vector, Scalar>
     #region PROPERTIES / FIELDS
 
     private static readonly Func<IEnumerable<Vector>, Space> _create;
-    private protected readonly List<Vector> _basis = new List<Vector>();
+    private protected readonly List<Vector> _basis = new();
 
 
     public Vector[] Basis => _basis.ToArray();
@@ -2086,7 +2086,7 @@ public abstract class VectorSpace<Space, Vector, Scalar>
 
     public static Vector[] GetLinearIndependantSet(IEnumerable<Vector> vectors)
     {
-        List<Vector> result = new List<Vector>();
+        List<Vector> result = new();
 
         foreach (Vector v in vectors)
             if (v.IsNonZero && result.All(b => !v.IsLinearDependant(b, out _)))
@@ -2347,9 +2347,9 @@ public class WritableVectorN<Scalar>
     }
 
 
-    public static implicit operator WritableVectorN<Scalar>(VectorN<Scalar> vec) => new WritableVectorN<Scalar>(vec.Coefficients);
+    public static implicit operator WritableVectorN<Scalar>(VectorN<Scalar> vec) => new(vec.Coefficients);
 
-    public static implicit operator VectorN<Scalar>(WritableVectorN<Scalar> vec) => new VectorN<Scalar>(vec.Coefficients);
+    public static implicit operator VectorN<Scalar>(WritableVectorN<Scalar> vec) => new(vec.Coefficients);
 }
 
 public partial class VectorN
@@ -2532,9 +2532,9 @@ public class WritableMatrixNM<T>
 
     protected override (WritableVectorN<T> Eigenvector, Scalar<T> Eigenvalue) DoInverseVectoriteration(Scalar<T> offset, IEqualityComparer<Scalar<T>> comparer) => throw new NotImplementedException();
 
-    public static implicit operator WritableMatrixNM<T>(MatrixNM<T> mat) => new WritableMatrixNM<T>(mat.Coefficients);
+    public static implicit operator WritableMatrixNM<T>(MatrixNM<T> mat) => new(mat.Coefficients);
 
-    public static implicit operator MatrixNM<T>(WritableMatrixNM<T> mat) => new MatrixNM<T>(mat.Coefficients);
+    public static implicit operator MatrixNM<T>(WritableMatrixNM<T> mat) => new(mat.Coefficients);
 }
 
 // TODO : cast matrix to complexmatrix
@@ -2585,8 +2585,8 @@ public partial class MatrixNM
     protected override (VectorN Eigenvector, Scalar Eigenvalue) DoInverseVectoriteration(Scalar offset, IEqualityComparer<Scalar> comparer)
     {
         int dimension = Size.Columns;
-        VectorN v_old = new VectorN(Enumerable.Repeat(Scalar.Zero, dimension));
-        VectorN v_new = new VectorN(Enumerable.Repeat(Scalar.Random(), dimension));
+        VectorN v_old = new(Enumerable.Repeat(Scalar.Zero, dimension));
+        VectorN v_new = new(Enumerable.Repeat(Scalar.Random(), dimension));
         VectorN v_init = v_new;
         VectorN w = v_old;
         MatrixNM A = (this - (offset * IdentityMatrix(dimension))).Inverse;
@@ -2665,8 +2665,8 @@ public class ComplexMatrixNM
     protected override (ComplexVectorN Eigenvector, Complex Eigenvalue) DoInverseVectoriteration(Complex offset, IEqualityComparer<Complex> comparer)
     {
         int dimension = Size.Columns;
-        ComplexVectorN v_old = new ComplexVectorN(Enumerable.Repeat(Complex.Zero, dimension));
-        ComplexVectorN v_new = new ComplexVectorN(Enumerable.Repeat(Complex.Random(), dimension));
+        ComplexVectorN v_old = new(Enumerable.Repeat(Complex.Zero, dimension));
+        ComplexVectorN v_new = new(Enumerable.Repeat(Complex.Random(), dimension));
         ComplexVectorN v_init = v_new;
         ComplexVectorN w = v_old;
         ComplexMatrixNM A = (this - (offset * IdentityMatrix(dimension))).Inverse;

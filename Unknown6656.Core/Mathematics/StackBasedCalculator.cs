@@ -15,7 +15,7 @@ namespace Unknown6656.Mathematics
     {
         #region PROPERTIES
 
-        private readonly Stack<data> _stack = new Stack<data>();
+        private readonly Stack<data> _stack = new();
 
         public data[] Stack => _stack.ToArray();
 

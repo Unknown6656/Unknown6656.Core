@@ -16,7 +16,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
     {
         #region PROERTIES
 
-        public static VectorSpace2 Empty => new VectorSpace2();
+        public static VectorSpace2 Empty => new();
 
         public override Vector2 this[params Scalar[] coefficients]
         {
@@ -95,7 +95,7 @@ throw new NotImplementedException(); // TODO
         #endregion
         #region OPERATORS
 
-        public static implicit operator VectorSpace2(Vector2 v) => new VectorSpace2(v);
+        public static implicit operator VectorSpace2(Vector2 v) => new(v);
 
         #endregion
     }
@@ -105,7 +105,7 @@ throw new NotImplementedException(); // TODO
     {
         #region PROERTIES
 
-        public static VectorSpace3 Empty => new VectorSpace3();
+        public static VectorSpace3 Empty => new();
 
         public override Vector3 this[params Scalar[] coefficients]
         {
@@ -184,7 +184,7 @@ throw new NotImplementedException(); // TODO
         #endregion
         #region OPERATORS
 
-        public static implicit operator VectorSpace3(Vector3 v) => new VectorSpace3(v);
+        public static implicit operator VectorSpace3(Vector3 v) => new(v);
 
         #endregion
     }
@@ -194,7 +194,7 @@ throw new NotImplementedException(); // TODO
     {
         #region PROERTIES
 
-        public static VectorSpace4 Empty => new VectorSpace4();
+        public static VectorSpace4 Empty => new();
 
         public override Vector4 this[params Scalar[] coefficients]
         {
@@ -273,7 +273,7 @@ throw new NotImplementedException(); // TODO
         #endregion
         #region OPERATORS
 
-        public static implicit operator VectorSpace4(Vector4 v) => new VectorSpace4(v);
+        public static implicit operator VectorSpace4(Vector4 v) => new(v);
 
         #endregion
     }
@@ -283,7 +283,7 @@ throw new NotImplementedException(); // TODO
     {
         #region PROERTIES
 
-        public static VectorSpace5 Empty => new VectorSpace5();
+        public static VectorSpace5 Empty => new();
 
         public override Vector5 this[params Scalar[] coefficients]
         {
@@ -362,7 +362,7 @@ throw new NotImplementedException(); // TODO
         #endregion
         #region OPERATORS
 
-        public static implicit operator VectorSpace5(Vector5 v) => new VectorSpace5(v);
+        public static implicit operator VectorSpace5(Vector5 v) => new(v);
 
         #endregion
     }
@@ -372,7 +372,7 @@ throw new NotImplementedException(); // TODO
     {
         #region PROERTIES
 
-        public static VectorSpace6 Empty => new VectorSpace6();
+        public static VectorSpace6 Empty => new();
 
         public override Vector6 this[params Scalar[] coefficients]
         {
@@ -451,7 +451,7 @@ throw new NotImplementedException(); // TODO
         #endregion
         #region OPERATORS
 
-        public static implicit operator VectorSpace6(Vector6 v) => new VectorSpace6(v);
+        public static implicit operator VectorSpace6(Vector6 v) => new(v);
 
         #endregion
     }
@@ -461,7 +461,7 @@ throw new NotImplementedException(); // TODO
     {
         #region PROERTIES
 
-        public static VectorSpace7 Empty => new VectorSpace7();
+        public static VectorSpace7 Empty => new();
 
         public override Vector7 this[params Scalar[] coefficients]
         {
@@ -540,7 +540,7 @@ throw new NotImplementedException(); // TODO
         #endregion
         #region OPERATORS
 
-        public static implicit operator VectorSpace7(Vector7 v) => new VectorSpace7(v);
+        public static implicit operator VectorSpace7(Vector7 v) => new(v);
 
         #endregion
     }
@@ -550,7 +550,7 @@ throw new NotImplementedException(); // TODO
     {
         #region PROERTIES
 
-        public static VectorSpace8 Empty => new VectorSpace8();
+        public static VectorSpace8 Empty => new();
 
         public override Vector8 this[params Scalar[] coefficients]
         {
@@ -629,7 +629,7 @@ throw new NotImplementedException(); // TODO
         #endregion
         #region OPERATORS
 
-        public static implicit operator VectorSpace8(Vector8 v) => new VectorSpace8(v);
+        public static implicit operator VectorSpace8(Vector8 v) => new(v);
 
         #endregion
     }
@@ -639,7 +639,7 @@ throw new NotImplementedException(); // TODO
     {
         #region PROERTIES
 
-        public static VectorSpace9 Empty => new VectorSpace9();
+        public static VectorSpace9 Empty => new();
 
         public override Vector9 this[params Scalar[] coefficients]
         {
@@ -718,7 +718,7 @@ throw new NotImplementedException(); // TODO
         #endregion
         #region OPERATORS
 
-        public static implicit operator VectorSpace9(Vector9 v) => new VectorSpace9(v);
+        public static implicit operator VectorSpace9(Vector9 v) => new(v);
 
         #endregion
     }
@@ -728,7 +728,7 @@ throw new NotImplementedException(); // TODO
     {
         #region PROERTIES
 
-        public static VectorSpace10 Empty => new VectorSpace10();
+        public static VectorSpace10 Empty => new();
 
         public override Vector10 this[params Scalar[] coefficients]
         {
@@ -807,7 +807,7 @@ throw new NotImplementedException(); // TODO
         #endregion
         #region OPERATORS
 
-        public static implicit operator VectorSpace10(Vector10 v) => new VectorSpace10(v);
+        public static implicit operator VectorSpace10(Vector10 v) => new(v);
 
         #endregion
     }

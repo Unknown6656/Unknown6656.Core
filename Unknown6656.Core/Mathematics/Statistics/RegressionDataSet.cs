@@ -80,7 +80,7 @@ namespace Unknown6656.Mathematics.Statistics
     {
         #region FIELDS / CONSTANTS
 
-        protected readonly List<Scalar> _values = new List<Scalar>();
+        protected readonly List<Scalar> _values = new();
 
         #endregion
         #region INDEXERS
@@ -252,13 +252,13 @@ namespace Unknown6656.Mathematics.Statistics
             Sorted.Clear();
         }
 
-        public RegressionDataSet1D Clone() => new RegressionDataSet1D(_values);
+        public RegressionDataSet1D Clone() => new(_values);
 
         public IEnumerator<Scalar> GetEnumerator() => _values.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => _values.GetEnumerator();
 
-        public virtual RegressionDataSet2D To2D() => new RegressionDataSet2D(_values.Select((y, i) => ((Scalar)i, y)));
+        public virtual RegressionDataSet2D To2D() => new(_values.Select((y, i) => ((Scalar)i, y)));
 
         #endregion
         #region OPERATORS
@@ -267,9 +267,9 @@ namespace Unknown6656.Mathematics.Statistics
 
         public static implicit operator List<Scalar>(RegressionDataSet1D data) => data.ToList();
 
-        public static implicit operator RegressionDataSet1D(List<Scalar> data) => new RegressionDataSet1D(data);
+        public static implicit operator RegressionDataSet1D(List<Scalar> data) => new(data);
 
-        public static implicit operator RegressionDataSet1D(Scalar[] data) => new RegressionDataSet1D(data);
+        public static implicit operator RegressionDataSet1D(Scalar[] data) => new(data);
 
         #endregion
     }
@@ -498,9 +498,9 @@ namespace Unknown6656.Mathematics.Statistics
 
         RegressionDataSet2D IRegressionDataSet<RegressionDataSet2D, (Scalar X, Scalar Y)>.Sorted => throw new NotImplementedException(); // TODO
 
-        public RegressionDataSet2D SortedByXDimension => new RegressionDataSet2D(this.OrderBy(t => t.X));
+        public RegressionDataSet2D SortedByXDimension => new(this.OrderBy(t => t.X));
 
-        public RegressionDataSet2D SortedByYDimension => new RegressionDataSet2D(this.OrderBy(t => t.Y));
+        public RegressionDataSet2D SortedByYDimension => new(this.OrderBy(t => t.Y));
 
         public int Count => Math.Min(_x.Count, _y.Count);
 
@@ -537,7 +537,7 @@ namespace Unknown6656.Mathematics.Statistics
                 for (int j = 0; j < cols; ++j)
                     mat[j, i] = _x[i] ^ j;
 
-            MatrixNM V = new MatrixNM(mat);
+            MatrixNM V = new(mat);
             (MatrixNM Q, MatrixNM R) = V.QRDecompose();
 
             R = R[..cols, ..cols];
@@ -571,9 +571,9 @@ namespace Unknown6656.Mathematics.Statistics
             _y.Clear();
         }
 
-        public RegressionDataSet2D Clone() => new RegressionDataSet2D(this);
+        public RegressionDataSet2D Clone() => new(this);
 
-        public RegressionDataSet2D SwapDimensions() => new RegressionDataSet2D(ToEnumerable().Swap());
+        public RegressionDataSet2D SwapDimensions() => new(ToEnumerable().Swap());
 
         public IEnumerable<(Scalar X, Scalar Y)> ToEnumerable() => _x.Zip(_y);
 

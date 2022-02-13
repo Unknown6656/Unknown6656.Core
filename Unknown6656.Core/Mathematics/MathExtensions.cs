@@ -424,7 +424,7 @@ public static partial class MathExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bint[] PrimeFactorization(this bint a)
     {
-        List<bint> f = new List<bint>();
+        List<bint> f = new();
 
         for (bint b = 2; a > 1; ++b)
             while (a % b == 0)

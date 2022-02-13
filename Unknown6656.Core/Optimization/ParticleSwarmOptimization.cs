@@ -59,7 +59,7 @@ namespace Unknown6656.Optimization.ParticleSwarmOptimization
         public abstract Codomain GetValue(Domain position);
 
         public PSOSolver<Domain, Codomain, Problem> CreateSolver(PSOSolverConfiguration<Domain> configuration) =>
-            new PSOSolver<Domain, Codomain, Problem>((Problem)this, configuration);
+            new((Problem)this, configuration);
     }
 
     public sealed class PSOSolver<Domain, Codomain, Problem>

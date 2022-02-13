@@ -91,9 +91,9 @@ namespace Unknown6656.Mathematics.Numerics
 
         public Scalar ToScalar() => (Scalar)ToDecimal();
 
-        public BigInteger ToBigInteger() => new BigInteger(InternalBytes);
+        public BigInteger ToBigInteger() => new(InternalBytes);
 
-        public VarInt Clone() => new VarInt(InternalBytes.ToArray());
+        public VarInt Clone() => new(InternalBytes.ToArray());
 
         object ICloneable.Clone() => Clone();
 
@@ -103,7 +103,7 @@ namespace Unknown6656.Mathematics.Numerics
 
         char IConvertible.ToChar(IFormatProvider? provider) => (char)ToUInt16(provider);
 
-        DateTime IConvertible.ToDateTime(IFormatProvider? provider) => new DateTime(ToInt64(provider));
+        DateTime IConvertible.ToDateTime(IFormatProvider? provider) => new(ToInt64(provider));
 
         string IConvertible.ToString(IFormatProvider? provider) => ToString();
 
@@ -142,7 +142,7 @@ namespace Unknown6656.Mathematics.Numerics
 
         public static VarInt Deserialize(byte[] serialized)
         {
-            using MemoryStream ms = new MemoryStream(serialized);
+            using MemoryStream ms = new(serialized);
 
             return Deserialize(ms);
         }
@@ -201,7 +201,7 @@ namespace Unknown6656.Mathematics.Numerics
             return new VarInt(bytes.ToArray());
         }
 
-        public static VarInt FromBytes(byte[] bytes) => new VarInt(bytes);
+        public static VarInt FromBytes(byte[] bytes) => new(bytes);
 
         public static VarInt FromNumber(byte value) => FromBytes(new[] { value });
 

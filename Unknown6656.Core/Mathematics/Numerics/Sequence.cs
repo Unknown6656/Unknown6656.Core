@@ -18,7 +18,7 @@ namespace Unknown6656.Mathematics.Numerics
 
         public static Sequence<bint> NegativeIntegers => (0, i => i - 1);
 
-        public static Sequence<int> Primes => new Sequence<int>(MathExtensions._primes);
+        public static Sequence<int> Primes => new(MathExtensions._primes);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Sequence<bint> Collatz(bint start = default) => (start, i => i.IsEven ? i / 2 : i * 3 + 1);
@@ -63,7 +63,7 @@ namespace Unknown6656.Mathematics.Numerics
         public static Sequence<Scalar> OpenInterval(Scalar start, Scalar step, bool ascending = true) => (start, i => ascending ? i + step : i - step);
 
 
-        public static Sequence<T> ToSequence<T>(this IEnumerable<T> coll) => new Sequence<T>(coll);
+        public static Sequence<T> ToSequence<T>(this IEnumerable<T> coll) => new(coll);
     }
 
     public class Sequence<T>
@@ -110,8 +110,8 @@ namespace Unknown6656.Mathematics.Numerics
         }
 
 
-        public static implicit operator Sequence<T>(Func<IEnumerable<T>> f) => new Sequence<T>(f);
+        public static implicit operator Sequence<T>(Func<IEnumerable<T>> f) => new(f);
 
-        public static implicit operator Sequence<T>((T seed, Func<T, T> next) f) => new Sequence<T>(f.seed, f.next);
+        public static implicit operator Sequence<T>((T seed, Func<T, T> next) f) => new(f.seed, f.next);
     }
 }

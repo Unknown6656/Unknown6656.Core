@@ -80,7 +80,7 @@ namespace Unknown6656.Mathematics.Numerics
         public Scalar NextScalar(Scalar min, Scalar max) => min + NextScalar(max - min);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Complex NextComplex() => new Complex(NextScalar(), NextScalar());
+        public Complex NextComplex() => new(NextScalar(), NextScalar());
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Complex NextComplex(Scalar length) => NextComplex().Normalized * length;

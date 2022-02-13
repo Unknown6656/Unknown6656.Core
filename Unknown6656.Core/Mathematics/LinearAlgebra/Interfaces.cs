@@ -101,14 +101,14 @@ public interface IEquality<Object>
     /// </summary>
     /// <param name="o">Object to compare to</param>
     /// <returns>Equality comparison result</returns>
-    bool Is([MaybeNull] Object o);
+    bool Is(Object? o);
 
     /// <summary>
     /// Returns whether the given object is unequal to the current instance.
     /// </summary>
     /// <param name="o">Object to compare to</param>
     /// <returns>Inequality comparison result</returns>
-    bool IsNot([MaybeNull] Object o);
+    bool IsNot(Object? o);
 
     /// <inheritdoc/>
     bool IStructuralEquatable.Equals(object? other, IEqualityComparer comparer) =>

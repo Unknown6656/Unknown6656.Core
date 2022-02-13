@@ -729,34 +729,34 @@ public readonly unsafe struct UInt128
     #region OPERATORS
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static UInt128 operator +(UInt128 x) => x;
+    public static UInt128 operator +(in UInt128 x) => x;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static UInt128 operator ~(UInt128 x) => Not(x);
+    public static UInt128 operator ~(in UInt128 x) => Not(x);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static UInt128 operator -(UInt128 x) => Subtract(Zero, x);
+    public static UInt128 operator -(in UInt128 x) => Subtract(Zero, x);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static UInt128 operator ++(UInt128 x) => Increment(x);
+    public static UInt128 operator ++(in UInt128 x) => Increment(x);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static UInt128 operator --(UInt128 x) => Decrement(x);
+    public static UInt128 operator --(in UInt128 x) => Decrement(x);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static UInt128 operator +(UInt128 x, UInt128 y) => Add(x, y);
+    public static UInt128 operator +(in UInt128 x, in UInt128 y) => Add(x, y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static UInt128 operator -(UInt128 x, UInt128 y) => Subtract(x, y);
+    public static UInt128 operator -(in UInt128 x, in UInt128 y) => Subtract(x, y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static UInt128 operator *(UInt128 x, UInt128 y) => Multiply(x, y);
+    public static UInt128 operator *(in UInt128 x, in UInt128 y) => Multiply(x, y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static UInt128 operator /(UInt128 x, UInt128 y) => Divide(x, y);
+    public static UInt128 operator /(in UInt128 x, in UInt128 y) => Divide(x, y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static UInt128 operator %(UInt128 x, UInt128 y) => Modulus(x, y);
+    public static UInt128 operator %(in UInt128 x, in UInt128 y) => Modulus(x, y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 operator ^(UInt128 x, UInt128 y) => Xor(x, y);

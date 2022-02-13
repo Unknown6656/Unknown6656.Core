@@ -333,21 +333,21 @@ public readonly struct Fraction
 
     public static explicit operator Fraction(decimal s) => (Fraction)(Scalar)s;
 
-    public static Fraction operator +(Fraction f) => f;
+    public static Fraction operator +(in Fraction f) => f;
 
-    public static Fraction operator -(Fraction f) => f.Negate();
+    public static Fraction operator -(in Fraction f) => f.Negate();
 
-    public static Fraction operator ++(Fraction f) => f.Increment();
+    public static Fraction operator ++(in Fraction f) => f.Increment();
 
-    public static Fraction operator --(Fraction f) => f.Decrement();
+    public static Fraction operator --(in Fraction f) => f.Decrement();
 
-    public static Fraction operator +(Fraction f1, Fraction f2) => f1.Add(in f2);
+    public static Fraction operator +(in Fraction f1, in Fraction f2) => f1.Add(in f2);
 
-    public static Fraction operator -(Fraction f1, Fraction f2) => f1.Subtract(in f2);
+    public static Fraction operator -(in Fraction f1, in Fraction f2) => f1.Subtract(in f2);
 
-    public static Fraction operator *(Fraction f1, Fraction f2) => f1.Multiply(in f2);
+    public static Fraction operator *(in Fraction f1, in Fraction f2) => f1.Multiply(in f2);
 
-    public static Fraction operator /(Fraction f1, Fraction f2) => f1.Divide(in f2);
+    public static Fraction operator /(in Fraction f1, in Fraction f2) => f1.Divide(in f2);
 
     public static Fraction operator ^(Fraction f, int e) => f.Power(e);
 

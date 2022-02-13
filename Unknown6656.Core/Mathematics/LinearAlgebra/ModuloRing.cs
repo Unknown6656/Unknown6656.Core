@@ -27,6 +27,11 @@ public unsafe readonly /* ref */ partial struct ModuloRing
 #pragma warning restore CA2235
 
 
+    public static ModuloRing One { get; } = 1;
+
+    public static ModuloRing Zero { get; } = 0;
+
+
     public readonly bint Value => _val;
 
     public readonly bint Modulus => _mod;
@@ -220,91 +225,139 @@ public unsafe readonly /* ref */ partial struct ModuloRing
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator ModuloRing(sbyte b) => new(b, (bint)sbyte.MaxValue + 1);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator ModuloRing(byte b) => new(b, (bint)byte.MaxValue + 1);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator ModuloRing(short s) => new(s, (bint)short.MaxValue + 1);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator ModuloRing(ushort s) => new(s, (bint)ushort.MaxValue + 1);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator ModuloRing(int i) => new(i, (bint)int.MaxValue + 1);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator ModuloRing(uint i) => new(i, (bint)uint.MaxValue + 1);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator ModuloRing(long l) => new(l, (bint)long.MaxValue + 1);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator ModuloRing(ulong l) => new(l, (bint)ulong.MaxValue + 1);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator ModuloRing(bint b) => new(b, b + 1);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator ModuloRing((bint val, bint mod) t) => new(t.val, t.mod);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator bint(ModuloRing r) => r.Value;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator sbyte(ModuloRing r) => (sbyte)r.Value;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator byte(ModuloRing r) => (byte)r.Value;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator short(ModuloRing r) => (short)r.Value;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator ushort(ModuloRing r) => (ushort)r.Value;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator int(ModuloRing r) => (int)r.Value;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator uint(ModuloRing r) => (uint)r.Value;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator long(ModuloRing r) => (long)r.Value;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator ulong(ModuloRing r) => (ulong)r.Value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator ==(ModuloRing r1, ModuloRing r2) => r1.Is(r2);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator !=(ModuloRing r1, ModuloRing r2) => !(r1 == r2);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ModuloRing operator ~(ModuloRing r) => r.MultiplicativeInverse;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ModuloRing operator +(ModuloRing r) => r;
+    public static ModuloRing operator +(in ModuloRing r) => r;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ModuloRing operator -(ModuloRing r) => r.Negate();
+    public static ModuloRing operator -(in ModuloRing r) => r.Negate();
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ModuloRing operator ++(ModuloRing r) => r.Increment();
+    public static ModuloRing operator ++(in ModuloRing r) => r.Increment();
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ModuloRing operator --(ModuloRing r) => r.Decrement();
+    public static ModuloRing operator --(in ModuloRing r) => r.Decrement();
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ModuloRing operator +(bint b, ModuloRing r) => r.Add(b);
+    public static ModuloRing operator +(bint b, in ModuloRing r) => r.Add(b);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ModuloRing operator +(ModuloRing r, bint b) => r.Add(b);
+    public static ModuloRing operator +(in ModuloRing r, bint b) => r.Add(b);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ModuloRing operator +(ModuloRing r1, ModuloRing r2) => r1.Add(r2);
+    public static ModuloRing operator +(in ModuloRing r1, in ModuloRing r2) => r1.Add(r2);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ModuloRing operator -(bint b, ModuloRing r) => new ModuloRing(b, r.Modulus).Subtract(r);
+    public static ModuloRing operator -(bint b, in ModuloRing r) => new ModuloRing(b, r.Modulus).Subtract(r);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ModuloRing operator -(ModuloRing r, bint b) => r.Subtract(b);
+    public static ModuloRing operator -(in ModuloRing r, bint b) => r.Subtract(b);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ModuloRing operator -(ModuloRing r1, ModuloRing r2) => r1.Subtract(r2);
+    public static ModuloRing operator -(in ModuloRing r1, in ModuloRing r2) => r1.Subtract(r2);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ModuloRing operator *(bint b, ModuloRing r) => r.Multiply(b);
+    public static ModuloRing operator *(bint b, in ModuloRing r) => r.Multiply(b);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ModuloRing operator *(ModuloRing r, bint b) => r.Multiply(b);
+    public static ModuloRing operator *(in ModuloRing r, bint b) => r.Multiply(b);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ModuloRing operator *(ModuloRing r1, ModuloRing r2) => r1.Multiply(r2);
+    public static ModuloRing operator *(in ModuloRing r1, in ModuloRing r2) => r1.Multiply(r2);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ModuloRing operator /(bint b, ModuloRing r) => new ModuloRing(b, r.Modulus).Divide(r);
+    public static ModuloRing operator /(bint b, in ModuloRing r) => new ModuloRing(b, r.Modulus).Divide(r);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ModuloRing operator /(ModuloRing r, bint b) => r.Divide(b);
+    public static ModuloRing operator /(in ModuloRing r, bint b) => r.Divide(b);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ModuloRing operator /(ModuloRing r1, ModuloRing r2) => r1.Divide(r2);
+    public static ModuloRing operator /(in ModuloRing r1, in ModuloRing r2) => r1.Divide(in r2);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ModuloRing operator %(bint b, ModuloRing r) => new ModuloRing(b, r.Modulus).Modulo(r);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ModuloRing operator %(ModuloRing r, bint b) => r.Modulo(b);
+    public static ModuloRing operator %(in ModuloRing r, bint b) => r.Modulo(b);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ModuloRing operator %(ModuloRing r1, ModuloRing r2) => r1.Modulo(r2);
+    public static ModuloRing operator %(in ModuloRing r1, in ModuloRing r2) => r1.Modulo(in r2);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ModuloRing operator ^(bint b, ModuloRing r) => new ModuloRing(b, r.Modulus).Power(r);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ModuloRing operator ^(ModuloRing r, bint b) => r.Power((int)b);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ModuloRing operator ^(ModuloRing r1, ModuloRing r2) => r1.Power(r2);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ModuloRing operator <<(ModuloRing r, int i) => new(r.Value << i, r.Modulus);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ModuloRing operator >>(ModuloRing r, int i) => new(r.Value >> i, r.Modulus);
 }

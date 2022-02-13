@@ -1995,6 +1995,15 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         return FromColumns(column_indices.ToArray(i => cols[i]));
     }
 
+    static <#=typename#> INative<<#=typename#>>.FromArray<T>(params T[] arr)
+        where T : unmanaged
+    {
+        fixed (T* ptr = arr)
+            return FromPointer(ptr);
+    }
+
+    static <#=typename#> INative<<#=typename#>>.FromNative<T>(T* src) where T : unmanaged => FromPointer(src);
+
     /// <inheritdoc cref="FromNative{T}"/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> FromPointer<T>(T* src) where T : unmanaged => new((Scalar*)src);

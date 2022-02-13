@@ -245,11 +245,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// <inheritdoc cref="Dimension"/>
     public readonly int Size => Dimension;
 
-    /// <inheritdoc cref="Dimension"/>
     readonly int Algebra<Scalar>.IComposite1D.Dimension => Dimension;
-
-    /// <inheritdoc cref="BinarySize"/>
-    readonly int INative<<#=typename#>>.BinarySize => BinarySize;
 
     public readonly MatrixNM Transposed => new MatrixNM(<#=dim#>, 1, Coefficients);
 
@@ -817,6 +813,15 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         _ when v.Length < Dimension => throw new ArgumentException($"The array must have a minimum length of {Dimension}.", nameof(v)),
         _ => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"v[{i}]"))#>)
     };
+
+    static <#=typename#> INative<<#=typename#>>.FromArray<T>(params T[] arr)
+        where T : unmanaged
+    {
+        fixed (T* ptr = arr)
+            return FromPointer(ptr);
+    }
+
+    static <#=typename#> INative<<#=typename#>>.FromNative<T>(T* src) where T : unmanaged => FromPointer(src);
 
     /// <inheritdoc cref="FromNative{T}"/>
     public static <#=typename#> FromPointer<T>(T* src) where T : unmanaged => new <#=typename#>((<#=typename#>*)src);

@@ -74,7 +74,7 @@ public unsafe interface INative<@this>
     /// </summary>
     /// <typeparam name="T">Generic array type</typeparam>
     /// <param name="arr">Source array</param>
-    static abstract T FromArray<T>(T[] arr) where T : unmanaged;
+    static abstract T FromArray<T>(params T[] arr) where T : unmanaged;
 }
 
 public interface ISerializable<@this>

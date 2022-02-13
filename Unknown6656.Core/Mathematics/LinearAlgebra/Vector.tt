@@ -152,8 +152,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// </summary>
     public static <#=typename#> Zero { get; } = new <#=typename#>(0);
 
-    static <#=typename#> INumericGroup<<#=typename#>>.ZeroElement => Zero;
-
     public static <#=typename#>[] UnitVectors { get; } = <#=matname#>.Identity.Columns;
 <#
         if (dim <= comp.Length)

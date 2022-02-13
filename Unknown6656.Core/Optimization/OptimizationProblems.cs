@@ -43,7 +43,7 @@ namespace Unknown6656.Optimization.ParticleSwarmOptimization
             }
         }
 
-        public override Domain GetZeroVector() => IGroup<Domain>.ZeroElement!;
+        public override Domain GetZeroVector() => IGroup<Domain>.Zero!;
     }
 
     public class YValueFinder<Domain, Codomain>

@@ -149,20 +149,20 @@ public interface INumericGroup<Group>
     /// <br/>
     /// This is therefore euqal to "<see cref="Group"/>.Zero" or "<see cref="Group"/>.Null".
     /// </summary>
-    public static abstract Group? ZeroElement { get; }
+    public static abstract Group? Zero { get; }
     //[DebuggerHidden, DebuggerNonUserCode, DebuggerBrowsable(DebuggerBrowsableState.Never), EditorBrowsable(EditorBrowsableState.Never)]
-    //public static Group? ZeroElement { get; } = (from p in typeof(Group).GetProperties(BindingFlags.Public | BindingFlags.Static)
-    //                                             where p.DeclaringType != typeof(INumericIGroup<Group>)
-    //                                             where p.Name.ToLowerInvariant() is "zero" or "null" or "nullelement" or "zeroelement"
-    //                                             where typeof(INumericIGroup<Group>).IsAssignableFrom(p.PropertyType)
-    //                                             select (Group)p.GetValue(null)).FirstOrDefault();
+    //public static Group? Zero { get; } = (from p in typeof(Group).GetProperties(BindingFlags.Public | BindingFlags.Static)
+    //                                      where p.DeclaringType != typeof(INumericIGroup<Group>)
+    //                                      where p.Name.ToLowerInvariant() is "zero" or "null" or "nullelement"
+    //                                      where typeof(INumericIGroup<Group>).IsAssignableFrom(p.PropertyType)
+    //                                      select (Group)p.GetValue(null)).FirstOrDefault();
 
 #if DEFAULT_IMPL
     /// <summary>
     /// <i>[AUTO-IMPLEMENTED]</i><br/>
     /// Indicates whether the current instance is equal to the zero element.
     /// </summary>
-    bool IGroup.IsZero => Is(ZeroElement);
+    bool IGroup.IsZero => Is(Zero);
 #endif
 
     /// <summary>
@@ -183,7 +183,7 @@ public interface INumericGroup<Group>
 }
 
 /// <summary>
-/// Represents an algebraic group containing a zero element (<see cref="ZeroElement"/>), the notion of addition, and a notion of additive inversibility.
+/// Represents an algebraic group containing a zero element (<see cref="Zero"/>), the notion of addition, and a notion of additive inversibility.
 /// </summary>
 /// <typeparam name="Group">Generic group data type</typeparam>
 public interface IGroup<Group>
@@ -263,10 +263,10 @@ public interface IRing<Ring>
     /// <summary>
     /// Returns the ring's one element. The element is neutral towards the ring's multiplication.
     /// </summary>
-    public static abstract Ring? OneElement { get; }
+    public static abstract Ring? One { get; }
     //[DebuggerHidden, DebuggerNonUserCode, DebuggerBrowsable(DebuggerBrowsableState.Never), EditorBrowsable(EditorBrowsableState.Never)]
-    //Ring OneElement => (from p in GetType().GetProperties(BindingFlags.Public | BindingFlags.Static)
-    //                    where p.Name.ToLowerInvariant() is "one" or "identity" or "unit" or "oneelement" or "unitelement"
+    //Ring One => (from p in GetType().GetProperties(BindingFlags.Public | BindingFlags.Static)
+    //                    where p.Name.ToLowerInvariant() is "one" or "identity" or "unit"
     //                    where typeof(IRing<Ring>).IsAssignableFrom(p.PropertyType)
     //                    select (Ring)p.GetValue(null)).FirstOrDefault();
 
@@ -274,7 +274,7 @@ public interface IRing<Ring>
     /// <summary>
     /// Indicates whether the current instance is equal to the one element.
     /// </summary>
-    bool IRing.IsOne => Is(OneElement);
+    bool IRing.IsOne => Is(One);
 #endif
 
     /// <summary>
@@ -299,7 +299,7 @@ public interface IRing<Ring>
     /// <returns>Incremented value</returns>
     Ring Increment()
 #if DEFAULT_IMPL
-        => Add(OneElement);
+        => Add(One);
 #else
         ;
 #endif
@@ -310,7 +310,7 @@ public interface IRing<Ring>
     /// <returns>Decremented value</returns>
     Ring Decrement()
 #if DEFAULT_IMPL
-        => Subtract(OneElement);
+        => Subtract(One);
 #else
         ;
 #endif
@@ -325,7 +325,7 @@ public interface IRing<Ring>
         if (e < 0)
             throw new IndexOutOfRangeException("The given power must be greater or equal to zero.");
 
-        Ring acc = OneElement;
+        Ring acc = One;
 
         for (int i = 0; i < e; ++i)
             acc = acc.Multiply((Ring)this);
@@ -433,7 +433,7 @@ public interface INumericRing<Field>
 
     Field Clamp()
 #if DEFAULT_IMPL
-        => Clamp(ZeroElement, OneElement);
+        => Clamp(Zero, One);
 #else
         ;
 #endif
@@ -629,7 +629,7 @@ public static class Algebra<Scalar>
 
         Vector LinearInterpolate(in Vector other, Scalar factor)
 #if DEFAULT_IMPL
-            => Multiply(factor.OneElement.Subtract(factor)).Add(other.Multiply(factor));
+            => Multiply(factor.One.Subtract(factor)).Add(other.Multiply(factor));
 #else
             ;
 #endif
@@ -687,7 +687,7 @@ public static class Algebra<Scalar>
         /// </summary>
         Scalar CoefficientSum
 #if DEFAULT_IMPL
-             => Coefficients.Aggregate(new Scalar().ZeroElement, (a, b) => a.Add(b));
+             => Coefficients.Aggregate(new Scalar().Zero, (a, b) => a.Add(b));
 #else
         { get; }
 #endif
@@ -871,7 +871,7 @@ public static class Algebra<Scalar>
         bool Refract(in Vector normal, Scalar eta, out Vector refracted)
 #if DEFAULT_IMPL
         {
-            Scalar i = eta.OneElement;
+            Scalar i = eta.One;
             Scalar θ = Dot(normal);
             Scalar k = i.Subtract(eta.Multiply(eta, i.Subtract(θ.Multiply(θ))));
             bool res = k.IsNegative;
@@ -938,7 +938,7 @@ public static class Algebra<Scalar>
         /// </summary>
         Vector Normalized
 #if DEFAULT_IMPL
-             => Length is Scalar l && l.IsZero ? ZeroElement : Divide(l);
+             => Length is Scalar l && l.IsZero ? Zero : Divide(l);
 #else
             { get; }
 #endif
@@ -1001,7 +1001,7 @@ public static class Algebra<Scalar>
                 if (IsZero)
                     throw new InvalidOperationException("The Householder matrix is undefined for zero vectors.");
 
-                Scalar i = new Scalar().OneElement;
+                Scalar i = new Scalar().One;
 
                 return OuterProduct((Vector)this).Multiply(i.Add(i).Divide(SquaredNorm));
             }
@@ -1285,7 +1285,7 @@ public static class Algebra<Scalar>
         /// <returns>Modified matrix</returns>
         Matrix AddRows(int src_row, int dst_row)
 #if DEFAULT_IMPL
-             => AddRows(src_row, dst_row, new Scalar().OneElement);
+             => AddRows(src_row, dst_row, new Scalar().One);
 #else
             ;
 #endif
@@ -1342,7 +1342,7 @@ public static class Algebra<Scalar>
         /// <returns>Modified matrix</returns>
         Matrix AddColumns(int src_col, int dst_col)
 #if DEFAULT_IMPL
-             => AddColumns(src_col, dst_col, new Scalar().OneElement);
+             => AddColumns(src_col, dst_col, new Scalar().One);
 #else
             ;
 #endif
@@ -1462,13 +1462,13 @@ public static class InterfaceExtensions
 
     public static T Product<T>(this IEnumerable<T> scalars) where T : unmanaged, IRing<T> => scalars.Aggregate(default(T).Increment(), (s1, s2) => s1.Multiply(s2));
 
-    public static T Sum<T>(this IEnumerable<T>? scalars) where T : unmanaged, IRing<T> => scalars?.Aggregate(default(T), (s1, s2) => s1.Add(s2)) ?? T.ZeroElement;
+    public static T Sum<T>(this IEnumerable<T>? scalars) where T : unmanaged, IRing<T> => scalars?.Aggregate(default(T), (s1, s2) => s1.Add(s2)) ?? T.Zero;
 
     public static T Min<T>(this IEnumerable<T> scalars) where T : unmanaged, INumericRing<T> => scalars.AggregateNonEmpty((s, a) => s.Min(a));
 
     public static T Max<T>(this IEnumerable<T> scalars) where T : unmanaged, INumericRing<T> => scalars.AggregateNonEmpty((s, a) => s.Max(a));
 
-    public static T Average<T>(this IEnumerable<T>? scalars) where T : unmanaged, IField<T> => scalars?.ToArray() is T[] arr ? arr.Sum().Divide(arr.Length.ToRing<T>()) : T.ZeroElement;
+    public static T Average<T>(this IEnumerable<T>? scalars) where T : unmanaged, IField<T> => scalars?.ToArray() is T[] arr ? arr.Sum().Divide(arr.Length.ToRing<T>()) : T.Zero;
 
     public static T Variance<T>(this IEnumerable<T>? scalars)
         where T : unmanaged, IField<T>
@@ -1482,13 +1482,13 @@ public static class InterfaceExtensions
 
     public static U Product<T, U>(this IEnumerable<T> scalars, Func<T, U> selector) where U : unmanaged, IRing<U> => scalars.Select(selector).Product();
 
-    public static U Sum<T, U>(this IEnumerable<T>? scalars, Func<T, U> selector) where U : unmanaged, IRing<U> => scalars?.Select(selector).Sum() ?? U.ZeroElement;
+    public static U Sum<T, U>(this IEnumerable<T>? scalars, Func<T, U> selector) where U : unmanaged, IRing<U> => scalars?.Select(selector).Sum() ?? U.Zero;
 
     public static U Min<T, U>(this IEnumerable<T> scalars, Func<T, U> selector) where U : unmanaged, INumericRing<U> => scalars.Select(selector).Min();
 
     public static U Max<T, U>(this IEnumerable<T> scalars, Func<T, U> selector) where U : unmanaged, INumericRing<U> => scalars.Select(selector).Max();
 
-    public static U Average<T, U>(this IEnumerable<T>? scalars, Func<T, U> selector) where U : unmanaged, IField<U> => scalars?.Select(selector)?.Average() ?? U.ZeroElement;
+    public static U Average<T, U>(this IEnumerable<T>? scalars, Func<T, U> selector) where U : unmanaged, IField<U> => scalars?.Select(selector)?.Average() ?? U.Zero;
 
     public static U Median<T, U>(this IEnumerable<T> scalars, Func<T, U> selector) where U : unmanaged, IComparable<U> => scalars.Select(selector).Median();
 
@@ -1560,7 +1560,7 @@ public interface IArithmeticRing<R, in S>
         if (e < 0)
             throw new IndexOutOfRangeException("The given power must be greater or equal to zero.");
 
-        if (OneElement is R acc)
+        if (One is R acc)
         {
             for (int i = 0; i < e; ++i)
                 acc = acc.Multiply((R)this);

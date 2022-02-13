@@ -87,10 +87,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// </summary>
     public static <#=typename#> Zero { get; } = new <#=typename#>(0);
 
-    static <#=typename#> INumericGroup<<#=typename#>>.ZeroElement => Zero;
-
-    static <#=typename#> IRing<<#=typename#>>.OneElement => Identity;
-
     /// <summary>
     /// The <#=dim#>x<#=dim#> identity (unit) matrix
     /// </summary>

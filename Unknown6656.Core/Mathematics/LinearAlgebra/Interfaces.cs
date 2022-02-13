@@ -44,7 +44,7 @@ public unsafe interface INative<@this>
     /// <summary>
     /// The raw memory size of the current structure in bytes.
     /// </summary>
-    int BinarySize { get; }
+    static abstract int BinarySize { get; }
 
     /// <summary>
     /// Fills an array of the given generic data type with a byte-wise copy of the current instance.

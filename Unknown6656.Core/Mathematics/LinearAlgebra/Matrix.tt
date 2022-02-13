@@ -31,7 +31,6 @@ namespace Unknown6656.Mathematics.LinearAlgebra;
 
 // TODO: schatten-p-norm
 
-
 <#
     int maxdim = 4;
 
@@ -75,7 +74,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 
 <#
         foreach (string col in cols)
-            Write($"    private readonly {vecname} {col};\r\n");
+            WriteLine($"    private readonly {vecname} {col};");
 #>
 
     #endregion
@@ -190,9 +189,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 
     /// <inheritdoc cref="Dimension"/>
     public readonly (int Columns, int Rows) Size => (<#=dim#>, <#=dim#>);
-        
-    /// <inheritdoc cref="BinarySize"/>
-    readonly int IReadonlyNative<<#=typename#>>.BinarySize => BinarySize;
 
     /// <inheritdoc cref="Dimensions"/>
     readonly (int Columns, int Rows) Algebra<Scalar>.IComposite2D.Dimensions => Size;
@@ -226,7 +222,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// <summary>
     /// The matrix' trace.
     /// </summary>
-    public readonly Scalar Trace => MainDiagonal.Sum;
+    public readonly Scalar Trace => MainDiagonal.CoefficientSum;
 
     public readonly Scalar FrobeniusNorm => Multiply(this).Trace;
 
@@ -238,532 +234,512 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 
     public readonly <#=typename#> AdditiveInverse => Negate();
 
-    public readonly Scalar Sum => FlattenedCoefficients.Aggregate(Scalar.Zero, (a, b) => a.Add(b));
+    public readonly Scalar CoefficientSum => FlattenedCoefficients.Aggregate(Scalar.Zero, (a, b) => a.Add(b));
 
-    public readonly Scalar Avg => Sum.Divide(Dimensions.Rows + Dimensions.Columns);
+    public readonly Scalar CoefficientAvg => Sum.Divide(Dimensions.Rows + Dimensions.Columns);
 
-    public readonly Scalar Min => FlattenedCoefficients.Min();
+    public readonly Scalar CoefficientMin => FlattenedCoefficients.Min();
 
-    public readonly Scalar Max => FlattenedCoefficients.Max();
+    public readonly Scalar CoefficientMax => FlattenedCoefficients.Max();
 <#
         if (dim > 3)
         {
             string tstr = string.Join(", ", r(2, dim - 2).Select(i => $"Matrix{i} Sub{i}"));
 #>
 
-        /// <summary>
-        /// Returns a set of the first <#=dim-2#> principal submatrices.
-        /// </summary>
-        /// <returns>Set of principal submatrices</returns>
-        public readonly (<#=tstr#>) PrincipalSubmatrices => (<#=string.Join(", ", r(2, dim - 2).Select(i => $"ToMatrix{i}()"))#>);
+    /// <summary>
+    /// Returns a set of the first <#=dim-2#> principal submatrices.
+    /// </summary>
+    /// <returns>Set of principal submatrices</returns>
+    public readonly (<#=tstr#>) PrincipalSubmatrices => (<#=string.Join(", ", r(2, dim - 2).Select(i => $"ToMatrix{i}()"))#>);
 <#
         }
 #>
 
-        #endregion
-        #region INSTANCE PROPERTIES : TRANSFORMATIONS
+    #endregion
+    #region INSTANCE PROPERTIES : TRANSFORMATIONS
 
-        /// <summary>
-        /// The transposed matrix.
-        /// </summary>
-        public readonly <#=typename#> Transposed => (
-            <#=string.Join(",\n            ", r(0, dim).Select(y => string.Join(", ", r(0, dim).Select(x => $"_c{y}[{x}]"))))#>
-        );
+    /// <summary>
+    /// The transposed matrix.
+    /// </summary>
+    public readonly <#=typename#> Transposed => (
+        <#=string.Join(",\n        ", r(0, dim).Select(y => string.Join(", ", r(0, dim).Select(x => $"_c{y}[{x}]"))))#>
+    );
 
-        [DebuggerHidden, DebuggerNonUserCode, DebuggerBrowsable(DebuggerBrowsableState.Never), EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use the member 'Scalar <#=typename#>::Inverse' instead.")]
-        public readonly <#=typename#> MultiplicativeInverse => Inverse;
+    [DebuggerHidden, DebuggerNonUserCode, DebuggerBrowsable(DebuggerBrowsableState.Never), EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use the member 'Scalar <#=typename#>::Inverse' instead.")]
+    public readonly <#=typename#> MultiplicativeInverse => Inverse;
 
-        /// <summary>
-        /// Returns the gaussian reduced matrix.
-        /// </summary>
-        public readonly <#=typename#> GaussianReduced => GetLinearIndependentForm();
+    /// <summary>
+    /// Returns the gaussian reduced matrix.
+    /// </summary>
+    public readonly <#=typename#> GaussianReduced => GetLinearIndependentForm();
 
-        /// <summary>
-        /// The matrix' orthonormal basis.
-        /// </summary>
-        public readonly <#=typename#> OrthonormalBasis
+    /// <summary>
+    /// The matrix' orthonormal basis.
+    /// </summary>
+    public readonly <#=typename#> OrthonormalBasis
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
+            <#=vecname#>[] vs = Columns;
+
+            for (int i = 0; i < <#=dim#>; ++i)
             {
-                <#=vecname#>[] vs = Columns;
+                for (int j = 0; j < i; ++j)
+                    vs[i] -= this[i].Dot(vs[j]) * vs[j];
 
-                for (int i = 0; i < <#=dim#>; ++i)
-                {
-                    for (int j = 0; j < i; ++j)
-                        vs[i] -= this[i].Dot(vs[j]) * vs[j];
-
-                    vs[i] = vs[i].Normalized;
-                }
-
-                return FromColumns(vs);
+                vs[i] = vs[i].Normalized;
             }
+
+            return FromColumns(vs);
         }
+    }
 
-        #endregion
-        #region INSTANCE PROPERTIES : DETERMINANT + CHAR. POLYNOMIAL
+    #endregion
+    #region INSTANCE PROPERTIES : DETERMINANT + CHAR. POLYNOMIAL
 
-        /// <summary>
-        /// The matrix' determinant.
-        /// </summary>
-        public readonly Scalar Determinant => 
+    /// <summary>
+    /// The matrix' determinant.
+    /// </summary>
+    public readonly Scalar Determinant => 
 <#
     if (dim == 2)
-    {
-#>
-            _c0[0] * _c1[1] - _c1[0] * _c0[1];
-<#
-    }
+        WriteLine("        _c0[0] * _c1[1] - _c1[0] * _c0[1];");
     else if (dim == 3)
     {
 #>
-            _c0[0] * (_c1[1] * _c2[2] - _c2[1] * _c1[2])
-          - _c1[0] * (_c0[1] * _c2[2] - _c2[1] * _c0[2])
-          + _c2[0] * (_c0[1] * _c1[2] - _c1[1] * _c0[2]);
+        _c0[0] * (_c1[1] * _c2[2] - _c2[1] * _c1[2])
+        - _c1[0] * (_c0[1] * _c2[2] - _c2[1] * _c0[2])
+        + _c2[0] * (_c0[1] * _c1[2] - _c1[1] * _c0[2]);
 <#
     }
     else
     {
 #>
-            <#=string.Join("\n            ", r(0, dim).Select(i => $"{((i % 2) == 0 ? '+' : '-')} GetMinor(0, {i}).Determinant"))#>;
+        <#=string.Join("\n        ", r(0, dim).Select(i => $"{((i % 2) == 0 ? '+' : '-')} GetMinor(0, {i}).Determinant"))#>;
 <#
     }
 #>
 
-        public readonly <#=typename#> Inverse
+    public readonly <#=typename#> Inverse
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                Scalar det = Determinant is { IsZero: false } s ? s.Inverse : throw new InvalidOperationException("This matrix is not invertible, as its determinant is zero.");
-                <#=typename#> m = <#
+            Scalar det = Determinant is { IsZero: false } s ? s.Inverse : throw new InvalidOperationException("This matrix is not invertible, as its determinant is zero.");
+            <#=typename#> m = <#
     if (dim == 2)
     {
 #>(
-                     _c1[1], -_c0[1],
-                    -_c1[0],  _c0[0]
-                );
+                    _c1[1], -_c0[1],
+                -_c1[0],  _c0[0]
+            );
 <#
     }
     else if (dim == 3)
     {
 #>(
-                // TODO : verify the following code
-                    + (_c1[1] * _c2[2] - _c2[1] * _c1[2]),
-                    - (_c1[0] * _c2[2] - _c2[0] * _c1[2]),
-                    + (_c1[0] * _c2[1] - _c2[0] * _c1[1]),
-                    - (_c0[1] * _c2[2] - _c2[1] * _c0[2]),
-                    + (_c0[0] * _c2[2] - _c2[0] * _c0[2]),
-                    - (_c0[0] * _c2[1] - _c2[0] * _c0[1]),
-                    + (_c0[1] * _c1[2] - _c1[1] * _c0[2]),
-                    - (_c0[0] * _c1[2] - _c1[0] * _c0[2]),
-                    + (_c0[0] * _c1[1] - _c1[0] * _c0[1])
-                );
+            // TODO : verify the following code
+                + (_c1[1] * _c2[2] - _c2[1] * _c1[2]),
+                - (_c1[0] * _c2[2] - _c2[0] * _c1[2]),
+                + (_c1[0] * _c2[1] - _c2[0] * _c1[1]),
+                - (_c0[1] * _c2[2] - _c2[1] * _c0[2]),
+                + (_c0[0] * _c2[2] - _c2[0] * _c0[2]),
+                - (_c0[0] * _c2[1] - _c2[0] * _c0[1]),
+                + (_c0[1] * _c1[2] - _c1[1] * _c0[2]),
+                - (_c0[0] * _c1[2] - _c1[0] * _c0[2]),
+                + (_c0[0] * _c1[1] - _c1[0] * _c0[1])
+            );
 <#
     }
     else if (dim == 4)
     {
 #>Zero;
-                var (m00, m10, m20, m30,
-                     m01, m11, m21, m31,
-                     m02, m12, m22, m32,
-                     m03, m13, m23, m33) = this;
+            var (m00, m10, m20, m30,
+                 m01, m11, m21, m31,
+                 m02, m12, m22, m32,
+                 m03, m13, m23, m33) = this;
 
-                // TODO : verify the following code
-                m00 = (m12 * m23 * m31) - (m13 * m22 * m31) + (m13 * m21 * m32) - (m11 * m23 * m32) - (m12 * m21 * m33) + (m11 * m22 * m33);
-                m01 = (m03 * m22 * m31) - (m02 * m23 * m31) - (m03 * m21 * m32) + (m01 * m23 * m32) + (m02 * m21 * m33) - (m01 * m22 * m33);
-                m02 = (m02 * m13 * m31) - (m03 * m12 * m31) + (m03 * m11 * m32) - (m01 * m13 * m32) - (m02 * m11 * m33) + (m01 * m12 * m33);
-                m03 = (m03 * m12 * m21) - (m02 * m13 * m21) - (m03 * m11 * m22) + (m01 * m13 * m22) + (m02 * m11 * m23) - (m01 * m12 * m23);
-                m10 = (m13 * m22 * m30) - (m12 * m23 * m30) - (m13 * m20 * m32) + (m10 * m23 * m32) + (m12 * m20 * m33) - (m10 * m22 * m33);
-                m11 = (m02 * m23 * m30) - (m03 * m22 * m30) + (m03 * m20 * m32) - (m00 * m23 * m32) - (m02 * m20 * m33) + (m00 * m22 * m33);
-                m12 = (m03 * m12 * m30) - (m02 * m13 * m30) - (m03 * m10 * m32) + (m00 * m13 * m32) + (m02 * m10 * m33) - (m00 * m12 * m33);
-                m13 = (m02 * m13 * m20) - (m03 * m12 * m20) + (m03 * m10 * m22) - (m00 * m13 * m22) - (m02 * m10 * m23) + (m00 * m12 * m23);
-                m20 = (m11 * m23 * m30) - (m13 * m21 * m30) + (m13 * m20 * m31) - (m10 * m23 * m31) - (m11 * m20 * m33) + (m10 * m21 * m33);
-                m21 = (m03 * m21 * m30) - (m01 * m23 * m30) - (m03 * m20 * m31) + (m00 * m23 * m31) + (m01 * m20 * m33) - (m00 * m21 * m33);
-                m22 = (m01 * m13 * m30) - (m03 * m11 * m30) + (m03 * m10 * m31) - (m00 * m13 * m31) - (m01 * m10 * m33) + (m00 * m11 * m33);
-                m23 = (m03 * m11 * m20) - (m01 * m13 * m20) - (m03 * m10 * m21) + (m00 * m13 * m21) + (m01 * m10 * m23) - (m00 * m11 * m23);
-                m30 = (m12 * m21 * m30) - (m11 * m22 * m30) - (m12 * m20 * m31) + (m10 * m22 * m31) + (m11 * m20 * m32) - (m10 * m21 * m32);
-                m31 = (m01 * m22 * m30) - (m02 * m21 * m30) + (m02 * m20 * m31) - (m00 * m22 * m31) - (m01 * m20 * m32) + (m00 * m21 * m32);
-                m32 = (m02 * m11 * m30) - (m01 * m12 * m30) - (m02 * m10 * m31) + (m00 * m12 * m31) + (m01 * m10 * m32) - (m00 * m11 * m32);
-                m33 = (m01 * m12 * m20) - (m02 * m11 * m20) + (m02 * m10 * m21) - (m00 * m12 * m21) - (m01 * m10 * m22) + (m00 * m11 * m22);
+            // TODO : verify the following code
+            m00 = (m12 * m23 * m31) - (m13 * m22 * m31) + (m13 * m21 * m32) - (m11 * m23 * m32) - (m12 * m21 * m33) + (m11 * m22 * m33);
+            m01 = (m03 * m22 * m31) - (m02 * m23 * m31) - (m03 * m21 * m32) + (m01 * m23 * m32) + (m02 * m21 * m33) - (m01 * m22 * m33);
+            m02 = (m02 * m13 * m31) - (m03 * m12 * m31) + (m03 * m11 * m32) - (m01 * m13 * m32) - (m02 * m11 * m33) + (m01 * m12 * m33);
+            m03 = (m03 * m12 * m21) - (m02 * m13 * m21) - (m03 * m11 * m22) + (m01 * m13 * m22) + (m02 * m11 * m23) - (m01 * m12 * m23);
+            m10 = (m13 * m22 * m30) - (m12 * m23 * m30) - (m13 * m20 * m32) + (m10 * m23 * m32) + (m12 * m20 * m33) - (m10 * m22 * m33);
+            m11 = (m02 * m23 * m30) - (m03 * m22 * m30) + (m03 * m20 * m32) - (m00 * m23 * m32) - (m02 * m20 * m33) + (m00 * m22 * m33);
+            m12 = (m03 * m12 * m30) - (m02 * m13 * m30) - (m03 * m10 * m32) + (m00 * m13 * m32) + (m02 * m10 * m33) - (m00 * m12 * m33);
+            m13 = (m02 * m13 * m20) - (m03 * m12 * m20) + (m03 * m10 * m22) - (m00 * m13 * m22) - (m02 * m10 * m23) + (m00 * m12 * m23);
+            m20 = (m11 * m23 * m30) - (m13 * m21 * m30) + (m13 * m20 * m31) - (m10 * m23 * m31) - (m11 * m20 * m33) + (m10 * m21 * m33);
+            m21 = (m03 * m21 * m30) - (m01 * m23 * m30) - (m03 * m20 * m31) + (m00 * m23 * m31) + (m01 * m20 * m33) - (m00 * m21 * m33);
+            m22 = (m01 * m13 * m30) - (m03 * m11 * m30) + (m03 * m10 * m31) - (m00 * m13 * m31) - (m01 * m10 * m33) + (m00 * m11 * m33);
+            m23 = (m03 * m11 * m20) - (m01 * m13 * m20) - (m03 * m10 * m21) + (m00 * m13 * m21) + (m01 * m10 * m23) - (m00 * m11 * m23);
+            m30 = (m12 * m21 * m30) - (m11 * m22 * m30) - (m12 * m20 * m31) + (m10 * m22 * m31) + (m11 * m20 * m32) - (m10 * m21 * m32);
+            m31 = (m01 * m22 * m30) - (m02 * m21 * m30) + (m02 * m20 * m31) - (m00 * m22 * m31) - (m01 * m20 * m32) + (m00 * m21 * m32);
+            m32 = (m02 * m11 * m30) - (m01 * m12 * m30) - (m02 * m10 * m31) + (m00 * m12 * m31) + (m01 * m10 * m32) - (m00 * m11 * m32);
+            m33 = (m01 * m12 * m20) - (m02 * m11 * m20) + (m02 * m10 * m21) - (m00 * m12 * m21) - (m01 * m10 * m22) + (m00 * m11 * m22);
 
-                m = (
-                    m00, m10, m20, m30,
-                    m01, m11, m21, m31,
-                    m02, m12, m22, m32,
-                    m03, m13, m23, m33
-                );
+            m = (
+                m00, m10, m20, m30,
+                m01, m11, m21, m31,
+                m02, m12, m22, m32,
+                m03, m13, m23, m33
+            );
 <#
     }
 
     if (dim <= 4)
-        {
-#>
-
-                return m * det;
-<#
-    }
+        WriteLine("            return m * det;");
     else
     {
 #>this;
-                // TODO : verify the following code
-                <#=typename#> u = Identity;
+            // TODO : verify the following code
+            <#=typename#> u = Identity;
 
-                for (int i = 0; i < <#=dim#>; ++i)
+            for (int i = 0; i < <#=dim#>; ++i)
+            {
+                int max = i;
+
+                for (int j = i + 1; j < <#=dim#>; ++j)
+                    if (Abs(m[i, j]) > Abs(m[i, max]))
+                        max = j;
+
+                m = m.SwapRows(i, max);
+                u = u.SwapRows(i, max);
+
+                Scalar top = 1 / m[i, i];
+
+                if (top.IsInfinity)
+                    continue;
+
+                u = u.MultiplyRow(i, top);
+                m = m.MultiplyRow(i, top)[i, i, 1];
+
+                for (int j = i + 1; j < <#=dim#>; ++j)
                 {
-                    int max = i;
+                    Scalar f = m[i, j];
 
-                    for (int j = i + 1; j < <#=dim#>; ++j)
-                        if (Abs(m[i, j]) > Abs(m[i, max]))
-                            max = j;
-
-                    m = m.SwapRows(i, max);
-                    u = u.SwapRows(i, max);
-
-                    Scalar top = 1 / m[i, i];
-
-                    if (top.IsInfinity)
-                        continue;
-
-                    u = u.MultiplyRow(i, top);
-                    m = m.MultiplyRow(i, top)[i, i, 1];
-
-                    for (int j = i + 1; j < <#=dim#>; ++j)
-                    {
-                        Scalar f = m[i, j];
-
-                        m = m.AddRows(i, j, -f);
-                        u = u.AddRows(i, j, -f);
-                    }
+                    m = m.AddRows(i, j, -f);
+                    u = u.AddRows(i, j, -f);
                 }
+            }
 
-                for (int i = <#=dim#> - 1; i > 0; --i)
-                    if (!m[i, i].IsZero)
-                        for (int row = 0; row < i; ++row)
-                        {
-                            Scalar f = m[i, row];
+            for (int i = <#=dim#> - 1; i > 0; --i)
+                if (!m[i, i].IsZero)
+                    for (int row = 0; row < i; ++row)
+                    {
+                        Scalar f = m[i, row];
 
-                            m = m.AddRows(i, row, -f);
-                            u = u.AddRows(i, row, -f);
-                        }
+                        m = m.AddRows(i, row, -f);
+                        u = u.AddRows(i, row, -f);
+                    }
 
-                return u;
+            return u;
 <#
     }
 #>
-            }
         }
+    }
 
 <#
     if (dim == 2)
-    {
-#>
-        public readonly Polynomial CharacteristicPolynomial => new Polynomial(Determinant, - _c0[0] - _c1[1], 1);
-<#
-    }
+        WriteLine("    public readonly Polynomial CharacteristicPolynomial => new Polynomial(Determinant, - _c0[0] - _c1[1], 1);");
     else if (dim == 3)
     {
 #>
-        /*
-                 | a b c |                    | a-λ  b   c  |
-            φ := | d e f |       CP_φ(λ) = det|  d  e-λ  f  | = (a-λ)[MINOR @ 0,0] - λ(gc + db) - gbf - gce - dbi + dhc
-                 | g h i |                    |  g   h  i-λ |
-                                                              = - λ³
-                                                                + λ²(a + e + i)
-                                                                + λ(fh + cg + bd - ae - ai - ei)
-                                                                + (-afh - ecg - ibd + aei + cdh + bfg)
-        */
-        public readonly Polynomial CharacteristicPolynomial
+    /*
+             | a b c |                    | a-λ  b   c  |
+        φ := | d e f |       CP_φ(λ) = det|  d  e-λ  f  | = (a-λ)[MINOR @ 0,0] - λ(gc + db) - gbf - gce - dbi + dhc
+             | g h i |                    |  g   h  i-λ |
+                                                          = - λ³
+                                                            + λ²(a + e + i)
+                                                            + λ(fh + cg + bd - ae - ai - ei)
+                                                            + (-afh - ecg - ibd + aei + cdh + bfg)
+    */
+    public readonly Polynomial CharacteristicPolynomial
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                var (a, b, c,
-                     d, e, f,
-                     g, h, i) = this;
+            var (a, b, c,
+                    d, e, f,
+                    g, h, i) = this;
 
-                return new Polynomial(
-                    - a * f * h
-                    - e * c * g
-                    - i * b * d
-                    + a * e * i
-                    + c * d * h
-                    + b * f * g,
-                    + f * h
-                    + c * g
-                    + b * d
-                    - a * e
-                    - a * i
-                    - e * i,
-                    a + e + i,
-                    -1
-                );
-            }
+            return new Polynomial(
+                - a * f * h
+                - e * c * g
+                - i * b * d
+                + a * e * i
+                + c * d * h
+                + b * f * g,
+                + f * h
+                + c * g
+                + b * d
+                - a * e
+                - a * i
+                - e * i,
+                a + e + i,
+                -1
+            );
         }
+    }
 <#
     }
     else
     {
 #>
-        public readonly Polynomial CharacteristicPolynomial
+    public readonly Polynomial CharacteristicPolynomial
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                if (IsUpperTriangular || IsLowerTriangular || IsDiagonal)
-                    ; // TODO: CP is linear product of the main diagonal and -λ
+            if (IsUpperTriangular || IsLowerTriangular || IsDiagonal)
+                ; // TODO: CP is linear product of the main diagonal and -λ
 
-                throw new NotImplementedException();
-            }
+            throw new NotImplementedException();
         }
+    }
 <#
     }
 #>
 
-        /// <summary>
-        /// The matrix' eigenvalues.
-        /// </summary>
-        // ∀λ∈Spec(A) : Ax = λx
-        [Obsolete("Use '" + nameof(Eigenvalues) + "' instead.")]
-        public readonly Scalar[] EigenvaluesUnstable => (IsUpperTriangular || IsLowerTriangular || IsDiagonal ? MainDiagonal : CharacteristicPolynomial.Roots.Select(r => (Scalar)r)).Distinct().ToArray();
+    /// <summary>
+    /// The matrix' eigenvalues.
+    /// </summary>
+    // ∀λ∈Spec(A) : Ax = λx
+    [Obsolete("Use '" + nameof(Eigenvalues) + "' instead.")]
+    public readonly Scalar[] EigenvaluesUnstable =>
+        (IsUpperTriangular || IsLowerTriangular || IsDiagonal ? MainDiagonal : CharacteristicPolynomial.Roots.Select(r => (Scalar)r)).Distinct().ToArray();
 
-        public readonly Scalar[] Eigenvalues => EigenDecompose(Scalar.ComputationalEpsilon).Eigenvalues;
+    public readonly Scalar[] Eigenvalues => EigenDecompose(Scalar.ComputationalEpsilon).Eigenvalues;
 
-        public readonly <#=vecname#>[] Eigenvectors => EigenDecompose(Scalar.ComputationalEpsilon).Eigenvectors;
+    public readonly <#=vecname#>[] Eigenvectors => EigenDecompose(Scalar.ComputationalEpsilon).Eigenvectors;
 
-        public readonly Scalar[] Singularvalues => Transposed.Multiply(this).Eigenvalues.ToArray(Scalar.Sqrt);
+    public readonly Scalar[] Singularvalues => Transposed.Multiply(this).Eigenvalues.ToArray(Scalar.Sqrt);
 
-        /// <summary>
-        /// The rank of the matrix.
-        /// </summary>
-        public readonly int Rank => GetLinearIndependentForm().Rows.Count(c => c != <#=vecname#>.Zero);
+    /// <summary>
+    /// The rank of the matrix.
+    /// </summary>
+    public readonly int Rank => GetLinearIndependentForm().Rows.Count(c => c != <#=vecname#>.Zero);
 
-        #endregion
-        #region INSTANCE PROPERTIES : CHARACTERISTICS
+    #endregion
+    #region INSTANCE PROPERTIES : CHARACTERISTICS
 
-        /// <summary>
-        /// Indicates whether the matrix is equal to the <#=dim#>x<#=dim#> identity matrix.
-        /// </summary>
-        public readonly bool IsIdentity => Is(Identity);
+    /// <summary>
+    /// Indicates whether the matrix is equal to the <#=dim#>x<#=dim#> identity matrix.
+    /// </summary>
+    public readonly bool IsIdentity => Is(Identity);
 
-        readonly bool IRing.IsOne => Is(Identity);
+    readonly bool IRing.IsOne => Is(Identity);
 
-        /// <summary>
-        /// Indicates whether the matrix is zero.
-        /// </summary>
-        public readonly bool IsZero => Is(Zero);
+    /// <summary>
+    /// Indicates whether the matrix is zero.
+    /// </summary>
+    public readonly bool IsZero => Is(Zero);
 
-        /// <summary>
-        /// Indicates whether the matrix has non-zero elements.
-        /// </summary>
-        public readonly bool IsNonZero => !IsZero;
+    /// <summary>
+    /// Indicates whether the matrix has non-zero elements.
+    /// </summary>
+    public readonly bool IsNonZero => !IsZero;
 
-        public readonly bool IsBinary => <#=string.Join(" && ", r(0, dim).Select(i => $"_c{i}.IsBinary"))#>;
+    public readonly bool IsBinary => <#=string.Join(" && ", r(0, dim).Select(i => $"_c{i}.IsBinary"))#>;
 
-        public readonly bool IsPositiveDefinite => GetPrincipalSubmatrices().All(m => m.Determinant.IsPositive);
+    public readonly bool IsPositiveDefinite => GetPrincipalSubmatrices().All(m => m.Determinant.IsPositive);
 
-        public readonly bool IsPositive => FlattenedCoefficients.All(c => c.IsPositive);
+    public readonly bool IsPositive => FlattenedCoefficients.All(c => c.IsPositive);
 
-        public readonly bool IsNegative => FlattenedCoefficients.All(c => c.IsNegative);
+    public readonly bool IsNegative => FlattenedCoefficients.All(c => c.IsNegative);
 
-        public readonly bool HasNaNs => FlattenedCoefficients.Any(c => c.IsNaN);
+    public readonly bool HasNaNs => FlattenedCoefficients.Any(c => c.IsNaN);
 
-        public readonly bool HasNegatives => FlattenedCoefficients.Any(c => c.IsNegative);
+    public readonly bool HasNegatives => FlattenedCoefficients.Any(c => c.IsNegative);
 
-        public readonly bool HasPositives => FlattenedCoefficients.Any(c => c.IsPositive);
+    public readonly bool HasPositives => FlattenedCoefficients.Any(c => c.IsPositive);
 
-        public readonly bool IsDiagonallyDominant
+    public readonly bool IsDiagonallyDominant
+    {
+        get
         {
-            get
+            <#=vecname#>[] rows = Rows;
+
+            for (int i = 0; i < <#=dim#>; ++i)
             {
-                <#=vecname#>[] rows = Rows;
+                Scalar s = rows[i][i].AbsoluteValue;
 
-                for (int i = 0; i < <#=dim#>; ++i)
-                {
-                    Scalar s = rows[i][i].AbsoluteValue;
+                for (int j = 0; j < <#=dim#>; ++j)
+                    if (j != i)
+                        s -= rows[i][j].AbsoluteValue;
 
-                    for (int j = 0; j < <#=dim#>; ++j)
-                        if (j != i)
-                            s -= rows[i][j].AbsoluteValue;
+                if (s <= 0)
+                    return false;
+            }
 
-                    if (s <= 0)
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// Indicates whether the matrix is a diagonal matrix.
+    /// </summary>
+    public readonly bool IsDiagonal
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get
+        {
+            Scalar[,] coeff = Coefficients;
+
+            for (int c = 0; c < <#=dim#>; ++c)
+                for (int r = 0; r < <#=dim#>; ++r)
+                    if ((r != c) && !coeff[c, r].IsZero)
                         return false;
-                }
 
-                return true;
-            }
+            return true;
         }
+    }
 
-        /// <summary>
-        /// Indicates whether the matrix is a diagonal matrix.
-        /// </summary>
-        public readonly bool IsDiagonal
+    /// <summary>
+    /// Indicates whether the matrix is an upper (right) triangular matrix.
+    /// </summary>
+    public readonly bool IsUpperTriangular
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                Scalar[,] coeff = Coefficients;
+            Scalar[,] coeff = Coefficients;
 
-                for (int c = 0; c < <#=dim#>; ++c)
-                    for (int r = 0; r < <#=dim#>; ++r)
-                        if ((r != c) && !coeff[c, r].IsZero)
-                            return false;
+            for (int c = 0; c < <#=dim#>; ++c)
+                for (int r = c + 1; r < <#=dim#>; ++r)
+                    if (!coeff[c, r].IsZero)
+                        return false;
 
-                return true;
-            }
+            return true;
         }
+    }
 
-        /// <summary>
-        /// Indicates whether the matrix is an upper (right) triangular matrix.
-        /// </summary>
-        public readonly bool IsUpperTriangular
+    /// <summary>
+    /// Indicates whether the matrix is a lower (left) triangular matrix.
+    /// </summary>
+    public readonly bool IsLowerTriangular => Transposed.IsUpperTriangular;
+
+    /// <summary>
+    /// Indicates whether the matrix is symmetric, meaning that the matrix is equal to its transposed variant.
+    /// </summary>
+    public readonly bool IsSymmetric => Is(Transposed);
+
+    /// <summary>
+    /// Indicates whether the matrix is a projection matrix.
+    /// </summary>
+    public readonly bool IsProjection => Is(Multiply(this));
+
+    /// <summary>
+    /// Indicates whether the current matrix 'A' is a conference matrix, meaning that AᵀA is a multiple of the identity matrix.
+    /// </summary>
+    public readonly bool IsConferenceMatrix
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                Scalar[,] coeff = Coefficients;
+            <#=typename#> ctc = Transposed * this;
 
-                for (int c = 0; c < <#=dim#>; ++c)
-                    for (int r = c + 1; r < <#=dim#>; ++r)
-                        if (!coeff[c, r].IsZero)
-                            return false;
-
-                return true;
-            }
+            return (ctc - new <#=typename#>(ctc._c0[0])).IsZero;
         }
+    }
 
-        /// <summary>
-        /// Indicates whether the matrix is a lower (left) triangular matrix.
-        /// </summary>
-        public readonly bool IsLowerTriangular => Transposed.IsUpperTriangular;
+    /// <summary>
+    /// Indicated whether the matrix is involutory, meaning that the square of this matrix is equal to the identity matrix.
+    /// </summary>
+    public readonly bool IsInvolutory => (this * Inverse).IsIdentity;
 
-        /// <summary>
-        /// Indicates whether the matrix is symmetric, meaning that the matrix is equal to its transposed variant.
-        /// </summary>
-        public readonly bool IsSymmetric => Is(Transposed);
-
-        /// <summary>
-        /// Indicates whether the matrix is a projection matrix.
-        /// </summary>
-        public readonly bool IsProjection => Is(Multiply(this));
-
-        /// <summary>
-        /// Indicates whether the current matrix 'A' is a conference matrix, meaning that AᵀA is a multiple of the identity matrix.
-        /// </summary>
-        public readonly bool IsConferenceMatrix
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                <#=typename#> ctc = Transposed * this;
-
-                return (ctc - new <#=typename#>(ctc._c0[0])).IsZero;
-            }
-        }
-
-        /// <summary>
-        /// Indicated whether the matrix is involutory, meaning that the square of this matrix is equal to the identity matrix.
-        /// </summary>
-        public readonly bool IsInvolutory => (this * Inverse).IsIdentity;
-
-        /// <summary>
-        /// Indicates whether the matrix is stable in the sense of the Hurwitz criterium.
-        /// </summary>
-        public readonly bool IsHurwitzStable => _c0[0] > 0 &&
+    /// <summary>
+    /// Indicates whether the matrix is stable in the sense of the Hurwitz criterium.
+    /// </summary>
+    public readonly bool IsHurwitzStable => _c0[0] > 0 &&
 <#
         if (dim == 2)
-        {
-#>
-            Determinant > 0;
-<#
-        }
+            WriteLine("        Determinant > 0;");
         else
-        {
-#>
-            GetPrincipalSubmatrices().Aggregate(true, (b, m) => b && m.Determinant > 0);
-<#
-        }
+            WriteLine("        GetPrincipalSubmatrices().Aggregate(true, (b, m) => b && m.Determinant > 0);");
 #>
 
-        /// <summary>
-        /// Indicates whether the matrix is orthogonal, meaning that its inverse is equal to its transposed variant.
-        /// </summary>
-        public readonly bool IsOrthogonal => Inverse.Is(Transposed);
+    /// <summary>
+    /// Indicates whether the matrix is orthogonal, meaning that its inverse is equal to its transposed variant.
+    /// </summary>
+    public readonly bool IsOrthogonal => Inverse.Is(Transposed);
 
-        /// <summary>
-        /// Indicates whether the matrix is skew symmetric, meaning that it is equal to its negated transposed.
-        /// </summary>
-        public readonly bool IsSkewSymmetric => Is(-Transposed);
+    /// <summary>
+    /// Indicates whether the matrix is skew symmetric, meaning that it is equal to its negated transposed.
+    /// </summary>
+    public readonly bool IsSkewSymmetric => Is(-Transposed);
 
-        public readonly bool IsSignMatrix => IsDiagonal && MainDiagonal.All(e => e == -1 || e == 0 || e == 1);
+    public readonly bool IsSignMatrix => IsDiagonal && MainDiagonal.All(e => e == -1 || e == 0 || e == 1);
 
-        public readonly bool IsSignatureMatrix => IsDiagonal && MainDiagonal.All(e => e == -1 || e == 1);
+    public readonly bool IsSignatureMatrix => IsDiagonal && MainDiagonal.All(e => e == -1 || e == 1);
 
-        /// <summary>
-        /// Indicates whether the matrix is invertible, meaning that its determinant is non-zero and that a multiplicative inverse to this matrix exists.
-        /// </summary>
-        public readonly bool IsInvertible => Determinant.IsNonZero;
+    /// <summary>
+    /// Indicates whether the matrix is invertible, meaning that its determinant is non-zero and that a multiplicative inverse to this matrix exists.
+    /// </summary>
+    public readonly bool IsInvertible => Determinant.IsNonZero;
 
-        /// <summary>
-        /// Indicates whether the matrix is hollow, meaning that its main diagonal is zero.
-        /// </summary>
-        public readonly bool IsHollow => MainDiagonal.IsZero;
+    /// <summary>
+    /// Indicates whether the matrix is hollow, meaning that its main diagonal is zero.
+    /// </summary>
+    public readonly bool IsHollow => MainDiagonal.IsZero;
 
-        #endregion
-        #region CONSTRUCTORS
+    #endregion
+    #region CONSTRUCTORS
 
-        /// <summary>
-        /// Creates a new <#=dim#>x<#=dim#>-matrix where all diagonal elements have the value <paramref name="scale"/>. All elements outside the main diagonal are set to <see cref="Scalar.Zero"/>.
-        /// </summary>
-        /// <param name="scale">Scalar factor</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(Scalar scale)
-            : this(<#=string.Join(",\n                   ", r(0, dim).Select(i => string.Join(", ", r(0, dim).Select(j => j == i ? "scale" : "0"))))#>)
-        {
-        }
+    /// <summary>
+    /// Creates a new <#=dim#>x<#=dim#>-matrix where all diagonal elements have the value <paramref name="scale"/>. All elements outside the main diagonal are set to <see cref="Scalar.Zero"/>.
+    /// </summary>
+    /// <param name="scale">Scalar factor</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(Scalar scale)
+        : this(<#=string.Join(",\n               ", r(0, dim).Select(i => string.Join(", ", r(0, dim).Select(j => j == i ? "scale" : "0"))))#>)
+    {
+    }
 
-        /// <summary>
-        /// Creates a new <#=dim#>x<#=dim#>-matrix where all diagonal elements are set to the given values. All elements outside the main diagonal are set to <see cref="Scalar.Zero"/>.
-        /// </summary>
+    /// <summary>
+    /// Creates a new <#=dim#>x<#=dim#>-matrix where all diagonal elements are set to the given values. All elements outside the main diagonal are set to <see cref="Scalar.Zero"/>.
+    /// </summary>
 <#
         for (int i = 0; i < dim; ++i)
-            WriteLine($"        /// <param name=\"diag_{i}\">The diagonal element at the position ({i}, {i}).</param>");
-#>        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar diag_{i}"))#>)
-            : this(<#=string.Join(",\n                   ", r(0, dim).Select(i => string.Join(", ", r(0, dim).Select(j => j == i ? $"diag_{i}" : "0"))))#>)
-        {
-        }
+            WriteLine($"    /// <param name=\"diag_{i}\">The diagonal element at the position ({i}, {i}).</param>");
+#>    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"Scalar diag_{i}"))#>)
+        : this(<#=string.Join(",\n               ", r(0, dim).Select(i => string.Join(", ", r(0, dim).Select(j => j == i ? $"diag_{i}" : "0"))))#>)
+    {
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(<#=string.Join(", ", r(0, dim * dim).Select(i => $"Scalar s_{i % dim}_{i / dim}"))#>)
-            : this(<#=string.Join(",\n                   ", r(0, dim).Select(i => $"new {vecname}({string.Join(", ", r(0, dim).Select(j => $"s_{i}_{j}"))})"))#>)
-        {
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(<#=string.Join(", ", r(0, dim * dim).Select(i => $"Scalar s_{i % dim}_{i / dim}"))#>)
+        : this(<#=string.Join(",\n               ", r(0, dim).Select(i => $"new {vecname}({string.Join(", ", r(0, dim).Select(j => $"s_{i}_{j}"))})"))#>)
+    {
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(Scalar[] values)
-            : this(<#=string.Join(",\n                   ", r(0, dim).Select(i => string.Join(", ", r(0, dim).Select(j => $"values[{i * dim + j}]"))))#>)
-        {
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(Scalar[] values)
+        : this(<#=string.Join(",\n               ", r(0, dim).Select(i => string.Join(", ", r(0, dim).Select(j => $"values[{i * dim + j}]"))))#>)
+    {
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(Scalar[,] values)
-            : this(<#=string.Join(",\n                   ", r(0, dim).Select(i => string.Join(", ", r(0, dim).Select(j => $"values[{j}, {i}]"))))#>)
-        {
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(Scalar[,] values)
+        : this(<#=string.Join(",\n               ", r(0, dim).Select(i => string.Join(", ", r(0, dim).Select(j => $"values[{j}, {i}]"))))#>)
+    {
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(Scalar[][] values)
-            : this(<#=            string.Join(",\n                   ", r(0, dim).Select(i => string.Join(", ", r(0, dim).Select(j => $"values[{j}][{i}]"))))#>)
-        {
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(Scalar[][] values)
+        : this(<#=string.Join(",\n               ", r(0, dim).Select(i => string.Join(", ", r(0, dim).Select(j => $"values[{j}][{i}]"))))#>)
+    {
+    }
 <#
         for (int i = 2; i < maxdim; ++i)
         {
 #>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(in Matrix<#=i#> matrix)
-            : this(<#
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(in Matrix<#=i#> matrix)
+        : this(<#
             if (i < dim)
                 Write(string.Join(", ", r(0, dim).Select(c => c < i ? $"new {vecname}(matrix[{c}])" : vecname + ".Zero")));
             else if (i == dim)
@@ -771,369 +747,365 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
             else
                 Write(string.Join(", ", r(0, dim).Select(c => $"new {vecname}(matrix[{c}])")));
 #>)
-        {
-        }
+    {
+    }
 <#
         }
 #>
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(in MatrixNM matrix)
-            : this(matrix.Coefficients)
-        {
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(in MatrixNM matrix)
+        : this(matrix.Coefficients)
+    {
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(<#=typename#>* matrix)
-            : this(*matrix)
-        {
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(<#=typename#>* matrix)
+        : this(*matrix)
+    {
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(Scalar* values)
-            : this(<#=string.Join(",\n                   ", r(0, dim).Select(i => string.Join(", ", r(0, dim).Select(j => $"values[{i * dim + j}]"))))#>)
-        {
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(Scalar* values)
+        : this(<#=string.Join(",\n               ", r(0, dim).Select(i => string.Join(", ", r(0, dim).Select(j => $"values[{i * dim + j}]"))))#>)
+    {
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(<#=vecname#>* columns)
-            : this(<#=string.Join(", ", r(0, dim).Select(i => $"columns[{i}]"))#>)
-        {
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(<#=vecname#>* columns)
+        : this(<#=string.Join(", ", r(0, dim).Select(i => $"columns[{i}]"))#>)
+    {
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(IEnumerable<<#=vecname#>> columns)
-            : this(columns.ToArray())
-        {
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(IEnumerable<<#=vecname#>> columns)
+        : this(columns.ToArray())
+    {
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(<#=vecname#>[] columns)
-            : this(<#=string.Join(", ", r(0, dim).Select(i => $"columns[{i}]"))#>)
-        {
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(<#=vecname#>[] columns)
+        : this(<#=string.Join(", ", r(0, dim).Select(i => $"columns[{i}]"))#>)
+    {
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"{vecname} v{i}"))#>)
-        {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"{vecname} v{i}"))#>)
+    {
 <#
         for (int i = 0; i < dim; ++i)
-        {
+            WriteLine($"        {cols[i]} = v{i};");
 #>
-            <#=cols[i]#> = v<#=i#>;
-<#
-        }
-#>
-        }
+    }
 
-        #endregion
-        #region INSTANCE METHODS : BASIC ARITHMETIC OPERATORS
+    #endregion
+    #region INSTANCE METHODS : BASIC ARITHMETIC OPERATORS
 
-        /// <summary>
-        /// Negates the current instance and returns the result without modifying the current instance.
-        /// </summary>
-        /// <returns>Negated object</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Negate() => new(<#=string.Join(", ", r(0, dim).Select(i => $"-_c{i}"))#>);
+    /// <summary>
+    /// Negates the current instance and returns the result without modifying the current instance.
+    /// </summary>
+    /// <returns>Negated object</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Negate() => new(<#=string.Join(", ", r(0, dim).Select(i => $"-_c{i}"))#>);
 
-        /// <summary>
-        /// Adds the given object to the current instance and returns the addition's result without modifying the current instance.
-        /// </summary>
-        /// <param name="second">Second operand</param>
-        /// <returns>Addition result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Add(in <#=typename#> second) => new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i} + second._c{i}"))#>);
+    /// <summary>
+    /// Adds the given object to the current instance and returns the addition's result without modifying the current instance.
+    /// </summary>
+    /// <param name="second">Second operand</param>
+    /// <returns>Addition result</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Add(in <#=typename#> second) => new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i} + second._c{i}"))#>);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Add(params <#=typename#>[] matrices) => matrices.Aggregate(this, Add);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Add(params <#=typename#>[] matrices) => matrices.Aggregate(this, Add);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Add(Scalar Scalar) => Add(new <#=typename#>(Scalar));
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Add(Scalar Scalar) => Add(new <#=typename#>(Scalar));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Increment() => Add(1);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Increment() => Add(1);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Decrement() => Add(-1);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Decrement() => Add(-1);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Subtract(in <#=typename#> second) => Add(second.Negate());
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Subtract(in <#=typename#> second) => Add(second.Negate());
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Subtract(params <#=typename#>[] matrices) => matrices.Aggregate(this, Subtract);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Subtract(params <#=typename#>[] matrices) => matrices.Aggregate(this, Subtract);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#> Subtract(Scalar scalar) => Add(scalar.Negate());
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#> Subtract(Scalar scalar) => Add(scalar.Negate());
 
 <#
         if (dim > 2)
         {
 #>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Vector<#=dim-1#> HomogeneousMultiply(in Vector<#=dim-1#> second) => Multiply(second.ToHomogeneousCoordinates()).FromHomogeneousCoordinates();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly Vector<#=dim-1#> HomogeneousMultiply(in Vector<#=dim-1#> second) => Multiply(second.ToHomogeneousCoordinates()).FromHomogeneousCoordinates();
 <#
         }
 #>
 
-        /// <summary>
-        /// Multiplies the given object with the current instance and returns the multiplication's result without modifying the current instance.
-        /// <para/>
-        /// This method is not to be confused the dot-product for matrices and vectors.
-        /// </summary>
-        /// <param name="second">Second operand</param>
-        /// <returns>Multiplication result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Multiply(in <#=typename#> second)
-        {
-            <#=vecname#>[] A = Rows;
-            <#=vecname#>[] B = second.Columns;
-            Scalar[,] C = new Scalar[<#=dim#>, <#=dim#>];
+    /// <summary>
+    /// Multiplies the given object with the current instance and returns the multiplication's result without modifying the current instance.
+    /// <para/>
+    /// This method is not to be confused the dot-product for matrices and vectors.
+    /// </summary>
+    /// <param name="second">Second operand</param>
+    /// <returns>Multiplication result</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Multiply(in <#=typename#> second)
+    {
+        <#=vecname#>[] A = Rows;
+        <#=vecname#>[] B = second.Columns;
+        Scalar[,] C = new Scalar[<#=dim#>, <#=dim#>];
 
-            for (int r = 0; r < <#=dim#>; ++r)
-                for (int c = 0; c < <#=dim#>; ++c)
-                    C[c, r] = A[r] * B[c];
+        for (int r = 0; r < <#=dim#>; ++r)
+            for (int c = 0; c < <#=dim#>; ++c)
+                C[c, r] = A[r] * B[c];
 
-            return new <#=typename#>(C);
-        }
+        return new <#=typename#>(C);
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Multiply(params <#=typename#>[] matrices) => matrices.Aggregate(this, Multiply);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Multiply(params <#=typename#>[] matrices) => matrices.Aggregate(this, Multiply);
 
-        /// <summary>
-        /// Multiplies the given vector with the current instance and returns the multiplication's result without modifying the current instance.
-        /// </summary>
-        /// <param name="vector">Vector</param>
-        /// <returns>Multiplication result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=vecname#> Multiply(in <#=vecname#> vector) => new(
-            <#=string.Join(",\n            ", Enumerable.Range(0, dim).Select(i => string.Join(" + ", Enumerable.Range(0, dim).Select(j => $"_c{j}[{i}] * vector[{j}]"))))#>
-        );
+    /// <summary>
+    /// Multiplies the given vector with the current instance and returns the multiplication's result without modifying the current instance.
+    /// </summary>
+    /// <param name="vector">Vector</param>
+    /// <returns>Multiplication result</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=vecname#> Multiply(in <#=vecname#> vector) => new(
+        <#=string.Join(",\n        ", Enumerable.Range(0, dim).Select(i => string.Join(" + ", Enumerable.Range(0, dim).Select(j => $"_c{j}[{i}] * vector[{j}]"))))#>
+    );
 
-        /// <summary>
-        /// Multiplies the given scalar factor with the current instance and returns the multiplication's result without modifying the current instance.
-        /// </summary>
-        /// <param name="factor">Scalar factor</param>
-        /// <returns>Multiplication result</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Multiply(Scalar factor) => new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i} * factor"))#>);
+    /// <summary>
+    /// Multiplies the given scalar factor with the current instance and returns the multiplication's result without modifying the current instance.
+    /// </summary>
+    /// <param name="factor">Scalar factor</param>
+    /// <returns>Multiplication result</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Multiply(Scalar factor) => new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i} * factor"))#>);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Multiply(params Scalar[] factors) => Multiply(factors.Aggregate(Scalar.One, Scalar.Multiply));
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Multiply(params Scalar[] factors) => Multiply(factors.Aggregate(Scalar.One, Scalar.Multiply));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public <#=typename#> Power(int e)
-        {
-            if (e < 0)
-                throw new ArgumentOutOfRangeException(nameof(e));
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public <#=typename#> Power(int e)
+    {
+        if (e < 0)
+            throw new ArgumentOutOfRangeException(nameof(e));
 
-            <#=typename#> r = Identity;
-            <#=typename#> p = this;
+        <#=typename#> r = Identity;
+        <#=typename#> p = this;
 
-            while (e > 0)
-                if ((e & 1) == 1)
-                {
-                    --e;
-                    r = r.Multiply(p);
-                }
-                else
-                {
-                    e /= 2;
-                    p = p.Multiply(p);
-                }
-
-            return r;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Divide(Scalar factor) => Multiply(factor.Inverse);
-        
-        public readonly <#=typename#> Sin()
-        {
-            <#=typename#> result = this;
-            <#=typename#> exponent = this;
-            <#=typename#> squared = Multiply(this);
-            <#=typename#> last = result;
-            Scalar factor = Scalar.One;
-
-            for (int i = 1; i < 2000; i += 2)
+        while (e > 0)
+            if ((e & 1) == 1)
             {
-                result += factor * exponent;
-                factor *= -i * (i + 1);
-                exponent *= squared;
-
-                if (result.DistanceTo(last, MatrixNorm.EucledianNorm) < Scalar.ComputationalEpsilon)
-                    break;
-                else
-                    last = result;
+                --e;
+                r = r.Multiply(p);
+            }
+            else
+            {
+                e /= 2;
+                p = p.Multiply(p);
             }
 
-            return result;
-        }
-        
-        public readonly <#=typename#> Cos()
+        return r;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Divide(Scalar factor) => Multiply(factor.Inverse);
+
+    public readonly <#=typename#> Sin()
+    {
+        <#=typename#> result = this;
+        <#=typename#> exponent = this;
+        <#=typename#> squared = Multiply(this);
+        <#=typename#> last = result;
+        Scalar factor = Scalar.One;
+
+        for (int i = 1; i < 2000; i += 2)
         {
-            <#=typename#> result = Identity;
-            <#=typename#> exponent = this;
-            <#=typename#> squared = Multiply(this);
-            <#=typename#> last = result;
-            Scalar factor = Scalar.One;
+            result += factor * exponent;
+            factor *= -i * (i + 1);
+            exponent *= squared;
 
-            for (int i = 2; i < 2000; i += 2)
+            if (result.DistanceTo(last, MatrixNorm.EucledianNorm) < Scalar.ComputationalEpsilon)
+                break;
+            else
+                last = result;
+        }
+
+        return result;
+    }
+
+    public readonly <#=typename#> Cos()
+    {
+        <#=typename#> result = Identity;
+        <#=typename#> exponent = this;
+        <#=typename#> squared = Multiply(this);
+        <#=typename#> last = result;
+        Scalar factor = Scalar.One;
+
+        for (int i = 2; i < 2000; i += 2)
+        {
+            factor *= -i * (i - 1);
+            result += factor * exponent;
+            exponent *= squared;
+
+            if (result.DistanceTo(last, MatrixNorm.EucledianNorm) < Scalar.ComputationalEpsilon)
+                break;
+            else
+                last = result;
+        }
+
+        return result;
+    }
+
+    public readonly <#=typename#> Exp()
+    {
+        <#=typename#> result = Identity;
+        <#=typename#> exponent = this;
+        <#=typename#> last = result;
+        Scalar factor = Scalar.One;
+
+        for (int i = 0; i < 2000; ++i)
+        {
+            result += factor * exponent;
+            factor /= i;
+            exponent *= this;
+
+            if (result.DistanceTo(last, MatrixNorm.EucledianNorm) < Scalar.ComputationalEpsilon)
+                break;
+            else
+                last = result;
+        }
+
+        return result;
+    }
+
+    public readonly Scalar DistanceTo(<#=typename#> other, MatrixNorm norm) => Subtract(other).ComputeNorm(norm);
+
+    public readonly Scalar ComputeNorm(MatrixNorm norm) => norm switch
+    {
+        MatrixNorm.EucledianNorm => FrobeniusNorm,
+        MatrixNorm.L21_Norm => ComputePQNorm(1, 2),
+        // MatrixNorm.MaxNorm => ,
+        MatrixNorm.L1_Norm => ColumnSumNorm,
+        MatrixNorm.Linf_Norm => RowSumNorm,
+        MatrixNorm.L2_Norm => SpectralNorm,
+    };
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly Scalar ComputePNorm(Scalar p) => ToArray().Select(c => c.Abs().Power(p)).Sum().Power(p.MultiplicativeInverse);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly Scalar ComputePQNorm(Scalar p, Scalar q) => Columns.Select(c => c.Select(v => v.Abs().Power(p)).Sum().Power(q / p)).Sum().Power(q.MultiplicativeInverse);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly Scalar ComputeMatrixCondition(MatrixNorm norm) => ComputeNorm(norm) * MultiplicativeInverse.ComputeNorm(norm);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly Scalar ComputePMatrixCondition(Scalar p) => ComputePNorm(p) * MultiplicativeInverse.ComputePNorm(p);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly Scalar ComputePQMatrixCondition(Scalar p, Scalar q) => ComputePQNorm(p, q) * MultiplicativeInverse.ComputePQNorm(p, q);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> ComponentwiseDivide(in <#=typename#> second) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}.ComponentwiseDivide(second._c{i})"))#>);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> ComponentwiseMultiply(in <#=typename#> second) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}.ComponentwiseMultiply(second._c{i})"))#>);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Clamp() => Clamp(Scalar.Zero, Scalar.One);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Clamp(Scalar low, Scalar high) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}.Clamp(low, high)"))#>);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> LinearInterpolate(in <#=typename#> other, Scalar factor) => Multiply(1 - factor).Add(other.Multiply(factor));
+
+    #endregion
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly bool IsLinearDependant(in <#=typename#> other, out Scalar? factor)
+    {
+        factor = null;
+
+        if (IsZero || other.IsZero)
+            return false;
+
+        Scalar div = Scalar.Zero;
+
+        for (int i = 0; i < <#=dim#>; ++i)
+            if (this[i].IsLinearDependant(other[i], out Scalar? f) && f.HasValue)
             {
-                factor *= -i * (i - 1);
-                result += factor * exponent;
-                exponent *= squared;
-
-                if (result.DistanceTo(last, MatrixNorm.EucledianNorm) < Scalar.ComputationalEpsilon)
-                    break;
-                else
-                    last = result;
+                if (div.IsZero)
+                    div = f.Value;
+                else if (div.IsNot(f.Value))
+                    return false;
             }
 
-            return result;
-        }
-        
-        public readonly <#=typename#> Exp()
-        {
-            <#=typename#> result = Identity;
-            <#=typename#> exponent = this;
-            <#=typename#> last = result;
-            Scalar factor = Scalar.One;
+        factor = div;
 
-            for (int i = 0; i < 2000; ++i)
-            {
-                result += factor * exponent;
-                factor /= i;
-                exponent *= this;
-                
-                if (result.DistanceTo(last, MatrixNorm.EucledianNorm) < Scalar.ComputationalEpsilon)
-                    break;
-                else
-                    last = result;
-            }
+        return true;
+    }
 
-            return result;
-        }
-        
-        public readonly Scalar DistanceTo(<#=typename#> other, MatrixNorm norm) => Subtract(other).ComputeNorm(norm);
-
-        public readonly Scalar ComputeNorm(MatrixNorm norm) => norm switch
-        {
-            MatrixNorm.EucledianNorm => FrobeniusNorm,
-            MatrixNorm.L21_Norm => ComputePQNorm(1, 2),
-            // MatrixNorm.MaxNorm => ,
-            MatrixNorm.L1_Norm => ColumnSumNorm,
-            MatrixNorm.Linf_Norm => RowSumNorm,
-            MatrixNorm.L2_Norm => SpectralNorm,
-        };
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar ComputePNorm(Scalar p) => ToArray().Select(c => c.Abs().Power(p)).Sum().Power(p.MultiplicativeInverse);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar ComputePQNorm(Scalar p, Scalar q) => Columns.Select(c => c.Select(v => v.Abs().Power(p)).Sum().Power(q / p)).Sum().Power(q.MultiplicativeInverse);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar ComputeMatrixCondition(MatrixNorm norm) => ComputeNorm(norm) * MultiplicativeInverse.ComputeNorm(norm);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar ComputePMatrixCondition(Scalar p) => ComputePNorm(p) * MultiplicativeInverse.ComputePNorm(p);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Scalar ComputePQMatrixCondition(Scalar p, Scalar q) => ComputePQNorm(p, q) * MultiplicativeInverse.ComputePQNorm(p, q);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> ComponentwiseDivide(in <#=typename#> second) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}.ComponentwiseDivide(second._c{i})"))#>);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> ComponentwiseMultiply(in <#=typename#> second) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}.ComponentwiseMultiply(second._c{i})"))#>);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Clamp() => Clamp(Scalar.Zero, Scalar.One);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> Clamp(Scalar low, Scalar high) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}.Clamp(low, high)"))#>);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly <#=typename#> LinearInterpolate(in <#=typename#> other, Scalar factor) => Multiply(1 - factor).Add(other.Multiply(factor));
-
-        #endregion
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly bool IsLinearDependant(in <#=typename#> other, out Scalar? factor)
-        {
-            factor = null;
-
-            if (IsZero || other.IsZero)
-                return false;
-
-            Scalar div = Scalar.Zero;
-
-            for (int i = 0; i < <#=dim#>; ++i)
-                if (this[i].IsLinearDependant(other[i], out Scalar? f) && f.HasValue)
-                {
-                    if (div.IsZero)
-                        div = f.Value;
-                    else if (div.IsNot(f.Value))
-                        return false;
-                }
-
-            factor = div;
-
-            return true;
-        }
-
-        /// <summary>
-        /// Returns a set of the first <#=dim-2#> principal submatrices.
-        /// </summary>
-        /// <returns>Set of principal submatrices</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly Algebra<Scalar>.IMatrix[] GetPrincipalSubmatrices()
+    /// <summary>
+    /// Returns a set of the first <#=dim-2#> principal submatrices.
+    /// </summary>
+    /// <returns>Set of principal submatrices</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly Algebra<Scalar>.IMatrix[] GetPrincipalSubmatrices()
 <#
         if (dim > 3)
         {
 #>
-        {
-            (<#=string.Join(", ", r(2, dim - 2).Select(i => $"Matrix{i} Sub{i}"))#>) = PrincipalSubmatrices;
+    {
+        (<#=string.Join(", ", r(2, dim - 2).Select(i => $"Matrix{i} Sub{i}"))#>) = PrincipalSubmatrices;
 
-            return new Algebra<Scalar>.IMatrix[] { _c0[0], <#=string.Join(", ", r(2, dim - 2).Select(i => $"Sub{i}"))#> };
-        }
+        return new Algebra<Scalar>.IMatrix[] { _c0[0], <#=string.Join(", ", r(2, dim - 2).Select(i => $"Sub{i}"))#> };
+    }
 <#
         }
         else if (dim == 3)
-            WriteLine("            => new Algebra<Scalar>.IMatrix[] { _c0[0], ToMatrix2() };");
+            WriteLine("        => new Algebra<Scalar>.IMatrix[] { _c0[0], ToMatrix2() };");
         else
-            WriteLine("            => new Algebra<Scalar>.IMatrix[1] { _c0[0] };");
+            WriteLine("        => new Algebra<Scalar>.IMatrix[1] { _c0[0] };");
 #>
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal readonly <#=typename#> GetLinearIndependentForm()
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal readonly <#=typename#> GetLinearIndependentForm()
+    {
+        <#=typename#> m = this;
+
+        for (int row = 0; row < <#=dim#>; ++row)
         {
-            <#=typename#> m = this;
+            int max_column_idx = row;
 
-            for (int row = 0; row < <#=dim#>; ++row)
-            {
-                int max_column_idx = row;
+            for (int col = row + 1; col < <#=dim#>; ++col)
+                if (Abs(m[col, row]) > Abs(m[max_column_idx, row]))
+                    max_column_idx = col;
 
-                for (int col = row + 1; col < <#=dim#>; ++col)
-                    if (Abs(m[col, row]) > Abs(m[max_column_idx, row]))
-                        max_column_idx = col;
+            m = m.SwapRows(row, max_column_idx);
 
-                m = m.SwapRows(row, max_column_idx);
+            Scalar factor = 1 / m[row, row];
 
-                Scalar factor = 1 / m[row, row];
+            if (factor.IsInfinity)
+                continue;
 
-                if (factor.IsInfinity)
-                    continue;
+            m = m.MultiplyRow(row, factor)[row, row, 1];
 
-                m = m.MultiplyRow(row, factor)[row, row, 1];
-
-                for (int col = row + 1; col < <#=dim#>; ++col)
-                    m = m.AddRows(row, col, -m[col, row]);
-            }
-
-            return m;
+            for (int col = row + 1; col < <#=dim#>; ++col)
+                m = m.AddRows(row, col, -m[col, row]);
         }
+
+        return m;
+    }
 
         #region INSTANCE METHODS : SOLVERS
 
@@ -1576,7 +1548,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
             <#=mat#> H<#=k#>;
             <#=mat#> <#=mat_n#> = <#=k == 0 ? "this" : $"A{k - 1}.Minors[0, 0]"#>;
             <#=vec#> <#=vec_n#> = <#=mat_n#>[0];
-            
+
             <#=vec_n#> += new Vector<#=dim-k#>(<#=mat_n#>[0, 0].Sign * <#=vec_n#>.Length, <#=string.Join(", ", Enumerable.Repeat(0, dim - k - 1))#>);
             H<#=k#> = <#=vec_n#>.HouseholderMatrix;
             <#=mat_n#> = H<#=k#> * <#=mat_n#>;
@@ -1682,7 +1654,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
                                                    select strings.Select(e =>
                                                    {
                                                        string s = e.entry!.Substring(f, e.entry.Length - f - b);
-                                                   
+
                                                        return string.IsNullOrWhiteSpace(s) || s == "0" ? "0" : s;
                                                    }).ToArray())
                                                   .Transpose()
@@ -1911,7 +1883,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 
             return new <#=typename#>(t);
         }
-        
+
 <#
         if (dim > 2)
         {
@@ -1930,7 +1902,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
             .Select(v =>
             {
                 Scalar[] f = v.ToArray();
-            
+
                 return new Vector<#=dim-1#>(f.Take(row).Concat(f.Skip(row + 1)));
             }).ToMatrix();
 <#
@@ -1957,16 +1929,16 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static <#=typename#> Divide(<#=typename#> m, Scalar s) => m.Divide(s);
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static <#=typename#> Exp(<#=typename#> matrix) => matrix.Exp();
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static <#=typename#> Sin(<#=typename#> matrix) => matrix.Sin();
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static <#=typename#> Cos(<#=typename#> matrix) => matrix.Cos();
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Scalar DistanceBetween(<#=typename#> first, <#=typename#> second, MatrixNorm norm) => first.DistanceTo(second, norm);
 
@@ -2088,7 +2060,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         /// <param name="m">Original matrix</param>
         /// <returns>Unchanged matrix</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> operator +(in <#=typename#> m) => m;
+        public static <#=typename#> operator +(<#=typename#> m) => m;
 
         /// <summary>
         /// Negates the given matrix
@@ -2096,7 +2068,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         /// <param name="m">Original matrix</param>
         /// <returns>Negated matrix</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static <#=typename#> operator -(in <#=typename#> m) => m.Negate();
+        public static <#=typename#> operator -(<#=typename#> m) => m.Negate();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static <#=typename#> operator +(Scalar f, in <#=typename#> m) => m.Add(f);
@@ -2314,4 +2286,3 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     }
 
     #endregion
-

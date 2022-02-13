@@ -159,6 +159,8 @@ public class FieldFunction<Scalar>
     , Algebra<Scalar>.IVectorSpace<FieldFunction<Scalar>>
     where Scalar : unmanaged, IField<Scalar>
 {
+    public static new FieldFunction<Scalar> Zero { get; } = new(Scalar.Zero);
+
     FieldFunction<Scalar> IGroup<FieldFunction<Scalar>>.AdditiveInverse => (FieldFunction<Scalar>)Negate();
 
 

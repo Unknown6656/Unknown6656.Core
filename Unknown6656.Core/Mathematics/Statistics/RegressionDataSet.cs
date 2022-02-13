@@ -18,8 +18,8 @@ namespace Unknown6656.Mathematics.Statistics;
 /// </summary>
 /// <typeparam name="Scalar">Generic data parameter type</typeparam>
 public interface IRegressionDataSet<Set, Scalar>
-    : ISet<Scalar>
-    // : IEnumerable<Scalar>
+    //: ISet<Scalar>
+    : IEnumerable<Scalar>
     , ICloneable
     where Set : IRegressionDataSet<Set, Scalar>
     where Scalar : IComparable<Scalar>

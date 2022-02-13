@@ -140,11 +140,11 @@ public interface IGroup
 #endif
 }
 
-public interface INumericIGroup<Group>
+public interface INumericGroup<Group>
     : IGroup
     , IEquality<Group>
   //, IAdditionOperators<Group, Group, Group>
-    where Group : INumericIGroup<Group>
+    where Group : INumericGroup<Group>
 {
     /// <summary>
     /// Returns the groups's zero instance based upon the presence of a static member "Zero" or "Null".
@@ -189,7 +189,7 @@ public interface INumericIGroup<Group>
 /// </summary>
 /// <typeparam name="Group">Generic group data type</typeparam>
 public interface IGroup<Group>
-    : INumericIGroup<Group>
+    : INumericGroup<Group>
     , IEquality<Group>
     where Group : IGroup<Group>
 {

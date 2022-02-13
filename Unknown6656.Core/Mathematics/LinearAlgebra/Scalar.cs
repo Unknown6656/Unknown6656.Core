@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -68,12 +68,16 @@ public unsafe readonly /* ref */ partial struct Scalar
 
 #pragma warning disable IDE1006
     public static Scalar e { get; } = Math.E;
+
+    public static Scalar π { get; } = Math.PI;
+
+    public static Scalar τ { get; } = Math.PI * 2;
 #pragma warning restore IDE1006
-    public static Scalar Pi { get; } = Math.PI;
+    public static Scalar Pi { get; } = π;
 
-    public static Scalar PiHalf { get; } = Math.PI / 2;
+    public static Scalar Tau { get; } = τ;
 
-    public static Scalar Tau { get; } = Math.PI * 2;
+    public static Scalar PiHalf { get; } = π * .5;
 
     public static Scalar Sqrt2 { get; } = Math.Sqrt(2);
 
@@ -182,21 +186,21 @@ public unsafe readonly /* ref */ partial struct Scalar
 
     public readonly bool IsInsideUnitSphere => AbsoluteValue.IsBetweenZeroAndOne;
 
-    public readonly Scalar Inverse => new Scalar(1 / Determinant);
+    public readonly Scalar Inverse => new(1 / Determinant);
 
     public readonly Scalar AbsoluteValue => Abs();
 
-    public readonly Polynomial CharacteristicPolynomial => new Polynomial(-Determinant, 1);
+    public readonly Polynomial CharacteristicPolynomial => new(-Determinant, 1);
 
     public readonly int Sign => CompareTo(Zero);
 
     public readonly Scalar DecimalPlaces => Subtract(Floor);
 
-    public readonly Scalar Floor => new Scalar(Math.Floor(Determinant));
+    public readonly Scalar Floor => new(Math.Floor(Determinant));
 
-    public readonly Scalar Ceiling => new Scalar(Math.Ceiling(Determinant));
+    public readonly Scalar Ceiling => new(Math.Ceiling(Determinant));
 
-    public readonly Scalar Rounded => new Scalar(Math.Round(Determinant));
+    public readonly Scalar Rounded => new(Math.Round(Determinant));
 
     public readonly bool IsInteger => Is(Floor);
 
@@ -325,22 +329,22 @@ public unsafe readonly /* ref */ partial struct Scalar
     public readonly Scalar Abs() => IsNegative ? Negate() : this;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Negate() => new Scalar(-Determinant);
+    public readonly Scalar Negate() => new(-Determinant);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Add(Scalar second) => new Scalar(Determinant + second.Determinant);
+    public readonly Scalar Add(Scalar second) => new(Determinant + second.Determinant);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Add(in Scalar second) => new Scalar(Determinant + second.Determinant);
+    public readonly Scalar Add(in Scalar second) => new(Determinant + second.Determinant);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar Add(params Scalar[] others) => others.Aggregate(this, Add);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Subtract(Scalar second) => new Scalar(Determinant - second.Determinant);
+    public readonly Scalar Subtract(Scalar second) => new(Determinant - second.Determinant);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Subtract(in Scalar second) => new Scalar(Determinant - second.Determinant);
+    public readonly Scalar Subtract(in Scalar second) => new(Determinant - second.Determinant);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar Subtract(params Scalar[] others) => others.Aggregate(this, Subtract);
@@ -358,31 +362,31 @@ public unsafe readonly /* ref */ partial struct Scalar
     public readonly Scalar Dot(in Scalar second) => Multiply(in second);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Multiply(Scalar second) => new Scalar(Determinant * second.Determinant);
+    public readonly Scalar Multiply(Scalar second) => new(Determinant * second.Determinant);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Multiply(in Scalar second) => new Scalar(Determinant * second.Determinant);
+    public readonly Scalar Multiply(in Scalar second) => new(Determinant * second.Determinant);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar Multiply(params Scalar[] others) => others.Aggregate(this, Multiply);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Divide(Scalar second) => new Scalar(Determinant / second.Determinant);
+    public readonly Scalar Divide(Scalar second) => new(Determinant / second.Determinant);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Divide(in Scalar second) => new Scalar(Determinant / second.Determinant);
+    public readonly Scalar Divide(in Scalar second) => new(Determinant / second.Determinant);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Scalar Factor, Scalar Remainder) DivideModulus(in Scalar second) => (Divide(in second), Modulus(in second));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Modulus(in Scalar second) => new Scalar(Determinant % second.Determinant);
+    public readonly Scalar Modulus(in Scalar second) => new(Determinant % second.Determinant);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar Power(int e) => Power(new Scalar((__scalar)e));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Power(Scalar e) => new Scalar(Math.Pow(Determinant, e.Determinant));
+    public readonly Scalar Power(Scalar e) => new(Math.Pow(Determinant, e.Determinant));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar Factorial()
@@ -407,25 +411,25 @@ public unsafe readonly /* ref */ partial struct Scalar
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Sqrt() => new Scalar(Math.Sqrt(Determinant));
+    public readonly Scalar Sqrt() => new(Math.Sqrt(Determinant));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Exp() => new Scalar(Math.Exp(Determinant));
+    public readonly Scalar Exp() => new(Math.Exp(Determinant));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Log() => new Scalar(Math.Log(Determinant));
+    public readonly Scalar Log() => new(Math.Log(Determinant));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar Sinc() => Sin(Multiply(Pi)).Divide(Tau);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Sin() => new Scalar(Math.Sin(Determinant));
+    public readonly Scalar Sin() => new(Math.Sin(Determinant));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Cos() => new Scalar(Math.Cos(Determinant));
+    public readonly Scalar Cos() => new(Math.Cos(Determinant));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Tan() => new Scalar(Math.Tan(Determinant));
+    public readonly Scalar Tan() => new(Math.Tan(Determinant));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar Cot() => Tan().MultiplicativeInverse;
@@ -440,13 +444,13 @@ public unsafe readonly /* ref */ partial struct Scalar
     public readonly Complex Cis() => Complex.Cis(this);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Asin() => new Scalar(Math.Asin(Determinant));
+    public readonly Scalar Asin() => new(Math.Asin(Determinant));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Acos() => new Scalar(Math.Acos(Determinant));
+    public readonly Scalar Acos() => new(Math.Acos(Determinant));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Atan() => new Scalar(Math.Atan(Determinant));
+    public readonly Scalar Atan() => new(Math.Atan(Determinant));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar Acot() => MultiplicativeInverse.Atan();
@@ -458,13 +462,13 @@ public unsafe readonly /* ref */ partial struct Scalar
     public readonly Scalar Acsc() => MultiplicativeInverse.Asin();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Sinh() => new Scalar(Math.Sinh(Determinant));
+    public readonly Scalar Sinh() => new(Math.Sinh(Determinant));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Cosh() => new Scalar(Math.Cosh(Determinant));
+    public readonly Scalar Cosh() => new(Math.Cosh(Determinant));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Tanh() => new Scalar(Math.Tanh(Determinant));
+    public readonly Scalar Tanh() => new(Math.Tanh(Determinant));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar Coth() => Tanh().MultiplicativeInverse;
@@ -667,7 +671,7 @@ public unsafe readonly /* ref */ partial struct Scalar
     public readonly void ToNative<T>(T* dst) where T : unmanaged => ToArray().CopyTo(dst);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Polynomial ToPolynomial() => new Polynomial(this);
+    public readonly Polynomial ToPolynomial() => new(this);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Scalar P, Scalar Q)? DecomposePQ(Scalar phi)
@@ -709,7 +713,7 @@ public unsafe readonly /* ref */ partial struct Scalar
     readonly bool Algebra<Scalar>.IEucledianVectorSpace<Scalar>.IsOrthogonal(in Scalar second) => throw new InvalidOperationException("The 'IsOrthogonal' method is undefined for scalar values.");
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    readonly Scalar Algebra<Scalar>.IVectorSpace<Scalar>.LinearInterpolate(in Scalar other, Scalar factor) => new Scalar((1 - factor) * Determinant + factor * other.Determinant);
+    readonly Scalar Algebra<Scalar>.IVectorSpace<Scalar>.LinearInterpolate(in Scalar other, Scalar factor) => new((1 - factor) * Determinant + factor * other.Determinant);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly Scalar Algebra<Scalar>.IEucledianVectorSpace<Scalar>.Reflect(in Scalar normal) => throw new InvalidOperationException("The 'reflect' method is undefined for scalar values.");
@@ -834,7 +838,7 @@ public unsafe readonly /* ref */ partial struct Scalar
     public static Scalar Log(Scalar s) => s.Log();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar Log(Scalar s, Scalar basis) => new Scalar(Math.Log(s.Determinant, basis.Determinant));
+    public static Scalar Log(Scalar s, Scalar basis) => new(Math.Log(s.Determinant, basis.Determinant));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar Sinc(Scalar s) => s.Sinc();
@@ -1052,40 +1056,40 @@ public unsafe readonly /* ref */ partial struct Scalar
     public static explicit operator Scalar(string str) => TryParse(str, out Scalar scalar) ? scalar : Zero;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator bint(Scalar m) => new bint(m.Determinant);
+    public static implicit operator bint(Scalar m) => new(m.Determinant);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Scalar(byte t) => new Scalar((__scalar)t);
+    public static implicit operator Scalar(byte t) => new((__scalar)t);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Scalar(sbyte t) => new Scalar((__scalar)t);
+    public static implicit operator Scalar(sbyte t) => new((__scalar)t);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Scalar(short t) => new Scalar((__scalar)t);
+    public static implicit operator Scalar(short t) => new((__scalar)t);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Scalar(ushort t) => new Scalar((__scalar)t);
+    public static implicit operator Scalar(ushort t) => new((__scalar)t);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Scalar(int t) => new Scalar((__scalar)t);
+    public static implicit operator Scalar(int t) => new((__scalar)t);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Scalar(uint t) => new Scalar((__scalar)t);
+    public static implicit operator Scalar(uint t) => new((__scalar)t);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Scalar(long t) => new Scalar((__scalar)t);
+    public static implicit operator Scalar(long t) => new((__scalar)t);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Scalar(ulong t) => new Scalar((__scalar)t);
+    public static implicit operator Scalar(ulong t) => new((__scalar)t);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Scalar(float t) => new Scalar((__scalar)t);
+    public static implicit operator Scalar(float t) => new((__scalar)t);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Scalar(double t) => new Scalar((__scalar)t);
+    public static implicit operator Scalar(double t) => new((__scalar)t);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static explicit operator Scalar(decimal t) => new Scalar((__scalar)t);
+    public static explicit operator Scalar(decimal t) => new((__scalar)t);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator double(Scalar m) => (double)m.Determinant;
@@ -1118,10 +1122,10 @@ public unsafe readonly /* ref */ partial struct Scalar
     public static explicit operator sbyte(Scalar m) => (sbyte)m.Determinant;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Scalar(Scalar<__scalar> t) => new Scalar(t.Value);
+    public static implicit operator Scalar(Scalar<__scalar> t) => new(t.Value);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Scalar<__scalar>(Scalar m) => new Scalar<__scalar>(m.Determinant);
+    public static implicit operator Scalar<__scalar>(Scalar m) => new(m.Determinant);
 
     #endregion
 
@@ -1168,7 +1172,7 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
 {
     #region STATIC FIELDS
 
-    private static readonly Dictionary<OpType, MethodInfo> _operators = new Dictionary<OpType, MethodInfo>();
+    private static readonly Dictionary<OpType, MethodInfo> _operators = new();
     private static readonly T _zero;
     private static readonly T _one;
 
@@ -1301,7 +1305,7 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
 
     readonly bool Algebra<Scalar<T>>.IMatrix.IsSignatureMatrix => Abs().IsOne;
 
-    readonly Polynomial<T> Algebra<Scalar<T>, Polynomial<T>>.IMatrix.CharacteristicPolynomial => new Polynomial<T>(this, NegativeOne);
+    readonly Polynomial<T> Algebra<Scalar<T>, Polynomial<T>>.IMatrix.CharacteristicPolynomial => new(this, NegativeOne);
 
     readonly Scalar<T>[] Algebra<Scalar<T>>.IMatrix.Eigenvalues => IsZero ? Array.Empty<Scalar<T>>() : new[] { this };
 
@@ -1670,7 +1674,7 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
     public readonly Scalar<T>[] ToArray() => new[] { this };
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Polynomial<T> ToPolynomial() => new Polynomial<T>(this);
+    public readonly Polynomial<T> ToPolynomial() => new(this);
 
     #endregion
     #region EXPLICIT METHODS
@@ -1796,13 +1800,13 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
     private bool MathFunction(Func<__scalar, bool> func) => func((__scalar)(dynamic)Value);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private Scalar<T> MathFunction(Func<__scalar, __scalar> func) => new Scalar<T>((T)(dynamic)(__scalar)func((__scalar)(dynamic)Value));
+    private Scalar<T> MathFunction(Func<__scalar, __scalar> func) => new((T)(dynamic)(__scalar)func((__scalar)(dynamic)Value));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private Scalar<T> OP(OpType op) => new Scalar<T>(OP(op, Value));
+    private Scalar<T> OP(OpType op) => new(OP(op, Value));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private Scalar<T> OP(OpType op, Scalar<T> t) => new Scalar<T>(OP<T>(op, Value, t.Value));
+    private Scalar<T> OP(OpType op, Scalar<T> t) => new(OP<T>(op, Value, t.Value));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private U OP<U>(OpType op, Scalar<T> t) => OP<U>(op, Value, t.Value);
@@ -1894,19 +1898,19 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
     public static Scalar<T> operator /(Scalar<T> s1, Scalar<T> s2) => s1.Divide(s2);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Scalar<T>(T v) => new Scalar<T>(v);
+    public static implicit operator Scalar<T>(T v) => new(v);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Scalar<T>(T* ptr) => new Scalar<T>(ptr);
+    public static implicit operator Scalar<T>(T* ptr) => new(ptr);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Scalar<T>(Scalar<T>* ptr) => new Scalar<T>(ptr);
+    public static implicit operator Scalar<T>(Scalar<T>* ptr) => new(ptr);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator T(Scalar<T> s) => s.Value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static explicit operator Scalar<T>(Scalar s) => new Scalar<T>((T)(dynamic)s.Determinant);
+    public static explicit operator Scalar<T>(Scalar s) => new((T)(dynamic)s.Determinant);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Scalar(Scalar<T> s) => (__scalar)(dynamic)s.Value;

@@ -12,6 +12,7 @@ using Unknown6656.Generics;
 using Unknown6656.Common;
 
 using numcplx = System.Numerics.Complex;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Unknown6656.Mathematics.Analysis;
 
@@ -22,7 +23,7 @@ public unsafe readonly /* ref */ struct Complex
     , Algebra<Scalar>.IVector<Complex>
     , Algebra<Scalar, Polynomial>.IComposite1D
     // , Algebra<Complex, ComplexPolynomial>.IComposite1D
-    , IReadonlyNative<Complex>
+    , INative<Complex>
 {
     #region PRIVATE FIELDS
 
@@ -36,12 +37,12 @@ public unsafe readonly /* ref */ struct Complex
     internal static readonly string REGEX_PATTERN_COMPLEX_3 = $@"(?<re>{REGEX_PATTERN_OSIGNED_NUMBER})(?<im>{REGEX_PATTERN_FSIGNED_NUMBER})\*?(?<hasi>i)";
     internal static readonly string REGEX_PATTERN_COMPLEX_4 = $@"(?<re>{REGEX_PATTERN_OSIGNED_NUMBER})(?<imsig>[+\-]?)(?<hasi>i)(\*?(?<im>{REGEX_PATTERN_FSIGNED_NUMBER}))?";
 
-    internal static readonly Regex REGEX_COMPLEX_1 = new Regex($"^{REGEX_PATTERN_COMPLEX_1}$", RegexOptions.Compiled);
-    internal static readonly Regex REGEX_COMPLEX_2 = new Regex($"^{REGEX_PATTERN_COMPLEX_2}$", RegexOptions.Compiled);
-    internal static readonly Regex REGEX_COMPLEX_3 = new Regex($"^{REGEX_PATTERN_COMPLEX_3}$", RegexOptions.Compiled);
-    internal static readonly Regex REGEX_COMPLEX_4 = new Regex($"^{REGEX_PATTERN_COMPLEX_4}$", RegexOptions.Compiled);
+    internal static readonly Regex REGEX_COMPLEX_1 = new($"^{REGEX_PATTERN_COMPLEX_1}$", RegexOptions.Compiled);
+    internal static readonly Regex REGEX_COMPLEX_2 = new($"^{REGEX_PATTERN_COMPLEX_2}$", RegexOptions.Compiled);
+    internal static readonly Regex REGEX_COMPLEX_3 = new($"^{REGEX_PATTERN_COMPLEX_3}$", RegexOptions.Compiled);
+    internal static readonly Regex REGEX_COMPLEX_4 = new($"^{REGEX_PATTERN_COMPLEX_4}$", RegexOptions.Compiled);
 
-    public static readonly Regex REGEX_COMPLEX = new Regex($"({Scalar.REGEX_SCALAR}|^({REGEX_PATTERN_COMPLEX_1}|{REGEX_PATTERN_COMPLEX_2}|{REGEX_PATTERN_COMPLEX_3}|{REGEX_PATTERN_COMPLEX_4})$)", RegexOptions.Compiled);
+    public static readonly Regex REGEX_COMPLEX = new($"({Scalar.REGEX_SCALAR}|^({REGEX_PATTERN_COMPLEX_1}|{REGEX_PATTERN_COMPLEX_2}|{REGEX_PATTERN_COMPLEX_3}|{REGEX_PATTERN_COMPLEX_4})$)", RegexOptions.Compiled);
 
 
 #pragma warning disable IDE0032
@@ -53,21 +54,27 @@ public unsafe readonly /* ref */ struct Complex
     #region STATIC PROPERTIES
 
 #pragma warning disable IDE1006
-    public static Complex i { get; } = new Complex(0, 1);
+    public static Complex i { get; } = new(0, 1);
 
-    public static Complex π { get; } = new Complex(Math.PI, 0);
+    public static Complex π { get; } = Scalar.Pi;
 
-    public static Complex τ { get; } = new Complex(Math.Tau, 0);
+    public static Complex τ { get; } = Scalar.Tau;
 #pragma warning restore IDE1006
     public static Complex Pi { get; } = π;
 
     public static Complex Tau { get; } = τ;
 
-    public static Complex One { get; } = new Complex(1, 0);
+    public static Complex One { get; } = Scalar.One;
 
-    public static Complex NegativeOne { get; } = new Complex(-1, 0);
+    public static Complex NegativeOne { get; } = Scalar.NegativeOne;
 
     public static Complex Zero { get; } = default;
+
+    public static Complex NaN { get; } = Scalar.NaN;
+
+    public static Complex NegativeInfinity { get; } = Scalar.NegativeInfinity;
+
+    public static Complex PositiveInfinity { get; } = Scalar.PositiveInfinity;
 
     public static int BinarySize { get; } = sizeof(Complex);
 
@@ -97,7 +104,7 @@ public unsafe readonly /* ref */ struct Complex
 
     public readonly Scalar LogarithmicNorm => Length.Log();
 
-    public readonly Complex Conjugate => new Complex(_re, -_im);
+    public readonly Complex Conjugate => new(_re, -_im);
 
     public readonly Complex Absolute => Abs();
 
@@ -149,7 +156,7 @@ public unsafe readonly /* ref */ struct Complex
 
     public readonly bool IsInsideUnitSphere => Length.IsBetweenZeroAndOne;
 
-    readonly int IReadonlyNative<Complex>.BinarySize => BinarySize;
+    readonly int INative<Complex>.BinarySize => BinarySize;
 
     public readonly int Dimension => 2;
 
@@ -169,13 +176,13 @@ public unsafe readonly /* ref */ struct Complex
 
     public int Sign => CompareTo(Zero);
 
-    public Complex DecimalPlaces => new Complex(Real.DecimalPlaces, Imaginary.DecimalPlaces);
+    public Complex DecimalPlaces => new(Real.DecimalPlaces, Imaginary.DecimalPlaces);
 
-    public Complex Floor => new Complex(Real.Floor, Imaginary.Floor);
+    public Complex Floor => new(Real.Floor, Imaginary.Floor);
 
-    public Complex Ceiling => new Complex(Real.Ceiling, Imaginary.Ceiling);
+    public Complex Ceiling => new(Real.Ceiling, Imaginary.Ceiling);
 
-    public Complex Rounded => new Complex(Real.Rounded, Imaginary.Rounded);
+    public Complex Rounded => new(Real.Rounded, Imaginary.Rounded);
 
     public bool IsInteger => IsReal && Real.IsInteger;
 
@@ -198,6 +205,16 @@ public unsafe readonly /* ref */ struct Complex
     {
     }
 
+    public Complex(Complex* c)
+        : this(*c)
+    {
+    }
+
+    public Complex(Complex c)
+        : this(c.Real, c.Imaginary)
+    {
+    }
+
     public Complex(Scalar re, Scalar im)
         : this() => (_re, _im) = (re, im);
 
@@ -205,7 +222,7 @@ public unsafe readonly /* ref */ struct Complex
     #region INSTANCE METHODS
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Complex Negate() => new Complex(-_re, -_im);
+    public readonly Complex Negate() => new(-_re, -_im);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Complex Increment() => Add(One);
@@ -214,7 +231,7 @@ public unsafe readonly /* ref */ struct Complex
     public readonly Complex Decrement() => Add(NegativeOne);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Complex Add(in Complex second) => new Complex(_re + second._re, _im + second._im);
+    public readonly Complex Add(in Complex second) => new(_re + second._re, _im + second._im);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Complex Add(params Complex[] others) => others.Aggregate(this, (x, y) => x.Add(in y));
@@ -223,31 +240,31 @@ public unsafe readonly /* ref */ struct Complex
     public readonly Complex Invert() => Conjugate.Divide(SquaredNorm);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Complex Subtract(in Complex second) => new Complex(_re - second._re, _im - second._im);
+    public readonly Complex Subtract(in Complex second) => new(_re - second._re, _im - second._im);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Complex Subtract(params Complex[] others) => others.Aggregate(this, (x, y) => x.Subtract(in y));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Complex Multiply(in Complex second) => new Complex(_re * second._re - _im * second._im, _re * second._im + _im * second._re);
+    public readonly Complex Multiply(in Complex second) => new(_re * second._re - _im * second._im, _re * second._im + _im * second._re);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Complex Multiply(params Complex[] others) => others.Aggregate(this, (x, y) => x.Multiply(in y));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Complex Multiply(Scalar factor) => new Complex(_re * factor, _im * factor);
+    public readonly Complex Multiply(Scalar factor) => new(_re * factor, _im * factor);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Complex Divide(Scalar factor) => new Complex(_re / factor, _im / factor);
+    public readonly Complex Divide(Scalar factor) => new(_re / factor, _im / factor);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Complex Divide(in Complex second) => Multiply(second.Invert());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Complex ComponentwiseMultiply(in Complex second) => new Complex(_re * second._re, _im * second._im);
+    public readonly Complex ComponentwiseMultiply(in Complex second) => new(_re * second._re, _im * second._im);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Complex ComponentwiseDivide(in Complex second) => new Complex(_re / second._re, _im / second._im);
+    public readonly Complex ComponentwiseDivide(in Complex second) => new(_re / second._re, _im / second._im);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Complex Power(int e) => e == 0 ? One : e < 0 ? Power(-e).Invert() : Cis(Argument * e).Multiply(Length.Power(e));
@@ -281,16 +298,16 @@ public unsafe readonly /* ref */ struct Complex
     public readonly void ToNative<T>(T* dst) where T : unmanaged => ToVector().ToNative(dst);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Vector2 ToVector() => new Vector2(_re, _im);
+    public readonly Vector2 ToVector() => new(_re, _im);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Matrix2 ToMatrix() => new Matrix2(
+    public readonly Matrix2 ToMatrix() => new(
         Real, -Imaginary,
         Imaginary, Real
     );
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly ComplexPolynomial ToPolynomial() => new ComplexPolynomial(this);
+    public readonly ComplexPolynomial ToPolynomial() => new(this);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Is(Complex other, Scalar tolerance) => Real.Is(other.Real, tolerance) && Imaginary.Is(other.Imaginary, tolerance);
@@ -305,7 +322,7 @@ public unsafe readonly /* ref */ struct Complex
     public readonly bool Equals(Complex c) => Is(c);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly override bool Equals(object o) => o is Complex c && Equals(c);
+    public readonly override bool Equals(object? other) => other is Complex c && Equals(c);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override int GetHashCode() => HashCode.Combine(_re, _im);
@@ -334,7 +351,7 @@ public unsafe readonly /* ref */ struct Complex
     public readonly int CompareTo(Complex other) => SignedModulus.CompareTo(other.SignedModulus);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    Polynomial Algebra<Scalar, Polynomial>.IComposite1D.ToPolynomial() => new Polynomial(_re, _im);
+    Polynomial Algebra<Scalar, Polynomial>.IComposite1D.ToPolynomial() => new(_re, _im);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly Scalar Algebra<Scalar>.IEucledianVectorSpace<Complex>.Dot(in Complex other) => ComponentwiseMultiply(in other).CoefficientSum;
@@ -358,10 +375,10 @@ public unsafe readonly /* ref */ struct Complex
     public readonly Complex Cot() => Cos().Divide(Sin());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Complex Cosh() => new Complex(_re.Cosh() * _im.Cos(), _re.Sinh() * _im.Sin());
+    public readonly Complex Cosh() => new(_re.Cosh() * _im.Cos(), _re.Sinh() * _im.Sin());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Complex Sinh() => new Complex(_re.Sinh() * _im.Cos(), _re.Cosh() * _im.Sin());
+    public readonly Complex Sinh() => new(_re.Sinh() * _im.Cos(), _re.Cosh() * _im.Sin());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Complex Tanh() => Sinh().Divide(Cosh());
@@ -433,7 +450,7 @@ public unsafe readonly /* ref */ struct Complex
     public readonly Complex Exp() => Cis();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Complex Log() => new Complex(Length.Log(), Argument);
+    public readonly Complex Log() => new(Length.Log(), Argument);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Complex Log10() => Log(10);
@@ -445,7 +462,7 @@ public unsafe readonly /* ref */ struct Complex
     public readonly Complex Log(Complex @base) => Log().Divide(@base.Log());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Complex Abs() => new Complex(_re.Abs(), _im);
+    public readonly Complex Abs() => new(_re.Abs(), _im);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly Complex IScalar<Complex>.Sqrt() => Sqrt()[0];
@@ -456,7 +473,7 @@ public unsafe readonly /* ref */ struct Complex
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Complex[] Roots(int root)
     {
-        List<Complex> roots = new List<Complex>(root);
+        List<Complex> roots = new(root);
         Scalar fac = Length.Power(1d / root);
         Scalar φ = Argument;
         Scalar τ = 2 * Math.PI;
@@ -511,7 +528,7 @@ public unsafe readonly /* ref */ struct Complex
     public readonly Complex LinearInterpolate(in Complex other, Scalar factor) => Multiply(Scalar.NegativeOne.Add(factor)).Add(other.Multiply(factor));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Complex SwapEntries() => new Complex(_im, _re);
+    public readonly Complex SwapEntries() => new(_im, _re);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Complex SwapEntries(int src_idx, int dst_idx)
@@ -533,7 +550,7 @@ public unsafe readonly /* ref */ struct Complex
     public static bool Is(Complex c1, Complex c2, Scalar? error = null) => c1.Is(c2, error ?? Scalar.ComputationalEpsilon);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Complex Random() => new Complex(Scalar.Random(), Scalar.Random());
+    public static Complex Random() => new(Scalar.Random(), Scalar.Random());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Complex Factorial(Complex c) => c.Factorial();
@@ -593,34 +610,34 @@ public unsafe readonly /* ref */ struct Complex
     public static Complex[] Roots(Complex c, int root) => c.Roots(root);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Complex FromSize(Size sz) => new Complex(sz.Width, sz.Height);
+    public static Complex FromSize(Size sz) => new(sz.Width, sz.Height);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Complex FromSize(SizeF sz) => new Complex(sz.Width, sz.Height);
+    public static Complex FromSize(SizeF sz) => new(sz.Width, sz.Height);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Complex FromPoint(Point pt) => new Complex(pt.X, pt.Y);
+    public static Complex FromPoint(Point pt) => new(pt.X, pt.Y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Complex FromPoint(PointF pt) => new Complex(pt.X, pt.Y);
+    public static Complex FromPoint(PointF pt) => new(pt.X, pt.Y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Complex FromVector2(Vector2 v) => v;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Complex FromCartesianCoordinates(Point p) => new Complex(p.X, p.Y);
+    public static Complex FromCartesianCoordinates(Point p) => new(p.X, p.Y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Complex FromCartesianCoordinates(PointF p) => new Complex(p.X, p.Y);
+    public static Complex FromCartesianCoordinates(PointF p) => new(p.X, p.Y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Complex FromCartesianCoordinates(Vector2 v) => v;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Complex FromCartesianCoordinates(Scalar x, Scalar y) => new Complex(x, y);
+    public static Complex FromCartesianCoordinates(Scalar x, Scalar y) => new(x, y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Complex FromPolarCoordinates(Scalar r, Scalar φ) => new Complex(r * φ.Cos(), r * φ.Sin());
+    public static Complex FromPolarCoordinates(Scalar r, Scalar φ) => new(r * φ.Cos(), r * φ.Sin());
 
     public static bool TryParse(string str, out Complex complex)
     {
@@ -674,6 +691,12 @@ public unsafe readonly /* ref */ struct Complex
     public static Complex operator -(Complex c) => c.Negate();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Complex operator ++(Complex c) => c.Increment();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Complex operator --(Complex c) => c.Decrement();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Complex operator +(Complex c1, Complex c2) => c1.Add(c2);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -681,6 +704,18 @@ public unsafe readonly /* ref */ struct Complex
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Complex operator *(Complex c1, Complex c2) => c1.Multiply(c2);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Complex operator *(Complex complex, Scalar scalar) => complex.Multiply(scalar);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Complex operator *(Scalar scalar, Complex complex) => complex.Multiply(scalar);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Complex operator /(Complex complex, Scalar scalar) => complex.Divide(scalar);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static Complex Algebra<Scalar>.IVectorSpace<Complex>.operator %(Complex complex, Scalar scalar) => new(complex.Real % scalar, complex.Imaginary % scalar);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Complex operator ^(Complex c1, Complex c2) => c1.Power(c2);
@@ -713,25 +748,25 @@ public unsafe readonly /* ref */ struct Complex
     public static implicit operator (Scalar re, Scalar im)(Complex c) => (c._re, c._im);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Complex((Scalar re, Scalar im) t) => new Complex(t.re, t.im);
+    public static implicit operator Complex((Scalar re, Scalar im) t) => new(t.re, t.im);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator numcplx(Complex c) => new numcplx(c.Real, c.Imaginary);
+    public static implicit operator numcplx(Complex c) => new(c.Real, c.Imaginary);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Complex(numcplx c) => new Complex(c.Real, c.Imaginary);
+    public static implicit operator Complex(numcplx c) => new(c.Real, c.Imaginary);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Complex(Fraction f) => new Complex((Scalar)f);
+    public static implicit operator Complex(Fraction f) => new((Scalar)f);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Complex(Scalar s) => new Complex(s);
+    public static implicit operator Complex(Scalar s) => new(s);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Complex(double d) => new Complex((Scalar)d);
+    public static implicit operator Complex(double d) => new((Scalar)d);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Complex(Vector2 v) => new Complex(v.X, v.Y);
+    public static implicit operator Complex(Vector2 v) => new(v.X, v.Y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Vector2(Complex c) => c.ToVector();

@@ -73,7 +73,7 @@ namespace Unknown6656.Controls.WPF
             if (KeyboardInteractionEnabled)
             {
                 Key key = e.Key;
-                bool handled = FunctionExtensions.Do(delegate
+                bool handled = LINQ.Do(delegate
                 {
                     if (e.Key == KeyMap.MoveLeft)
                         _offset -= (1 / _scale, 0);

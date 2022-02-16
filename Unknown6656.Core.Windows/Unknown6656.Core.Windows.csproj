@@ -55,6 +55,9 @@
         <None Include="unknown6656-logo-1024.png" Pack="true" PackagePath="" />
     </ItemGroup>
     <ItemGroup>
+      <PackageReference Include="Unknown6656.Generics" Version="0.9.0" />
+    </ItemGroup>
+    <ItemGroup>
       <Compile Update="FunctionPlotterControl.WPF.cs">
         <SubType>Code</SubType>
       </Compile>

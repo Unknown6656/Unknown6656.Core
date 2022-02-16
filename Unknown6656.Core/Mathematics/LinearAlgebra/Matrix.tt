@@ -920,7 +920,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> Divide(Scalar factor) => Multiply(factor.Inverse);
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> Modulus(Scalar factor) => new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i} % factor"))#>);
 

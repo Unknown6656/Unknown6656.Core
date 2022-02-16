@@ -989,10 +989,10 @@ public unsafe readonly /* ref */ partial struct Scalar
     public static bool operator >=(Scalar m1, Scalar m2) => m1.CompareTo(m2) >= 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar operator ++(Scalar s) => s.Increment();
+    public static Scalar operator ++(in Scalar s) => s.Increment();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar operator --(Scalar s) => s.Decrement();
+    public static Scalar operator --(in Scalar s) => s.Decrement();
 
     /// <summary>
     /// Identity function (returns the given scalar unchanged)
@@ -1000,7 +1000,7 @@ public unsafe readonly /* ref */ partial struct Scalar
     /// <param name="m">Original scalar</param>
     /// <returns>Unchanged scalar</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar operator +(Scalar m) => m;
+    public static Scalar operator +(in Scalar m) => m;
 
     /// <summary>
     /// Negates the given scalar
@@ -1008,7 +1008,7 @@ public unsafe readonly /* ref */ partial struct Scalar
     /// <param name="m">Original scalar</param>
     /// <returns>Negated scalar</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar operator -(Scalar m) => m.Negate();
+    public static Scalar operator -(in Scalar m) => m.Negate();
 
     /// <summary>
     /// Performs the subtraction of two scalars by subtracting their respective coefficients.
@@ -1017,7 +1017,7 @@ public unsafe readonly /* ref */ partial struct Scalar
     /// <param name="m2">Second scalar</param>
     /// <returns>Subtraction result</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar operator -(Scalar m1, Scalar m2) => m1.Subtract(m2);
+    public static Scalar operator -(in Scalar m1, in Scalar m2) => m1.Subtract(in m2);
 
     /// <summary>
     /// Performs the addition of two scalars by adding their respective coefficients.
@@ -1026,22 +1026,22 @@ public unsafe readonly /* ref */ partial struct Scalar
     /// <param name="m2">Second scalar</param>
     /// <returns>Addition result</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar operator +(Scalar m1, Scalar m2) => m1.Add(m2);
+    public static Scalar operator +(in Scalar m1, in Scalar m2) => m1.Add(in m2);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar operator *(Scalar m, Scalar v) => m.Multiply(v);
+    public static Scalar operator *(in Scalar m, in Scalar v) => m.Multiply(in v);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar operator ^(Scalar b, Scalar e) => b.Power(e);
+    public static Scalar operator ^(in Scalar b, in Scalar e) => b.Power(in e);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar operator ^(Scalar b, int e) => b.Power(e);
+    public static Scalar operator ^(in Scalar b, int e) => b.Power(e);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar operator /(Scalar m, Scalar f) => m.Divide(f);
+    public static Scalar operator /(in Scalar m, in Scalar f) => m.Divide(in f);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar operator %(Scalar m, Scalar f) => m.Modulus(f);
+    public static Scalar operator %(in Scalar m, in Scalar f) => m.Modulus(in f);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator decimal(Scalar m) => (decimal)m.Determinant;
@@ -1077,6 +1077,12 @@ public unsafe readonly /* ref */ partial struct Scalar
     public static implicit operator Scalar(uint t) => new((__scalar)t);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator Scalar(nint t) => new((__scalar)t);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator Scalar(nuint t) => new((__scalar)t);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Scalar(long t) => new((__scalar)t);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1104,6 +1110,12 @@ public unsafe readonly /* ref */ partial struct Scalar
     public static explicit operator long(Scalar m) => (long)m.Determinant;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static explicit operator nuint(Scalar m) => (nuint)m.Determinant;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static explicit operator nint(Scalar m) => (nint)m.Determinant;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator uint(Scalar m) => (uint)m.Determinant;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1122,10 +1134,20 @@ public unsafe readonly /* ref */ partial struct Scalar
     public static explicit operator sbyte(Scalar m) => (sbyte)m.Determinant;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Scalar(Scalar<__scalar> t) => new(t.Value);
+    public static implicit operator Scalar(Scalar<float> t) => new((__scalar)t.Value);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Scalar<__scalar>(Scalar m) => new(m.Determinant);
+    public static implicit operator Scalar(Scalar<double> t) => new((__scalar)t.Value);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator Scalar<float>(Scalar m) => new((float)m.Determinant);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator Scalar<double>(Scalar m) => new((double)m.Determinant);
+
+
+
+
 
     #endregion
 
@@ -1876,25 +1898,25 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
     public static Scalar<T> operator -(Scalar<T> s) => s.Negate();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar<T> operator ++(Scalar<T> s) => s.Increment();
+    public static Scalar<T> operator ++(in Scalar<T> s) => s.Increment();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar<T> operator --(Scalar<T> s) => s.Decrement();
+    public static Scalar<T> operator --(in Scalar<T> s) => s.Decrement();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar<T> operator +(Scalar<T> s1, Scalar<T> s2) => s2.Add(s1);
+    public static Scalar<T> operator +(in Scalar<T> s1, in Scalar<T> s2) => s2.Add(s1);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar<T> operator -(Scalar<T> s1, Scalar<T> s2) => s2.Subtract(s1);
+    public static Scalar<T> operator -(in Scalar<T> s1, in Scalar<T> s2) => s2.Subtract(s1);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar<T> operator *(Scalar<T> s1, Scalar<T> s2) => s1.Multiply(s2);
+    public static Scalar<T> operator *(in Scalar<T> s1, in Scalar<T> s2) => s1.Multiply(s2);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar<T> operator ^(Scalar<T> s, int c) => s.Power(c);
+    public static Scalar<T> operator ^(in Scalar<T> s, int c) => s.Power(c);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar<T> operator /(Scalar<T> s1, Scalar<T> s2) => s1.Divide(s2);
+    public static Scalar<T> operator /(in Scalar<T> s1, in Scalar<T> s2) => s1.Divide(s2);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Scalar<T>(T v) => new(v);

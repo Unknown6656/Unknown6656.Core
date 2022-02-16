@@ -269,12 +269,12 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 
     public readonly Scalar CoefficientSum => <#=string.Join(" + ", comps)#>;
 
-    public readonly Scalar CoefficientAvg => Sum / Dimension;
+    public readonly Scalar CoefficientAvg => CoefficientSum / Dimension;
 
     public readonly Scalar CoefficientMin => Coefficients.Min();
 
     public readonly Scalar CoefficientMax => Coefficients.Max();
-        
+
     public readonly Scalar MaximumNorm => Coefficients.Select(Scalar.Abs).Max();
 
     public readonly Scalar TaxicabNorm => Coefficients.Select(Scalar.Abs).Sum();
@@ -456,6 +456,9 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     public readonly <#=typename#> Divide(params Scalar[] factors) => factors.Aggregate(this, (v, f) => v.Divide(f));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Modulus(Scalar factor) => new(<#=string.Join(", ", comps.Select(s => $"{s} % factor"))#>);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputeNorm(VectorNorm norm) => norm switch
     {
         VectorNorm.EucledianNorm => EucledianNorm,
@@ -521,7 +524,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Dot(in <#=typename#> second) => ComponentwiseMultiply(second).Sum;
+    public readonly Scalar Dot(in <#=typename#> second) => ComponentwiseMultiply(second).CoefficientSum;
 <#
         if (crossable)
         {
@@ -822,7 +825,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     static <#=typename#> INative<<#=typename#>>.FromNative<T>(T* src) where T : unmanaged => FromPointer(src);
 
     /// <inheritdoc cref="FromNative{T}"/>
-    public static <#=typename#> FromPointer<T>(T* src) where T : unmanaged => new <#=typename#>((<#=typename#>*)src);
+    public static <#=typename#> FromPointer<T>(T* src) where T : unmanaged => new <#=typename#>((Scalar*)src);
 <#
         if (dim < maxdim - 1)
         {
@@ -1088,7 +1091,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static <#=typename#> operator %(in <#=typename#> v, Scalar f) => v % new <#=typename#>(f);
+    public static <#=typename#> operator %(in <#=typename#> v, Scalar f) => v.Modulus(f);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> operator %(in <#=typename#> v1, in <#=typename#> v2) => v1.ComponentwiseModulus(in v2);

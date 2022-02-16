@@ -227,6 +227,10 @@ public class FieldFunction<Scalar>
         return new(x => _s(x).Multiply(in factor).Add(Evaluate(x).Multiply(factor.Negate().Add(default(Scalar).Increment()))));
     }
 
+    public static bool operator ==(FieldFunction<Scalar>? f1, FieldFunction<Scalar>? f2) => f1?.Equals(f2) ?? f2 is null;
+
+    public static bool operator !=(FieldFunction<Scalar>? f1, FieldFunction<Scalar>? f2) => !(f1 == f2);
+
     public static FieldFunction<Scalar> operator +(in FieldFunction<Scalar> f) => f;
 
     public static FieldFunction<Scalar> operator -(in FieldFunction<Scalar> f) => f.Negate();

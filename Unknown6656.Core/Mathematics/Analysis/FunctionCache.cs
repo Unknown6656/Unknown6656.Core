@@ -112,18 +112,13 @@ public class FunctionCache<F, I, V>
 
     public override int GetHashCode() => Function.GetHashCode();
 
-    public override string ToString()
+    public override unsafe string ToString()
     {
-        string pref = "";
+        int size_i = typeof(I).IsClass ? sizeof(GCHandle) : Marshal.SizeOf<I>();
+        int size_v = typeof(V).IsClass ? sizeof(GCHandle) : Marshal.SizeOf<V>();
+        long sz = 24 + UsedCacheEntries * (4L + size_i + size_v);
 
-        if (!typeof(I).IsClass && !typeof(V).IsClass)
-        {
-            long sz = 24 + UsedCacheEntries * (4L + Marshal.SizeOf<I>() + Marshal.SizeOf<V>());
-
-            pref = $"{sz.ToHumanReadableSize()} / {MathExtensions.ToHumanReadableSize(CacheSize)} ≈ ";
-        }
-
-        return $"{Function} [{pref}{UsedCacheRatio * 100:F2}% in use]";
+        return $"{Function} [{sz.ToHumanReadableSize()} / {MathExtensions.ToHumanReadableSize(CacheSize)} ≈ {UsedCacheRatio * 100:F2}% in use]";
     }
 
 

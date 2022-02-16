@@ -10,9 +10,9 @@ using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Numerics;
 using Unknown6656.Generics;
 using Unknown6656.Common;
+using Unknown6656.IO;
 
 using numcplx = System.Numerics.Complex;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Unknown6656.Mathematics.Analysis;
 
@@ -71,6 +71,10 @@ public unsafe readonly /* ref */ struct Complex
     public static Complex Zero { get; } = default;
 
     public static Complex NaN { get; } = Scalar.NaN;
+
+    public static Complex MinValue { get; } = Scalar.MinValue;
+
+    public static Complex MaxValue { get; } = Scalar.MaxValue;
 
     public static Complex NegativeInfinity { get; } = Scalar.NegativeInfinity;
 
@@ -155,8 +159,6 @@ public unsafe readonly /* ref */ struct Complex
     public readonly bool IsBetweenZeroAndOne => IsReal && Real.IsBetweenZeroAndOne;
 
     public readonly bool IsInsideUnitSphere => Length.IsBetweenZeroAndOne;
-
-    readonly int INative<Complex>.BinarySize => BinarySize;
 
     public readonly int Dimension => 2;
 
@@ -259,6 +261,12 @@ public unsafe readonly /* ref */ struct Complex
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Complex Divide(in Complex second) => Multiply(second.Invert());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly Complex ComponentWiseModulus(Scalar factor) => new(_re % factor, _im % factor);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    readonly Complex Algebra<Scalar>.IVectorSpace<Complex>.Modulus(Scalar factor) => ComponentWiseModulus(factor);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Complex ComponentwiseMultiply(in Complex second) => new(_re * second._re, _im * second._im);
@@ -639,6 +647,18 @@ public unsafe readonly /* ref */ struct Complex
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Complex FromPolarCoordinates(Scalar r, Scalar φ) => new(r * φ.Cos(), r * φ.Sin());
 
+    public static Complex FromArray(params Scalar[] coefficients) =>
+        coefficients is { Length: > 1 } ? new(coefficients[0], coefficients[1]) : throw new ArgumentException("At least two coefficients must be given.", nameof(coefficients));
+
+    public static Complex FromNative<T>(T* pointer) where T : unmanaged => new((Complex*)pointer);
+
+    public static Complex FromArray<T>(params T[] array)
+        where T : unmanaged
+    {
+        fixed (T* ptr = array)
+            return FromNative(ptr);
+    }
+
     public static bool TryParse(string str, out Complex complex)
     {
         str = str.Remove("_").ToLowerInvariant().Trim();
@@ -685,46 +705,49 @@ public unsafe readonly /* ref */ struct Complex
     #region OPERATORS
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Complex operator +(Complex c) => c;
+    public static Complex operator +(in Complex c) => c;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Complex operator -(Complex c) => c.Negate();
+    public static Complex operator -(in Complex c) => c.Negate();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Complex operator ++(Complex c) => c.Increment();
+    public static Complex operator ++(in Complex c) => c.Increment();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Complex operator --(Complex c) => c.Decrement();
+    public static Complex operator --(in Complex c) => c.Decrement();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Complex operator +(Complex c1, Complex c2) => c1.Add(c2);
+    public static Complex operator +(in Complex c1, in Complex c2) => c1.Add(c2);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Complex operator -(Complex c1, Complex c2) => c1.Subtract(c2);
+    public static Complex operator -(in Complex c1, in Complex c2) => c1.Subtract(c2);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Complex operator *(Complex c1, Complex c2) => c1.Multiply(c2);
+    public static Complex operator *(in Complex c1, in Complex c2) => c1.Multiply(c2);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Complex operator *(Complex complex, Scalar scalar) => complex.Multiply(scalar);
+    public static Complex operator *(in Complex complex, Scalar scalar) => complex.Multiply(scalar);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Complex operator *(Scalar scalar, Complex complex) => complex.Multiply(scalar);
+    public static Complex operator *(Scalar scalar, in Complex complex) => complex.Multiply(scalar);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Complex operator /(Complex complex, Scalar scalar) => complex.Divide(scalar);
+    public static Complex operator /(in Complex complex, Scalar scalar) => complex.Divide(scalar);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static Complex Algebra<Scalar>.IVectorSpace<Complex>.operator %(Complex complex, Scalar scalar) => new(complex.Real % scalar, complex.Imaginary % scalar);
+    public static Complex operator %(in Complex complex, Scalar scalar) => complex.ComponentWiseModulus(scalar);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static Scalar Algebra<Scalar>.IEucledianVectorSpace<Complex>.operator *(in Complex c1, in Complex c2) => (Vector2)c1 * (Vector2)c2;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Complex operator ^(Complex c1, Complex c2) => c1.Power(c2);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Complex operator /(Complex c1, Complex c2) => c1.Divide(c2);
+    public static Complex operator /(in Complex c1, in Complex c2) => c1.Divide(c2);
 
-    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-    //public static Complex operator %(Complex c1, Complex c2);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static Complex IField<Complex>.operator %(in Complex c1, in Complex c2) => c1.Subtract(c1.Divide(in c2).Floor.Multiply(in c2));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <(Complex c1, Complex c2) => c1.CompareTo(c2) < 0;

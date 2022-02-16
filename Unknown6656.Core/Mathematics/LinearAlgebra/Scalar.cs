@@ -36,7 +36,7 @@ public unsafe readonly /* ref */ partial struct Scalar
     , Algebra<Scalar>.IVector<Scalar, Scalar>
     , Algebra<Scalar, Polynomial>.IComposite1D
     , Algebra<Scalar, Polynomial>.IMatrix<Scalar, MatrixNM>
-    , IReadonlyNative<Scalar>
+    , INative<Scalar>
     , IComparable<Scalar>
     , IEquatable<Scalar>
     , IComparable
@@ -214,8 +214,6 @@ public unsafe readonly /* ref */ partial struct Scalar
 
     #endregion
     #region EXPLICIT PROPERTIES
-
-    readonly int IReadonlyNative<Scalar>.BinarySize => BinarySize;
 
     readonly Scalar Algebra<Scalar>.IMetricVectorSpace<Scalar>.SquaredNorm => Multiply(this);
 
@@ -1917,6 +1915,13 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar<T> operator /(in Scalar<T> s1, in Scalar<T> s2) => s1.Divide(s2);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar<T> operator %(in Scalar<T> s1, in Scalar<T> s2) => s1.Modulus(s2);
+
+    //static Scalar<T> Algebra<Scalar<T>>.IVectorSpace<Scalar<T>>.operator *(in Scalar<T> s1, Scalar s2) => s1 * (Scalar<T>)s2;
+
+    //static Scalar<T> Algebra<Scalar<T>>.IVectorSpace<Scalar<T>>.operator *(Scalar s1, in Scalar<T> s2) => (Scalar<T>)s1 * s2;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Scalar<T>(T v) => new(v);

@@ -15,6 +15,8 @@ using Unknown6656.Generics;
 using Unknown6656.Common;
 using Unknown6656.IO;
 
+// TODO : dithering functions
+
 namespace Unknown6656.Imaging
 {
     public static unsafe class BitmapExtensions

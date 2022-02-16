@@ -238,7 +238,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 
     public readonly Scalar CoefficientSum => FlattenedCoefficients.Aggregate(Scalar.Zero, (a, b) => a.Add(b));
 
-    public readonly Scalar CoefficientAvg => Sum.Divide(Dimensions.Rows + Dimensions.Columns);
+    public readonly Scalar CoefficientAvg => CoefficientSum.Divide(Dimensions.Rows * Dimensions.Columns);
 
     public readonly Scalar CoefficientMin => FlattenedCoefficients.Min();
 

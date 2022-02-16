@@ -815,17 +815,14 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         _ => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"v[{i}]"))#>)
     };
 
-    static <#=typename#> INative<<#=typename#>>.FromArray<T>(params T[] arr)
+    public static <#=typename#> FromArray<T>(params T[] array)
         where T : unmanaged
     {
-        fixed (T* ptr = arr)
-            return FromPointer(ptr);
+        fixed (T* ptr = array)
+            return FromNative(ptr);
     }
 
-    static <#=typename#> INative<<#=typename#>>.FromNative<T>(T* src) where T : unmanaged => FromPointer(src);
-
-    /// <inheritdoc cref="FromNative{T}"/>
-    public static <#=typename#> FromPointer<T>(T* src) where T : unmanaged => new <#=typename#>((Scalar*)src);
+    public static <#=typename#> FromNative<T>(T* src) where T : unmanaged => new((Scalar*)src);
 <#
         if (dim < maxdim - 1)
         {

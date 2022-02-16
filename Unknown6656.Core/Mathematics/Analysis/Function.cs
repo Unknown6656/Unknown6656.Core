@@ -15,11 +15,14 @@ namespace Unknown6656.Mathematics.Analysis;
 public abstract class Function<Func, Domain, Codomain>
     : IGroup<Func>
     , IStructuralEquatable
-    where Func : Function<Func, Domain, Codomain>
+    where Func : Function<Func, Domain, Codomain>, IGroup<Func>
     where Domain : IEquatable<Domain>
 {
+    public static Func Zero => throw new InvalidOperationException();
+
+
     /// <inheritdoc cref="Evaluate(Domain)"/>
-    public Codomain this[Domain x] => Evaluate(x);
+    public Codomain? this[Domain x] => Evaluate(x);
 
     /// <summary>
     /// Returns the cached variant of this function instance
@@ -54,7 +57,7 @@ public abstract class Function<Func, Domain, Codomain>
     /// <param name="x">X value</param>
     /// <returns>Function evaluated at X</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public abstract Codomain Evaluate(Domain x);
+    public abstract Codomain? Evaluate(Domain x);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public abstract Func Negate();
@@ -70,6 +73,18 @@ public abstract class Function<Func, Domain, Codomain>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual Func Subtract(params Func[] others) => others.Aggregate((Func)this, (x, y) => x.Subtract(in y));
+
+    static Func IGroup<Func>.operator +(in Func function) => function;
+
+    static Func IGroup<Func>.operator -(in Func function) => function.Negate();
+
+    static Func INumericGroup<Func>.operator +(in Func first, in Func second) => first.Add(in second);
+
+    static Func IGroup<Func>.operator -(in Func first, in Func second) => first.Subtract(in second);
+
+    static bool IEquality<Func>.operator ==(Func first, Func second) => first?.Equals(second) ?? second is null;
+
+    static bool IEquality<Func>.operator !=(Func first, Func second) => !(first?.Equals(second) ?? second is null);
 }
 
 public class Function<Domain, Codomain>
@@ -77,24 +92,29 @@ public class Function<Domain, Codomain>
     where Domain : IEquatable<Domain>
     where Codomain : IGroup<Codomain>
 {
-    private readonly Func<Domain, Codomain> _func;
+    private readonly Func<Domain, Codomain?> _func;
 
 
     public override FunctionCache<Function<Domain, Codomain>, Domain, Codomain> Cached => new(this);
 
     public override bool IsZero => Is(Zero!);
 
-    public static Function<Domain, Codomain> Zero { get; } = new(_ => default!);
+    public static new Function<Domain, Codomain> Zero { get; } = new(_ => default!);
 
 
-    public Function(Func<Domain, Codomain> func) => _func = func;
+    public Function()
+        : this(default(Codomain))
+    {
+    }
 
-    public Function(Codomain constant)
+    public Function(Codomain? constant)
         : this(_ => constant)
     {
     }
 
-    public override Codomain Evaluate(Domain x) => _func(x);
+    public Function(Func<Domain, Codomain?> func) => _func = func;
+
+    public override Codomain? Evaluate(Domain x) => _func(x);
 
     public override Function<Domain, Codomain> Negate() => new(x => Evaluate(x).Negate());
 
@@ -111,11 +131,11 @@ public class Function<Domain, Codomain>
 
     public override bool Equals(Function<Domain, Codomain>? other) => throw new NotImplementedException();
 
-    public static Function<Domain, Codomain> FromDelegate(Func<Domain, Codomain> f) => new(f);
+    public static Function<Domain, Codomain> FromDelegate(Func<Domain, Codomain?> f) => new(f);
 
-    public static implicit operator Function<Domain, Codomain>(Func<Domain, Codomain> f) => FromDelegate(f);
+    public static implicit operator Function<Domain, Codomain>(Func<Domain, Codomain?> f) => FromDelegate(f);
 
-    public static implicit operator Func<Domain, Codomain>(Function<Domain, Codomain> r) => r._func;
+    public static implicit operator Func<Domain, Codomain?>(Function<Domain, Codomain> r) => r._func;
 
     public static implicit operator Function<Domain, Codomain>(Codomain s) => new(s);
 
@@ -161,6 +181,8 @@ public class FieldFunction<Scalar>
 {
     public static new FieldFunction<Scalar> Zero { get; } = new(Scalar.Zero);
 
+    public static FieldFunction<Scalar> One { get; } = new(Scalar.One);
+
     FieldFunction<Scalar> IGroup<FieldFunction<Scalar>>.AdditiveInverse => (FieldFunction<Scalar>)Negate();
 
 
@@ -174,7 +196,7 @@ public class FieldFunction<Scalar>
     {
     }
 
-    FieldFunction<Scalar> IGroup<FieldFunction<Scalar>>.Negate() => (FieldFunction<Scalar>)Negate();
+    public override FieldFunction<Scalar> Negate() => (FieldFunction<Scalar>)base.Negate();
 
     public virtual FieldFunction<Scalar> Add(in FieldFunction<Scalar> second) => (FieldFunction<Scalar>)base.Add(this);
 
@@ -188,8 +210,10 @@ public class FieldFunction<Scalar>
 
     public virtual FieldFunction<Scalar> Multiply(Scalar factor) => new(x => Evaluate(x).Multiply(in factor));
 
+    public virtual FieldFunction<Scalar> Modulus(Scalar factor) => new(x => Evaluate(x).Modulus(in factor));
+
     public bool Equals(FieldFunction<Scalar>? other) => base.Equals(other);
-    
+
     public bool Is([MaybeNull] FieldFunction<Scalar> other) => base.Is(other);
 
     public bool IsNot([MaybeNull] FieldFunction<Scalar> other) => !Is(other);
@@ -203,11 +227,21 @@ public class FieldFunction<Scalar>
         return new(x => _s(x).Multiply(in factor).Add(Evaluate(x).Multiply(factor.Negate().Add(default(Scalar).Increment()))));
     }
 
-    public static FieldFunction<Scalar> operator *(FieldFunction<Scalar> f, Scalar s) => f.Multiply(s);
+    public static FieldFunction<Scalar> operator +(in FieldFunction<Scalar> f) => f;
 
-    public static FieldFunction<Scalar> operator *(Scalar s, FieldFunction<Scalar> f) => f.Multiply(s);
+    public static FieldFunction<Scalar> operator -(in FieldFunction<Scalar> f) => f.Negate();
 
-    public static FieldFunction<Scalar> operator /(FieldFunction<Scalar> f, Scalar s) => f.Divide(s);
+    public static FieldFunction<Scalar> operator +(in FieldFunction<Scalar> f1, in FieldFunction<Scalar> f2) => f1.Add(f2);
+
+    public static FieldFunction<Scalar> operator -(in FieldFunction<Scalar> f1, in FieldFunction<Scalar> f2) => f1.Subtract(f2);
+
+    public static FieldFunction<Scalar> operator *(in FieldFunction<Scalar> f, Scalar s) => f.Multiply(s);
+
+    public static FieldFunction<Scalar> operator *(Scalar s, in FieldFunction<Scalar> f) => f.Multiply(s);
+
+    public static FieldFunction<Scalar> operator /(in FieldFunction<Scalar> f, Scalar s) => f.Divide(s);
+
+    public static FieldFunction<Scalar> operator %(in FieldFunction<Scalar> f, Scalar s) => f.Modulus(s);
 }
 
 public partial class ScalarFunction

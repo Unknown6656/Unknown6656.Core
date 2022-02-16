@@ -35,6 +35,52 @@ namespace Unknown6656.IO;
 
 
 /// <summary>
+/// Manages the transfer of raw binary data from/to foreign pointers.
+/// </summary>
+public unsafe interface INative<@this>
+    where @this : unmanaged, INative<@this>
+{
+    /// <summary>
+    /// The raw memory size of the current structure in bytes.
+    /// </summary>
+    static abstract int BinarySize { get; }
+
+    /// <summary>
+    /// Fills an array of the given generic data type with a byte-wise copy of the current instance.
+    /// </summary>
+    /// <typeparam name="T">Generic data type</typeparam>
+    /// <returns>Generic data copy</returns>
+    T[] ToArray<T>() where T : unmanaged;
+
+    /// <summary>
+    /// Fills the given pointer with the raw data represented by this instance. This is done by copying the current structure byte-wise into the given pointer.
+    /// </summary>
+    /// <typeparam name="T">Generic pointer type</typeparam>
+    /// <param name="dst">Destination pointer</param>
+    void ToNative<T>(T* dst) where T : unmanaged;
+
+    /// <summary>
+    /// Creates a new instance from the raw data provided by the given pointer.
+    /// This is done by copying the given pointer byte-wise into a new instance.
+    /// </summary>
+    /// <typeparam name="T">Generic pointer type</typeparam>
+    /// <param name="src">Source pointer</param>
+    static abstract @this FromNative<T>(T* src) where T : unmanaged;
+
+    /// <summary>
+    /// Creates a new instance from the raw data provided by the given array.
+    /// This is done by copying the given array byte-wise into a new instance.
+    /// </summary>
+    /// <typeparam name="T">Generic array type</typeparam>
+    /// <param name="arr">Source array</param>
+    static abstract @this FromArray<T>(params T[] arr) where T : unmanaged;
+}
+
+
+// TODO : streaming from/to inative<t>
+
+
+/// <summary>
 /// A class containing serialization/deserialization functions.
 /// </summary>
 public unsafe record DataStream(byte[] Data)

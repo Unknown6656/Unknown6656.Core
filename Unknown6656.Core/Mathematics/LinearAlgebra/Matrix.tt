@@ -92,8 +92,10 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// </summary>
     public static <#=typename#> Identity { get; } = new(1);
 
+    static <#=typename#> IRing<<#=typename#>>.One => Identity;
+
     /// <summary>
-    /// The default compoonent-wise equality comparer for  <see cref="<#=typename#>"/>.
+    /// The default compoonent-wise equality comparer for <see cref="<#=typename#>"/>.
     /// </summary>
     public static <#=typename#>EqualityComparer EqualityComparer { get; } = new <#=typename#>EqualityComparer();
 
@@ -918,6 +920,9 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> Divide(Scalar factor) => Multiply(factor.Inverse);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> Modulus(Scalar factor) => new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i} % factor"))#>);
 
     public readonly <#=typename#> Sin()
     {
@@ -2060,7 +2065,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// <param name="m">Original matrix</param>
     /// <returns>Unchanged matrix</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static <#=typename#> operator +(<#=typename#> m) => m;
+    public static <#=typename#> operator +(in <#=typename#> m) => m;
 
     /// <summary>
     /// Negates the given matrix
@@ -2068,25 +2073,25 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// <param name="m">Original matrix</param>
     /// <returns>Negated matrix</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static <#=typename#> operator -(<#=typename#> m) => m.Negate();
+    public static <#=typename#> operator -(in <#=typename#> m) => m.Negate();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static <#=typename#> operator +(Scalar f, <#=typename#> m) => m.Add(f);
+    public static <#=typename#> operator +(Scalar f, in <#=typename#> m) => m.Add(f);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static <#=typename#> operator +(<#=typename#> m, Scalar f) => m.Add(f);
+    public static <#=typename#> operator +(in <#=typename#> m, Scalar f) => m.Add(f);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static <#=typename#> operator -(Scalar f, <#=typename#> m) => new <#=typename#>(f).Subtract(m);
+    public static <#=typename#> operator -(Scalar f, in <#=typename#> m) => new <#=typename#>(f).Subtract(in m);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static <#=typename#> operator -(<#=typename#> m, Scalar f) => m.Subtract(f);
+    public static <#=typename#> operator -(in <#=typename#> m, Scalar f) => m.Subtract(f);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static <#=typename#> operator ++(<#=typename#> m) => m.Increment();
+    public static <#=typename#> operator ++(in <#=typename#> m) => m.Increment();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static <#=typename#> operator --(<#=typename#> m) => m.Decrement();
+    public static <#=typename#> operator --(in <#=typename#> m) => m.Decrement();
 
     /// <summary>
     /// Performs the addition of two matrices by adding their respective coefficients.
@@ -2095,7 +2100,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// <param name="m2">Second matrix</param>
     /// <returns>Addition result</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static <#=typename#> operator +(<#=typename#> m1, <#=typename#> m2) => m1.Add(m2);
+    public static <#=typename#> operator +(in <#=typename#> m1, in <#=typename#> m2) => m1.Add(in m2);
 
     /// <summary>
     /// Performs the subtraction of two matrices by subtracting their respective coefficients.
@@ -2104,22 +2109,22 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// <param name="m2">Second matrix</param>
     /// <returns>Subtraction result</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static <#=typename#> operator -(<#=typename#> m1, <#=typename#> m2) => m1.Subtract(m2);
+    public static <#=typename#> operator -(in <#=typename#> m1, in <#=typename#> m2) => m1.Subtract(in m2);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static <#=vecname#> operator *(<#=typename#> m, <#=vecname#> v) => m.Multiply(v);
+    public static <#=vecname#> operator *(in <#=typename#> m, in <#=vecname#> v) => m.Multiply(in v);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static <#=typename#> operator *(<#=typename#> m1, <#=typename#> m2) => m1.Multiply(m2);
+    public static <#=typename#> operator *(in <#=typename#> m1, in <#=typename#> m2) => m1.Multiply(in m2);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static <#=typename#> operator *(<#=typename#> m, Scalar f) => m.Multiply(f);
+    public static <#=typename#> operator *(in <#=typename#> m, Scalar f) => m.Multiply(f);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static <#=typename#> operator *(Scalar f, <#=typename#> m) => m.Multiply(f);
+    public static <#=typename#> operator *(Scalar f, in <#=typename#> m) => m.Multiply(f);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static <#=typename#> operator ^(<#=typename#> m, int c) => m.Power(c);
+    public static <#=typename#> operator ^(in <#=typename#> m, int c) => m.Power(c);
 
     /// <summary>
     /// Solves the linear equation system Ax=b with the provided matrix A and vector b.
@@ -2137,7 +2142,10 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     public static <#=typename#> operator /(<#=typename#> m1, <#=typename#> m2) => m1.Multiply(m2.Inverse);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static <#=typename#> operator /(<#=typename#> m, Scalar f) => m.Divide(f);
+    public static <#=typename#> operator /(in <#=typename#> m, Scalar f) => m.Divide(f);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> operator %(in <#=typename#> m, Scalar f) => m.Modulus(f);
 
 <#
         string _vecs = string.Join(", ", r(0, dim).Select(i => $"Vector{dim} x{i}"));

@@ -17,6 +17,7 @@ using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Mathematics.Numerics;
 using Unknown6656.Generics;
 using Unknown6656.Common;
+using Unknown6656.IO;
 
 using bint = System.Numerics.BigInteger;
 
@@ -360,7 +361,7 @@ public unsafe readonly /* ref */ partial struct Scalar
     public readonly Scalar Dot(in Scalar second) => Multiply(in second);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Multiply(Scalar second) => new(Determinant * second.Determinant);
+    public readonly Scalar Multiply(Scalar second) => Multiply(in second);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar Multiply(in Scalar second) => new(Determinant * second.Determinant);
@@ -369,13 +370,16 @@ public unsafe readonly /* ref */ partial struct Scalar
     public readonly Scalar Multiply(params Scalar[] others) => others.Aggregate(this, Multiply);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Divide(Scalar second) => new(Determinant / second.Determinant);
+    public readonly Scalar Divide(Scalar second) => Divide(in second);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar Divide(in Scalar second) => new(Determinant / second.Determinant);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Scalar Factor, Scalar Remainder) DivideModulus(in Scalar second) => (Divide(in second), Modulus(in second));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly Scalar Modulus(Scalar second) => Modulus(in second);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar Modulus(in Scalar second) => new(Determinant % second.Determinant);
@@ -521,7 +525,12 @@ public unsafe readonly /* ref */ partial struct Scalar
             (IsNaN && other.IsNaN))
             return true;
 
-        return Subtract(other).Abs().CompareTo(tolerance) <= 0;
+        // return Subtract(other).Abs().CompareTo(tolerance) <= 0;
+
+        Scalar min = Abs().Min(other.Abs());
+        Scalar max = Abs().Max(other.Abs());
+
+        return (max - min) <= tolerance * max;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -929,6 +938,17 @@ public unsafe readonly /* ref */ partial struct Scalar
         return success;
     }
 
+    public static Scalar FromArray(params Scalar[] array) => array[0];
+
+    public static Scalar FromArray<T>(params T[] array)
+        where T : unmanaged
+    {
+        fixed (T* ptr = array)
+            return FromNative(ptr);
+    }
+
+    public static Scalar FromNative<T>(T* pointer) where T : unmanaged => *(Scalar*)pointer;
+
     #endregion
     #region OPERATORS
 
@@ -1030,7 +1050,7 @@ public unsafe readonly /* ref */ partial struct Scalar
     public static Scalar operator *(in Scalar m, in Scalar v) => m.Multiply(in v);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar operator ^(in Scalar b, in Scalar e) => b.Power(in e);
+    public static Scalar operator ^(in Scalar b, Scalar e) => b.Power(e);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar operator ^(in Scalar b, int e) => b.Power(e);
@@ -1040,6 +1060,18 @@ public unsafe readonly /* ref */ partial struct Scalar
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar operator %(in Scalar m, in Scalar f) => m.Modulus(in f);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static Scalar Algebra<Scalar>.IVectorSpace<Scalar>.operator *(in Scalar m, Scalar v) => m.Multiply(v);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static Scalar Algebra<Scalar>.IVectorSpace<Scalar>.operator *(Scalar m, in Scalar v) => m.Multiply(in v);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static Scalar Algebra<Scalar>.IVectorSpace<Scalar>.operator %(in Scalar m, Scalar v) => m.Modulus(v);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static Scalar Algebra<Scalar>.IVectorSpace<Scalar>.operator /(in Scalar m, Scalar v) => m.Divide(v);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator decimal(Scalar m) => (decimal)m.Determinant;

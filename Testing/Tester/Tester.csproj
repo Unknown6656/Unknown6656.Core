@@ -16,7 +16,7 @@
         <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.0.1">
+        <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.1.0">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>

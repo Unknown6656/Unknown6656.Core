@@ -66,13 +66,13 @@ public abstract class Function<Func, Domain, Codomain>
     public abstract Func Add(in Func second);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual Func Add(params Func[] others) => others.Aggregate((Func)this, (x, y) => x.Add(in y));
+    public virtual Func Add(params Func[] others) => others.Aggregate((Func)this, (x, y) => x + y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual Func Subtract(in Func second) => Add(second.Negate());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual Func Subtract(params Func[] others) => others.Aggregate((Func)this, (x, y) => x.Subtract(in y));
+    public virtual Func Subtract(params Func[] others) => others.Aggregate((Func)this, (x, y) => x - y);
 
     static Func IGroup<Func>.operator +(in Func function) => function;
 
@@ -116,13 +116,13 @@ public class Function<Domain, Codomain>
 
     public override Codomain? Evaluate(Domain x) => _func(x);
 
-    public override Function<Domain, Codomain> Negate() => new(x => Evaluate(x).Negate());
+    public override Function<Domain, Codomain> Negate() => new(x => -_func(x));
 
     public override Function<Domain, Codomain> Add(in Function<Domain, Codomain> second)
     {
-        Func<Domain, Codomain> other = second.Evaluate;
+        Func<Domain, Codomain?> other = second._func;
 
-        return new(x => Evaluate(x).Add(other(x)));
+        return new(x => _func(x) + other(x));
     }
 
     public Function<Domain, Codomain> Add(Codomain constant) => Add(new Function<Domain, Codomain>(constant));
@@ -183,7 +183,7 @@ public class FieldFunction<Scalar>
 
     public static FieldFunction<Scalar> One { get; } = new(Scalar.One);
 
-    FieldFunction<Scalar> IGroup<FieldFunction<Scalar>>.AdditiveInverse => (FieldFunction<Scalar>)Negate();
+    FieldFunction<Scalar> IGroup<FieldFunction<Scalar>>.AdditiveInverse => Negate();
 
 
     public FieldFunction(Scalar constant)
@@ -206,25 +206,26 @@ public class FieldFunction<Scalar>
 
     public FieldFunction<Scalar> Subtract(params FieldFunction<Scalar>[] others) => (FieldFunction<Scalar>)base.Subtract(others); // .ToArray(f => f as Function<Scalar, Scalar>));
 
-    public virtual FieldFunction<Scalar> Divide(Scalar factor) => new(x => Evaluate(x).Divide(in factor));
+    public virtual FieldFunction<Scalar> Divide(Scalar factor) => new(x => Evaluate(x) / factor);
 
-    public virtual FieldFunction<Scalar> Multiply(Scalar factor) => new(x => Evaluate(x).Multiply(in factor));
+    public virtual FieldFunction<Scalar> Multiply(Scalar factor) => new(x => Evaluate(x) * factor);
 
-    public virtual FieldFunction<Scalar> Modulus(Scalar factor) => new(x => Evaluate(x).Modulus(in factor));
+    public virtual FieldFunction<Scalar> Modulus(Scalar factor) => new(x => Evaluate(x) % factor);
 
     public bool Equals(FieldFunction<Scalar>? other) => base.Equals(other);
 
-    public bool Is([MaybeNull] FieldFunction<Scalar> other) => base.Is(other);
+    public bool Is(FieldFunction<Scalar>? other) => base.Is(other);
 
-    public bool IsNot([MaybeNull] FieldFunction<Scalar> other) => !Is(other);
+    public bool IsNot(FieldFunction<Scalar>? other) => !Is(other);
 
-    public virtual bool IsLinearDependant(in FieldFunction<Scalar> other, out Scalar? factor) => throw new InvalidOperationException("Linear dependency is not defined for arbitrary functions.");
+    public virtual bool IsLinearDependant(in FieldFunction<Scalar> other, out Scalar? factor) =>
+        throw new InvalidOperationException("Linear dependency is not defined for arbitrary functions.");
 
     public virtual FieldFunction<Scalar> LinearInterpolate(in FieldFunction<Scalar> other, Scalar factor)
     {
         Func<Scalar, Scalar> _s = other.Evaluate;
 
-        return new(x => _s(x).Multiply(in factor).Add(Evaluate(x).Multiply(factor.Negate().Add(default(Scalar).Increment()))));
+        return new(x => _s(x) * factor + Evaluate(x) * (default(Scalar).Increment() - factor));
     }
 
     public static bool operator ==(FieldFunction<Scalar>? f1, FieldFunction<Scalar>? f2) => f1?.Equals(f2) ?? f2 is null;
@@ -235,9 +236,9 @@ public class FieldFunction<Scalar>
 
     public static FieldFunction<Scalar> operator -(in FieldFunction<Scalar> f) => f.Negate();
 
-    public static FieldFunction<Scalar> operator +(in FieldFunction<Scalar> f1, in FieldFunction<Scalar> f2) => f1.Add(f2);
+    public static FieldFunction<Scalar> operator +(in FieldFunction<Scalar> f1, in FieldFunction<Scalar> f2) => f1.Add(in f2);
 
-    public static FieldFunction<Scalar> operator -(in FieldFunction<Scalar> f1, in FieldFunction<Scalar> f2) => f1.Subtract(f2);
+    public static FieldFunction<Scalar> operator -(in FieldFunction<Scalar> f1, in FieldFunction<Scalar> f2) => f1.Subtract(in f2);
 
     public static FieldFunction<Scalar> operator *(in FieldFunction<Scalar> f, Scalar s) => f.Multiply(s);
 
@@ -268,38 +269,42 @@ public partial class ScalarFunction
     {
     }
 
-    public override FieldFunction<Scalar> Negate() => new ScalarFunction(x => Evaluate(x).Negate());
+    public override ScalarFunction Negate() => new(x => Evaluate(x).Negate());
 
-    public override FieldFunction<Scalar> Add(in FieldFunction<Scalar> second)
+    public override ScalarFunction Add(in FieldFunction<Scalar> second)
     {
         Func<Scalar, Scalar> _other = second.Evaluate;
 
-        return new ScalarFunction(x => Evaluate(x).Add(_other(x)));
+        return new(x => Evaluate(x).Add(_other(x)));
     }
 
-    public override FieldFunction<Scalar> Subtract(in FieldFunction<Scalar> second)
+    public override ScalarFunction Subtract(in FieldFunction<Scalar> second)
     {
         Func<Scalar, Scalar> _other = second.Evaluate;
 
-        return new ScalarFunction(x => Evaluate(x).Subtract(_other(x)));
+        return new(x => Evaluate(x).Subtract(_other(x)));
     }
-    
-    public override FieldFunction<Scalar> Multiply(Scalar factor) => new ScalarFunction(x => Evaluate(x).Multiply(factor));
 
-    public override FieldFunction<Scalar> Divide(Scalar factor) => new ScalarFunction(x => Evaluate(x).Divide(factor));
+    public override ScalarFunction Multiply(Scalar factor) => new(x => Evaluate(x).Multiply(factor));
 
-    public override FieldFunction<Scalar> LinearInterpolate(in FieldFunction<Scalar> other, Scalar factor)
+    public override ScalarFunction Divide(Scalar factor) => new(x => Evaluate(x).Divide(factor));
+
+    public override ScalarFunction LinearInterpolate(in FieldFunction<Scalar> other, Scalar factor)
     {
         Func<Scalar, Scalar> _other = other.Evaluate;
 
-        return new ScalarFunction(x => Evaluate(x) * (1 - factor) + _other(x) * factor);
+        return new(x => Evaluate(x) * (1 - factor) + _other(x) * factor);
     }
 }
 
 public partial class ComplexFunction
     : FieldFunction<Complex>
 {
+    public static new ComplexFunction Zero { get; } = new(_ => Complex.Zero);
+
     public static new ComplexFunction Identity { get; } = new(LINQ.id);
+
+    public override bool IsZero => Is(Zero);
 
 
     public ComplexFunction(Complex constant)
@@ -310,6 +315,33 @@ public partial class ComplexFunction
     public ComplexFunction(Func<Complex, Complex> func)
         : base(func)
     {
+    }
+
+    public override ComplexFunction Negate() => new(x => Evaluate(x).Negate());
+
+    public override ComplexFunction Add(in FieldFunction<Complex> second)
+    {
+        Func<Complex, Complex> _other = second.Evaluate;
+
+        return new(x => Evaluate(x).Add(_other(x)));
+    }
+
+    public override ComplexFunction Subtract(in FieldFunction<Complex> second)
+    {
+        Func<Complex, Complex> _other = second.Evaluate;
+
+        return new(x => Evaluate(x).Subtract(_other(x)));
+    }
+
+    public override ComplexFunction Multiply(Complex factor) => new(x => Evaluate(x).Multiply(factor));
+
+    public override ComplexFunction Divide(Complex factor) => new(x => Evaluate(x).Divide(factor));
+
+    public override ComplexFunction LinearInterpolate(in FieldFunction<Complex> other, Complex factor)
+    {
+        Func<Complex, Complex> _other = other.Evaluate;
+
+        return new(x => Evaluate(x) * (1 - factor) + _other(x) * factor);
     }
 }
 
@@ -333,12 +365,12 @@ public abstract class ContinuousFunction<DerivativeFunc, IntegralFunc, Domain, C
     public abstract IntegralFunc Integral { get; }
 
 
-    public ContinuousFunction(Func<Domain, Codomain> func)
+    public ContinuousFunction(Func<Domain, Codomain?> func)
         : base(func)
     {
     }
 
-    public ContinuousFunction(Codomain constant)
+    public ContinuousFunction(Codomain? constant)
         : base(constant)
     {
     }

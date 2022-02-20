@@ -1223,7 +1223,7 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
 {
     #region STATIC FIELDS
 
-    private static readonly Dictionary<OpType, MethodInfo> _operators = new();
+    private static readonly Dictionary<OpType, MethodInfo?> _operators = new();
     private static readonly T _zero;
     private static readonly T _one;
 
@@ -1238,29 +1238,45 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
 
     public static Scalar<T> Two { get; }
 
+    public static Scalar<T> PositiveInfinity => One / Zero
+
+    public static Scalar<T> NegativeInfinity => NegativeOne / Zero
+
+    public static Scalar<T> NaN => Zero / Zero
+
+    static Scalar<T> IScalar<Scalar<T>>.MinValue => MathFunction(() => __scalar.MinValue)
+
+    static Scalar<T> IScalar<Scalar<T>>.MaxValue => MathFunction(() => __scalar.MaxValue)
+
     public static ScalarEqualityComparer<T> EqualityComparer { get; } = new ScalarEqualityComparer<T>();
 
     #endregion
     #region INDEXERS
 
-    readonly Scalar<T> Algebra<Scalar<T>>.IComposite1D.this[int index] => index is 0 ? this : throw new ArgumentOutOfRangeException("The index must be zero.");
+    readonly Scalar<T> Algebra<Scalar<T>>.IComposite1D.this[int index] =>
+        index is 0 ? this : throw new ArgumentOutOfRangeException(nameof(index), "The index must be zero.");
 
-    readonly Scalar<T> Algebra<Scalar<T>>.IComposite1D<Scalar<T>>.this[int index, Scalar<T> value] => index is 0 ? value : throw new ArgumentOutOfRangeException("The index must be zero.");
+    readonly Scalar<T> Algebra<Scalar<T>>.IComposite1D<Scalar<T>>.this[int index, Scalar<T> value] =>
+        index is 0 ? value : throw new ArgumentOutOfRangeException(nameof(index), "The index must be zero.");
 
-    readonly Scalar<T> Algebra<Scalar<T>>.IMatrix<Scalar<T>, Scalar<T>>.this[int column, in Scalar<T> vector] => column is 0 ? vector : throw new ArgumentOutOfRangeException("The index must be zero.");
+    readonly Scalar<T> Algebra<Scalar<T>>.IMatrix<Scalar<T>, Scalar<T>>.this[int column, in Scalar<T> vector] =>
+        column is 0 ? vector : throw new ArgumentOutOfRangeException(nameof(column), "The index must be zero.");
 
-    readonly Scalar<T> Algebra<Scalar<T>>.IComposite2D.this[int column, int row] => (column, row) is (0, 0) ? this : throw new ArgumentOutOfRangeException("The indices must be (0, 0).");
+    readonly Scalar<T> Algebra<Scalar<T>>.IComposite2D.this[int column, int row] =>
+        (column, row) is (0, 0) ? this : throw new ArgumentOutOfRangeException($"({nameof(column)}, {nameof(row)})", "The indices must be (0, 0).");
 
-    readonly Scalar<T> Algebra<Scalar<T>>.IMatrix<Scalar<T>, Scalar<T>>.this[int column] => column is 0 ? this : throw new ArgumentOutOfRangeException("The index must be zero.");
+    readonly Scalar<T> Algebra<Scalar<T>>.IMatrix<Scalar<T>, Scalar<T>>.this[int column] =>
+        column is 0 ? this : throw new ArgumentOutOfRangeException(nameof(column), "The index must be zero.");
 
-    readonly Scalar<T> Algebra<Scalar<T>>.IComposite2D<Scalar<T>>.this[int column, int row, Scalar<T> value] => (column, row) is (0, 0) ? value : throw new ArgumentOutOfRangeException("The indices must be (0, 0).");
+    readonly Scalar<T> Algebra<Scalar<T>>.IComposite2D<Scalar<T>>.this[int column, int row, Scalar<T> value] =>
+        (column, row) is (0, 0) ? value : throw new ArgumentOutOfRangeException($"({nameof(column)}, {nameof(row)})", "The indices must be (0, 0).");
 
     #endregion
     #region INSTANCE PROPERTIES
 
     public readonly T Value { get; }
 
-    public readonly bool IsNaN => MathFunction(__scalar.IsNaN);
+    public readonly bool IsNaN => Is(NaN) || MathFunction(__scalar.IsNaN);
 
     public readonly bool IsNegative => this < Zero;
 
@@ -1268,13 +1284,13 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
 
     public readonly bool IsPositiveDefinite => IsPositive;
 
-    public readonly bool IsNegativeInfinity => MathFunction(__scalar.IsNegativeInfinity);
+    public readonly bool IsNegativeInfinity => Is(NegativeInfinity) || MathFunction(__scalar.IsNegative);
 
-    public readonly bool IsPositiveInfinity => MathFunction(__scalar.IsPositiveInfinity);
+    public readonly bool IsPositiveInfinity => Is(PositiveInfinity) || MathFunction(__scalar.IsPositiveInfinity);
 
-    public readonly bool IsInfinity => MathFunction(__scalar.IsInfinity);
+    public readonly bool IsInfinity => IsNegativeInfinity || IsPositiveInfinity || MathFunction(__scalar.IsInfinity);
 
-    public readonly bool IsFinite => MathFunction(__scalar.IsFinite);
+    public readonly bool IsFinite => !IsInfinity && !IsNaN;
 
     public readonly Scalar<T> Inverse => One.Divide(this);
 
@@ -1309,7 +1325,7 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
 
     public readonly Scalar<T> Floor => Subtract(DecimalPlaces);
 
-    public readonly Scalar<T> Rounded => DecimalPlaces.Multiply(Two) < One ? Floor : Ceiling;
+    public readonly Scalar<T> Rounded => (DecimalPlaces * Two) < One ? Floor : Ceiling;
 
     public readonly bool IsInteger => Is(Rounded);
 
@@ -1430,6 +1446,7 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
         ); // TODO : fix this shit!
 
         foreach (OpType op in Enum.GetValues(typeof(OpType)))
+        {
             try
             {
                 _operators[op] = T.GetMethod(op.ToString(), BindingFlags.Static | BindingFlags.Public)!;
@@ -1437,44 +1454,44 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
             catch (AmbiguousMatchException)
             {
                 Type tref = typeof(T).MakeByRefType();
-                _operators[op] = (from m in T.GetMethods(BindingFlags.Static | BindingFlags.Public)
-                                  where m.Name == op.ToString()
-                                  let pars = m.GetParameters()
+                _operators[op] = (from method in T.GetMethods(BindingFlags.Static | BindingFlags.Public)
+                                  where method.Name == op.ToString()
+                                  let pars = method.GetParameters()
                                   let pt0 = pars[0].ParameterType
                                   let pt1 = pars[1].ParameterType
                                   where pt0.IsAssignableFrom(typeof(T)) || pt0.IsAssignableFrom(tref)
                                   where pt1.IsAssignableFrom(typeof(T)) || pt1.IsAssignableFrom(tref)
-                                  select m).FirstOrDefault();
+                                  select method).FirstOrDefault();
             }
             catch
             {
             }
-            finally
-            {
-                if (!_operators.TryGetValue(op, out MethodInfo? m) || m is null)
-                    _operators[op] = (op switch
-                    {
-                        _ when critical.Contains(op) => throw new InvalidOperationException($"The type '{T}' canot be useed as generic parameter for the type '{typeof(Scalar<>)}', as it does not implement the operator '{op}'."),
-                        OpType.op_Inequality => (Delegate)new Func<object, T, T, bool>((_, t1, t2) => !OP<bool>(OpType.op_Equality, t1, t2)),
-                        OpType.op_GreaterThan => new Func<object, T, T, bool>((_, t1, t2) => t1.CompareTo(t2) > 0),
-                        OpType.op_LessThan => new Func<object, T, T, bool>((_, t1, t2) => t1.CompareTo(t2) < 0),
-                        OpType.op_GreaterThanOrEqual => new Func<object, T, T, bool>((_, t1, t2) => t1.CompareTo(t2) >= 0),
-                        OpType.op_LessThanOrEqual => new Func<object, T, T, bool>((_, t1, t2) => t1.CompareTo(t2) <= 0),
-                        OpType.op_Subtraction => new Func<object, T, T, T>((_, t1, t2) => OP<T>(OpType.op_Addition, t1, OP(OpType.op_UnaryNegation, t2))),
-                        OpType.op_UnaryPlus => new Func<object, T, T>((_, t) => t),
-                        OpType.op_Increment => new Func<object, T, T, T>((_, t1, t2) => OP<T>(OpType.op_Addition, t1, _one)),
-                        OpType.op_Decrement => new Func<object, T, T, T>((_, t1, t2) => OP<T>(OpType.op_Addition, t1, OP(OpType.op_UnaryNegation, _one))),
-                        _ => throw new InvalidProgramException(),
-                    }).Method;
-            }
 
-        foreach (MethodInfo nfo in _operators.Values)
-            RuntimeHelpers.PrepareMethod(nfo.MethodHandle);
+            if (!_operators.TryGetValue(op, out MethodInfo? m) || m is null)
+                _operators[op] = (op switch
+                {
+                    _ when critical.Contains(op) => throw new InvalidOperationException($"The type '{T}' canot be useed as generic parameter for the type '{typeof(Scalar<>)}', as it does not implement the operator '{op}'."),
+                    OpType.op_Inequality => (Delegate)new Func<object, T, T, bool>((_, t1, t2) => !OP<bool>(OpType.op_Equality, t1, t2)),
+                    OpType.op_GreaterThan => new Func<object, T, T, bool>((_, t1, t2) => t1.CompareTo(t2) > 0),
+                    OpType.op_LessThan => new Func<object, T, T, bool>((_, t1, t2) => t1.CompareTo(t2) < 0),
+                    OpType.op_GreaterThanOrEqual => new Func<object, T, T, bool>((_, t1, t2) => t1.CompareTo(t2) >= 0),
+                    OpType.op_LessThanOrEqual => new Func<object, T, T, bool>((_, t1, t2) => t1.CompareTo(t2) <= 0),
+                    OpType.op_Subtraction => new Func<object, T, T, T>((_, t1, t2) => OP<T>(OpType.op_Addition, t1, OP(OpType.op_UnaryNegation, t2))),
+                    OpType.op_UnaryPlus => new Func<object, T, T>((_, t) => t),
+                    OpType.op_Increment => new Func<object, T, T, T>((_, t1, t2) => OP<T>(OpType.op_Addition, t1, _one)),
+                    OpType.op_Decrement => new Func<object, T, T, T>((_, t1, t2) => OP<T>(OpType.op_Addition, t1, OP(OpType.op_UnaryNegation, _one))),
+                    _ => throw new InvalidProgramException(),
+                }).Method;
+        }
 
-        Zero = new Scalar<T>(_zero);
-        One = new Scalar<T>(_one);
-        Two = One.Add(One);
-        NegativeOne = One.Negate();
+        foreach (MethodInfo? nfo in _operators.Values)
+            if (nfo is { })
+                RuntimeHelpers.PrepareMethod(nfo.MethodHandle);
+
+        Zero = new(_zero);
+        One = new(_one);
+        Two = One + One;
+        NegativeOne = -One;
     }
 
     public Scalar(T* ptr)
@@ -1851,6 +1868,9 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
     private bool MathFunction(Func<__scalar, bool> func) => func((__scalar)(dynamic)Value);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private Scalar<T> MathFunction(Func<__scalar> func) => new((T)(dynamic)(__scalar)func());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private Scalar<T> MathFunction(Func<__scalar, __scalar> func) => new((T)(dynamic)(__scalar)func((__scalar)(dynamic)Value));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1922,10 +1942,10 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
     public static bool operator >=(Scalar<T> s1, Scalar<T> s2) => OP<bool>(OpType.op_GreaterThanOrEqual, s1, s2);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar<T> operator +(Scalar<T> s) => s;
+    public static Scalar<T> operator +(in Scalar<T> s) => s;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar<T> operator -(Scalar<T> s) => s.Negate();
+    public static Scalar<T> operator -(in Scalar<T> s) => s.Negate();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar<T> operator ++(in Scalar<T> s) => s.Increment();
@@ -1934,22 +1954,34 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
     public static Scalar<T> operator --(in Scalar<T> s) => s.Decrement();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar<T> operator +(in Scalar<T> s1, in Scalar<T> s2) => s2.Add(s1);
+    public static Scalar<T> operator +(in Scalar<T> s1, in Scalar<T> s2) => s2.Add(in s1);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar<T> operator -(in Scalar<T> s1, in Scalar<T> s2) => s2.Subtract(s1);
+    public static Scalar<T> operator -(in Scalar<T> s1, in Scalar<T> s2) => s2.Subtract(in s1);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar<T> operator *(in Scalar<T> s1, in Scalar<T> s2) => s1.Multiply(s2);
+    public static Scalar<T> operator *(in Scalar<T> s1, in Scalar<T> s2) => s1.Multiply(in s2);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static Scalar<T> Algebra<Scalar<T>>.IVectorSpace<Scalar<T>>.operator *(Scalar<T> s1, in Scalar<T> s2) => s1.Multiply(in s2);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static Scalar<T> Algebra<Scalar<T>>.IVectorSpace<Scalar<T>>.operator *(in Scalar<T> s1, Scalar<T> s2) => s1.Multiply(s2);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar<T> operator ^(in Scalar<T> s, int c) => s.Power(c);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar<T> operator /(in Scalar<T> s1, in Scalar<T> s2) => s1.Divide(s2);
+    public static Scalar<T> operator /(in Scalar<T> s1, in Scalar<T> s2) => s1.Divide(in s2);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Scalar<T> operator %(in Scalar<T> s1, in Scalar<T> s2) => s1.Modulus(s2);
+    public static Scalar<T> operator /(in Scalar<T> s1, Scalar<T> s2) => s1.Divide(s2);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar<T> operator %(in Scalar<T> s1, in Scalar<T> s2) => s1.Modulus(in s2);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static Scalar<T> Algebra<Scalar<T>>.IVectorSpace<Scalar<T>>.operator %(in Scalar<T> s1, Scalar<T> s2) => s1.Modulus(s2);
 
     //static Scalar<T> Algebra<Scalar<T>>.IVectorSpace<Scalar<T>>.operator *(in Scalar<T> s1, Scalar s2) => s1 * (Scalar<T>)s2;
 

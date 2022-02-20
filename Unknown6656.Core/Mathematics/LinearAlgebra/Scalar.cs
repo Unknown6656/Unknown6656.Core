@@ -1238,15 +1238,15 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
 
     public static Scalar<T> Two { get; }
 
-    public static Scalar<T> PositiveInfinity => One / Zero
+    public static Scalar<T> PositiveInfinity => One / Zero;
 
-    public static Scalar<T> NegativeInfinity => NegativeOne / Zero
+    public static Scalar<T> NegativeInfinity => NegativeOne / Zero;
 
-    public static Scalar<T> NaN => Zero / Zero
+    public static Scalar<T> NaN => Zero / Zero;
 
-    static Scalar<T> IScalar<Scalar<T>>.MinValue => MathFunction(() => __scalar.MinValue)
+    static Scalar<T> IScalar<Scalar<T>>.MinValue => MathFunction(() => __scalar.MinValue);
 
-    static Scalar<T> IScalar<Scalar<T>>.MaxValue => MathFunction(() => __scalar.MaxValue)
+    static Scalar<T> IScalar<Scalar<T>>.MaxValue => MathFunction(() => __scalar.MaxValue);
 
     public static ScalarEqualityComparer<T> EqualityComparer { get; } = new ScalarEqualityComparer<T>();
 
@@ -1549,6 +1549,9 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Scalar<T> Factor, Scalar<T> Remainder) DivideModulus(in Scalar<T> second) => (Divide(in second), Modulus(in second));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly Scalar<T> Modulus(Scalar<T> second) => OP(OpType.op_Modulus, second);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar<T> Modulus(in Scalar<T> second) => OP(OpType.op_Modulus, second);
@@ -1868,7 +1871,7 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
     private bool MathFunction(Func<__scalar, bool> func) => func((__scalar)(dynamic)Value);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private Scalar<T> MathFunction(Func<__scalar> func) => new((T)(dynamic)(__scalar)func());
+    static private Scalar<T> MathFunction(Func<__scalar> func) => new((T)(dynamic)(__scalar)func());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private Scalar<T> MathFunction(Func<__scalar, __scalar> func) => new((T)(dynamic)(__scalar)func((__scalar)(dynamic)Value));
@@ -1919,6 +1922,9 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
     public static Scalar<T> Modulus(Scalar<T> s1, Scalar<T> s2) => s1.Modulus(s2);
 
     // TODO : parse
+
+    public static Scalar<T> FromArray(params Scalar<T>[] coefficients) =>
+        coefficients.Length != 1 ? throw new ArgumentException("Invalid array length.", nameof(coefficients)) : coefficients[0];
 
     #endregion
     #region OPERATORS

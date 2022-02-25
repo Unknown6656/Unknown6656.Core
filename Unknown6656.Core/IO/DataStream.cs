@@ -26,6 +26,8 @@ using Unknown6656.Controls.Console;
 using Unknown6656.Generics;
 using Unknown6656.Imaging;
 using Unknown6656.Common;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Unknown6656.IO;
 
@@ -550,13 +552,26 @@ public unsafe record DataStream(byte[] Data)
 
     public INIFile ToINI(Encoding encoding) => INIFile.FromINIString(ToString(encoding));
 
-    public T ToJSON<T>(JsonSerializerOptions? options = null) => ToJSON<T>(DefaultDataStreamEncoding, options);
+    public T? ToJSON<T>(JsonSerializerOptions? options = null) => ToJSON<T>(DefaultDataStreamEncoding, options);
 
-    public T ToJSON<T>(Encoding enc, JsonSerializerOptions? options = null) => (T)ToJSON(typeof(T), enc, options)!;
+    public T? ToJSON<T>(Encoding enc, JsonSerializerOptions? options = null) => (T)ToJSON(typeof(T), enc, options)!;
 
     public object? ToJSON(Type type, JsonSerializerOptions? options = null) => ToJSON(type, DefaultDataStreamEncoding, options);
 
     public object? ToJSON(Type type, Encoding enc, JsonSerializerOptions? options = null) => JsonSerializer.Deserialize(ToString(enc), type, options ?? DefaultJSONOptions);
+
+    public object ToSerializable()
+    {
+        BinaryFormatter fmt = new();
+        using MemoryStream ms = new();
+
+        ToStream(ms);
+        ms.Seek(0, SeekOrigin.Begin);
+
+        return fmt.Deserialize(ms);
+    }
+
+    public T ToSerializable<T>() => (T)ToSerializable();
 
     public object? ToObject() => LINQ.TryDo(() =>
     {
@@ -763,6 +778,16 @@ public unsafe record DataStream(byte[] Data)
     public static DataStream FromObjectAsJSON(object? obj, JsonSerializerOptions? options = null) => FromObjectAsJSON(obj, DefaultDataStreamEncoding, options);
 
     public static DataStream FromObjectAsJSON(object? obj, Encoding enc, JsonSerializerOptions? options = null) => FromString(JsonSerializer.Serialize(obj, options ?? DefaultJSONOptions), enc);
+
+    public static DataStream FromSerializable(object serializable)
+    {
+        BinaryFormatter fmt = new();
+        MemoryStream ms = new();
+
+        fmt.Serialize(ms, serializable);
+
+        return FromStream(ms);
+    }
 
     public static DataStream FromObject(object? obj)
     {

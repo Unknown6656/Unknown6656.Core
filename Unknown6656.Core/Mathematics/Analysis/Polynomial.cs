@@ -20,6 +20,13 @@ using static System.Math;
 namespace Unknown6656.Mathematics.Analysis;
 
 
+public interface IPolynomial<Polynomial, Scalar>
+{
+    static abstract Polynomial CreatePolynomial(IEnumerable<Scalar> coefficients);
+
+    static abstract Polynomial CreatePolynomial(params Scalar[] coefficients);
+}
+
 /// <summary>
 /// Represents an abstract polynomial.
 /// <para/>
@@ -27,6 +34,7 @@ namespace Unknown6656.Mathematics.Analysis;
 /// </summary>
 public class Polynomial<Function, T>
     : ContinuousFunction<Polynomial<Function, T>, Polynomial<Function, T>, T, T>
+    , IPolynomial<Function, T>
     , IEnumerable<T>
     , ICloneable
     where Function : Polynomial<Function, T>
@@ -154,8 +162,8 @@ public class Polynomial<Function, T>
         else
             throw new InvalidOperationException($"The type parameter '{F}' cannot be used as polynomial function type, as it has no constructor accepting an array of polynomial coefficents ('{typeof(T[])}').");
 
-        Zero = _create(new T[1] { default });
-        One = _create(new T[1] { default(T).Increment() });
+        Zero = _create(new T[1] { T.Zero });
+        One = _create(new T[1] { T.One });
         X = One.IncreaseDegree(1);
     }
 
@@ -434,6 +442,10 @@ public class Polynomial<Function, T>
 
         return L;
     }
+
+    public static Function CreatePolynomial(IEnumerable<T> coefficients) => (Function)new Polynomial<Function, T>(coefficients);
+
+    public static Function CreatePolynomial(params T[] coefficients) => (Function)new Polynomial<Function, T>(coefficients);
 
     #endregion
     #region OPERATORS
@@ -1013,55 +1025,55 @@ public partial class Polynomial
     public static explicit operator Polynomial(string str) => Parse(str);
 }
 
-//  public class BernsteinPolynomial
-//      : Polynomial
-//  {
-//      private readonly long _c, _n, _v;
+// public class BernsteinPolynomial
+//     : Polynomial
+// {
+//     private readonly long _c, _n, _v;
 //
 //
-//      public override BernsteinPolynomial Derivative
-//      {
-//          get
-//          {
-//              BernsteinPolynomial bs1 = new BernsteinPolynomial(_v - 1, _n - 1);
-//              BernsteinPolynomial bs2 = new BernsteinPolynomial(_v, _n - 1);
+//     public override BernsteinPolynomial Derivative
+//     {
+//         get
+//         {
+//             BernsteinPolynomial bs1 = new BernsteinPolynomial(_v - 1, _n - 1);
+//             BernsteinPolynomial bs2 = new BernsteinPolynomial(_v, _n - 1);
 //
-//              return new DoubleFunction(x => _n * (bs1[x] - bs2[x]));
-//          }
-//      }
+//             return new DoubleFunction(x => _n * (bs1[x] - bs2[x]));
+//         }
+//     }
 //
-//      public IDoubleFunction Integral
-//      {
-//          get
-//          {
-//              List<BernsteinPolynomial> polynomials = new List<BernsteinPolynomial>();
+//     public IDoubleFunction Integral
+//     {
+//         get
+//         {
+//             List<BernsteinPolynomial> polynomials = new List<BernsteinPolynomial>();
 //
-//              for (long j = _v + 1; j < _n + 1; ++j)
-//                  polynomials.Add(new BernsteinPolynomial(j, _n + 1));
+//             for (long j = _v + 1; j < _n + 1; ++j)
+//                 polynomials.Add(new BernsteinPolynomial(j, _n + 1));
 //
-//              return new DoubleFunction(x => polynomials.Select(b => b[x]).Sum() / (_n + 1));
-//          }
-//      }
+//             return new DoubleFunction(x => polynomials.Select(b => b[x]).Sum() / (_n + 1));
+//         }
+//     }
 //
-//      FunctionCache<BernsteinPolynomial, scalar, scalar> IContinuousFunction<BernsteinPolynomial>.Cached => new FunctionCache<BernsteinPolynomial, scalar, scalar>(this);
+//     FunctionCache<BernsteinPolynomial, scalar, scalar> IContinuousFunction<BernsteinPolynomial>.Cached => new FunctionCache<BernsteinPolynomial, scalar, scalar>(this);
 //
 //
-//      private BernsteinPolynomial(long v, long n, long c)
-//      {
-//          if (n < 0)
-//              throw new ArgumentException($"The parameter {nameof(n)} must be equal to or greater than zero.");
-//          else if (v > n)
-//              throw new ArgumentException($"The parameter {nameof(v)} must be smaller or equal to the parameter {nameof(n)}.");
+//     private BernsteinPolynomial(long v, long n, long c)
+//     {
+//         if (n < 0)
+//             throw new ArgumentException($"The parameter {nameof(n)} must be equal to or greater than zero.");
+//         else if (v > n)
+//             throw new ArgumentException($"The parameter {nameof(v)} must be smaller or equal to the parameter {nameof(n)}.");
 //
-//          _v = v;
-//          _n = n;
-//          _c = c;
-//      }
+//         _v = v;
+//         _n = n;
+//         _c = c;
+//     }
 //
-//      public BernsteinPolynomial(long v, long n)
-//          : this(v, n, MathExtensions.BinomialCoefficient(n, v))
-//      {
-//      }
+//     public BernsteinPolynomial(long v, long n)
+//         : this(v, n, MathExtensions.BinomialCoefficient(n, v))
+//     {
+//     }
 //
-//      public override double Evaluate(double x) => _c * x.FastPow(_v) * (1 - x).FastPow(_n - _v);
-//  }
+//     public override double Evaluate(double x) => _c * x.FastPow(_v) * (1 - x).FastPow(_n - _v);
+// }

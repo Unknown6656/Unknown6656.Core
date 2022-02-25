@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System;
+
 using Unknown6656.Mathematics.Graphs.Computation;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Analysis;
@@ -17,6 +18,7 @@ using Unknown6656.Controls.Console;
 using Unknown6656.Imaging.Effects;
 using Unknown6656.Imaging;
 using Unknown6656.Common;
+using Unknown6656.Generics;
 using Unknown6656.IO;
 
 using Random = Unknown6656.Mathematics.Numerics.Random;

@@ -6,8 +6,8 @@ using System.Threading;
 using System.Drawing;
 
 using Unknown6656.Mathematics.LinearAlgebra;
+using Unknown6656.Generics;
 using Unknown6656.Imaging;
-using Unknown6656.Common;
 using Unknown6656.IO;
 
 namespace Unknown6656.Controls.WPF

@@ -763,11 +763,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 
+using Unknown6656.Physics.Optics;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Mathematics;
 using Unknown6656.Generics;
 using Unknown6656.Common;
+using Unknown6656.Imaging;
 
 
 namespace Unknown6656.Imaging

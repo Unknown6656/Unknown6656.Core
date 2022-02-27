@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System;
 
+using Unknown6656.Physics.Optics;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics;
 

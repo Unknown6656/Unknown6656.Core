@@ -14,17 +14,18 @@
 
 using System.Collections.Generic;
 
-namespace Unknown6656.Imaging
+namespace Unknown6656.Physics.Optics;
+
+
+public abstract partial class Spectrum
 {
-    public abstract partial class Spectrum
-    {
 <#
     string path = Host.ResolvePath("PhysicalSpectrums.ini");
     string[] lines = File.ReadAllLines(path);
     Dictionary<string, List<(double, double)>> spectrums = new();
     Dictionary<string, double> max = new();
     string curr = null;
-    
+
     Regex reg_header = new Regex(@"\s*\[\s*(?<name>[a-zA-Z_]+)\s*\]\s*", RegexOptions.Compiled);
     Regex reg_line = new Regex(@"\s*(?<intensity>[\d\.\+\-]+)\s*@\s*(?<wavelength>[\d\.\+\-]+)\s*", RegexOptions.Compiled);
     Match m;
@@ -51,14 +52,12 @@ namespace Unknown6656.Imaging
     foreach (var kvp in spectrums)
     {
 #>
-        public static DiscreteSpectrum <#=kvp.Key#>Spectrum { get; } = new DiscreteSpectrum(new Dictionary<Wavelength, double>()
-        {
-<#=string.Join("\n", kvp.Value.OrderBy(t => t.Item1).Select(t => $"            [{t.Item1:F10}] = {t.Item2 / max[kvp.Key]:F10}, // intensity: {t.Item2} / {max[kvp.Key]}"))#>
-        });
+    public static DiscreteSpectrum <#=kvp.Key#>Spectrum { get; } = new DiscreteSpectrum(new Dictionary<Wavelength, double>()
+    {
+<#=string.Join("\n", kvp.Value.OrderBy(t => t.Item1).Select(t => $"        [{t.Item1:F10}] = {t.Item2 / max[kvp.Key]:F10}, // intensity: {t.Item2} / {max[kvp.Key]}"))#>
+    });
 
 <#
     }
 #>
-    }
 }
-

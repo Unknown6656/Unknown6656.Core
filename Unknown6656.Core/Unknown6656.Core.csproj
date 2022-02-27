@@ -62,7 +62,7 @@
         <PackageReference Include="System.Drawing.Primitives" Version="4.3.0" />
         <PackageReference Include="Unknown6656.Currying" Version="1.0.2" />
         <PackageReference Include="Unknown6656.DiscriminatedUnions" Version="1.0.1" />
-        <PackageReference Include="Unknown6656.Generics" Version="0.9.0" />
+        <PackageReference Include="Unknown6656.Generics" Version="0.9.1" />
         <PackageReference Include="Unknown6656.IndexableProperties" Version="1.0.2" />
     </ItemGroup>
     <ItemGroup>

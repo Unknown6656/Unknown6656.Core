@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
+using System.Runtime.Versioning;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.Drawing;
@@ -20,6 +21,7 @@ using Unknown6656.IO;
 namespace Unknown6656.Imaging;
 
 
+[SupportedOSPlatform("windows")]
 public static unsafe class BitmapExtensions
 {
     /// <summary>

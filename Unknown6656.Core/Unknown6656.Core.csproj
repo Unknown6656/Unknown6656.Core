@@ -75,7 +75,7 @@
             <Generator>TextTemplatingFileGenerator</Generator>
             <LastGenOutput>LinearEquationSolvers.cs</LastGenOutput>
         </None>
-        <None Update="Physics\PhysicalSpectrums.tt">
+        <None Update="Physics\Optics\PhysicalSpectrums.tt">
             <LastGenOutput>PhysicalSpectrums.cs</LastGenOutput>
             <Generator>TextTemplatingFileGenerator</Generator>
         </None>
@@ -122,6 +122,11 @@
             <AutoGen>True</AutoGen>
             <DependentUpon>LinearEquationSolvers.tt</DependentUpon>
         </Compile>
+        <Compile Update="Physics/Optics/PhysicalSpectrums.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>PhysicalSpectrums.tt</DependentUpon>
+        </Compile>
         <Compile Update="Function/Polynomial.Extensions.cs">
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
@@ -131,11 +136,6 @@
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
             <DependentUpon>ColorMemberGenerator.tt</DependentUpon>
-        </Compile>
-        <Compile Update="Physics\PhysicalSpectrums.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>PhysicalSpectrums.tt</DependentUpon>
         </Compile>
         <Compile Update="IO/CompressionFunctions.cs">
             <DesignTime>True</DesignTime>

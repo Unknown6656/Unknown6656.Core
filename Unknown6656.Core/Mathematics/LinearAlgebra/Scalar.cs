@@ -772,7 +772,7 @@ public unsafe readonly /* ref */ partial struct Scalar
     {
         if (columns.GetOffsetAndLength(1) is (0, 1))
             if (rows.GetOffsetAndLength(1) is (0, 1))
-                return MatrixNM.FromArray(new Scalar[,] { { this } });
+                return MatrixNM.FromCoefficients(new Scalar[,] { { this } });
             else
                 throw new ArgumentException("The row indices must only contain the value [0].", nameof(rows));
         else
@@ -1819,7 +1819,7 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
     {
         if (columns.GetOffsetAndLength(1) is (0, 1))
             if (rows.GetOffsetAndLength(1) is (0, 1))
-                return MatrixNM<T>.FromArray(new Scalar<T>[,] { { this } });
+                return MatrixNM<T>.FromCoefficients(new Scalar<T>[,] { { this } });
             else
                 throw new ArgumentException("The row indices must only contain the value [0].", nameof(rows));
         else

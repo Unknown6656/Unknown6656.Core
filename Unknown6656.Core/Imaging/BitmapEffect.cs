@@ -178,6 +178,7 @@ public interface IChainedEffects<T, F>
     IReadOnlyCollection<F> Effects { get; }
 }
 
+[SupportedOSPlatform("windows")]
 public class ChainedBitmapEffect
     : BitmapEffect
     , IChainedEffects<ChainedBitmapEffect, BitmapEffect>
@@ -197,6 +198,7 @@ public class ChainedBitmapEffect
     public override Bitmap ApplyTo(Bitmap bmp) => _effects.Length == 0 ? bmp : _effects.Aggregate(bmp, (b, fx) => fx.ApplyTo(b));
 }
 
+[SupportedOSPlatform("windows")]
 public class ChainedPartialBitmapEffect
     : PartialBitmapEffect
     , IChainedEffects<ChainedPartialBitmapEffect, PartialBitmapEffect>
@@ -216,6 +218,7 @@ public class ChainedPartialBitmapEffect
     public override Bitmap ApplyTo(Bitmap bmp, Rectangle region) => _effects.Length == 0 ? bmp : _effects.Aggregate(bmp, (b, fx) => fx.ApplyTo(b, region));
 }
 
+[SupportedOSPlatform("windows")]
 public class AcceleratedChainedPartialBitmapEffect
     : PartialBitmapEffect.Accelerated
     , IChainedEffects<AcceleratedChainedPartialBitmapEffect, PartialBitmapEffect.Accelerated>
@@ -263,6 +266,7 @@ public class AcceleratedChainedPartialBitmapEffect
     }
 }
 
+[SupportedOSPlatform("windows")]
 public abstract class ColorEffect
     : PartialBitmapEffect.Accelerated
 {
@@ -298,6 +302,7 @@ public abstract class ColorEffect
     }
 }
 
+[SupportedOSPlatform("windows")]
 public abstract class CoordinateColorEffect
     : PartialBitmapEffect.Accelerated
 {

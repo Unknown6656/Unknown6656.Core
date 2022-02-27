@@ -263,6 +263,9 @@ public unsafe readonly /* ref */ struct Complex
     public readonly Complex Divide(in Complex second) => Multiply(second.Invert());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    readonly Complex IField<Complex>.Modulus(in Complex second) => Subtract(Divide(in second).Floor.Multiply(in second));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Complex ComponentWiseModulus(Scalar factor) => new(_re % factor, _im % factor);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -738,6 +741,9 @@ public unsafe readonly /* ref */ struct Complex
     public static Complex operator %(in Complex complex, Scalar scalar) => complex.ComponentWiseModulus(scalar);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static Complex IField<Complex>.operator %(in Complex c1, in Complex c2) => ((IField<Complex>)c1).Modulus(c2);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static Scalar Algebra<Scalar>.IEucledianVectorSpace<Complex>.operator *(in Complex c1, in Complex c2) => (Vector2)c1 * (Vector2)c2;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -745,9 +751,6 @@ public unsafe readonly /* ref */ struct Complex
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Complex operator /(in Complex c1, in Complex c2) => c1.Divide(c2);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static Complex IField<Complex>.operator %(in Complex c1, in Complex c2) => c1.Subtract(c1.Divide(in c2).Floor.Multiply(in c2));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <(Complex c1, Complex c2) => c1.CompareTo(c2) < 0;

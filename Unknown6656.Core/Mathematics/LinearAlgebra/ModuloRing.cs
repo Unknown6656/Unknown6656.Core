@@ -19,12 +19,8 @@ public unsafe readonly /* ref */ partial struct ModuloRing
     , IComparable
     , ICloneable
 {
-#pragma warning disable IDE0032
-#pragma warning disable CA2235
     private readonly bint _val;
     private readonly bint _mod;
-#pragma warning restore IDE0032
-#pragma warning restore CA2235
 
 
     public static ModuloRing One { get; } = 1;
@@ -167,6 +163,9 @@ public unsafe readonly /* ref */ partial struct ModuloRing
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly ModuloRing Modulo(in ModuloRing second) => new(Value % second.Value, Modulus);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    readonly ModuloRing IField<ModuloRing>.Modulus(in ModuloRing second) => Modulo(in second);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly ModuloRing Power(int e) => new(bint.ModPow(Value, e, Modulus), Modulus);

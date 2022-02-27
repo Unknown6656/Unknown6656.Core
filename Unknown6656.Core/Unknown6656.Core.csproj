@@ -20,7 +20,6 @@
 
         <!--<TrimMode>Link</TrimMode>-->
         <Deterministic>true</Deterministic>
-        <PublishTrimmed>true</PublishTrimmed>
         <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
         <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
         <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>

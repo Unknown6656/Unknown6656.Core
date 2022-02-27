@@ -335,6 +335,8 @@ public interface IField<Field>
         ;
 #endif
 
+    Field Modulus(in Field second);
+
     /// <summary>
     /// Raises the current instance to the given power and returns the result without modifying the current instance.
     /// </summary>

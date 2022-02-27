@@ -1436,7 +1436,7 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix ComponentwiseDivide(in Matrix second) => Size != second.Size ? throw new ArgumentException($"Mismatched dimensions: A matrix of the dimensions {Size} cannot be divided component-wise by a matrix of the dimensinos {second.Size}.", nameof(second))
-                                                                     : FromArray(_columns, _rows, _coefficients.Zip(second._coefficients).Select(z => z.First.Divide(z.Second)).ToArray());
+                                                                               : FromCoefficients(_columns, _rows, _coefficients.Zip(second._coefficients).Select(z => z.First.Divide(z.Second)).ToArray());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix ComponentwiseMultiply(in Matrix second) => Size != second.Size ? throw new ArgumentException($"Mismatched dimensions: A matrix of the dimensions {Size} cannot be multiplied component-wise with a matrix of the dimensinos {second.Size}.", nameof(second))

@@ -1886,10 +1886,10 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
     private U OP<U>(OpType op, Scalar<T> t) => OP<U>(op, Value, t.Value);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static T OP(OpType op, T t) => (T)_operators[op].Invoke(null, new object[] { t });
+    private static T OP(OpType op, T t) => _operators[op].Invoke(null, new object[] { t }) is object result ? (T)result : throw new InvalidProgramException();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static U OP<U>(OpType op, T t1, T t2) => (U)_operators[op].Invoke(null, new object[] { t1, t2 });
+    private static U OP<U>(OpType op, T t1, T t2) => _operators[op].Invoke(null, new object[] { t1, t2 }) is object result ? (U)result : throw new InvalidProgramException();
 
     #endregion
     #region STATIC METHODS

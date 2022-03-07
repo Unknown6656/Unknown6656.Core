@@ -74,6 +74,8 @@ public interface IColor
     /// </summary>
     (double H, double S, double L) ToHSL();
     (double H, double S, double V) ToHSV();
+    (double R, double G, double B) ToRGB();
+    uint ToARGB32();
     (double L, double a, double b) ToCIELAB94();
     (double C, double M, double Y, double K) ToCMYK();
     (double Y, double U, double V) ToYUV();
@@ -95,6 +97,11 @@ public interface IColor<Color>
     Color Rotate(Scalar φ);
     Color CorrectGamma(Scalar gamma);
     Color[] GetNeutrals(Scalar φ_step, int count);
+
+
+    public static abstract implicit operator Color(System.Drawing.Color color);
+
+    public static abstract implicit operator System.Drawing.Color(Color color);
 }
 
 public interface IColor<Color, Channel>
@@ -207,6 +214,10 @@ public partial struct HDRColor
     public static implicit operator HDRColor(RGBAColor color) => new() { ARGB32 = color };
 
     public static implicit operator RGBAColor(HDRColor color) => color.ARGB32;
+
+    public static implicit operator HDRColor(Color color) => (HDRColor)(RGBAColor)color;
+
+    public static implicit operator Color(HDRColor color) => (Color)(RGBAColor)color;
 }
 
 /// <summary>

@@ -2389,7 +2389,7 @@ public abstract class WritableVectorN<Vector, Matrix, Polynomial, Scalar>
 public class VectorN<T>
     : VectorN<VectorN<T>, MatrixNM<T>, Polynomial<T>, Scalar<T>>
     , IVectorN<VectorN<T>, Scalar<T>>
-    where T : unmanaged, IScalar<T>, IComparable<T>
+    where T : unmanaged, IComparable<T>
 {
     public VectorN(in VectorN<T> vector)
         : base(vector)
@@ -2412,9 +2412,13 @@ public class VectorN<T>
     }
 
 
-    public static new VectorN<T> FromCoefficients(params T[] coefficients) => new(coefficients);
+    public static VectorN<T> FromCoefficients(params T[] coefficients) => FromCoefficients(coefficients.Select(c => new Scalar<T>(c)));
 
-    public static new VectorN<T> FromCoefficients(IEnumerable<T> coefficients) => new(coefficients);
+    public static VectorN<T> FromCoefficients(IEnumerable<T> coefficients) => FromCoefficients(coefficients.Select(c => new Scalar<T>(c)));
+
+    public static new VectorN<T> FromCoefficients(params Scalar<T>[] coefficients) => new(coefficients);
+
+    public static new VectorN<T> FromCoefficients(IEnumerable<Scalar<T>> coefficients) => new(coefficients);
 }
 
 public class WritableVectorN<T>
@@ -2443,9 +2447,13 @@ public class WritableVectorN<T>
     }
 
 
-    public static WritableVectorN<T> FromCoefficients(params T[] coefficients) => new(coefficients);
+    public static WritableVectorN<T> FromCoefficients(params T[] coefficients) => FromCoefficients(coefficients.Select(c => new Scalar<T>(c)));
 
-    public static WritableVectorN<T> FromCoefficients(IEnumerable<T> coefficients) => new(coefficients);
+    public static WritableVectorN<T> FromCoefficients(IEnumerable<T> coefficients) => FromCoefficients(coefficients.Select(c => new Scalar<T>(c)));
+
+    public static new WritableVectorN<T> FromCoefficients(params Scalar<T>[] coefficients) => new(coefficients);
+
+    public static new WritableVectorN<T> FromCoefficients(IEnumerable<Scalar<T>> coefficients) => new(coefficients);
 
     public static implicit operator WritableVectorN<T>(VectorN<T> vec) => new(vec.Coefficients);
 
@@ -2594,6 +2602,11 @@ public class MatrixNM<T>
 
     protected override (VectorN<T> Eigenvector, Scalar<T> Eigenvalue) DoInverseVectoriteration(Scalar<T> offset, IEqualityComparer<Scalar<T>> comparer) => throw new NotImplementedException();
 
+
+    public static MatrixNM<T> FromCoefficients(int columns, int rows, T[] coefficients) => FromCoefficients(columns, rows, coefficients.ToArray(c => new Scalar<T>(c)));
+
+    public static MatrixNM<T> FromCoefficients(T[,] coefficients) => FromCoefficients(coefficients.Select(c => new Scalar<T>(c)));
+
     public static new MatrixNM<T> FromCoefficients(int columns, int rows, Scalar<T>[] coefficients) => new(columns, rows, coefficients);
 
     public static new MatrixNM<T> FromCoefficients(Scalar<T>[,] coefficients) => new(coefficients);
@@ -2647,6 +2660,11 @@ public class WritableMatrixNM<T>
     }
 
     protected override (WritableVectorN<T> Eigenvector, Scalar<T> Eigenvalue) DoInverseVectoriteration(Scalar<T> offset, IEqualityComparer<Scalar<T>> comparer) => throw new NotImplementedException();
+
+
+    public static WritableMatrixNM<T> FromCoefficients(int columns, int rows, T[] coefficients) => FromCoefficients(columns, rows, coefficients.ToArray(c => new Scalar<T>(c)));
+
+    public static WritableMatrixNM<T> FromCoefficients(T[,] coefficients) => FromCoefficients(coefficients.Select(c => new Scalar<T>(c)));
 
     public static new WritableMatrixNM<T> FromCoefficients(int columns, int rows, Scalar<T>[] coefficients) => new(columns, rows, coefficients);
 

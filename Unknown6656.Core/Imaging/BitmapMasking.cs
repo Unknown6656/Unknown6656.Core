@@ -13,6 +13,7 @@ using Unknown6656.Mathematics.Statistics;
 namespace Unknown6656.Imaging;
 
 
+[SupportedOSPlatform("windows")]
 public sealed unsafe class BitmapMask
     : PartialBitmapEffect.Accelerated
 {

@@ -1,10 +1,11 @@
-﻿using System.Drawing.Imaging;
+﻿using System.Runtime.Versioning;
+using System.Drawing.Imaging;
 using System.Drawing;
 
 using Unknown6656.Mathematics.LinearAlgebra;
 
-
 namespace Unknown6656.Imaging;
+
 
 // VEC4 == (R, G, B, A) == (X, Y, Z, W)
 
@@ -25,6 +26,7 @@ public unsafe class HDRBitmap
     {
     }
 
+    [SupportedOSPlatform("windows")]
     public HDRBitmap(Bitmap bitmap)
         : this(bitmap.Width, bitmap.Height) => ReadFromBitmap(bitmap);
 
@@ -47,6 +49,7 @@ public unsafe class HDRBitmap
         });
     }
 
+    [SupportedOSPlatform("windows")]
     public Bitmap ToBitmap()
     {
         Bitmap bmp = new(Width, Height, PixelFormat.Format32bppArgb);

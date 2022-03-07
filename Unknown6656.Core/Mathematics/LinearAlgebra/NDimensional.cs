@@ -2386,63 +2386,75 @@ public abstract class WritableVectorN<Vector, Matrix, Polynomial, Scalar>
     }
 }
 
-public class VectorN<Scalar>
-    : VectorN<VectorN<Scalar>, MatrixNM<Scalar>, Polynomial<Scalar>, Scalar<Scalar>>
-    where Scalar : unmanaged, IComparable<Scalar>
+public class VectorN<T>
+    : VectorN<VectorN<T>, MatrixNM<T>, Polynomial<T>, Scalar<T>>
+    , IVectorN<VectorN<T>, Scalar<T>>
+    where T : unmanaged, IScalar<T>, IComparable<T>
 {
-    public VectorN(in VectorN<Scalar> vector)
+    public VectorN(in VectorN<T> vector)
         : base(vector)
     {
     }
 
-    public VectorN(params Scalar<Scalar>[] coefficients)
+    public VectorN(params Scalar<T>[] coefficients)
         : base(coefficients)
     {
     }
 
-    public VectorN(IEnumerable<Scalar<Scalar>>? coefficients)
+    public VectorN(IEnumerable<Scalar<T>>? coefficients)
         : base(coefficients)
     {
     }
 
-    public VectorN(int size, Scalar<Scalar> value)
+    public VectorN(int size, Scalar<T> value)
         : base(size, value)
     {
     }
+
+
+    public static new VectorN<T> FromCoefficients(params T[] coefficients) => new(coefficients);
+
+    public static new VectorN<T> FromCoefficients(IEnumerable<T> coefficients) => new(coefficients);
 }
 
-public class WritableVectorN<Scalar>
-    : WritableVectorN<WritableVectorN<Scalar>, WritableMatrixNM<Scalar>, Polynomial<Scalar>, Scalar<Scalar>>
-    where Scalar : unmanaged, IComparable<Scalar>
+public class WritableVectorN<T>
+    : WritableVectorN<WritableVectorN<T>, WritableMatrixNM<T>, Polynomial<T>, Scalar<T>>
+    , IVectorN<WritableVectorN<T>, Scalar<T>>
+    where T : unmanaged, IComparable<T>
 {
-    public WritableVectorN(in WritableVectorN<Scalar> vector)
+    public WritableVectorN(in WritableVectorN<T> vector)
         : base(vector)
     {
     }
 
-    public WritableVectorN(params Scalar<Scalar>[] coefficients)
+    public WritableVectorN(params Scalar<T>[] coefficients)
         : base(coefficients)
     {
     }
 
-    public WritableVectorN(IEnumerable<Scalar<Scalar>>? coefficients)
+    public WritableVectorN(IEnumerable<Scalar<T>>? coefficients)
         : base(coefficients)
     {
     }
 
-    public WritableVectorN(int size, Scalar<Scalar> value)
+    public WritableVectorN(int size, Scalar<T> value)
         : base(size, value)
     {
     }
 
 
-    public static implicit operator WritableVectorN<Scalar>(VectorN<Scalar> vec) => new(vec.Coefficients);
+    public static WritableVectorN<T> FromCoefficients(params T[] coefficients) => new(coefficients);
 
-    public static implicit operator VectorN<Scalar>(WritableVectorN<Scalar> vec) => new(vec.Coefficients);
+    public static WritableVectorN<T> FromCoefficients(IEnumerable<T> coefficients) => new(coefficients);
+
+    public static implicit operator WritableVectorN<T>(VectorN<T> vec) => new(vec.Coefficients);
+
+    public static implicit operator VectorN<T>(WritableVectorN<T> vec) => new(vec.Coefficients);
 }
 
 public partial class VectorN
     : VectorN<VectorN, MatrixNM, Polynomial, Scalar>
+    , IVectorN<VectorN, Scalar>
 {
     public VectorN(in VectorN vector)
         : base(vector)
@@ -2465,8 +2477,9 @@ public partial class VectorN
     }
 
 
+    public static new VectorN FromCoefficients(params Scalar[] coefficients) => new(coefficients);
 
-
+    public static new VectorN FromCoefficients(IEnumerable<Scalar> coefficients) => new(coefficients);
 
 
     //[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2503,6 +2516,7 @@ public partial class VectorN
 
 public class ComplexVectorN
     : VectorN<ComplexVectorN, ComplexMatrixNM, ComplexPolynomial, Complex>
+    , IVectorN<ComplexVectorN, Complex>
 {
     public ComplexVectorN Conjugate => FromArray(Coefficients.Select(c => c.Conjugate).ToArray());
 
@@ -2526,10 +2540,16 @@ public class ComplexVectorN
         : base(size, value)
     {
     }
+
+
+    public static new ComplexVectorN FromCoefficients(params Complex[] coefficients) => new(coefficients);
+
+    public static new ComplexVectorN FromCoefficients(IEnumerable<Complex> coefficients) => new(coefficients);
 }
 
 public class MatrixNM<T>
     : MatrixNM<VectorN<T>, MatrixNM<T>, Polynomial<T>, Scalar<T>>
+    , IMatrixNM<VectorN<T>, MatrixNM<T>, Scalar<T>>
     where T : unmanaged, IComparable<T>
 {
     public MatrixNM(params VectorN<T>[] columns)
@@ -2573,10 +2593,17 @@ public class MatrixNM<T>
     }
 
     protected override (VectorN<T> Eigenvector, Scalar<T> Eigenvalue) DoInverseVectoriteration(Scalar<T> offset, IEqualityComparer<Scalar<T>> comparer) => throw new NotImplementedException();
+
+    public static new MatrixNM<T> FromCoefficients(int columns, int rows, Scalar<T>[] coefficients) => new(columns, rows, coefficients);
+
+    public static new MatrixNM<T> FromCoefficients(Scalar<T>[,] coefficients) => new(coefficients);
+
+    public static new MatrixNM<T> FromColumnVectors(VectorN<T>[] columns) => new(columns);
 }
 
 public class WritableMatrixNM<T>
     : WritableMatrixNM<WritableVectorN<T>, WritableMatrixNM<T>, Polynomial<T>, Scalar<T>>
+    , IMatrixNM<WritableVectorN<T>, WritableMatrixNM<T>, Scalar<T>>
     where T : unmanaged, IComparable<T>
 {
     public WritableMatrixNM(params WritableVectorN<T>[] columns)
@@ -2621,6 +2648,12 @@ public class WritableMatrixNM<T>
 
     protected override (WritableVectorN<T> Eigenvector, Scalar<T> Eigenvalue) DoInverseVectoriteration(Scalar<T> offset, IEqualityComparer<Scalar<T>> comparer) => throw new NotImplementedException();
 
+    public static new WritableMatrixNM<T> FromCoefficients(int columns, int rows, Scalar<T>[] coefficients) => new(columns, rows, coefficients);
+
+    public static new WritableMatrixNM<T> FromCoefficients(Scalar<T>[,] coefficients) => new(coefficients);
+
+    public static new WritableMatrixNM<T> FromColumnVectors(WritableVectorN<T>[] columns) => new(columns);
+
     public static implicit operator WritableMatrixNM<T>(MatrixNM<T> mat) => new(mat.Coefficients);
 
     public static implicit operator MatrixNM<T>(WritableMatrixNM<T> mat) => new(mat.Coefficients);
@@ -2630,6 +2663,7 @@ public class WritableMatrixNM<T>
 
 public partial class MatrixNM
     : MatrixNM<VectorN, MatrixNM, Polynomial, Scalar>
+    , IMatrixNM<VectorN, MatrixNM, Scalar>
 {
     public MatrixNM(params VectorN[] columns)
         : base(columns)
@@ -2695,10 +2729,17 @@ public partial class MatrixNM
     }
 
     public (MatrixNM Q, MatrixNM R) QRDecompose() => throw new NotImplementedException(); // TODO
+
+    public static new MatrixNM FromCoefficients(int columns, int rows, Scalar[] coefficients) => new(columns, rows, coefficients);
+
+    public static new MatrixNM FromCoefficients(Scalar[,] coefficients) => new(coefficients);
+
+    public static new MatrixNM FromColumnVectors(VectorN[] columns) => new(columns);
 }
 
 public class ComplexMatrixNM
     : MatrixNM<ComplexVectorN, ComplexMatrixNM, ComplexPolynomial, Complex>
+    , IMatrixNM<ComplexVectorN, ComplexMatrixNM, Complex>
 {
     public ComplexMatrixNM Conjugate => FromCoefficients(ColumnCount, RowCount, FlattenedCoefficients.Select(c => c.Conjugate).ToArray());
 
@@ -2773,4 +2814,10 @@ public class ComplexMatrixNM
 
         return (v_new, 1 / (λ - offset));
     }
+
+    public static new ComplexMatrixNM FromCoefficients(int columns, int rows, Complex[] coefficients) => new(columns, rows, coefficients);
+
+    public static new ComplexMatrixNM FromCoefficients(Complex[,] coefficients) => new(coefficients);
+
+    public static new ComplexMatrixNM FromColumnVectors(ComplexVectorN[] columns) => new(columns);
 }

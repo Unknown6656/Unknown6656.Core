@@ -158,7 +158,7 @@ public class ColorPalette
     }
 
     public ColorPalette(IEnumerable<uint> argb_values)
-        : this(argb_values.Select(argb => new RGBAColor(argb))
+        : this(argb_values.Select(argb => new RGBAColor(argb)))
     {
     }
 
@@ -189,9 +189,11 @@ public class ColorPalette
 
     public sys_palette ToImageColorPalette()
     {
-        sys_palette palette = (sys_palette)_palette_ctor.Invoke(new object?[] { Colors.Length })!;
+        sys_palette palette = (sys_palette)_palette_ctor.Invoke(new object?[] { Colors.Count })!;
+        int i = 0;
 
-        Colors.CopyTo(palette.Entries);
+        foreach (var color in Colors)
+            palette.Entries[i++] = color;
 
         return palette;
     }

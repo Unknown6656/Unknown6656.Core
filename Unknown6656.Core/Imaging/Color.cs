@@ -67,20 +67,33 @@ public interface IColor
     (double Hue, double Saturation, double Value) HSV { get; }
     (double C, double M, double Y, double K) CMYK { get; }
     (double Y, double U, double V) YUV { get; }
+    (double Y, double I, double Q) YIQ { get; }
 
     Scalar CIALAB94DistanceTo(IColor other);
+
     /// <summary>
     /// Exports the HSL-color channels.
     /// </summary>
     (double H, double S, double L) ToHSL();
+
     (double H, double S, double V) ToHSV();
+
     (double R, double G, double B) ToRGB();
+
     uint ToARGB32();
+
     (double L, double a, double b) ToCIELAB94();
+
     (double C, double M, double Y, double K) ToCMYK();
+
+    (double Y, double I, double Q) ToYIQ();
+
     (double Y, double U, double V) ToYUV();
+
     (double Y, double Cb, double Cr) ToYCbCr();
+
     DiscreteSpectrum ToSpectrum();
+
     double GetIntensity(Wavelength wavelength, double tolerance = 1e-1);
 }
 
@@ -98,10 +111,74 @@ public interface IColor<Color>
     Color CorrectGamma(Scalar gamma);
     Color[] GetNeutrals(Scalar φ_step, int count);
 
+    /// <summary>
+    /// Converts the given HSL-color to a <typeparamref name="Color"/>-instance.
+    /// </summary>
+    /// <param name=""H"">The HSL-color's hue channel [0..2π]</param>
+    /// <param name=""S"">The HSL-color's saturation channel [0..1]</param>
+    /// <param name=""L"">The HSL-color's luminosity channel [0..1]</param>
+    /// <returns></returns>
+    static abstract Color FromHSL(double H, double S, double L);
 
-    public static abstract implicit operator Color(System.Drawing.Color color);
+    /// <summary>
+    /// Converts the given HSL-color to a <typeparamref name="Color"/>-instance.
+    /// </summary>
+    /// <param name=""H"">The HSL-color's hue channel [0..2π]</param>
+    /// <param name=""S"">The HSL-color's saturation channel [0..1]</param>
+    /// <param name=""L"">The HSL-color's luminosity channel [0..1]</param>
+    /// <param name=""α"">The color's α-channel (opacity) [0..1]</param>
+    /// <returns></returns>
+    static abstract Color FromHSL(double H, double S, double L, double α);
 
-    public static abstract implicit operator System.Drawing.Color(Color color);
+    static abstract Color FromHSV(double H, double S, double V);
+
+    static abstract Color FromHSV(double H, double S, double V, double α);
+
+    static abstract Color FromRGB(double R, double G, double B);
+
+    static abstract Color FromRGB(double R, double G, double B, double α);
+
+    static abstract Color FromARGB32(int ARGB);
+
+    static abstract Color FromARGB32(uint ARGB);
+
+    static abstract Color FromCIELAB94(double L, double a, double b);
+
+    static abstract Color FromCIELAB94(double L, double a, double b, double α);
+
+    static abstract Color FromCMYK(double C, double M, double Y, double K);
+
+    static abstract Color FromCMYK(double C, double M, double Y, double K, double α);
+
+    static abstract Color FromYIQ(double Y, double I, double Q);
+
+    static abstract Color FromYIQ(double Y, double I, double Q, double α);
+
+    static abstract Color FromYUV(double Y, double U, double V);
+
+    static abstract Color FromYUV(double Y, double U, double V, double α);
+
+    static abstract Color FromYCbCr(double Y, double Cb, double Cr);
+
+    static abstract Color FromYCbCr(double Y, double Cb, double Cr, double α);
+
+    /// <summary>
+    /// Returns the <typeparamref name="Color"/> associated with the given black body temperature (in Kelvin).
+    /// </summary>
+    /// <param name=""temperature"">The black body temperature (in Kelvin).</param>
+    /// <returns><typeparamref name="Color"/></returns>
+    static abstract Color FromBlackbodyRadiation(double temperature);
+
+    /// <summary>
+    /// Returns the <typeparamref name="Color"/> associated with the given black body temperature (in Kelvin).
+    /// </summary>
+    /// <param name=""temperature"">The black body temperature (in Kelvin).</param>
+    /// <returns><typeparamref name="Color"/></returns>
+    static abstract Color FromBlackbodyRadiation(double temperature, double α);
+
+    static abstract implicit operator Color(System.Drawing.Color color);
+
+    static abstract implicit operator System.Drawing.Color(Color color);
 }
 
 public interface IColor<Color, Channel>

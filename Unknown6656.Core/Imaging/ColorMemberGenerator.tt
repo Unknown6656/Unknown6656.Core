@@ -9,7 +9,11 @@
 <#@ import namespace="System.Drawing" #>
 <#@ output extension=".cs" #>
 <#
-    var colors = typeof(Color).GetProperties(BindingFlags.Static | BindingFlags.Public).Select(p => (hex: ((Color)p.GetValue(null)).ToArgb().ToString("x8"), name: p.Name)).ToList();
+    var colors = typeof(Color).GetProperties(BindingFlags.Static | BindingFlags.Public).Select(p => {
+        int argb = ((Color)p.GetValue(null)).ToArgb();
+
+        return (hex: argb.ToString("x8"), name: p.Name);
+    }).ToList();
 
     colors.AddRange(new[] {
         (2000, 15, 4020, "FF9BB7D4"),
@@ -87,6 +91,17 @@
             set
             {
                 $type color = FromYUV(value.Y, value.U, value.V);
+                ($R, $G, $B) = (color.$R, color.$G, color.$B);
+            }
+        }",
+        @"public (double Y, double I, double Q) YIQ
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            readonly get => ToYIQ();
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set
+            {
+                $type color = FromYIQ(value.Y, value.I, value.Q);
                 ($R, $G, $B) = (color.$R, color.$G, color.$B);
             }
         }",
@@ -342,6 +357,11 @@
             -.148 * $R - .291 * $G + .439 * $B + 128,
              .439 * $R - .368 * $G - .071 * $B + 128
         );",
+        @"public readonly (double Y, double I, double Q) ToYIQ() => (
+            .299  * $R + .587  * $G + .114  * $B,
+            .5959 * $R - .2746 * $G - .3213 * $B,
+            .2115 * $R - .5227 * $G + .3112 * $B
+        );",
         @"public readonly (double Y, double Cb, double Cr) ToYCbCr() => (
              .299   * $R + .587   * $G + .114   * $B,
             -.16874 * $R - .33126 * $G + .5     * $B + 128,
@@ -433,21 +453,10 @@
         @"public static $type FromComplexSmooth(Complex c) => FromComplexSmooth(c, 1);",
         @"public static $type FromComplexSmooth(Complex c, double α) => FromComplexSmooth(c, α, .95);",
         @"public static $type FromComplexSmooth(Complex c, double α, Scalar white_shift) => FromHSL(c.Argument, 1, 1 - white_shift.Clamp().Power(c.Length), α);",
-        @"/// <summary>
-        /// Converts the given HSL-color to a RGBA-color instance.
-        /// </summary>
-        /// <param name=""H"">The HSL-color's hue channel [0..2π]</param>
-        /// <param name=""S"">The HSL-color's saturation channel [0..1]</param>
-        /// <param name=""L"">The HSL-color's luminosity channel [0..1]</param>
-        public static $type FromHSL(double H, double S, double L) => FromHSL(H, S, L, 1);",
-        @"/// <summary>
-        /// Converts the given HSL-color to a RGBA-color instance.
-        /// </summary>
-        /// <param name=""H"">The HSL-color's hue channel [0..2π]</param>
-        /// <param name=""S"">The HSL-color's saturation channel [0..1]</param>
-        /// <param name=""L"">The HSL-color's luminosity channel [0..1]</param>
-        /// <param name=""α"">The color's α-channel (opacity) [0..1]</param>
-        public static $type FromHSL(double H, double S, double L, double α)
+        @"public static $type FromRGB(double R, double G, double B) => FromRGB(R, G, B, 1);",
+        @"public static $type FromRGB(double R, double G, double B, double α) => new $type(R, G, B, α);",
+        @"public static $type FromHSL(double H, double S, double L) => FromHSL(H, S, L, 1);",
+        @"public static $type FromHSL(double H, double S, double L, double α)
         {
             if (S.IsZero())
             {
@@ -540,6 +549,13 @@
                 α
             );
         }",
+        @"public static $type FromYIQ(double Y, double I, double Q) => FromYIQ(Y, I, Q, 1);",
+        @"public static $type FromYIQ(double Y, double I, double Q, double α) => new $type(
+            Y +  .956 * I +  .619 * Q,
+            Y -  .272 * I -  .647 * Q,
+            Y - 1.106 * I + 1.703 * Q,
+            α
+        );",
         @"public static $type FromYCbCr(double Y, double Cb, double Cr) => FromYCbCr(Y, Cb, Cr, 1);",
         @"public static $type FromYCbCr(double Y, double Cb, double Cr, double α) => new $type(
             Y + (Cr - 128) * 1.402,
@@ -650,18 +666,8 @@
 
             return new $type(color.X, color.Y, color.Z, α);
         }",
-        @"/// <summary>
-        /// Returns the RGBA color associated with the given black body temperature (in Kelvin).
-        /// </summary>
-        /// <param name=""temperature"">The black body temperature (in Kelvin).</param>
-        /// <returns>RGBA color</returns>
-        public static $type FromBlackbodyRadiation(double temperature) => FromBlackbodyRadiation(temperature, 1);",
-        @"/// <summary>
-        /// Returns the RGBA color associated with the given black body temperature (in Kelvin).
-        /// </summary>
-        /// <param name=""temperature"">The black body temperature (in Kelvin).</param>
-        /// <returns>RGBA color</returns>
-        public static $type FromBlackbodyRadiation(double temperature, double α)
+        @"public static $type FromBlackbodyRadiation(double temperature) => FromBlackbodyRadiation(temperature, 1);",
+        @"public static $type FromBlackbodyRadiation(double temperature, double α)
         {
             double x = temperature / 1000;
             double x2 = x * x;
@@ -700,8 +706,8 @@
 
             return res;
         }",
-        @"public static $type FromARGB(int argb) => new $type(argb);",
-        @"public static $type FromARGB(uint argb) => new $type(argb);",
+        @"public static $type FromARGB32(int argb) => new $type(argb);",
+        @"public static $type FromARGB32(uint argb) => new $type(argb);",
         @"public static $type operator +($type color) => color;",
         @"public static $type operator -($type color) => new(-color.$R, -color.$G, -color.$B, -color.$A);",
         @"public static $type operator +($type first, $type second) => new(first.$R + second.$R, first.$G + second.$G, first.$B + second.$B, first.$A + second.$A);",
@@ -709,8 +715,8 @@
         @"public static $type operator *(double factor, $type color) => color * factor;",
         @"public static $type operator *($type color, double factor) => new(color.$R * factor, color.$G * factor, color.$B * factor, color.$A * factor);",
         @"public static $type operator /($type color, double factor) => new(color.$R / factor, color.$G / factor, color.$B / factor, color.$A / factor);",
-        @"public static implicit operator $type(int argb) => FromARGB(argb);",
-        @"public static implicit operator $type(uint argb) => FromARGB(argb);",
+        @"public static implicit operator $type(int argb) => FromARGB32(argb);",
+        @"public static implicit operator $type(uint argb) => FromARGB32(argb);",
         @"public static implicit operator (double r, double g, double b)($type color) => (color.$R, color.$G, color.$B);",
         @"public static implicit operator (double r, double g, double b, double α)($type color) => (color.$R, color.$G, color.$B, color.$A);",
         @"public static implicit operator $type((double r, double g, double b) color) => new $type(color.r, color.g, color.b, 1);",
@@ -747,8 +753,6 @@ using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Mathematics;
 using Unknown6656.Generics;
-using Unknown6656.Common;
-using Unknown6656.Imaging;
 
 
 namespace Unknown6656.Imaging
@@ -779,10 +783,21 @@ namespace Unknown6656.Imaging
         
         foreach (var color in colors)
         {
+            int argb = int.Parse(color.hex, System.Globalization.NumberStyles.HexNumber);
+            float a = ((argb & 0xff000000) >> 24) / 255f;
+            float r = ((argb & 0xff0000) >> 24) / 255f;
+            float g = ((argb & 0xff00) >> 24) / 255f;
+            float b = (argb & 0xff) / 255f;
 #>
 
         /// <summary>
-        /// Represents the HTML color '<#=color.name#>' (#<#=color.hex#>).
+        /// Represents the HTML color '<#=color.name#>' (#<#=color.hex#>) with the following color values for each channel:
+        /// <list type="bullet">
+        ///     <item><c>A: 0x<#=color.hex.Substring(0, 2)#> - <#=a#></c></item>
+        ///     <item><c>R: 0x<#=color.hex.Substring(2, 2)#> - <#=r#></c></item>
+        ///     <item><c>G: 0x<#=color.hex.Substring(4, 2)#> - <#=g#></c></item>
+        ///     <item><c>B: 0x<#=color.hex.Substring(6, 2)#> - <#=b#></c></item>
+        /// </list>
         /// </summary>
         public static RGBAColor <#=color.name#> { get; } = 0x<#=color.hex#>;
 <#

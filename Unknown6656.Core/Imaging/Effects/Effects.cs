@@ -2,6 +2,7 @@
 // #define USE_HSL_SATURATION
 
 using System.Runtime.CompilerServices;
+using System.Runtime.Versioning;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Drawing;
@@ -33,7 +34,7 @@ namespace Unknown6656.Imaging.Effects
             Mode = mode;
         }
 
-        protected override RGBAColor ProcessColor(RGBAColor input) => RGBAColor.Blend(input, Color, Mode);
+        private protected override RGBAColor ProcessColor(RGBAColor input) => RGBAColor.Blend(input, Color, Mode);
     }
 
     /// <summary>
@@ -153,7 +154,7 @@ namespace Unknown6656.Imaging.Effects
 
         public Hue(Scalar degree) => Degree = degree.Modulus(Scalar.Tau);
 
-        protected override RGBAColor ProcessColor(RGBAColor input)
+        private protected override RGBAColor ProcessColor(RGBAColor input)
         {
             (double h, double s, double l) = input.HSL;
 
@@ -200,7 +201,7 @@ namespace Unknown6656.Imaging.Effects
             _tolerance = tolerance;
         }
 
-        protected override RGBAColor ProcessColor(RGBAColor input)
+        private protected override RGBAColor ProcessColor(RGBAColor input)
         {
             foreach ((RGBAColor search, RGBAColor replace) in _pairs)
                 if (input.Equals(search, _tolerance))
@@ -254,7 +255,7 @@ namespace Unknown6656.Imaging.Effects
     public sealed class RGBtoHSL
         : ColorEffect
     {
-        protected override RGBAColor ProcessColor(RGBAColor input)
+        private protected override RGBAColor ProcessColor(RGBAColor input)
         {
             (double h, double s, double l) = input.HSL;
 
@@ -265,13 +266,34 @@ namespace Unknown6656.Imaging.Effects
     public sealed class HSLtoRGB
         : ColorEffect
     {
-        protected override RGBAColor ProcessColor(RGBAColor input)
+        private protected override RGBAColor ProcessColor(RGBAColor input)
         {
             Scalar h = input.Rf * Scalar.Tau;
             Scalar s = input.Gf;
             Scalar l = input.Bf;
 
             return RGBAColor.FromHSL(h, s, l);
+        }
+    }
+
+    [SupportedOSPlatform("windows")]
+    public class ReduceColorSpace
+        : ColorEffect.Delegated
+    {
+        public ColorEqualityMetric EqualityMetric { get; }
+        public ColorPalette ColorPalette { get; }
+
+
+        public ReduceColorSpace(ColorPalette target_palette, ColorEqualityMetric equality_metric = ColorEqualityMetric.RGBChannels)
+            : base(c => target_palette.GetNearestColor(c, equality_metric))
+        {
+            ColorPalette = target_palette;
+            EqualityMetric = equality_metric;
+        }
+
+        public ReduceColorSpace(IEnumerable<RGBAColor> target_palette, ColorEqualityMetric equality_metric = ColorEqualityMetric.RGBChannels)
+            : this(new ColorPalette(target_palette), equality_metric)
+        {
         }
     }
 
@@ -283,7 +305,7 @@ namespace Unknown6656.Imaging.Effects
 
         public Cartoon(int steps) => Steps = Math.Max(steps, 1);
 
-        protected override RGBAColor ProcessColor(RGBAColor input)
+        private protected override RGBAColor ProcessColor(RGBAColor input)
         {
             Vector4 v = input;
 
@@ -347,7 +369,7 @@ namespace Unknown6656.Imaging.Effects
             EdgeSensitivity = edgeSensitivity.Clamp();
         }
 
-        public override Bitmap ApplyTo(Bitmap bmp, Rectangle region)
+        private protected override Bitmap Process(Bitmap bmp, Rectangle region)
         {
             double e = EdgeSensitivity / 10;
             Bitmap background = new Cartoon2(Steps).ApplyTo(bmp, region);
@@ -372,7 +394,7 @@ namespace Unknown6656.Imaging.Effects
 
                     return new Vector4(s, s, s, c.Af);
                 }),
-                new BlendEffect(background, BlendMode.Multiply, 1)
+                new BitmapBlend(background, BlendMode.Multiply, 1)
             ), region);
         }
     }
@@ -385,21 +407,27 @@ namespace Unknown6656.Imaging.Effects
 
         public Colorize(ColorMap map) => Map = map;
 
-        protected override RGBAColor ProcessColor(RGBAColor input) => Map[input.Average];
+        private protected override RGBAColor ProcessColor(RGBAColor input) => Map[input.Average];
     }
 
     #endregion
     #region INSTAGRAM CSS COLOR FILTERS
 
+    [SupportedOSPlatform("windows")]
     public sealed class SepiaFilter
         : RGBColorEffect
     {
         public SepiaFilter()
-            : base((
+            :this(Scalar.One)
+        {
+        }
+
+        public SepiaFilter(Scalar strength)
+            : base(Matrix3.Identity.LinearInterpolate((
                 .393, .769, .189,
                 .349, .686, .168,
                 .272, .534, .131
-            ))
+            ), strength))
         {
         }
     }
@@ -407,19 +435,53 @@ namespace Unknown6656.Imaging.Effects
     /// <summary>
     /// Represents the Instagram 'Nashville' CSS bitmap filter.
     /// </summary>
+    [SupportedOSPlatform("windows")]
     public sealed class NashvilleFilter
-        : PartialBitmapEffect
+        : ChainedPartialBitmapEffect
     {
         // filter: sepia(.25) contrast(1.5) brightness(.9) hue-rotate(-15deg)
         // before: radial-gradient(circle closest-corner, rgba(128, 78, 15, .5) 0, rgba(128, 78, 15, .65) 100%)
         //         [screen]
 
-        public override Bitmap ApplyTo(Bitmap bmp, Rectangle region) => bmp.ApplyEffect(new SepiaFilter(), region, .25)
-                                                                           .ApplyEffect(new Contrast(1.5), region)
-                                                                           .ApplyEffect(new Brightness(.9), region)
-                                                                           .ApplyEffect(new Hue(-.261799), region)
-                                                                           .ApplyEffect(new ConstantBlendEffect(0x47804e0f, BlendMode.Screen), region);
+        public NashvilleFilter()
+            : base(
+                new SepiaFilter(.25),
+                new Contrast(1.5),
+                new Brightness(.9),
+                new Hue(-.261799),
+                new ConstantBlendEffect(0x47804e0f, BlendMode.Screen)
+            )
+        {
+        }
     }
+
+    // /// <summary>
+    /// Represents the Instagram smooth 'Walden' CSS bitmap effect
+    /// </summary>
+    // [SupportedOSPlatform("windows")]
+    // public sealed unsafe class SmoothWaldenBitmapEffect
+    //     : ChainedPartialBitmapEffect
+    // {
+    //     // -webkit-filter: brightness(1.1) hue-rotate(-10deg) sepia(.3) saturate(1.6);
+    //     // screen #04c .3
+    // 
+    //     public SmoothWaldenBitmapEffect()
+    //         : base(
+    //             new Brightness(1.1),
+    //             new Hue(-Scalar.Pi),
+    //             new SepiaFilter(.3),
+    //             new Saturation(1.6),
+    //             new BlendEffect()
+    // 
+    //             ,
+    //             .ApplyEffectRange<ScreenColorBlendEffect>(Range, 0, .075, .225) // (0,¼,¾) * .3
+    //             .Average(bmp, .3);
+    //             ,
+    //         )
+    //     {
+    //     }
+    // }
+
 
     // ADEN
     // INKWELL
@@ -709,7 +771,7 @@ namespace Unknown6656.Imaging.Effects
 
         public FastBoxBlur(Scalar radius) => Radius = (int)radius.Clamp(0, 20);
 
-        public override Bitmap ApplyTo(Bitmap bmp, Rectangle region)
+        private protected override Bitmap Process(Bitmap bmp, Rectangle region)
         {
             int c = 2 * Radius + 1;
             Scalar[,] m = new Scalar[c, 1];
@@ -825,7 +887,7 @@ namespace Unknown6656.Imaging.Effects
                 Vector4 v = Vector4.Zero;
 
                 for (int offs = -(int)r; offs <= r; ++offs)
-                    v += GetIndex(x + offs, y, w, h, region, EdgeHandling) is int idx ? dst[idx] : default;
+                    v += GetIndex(x + offs, y, w, region, EdgeHandling) is int idx ? dst[idx] : default;
 
                 dst[idx[i]] = v / iar;
             });
@@ -836,7 +898,7 @@ namespace Unknown6656.Imaging.Effects
                 Vector4 v = Vector4.Zero;
 
                 for (int offs = -(int)r; offs <= r; ++offs)
-                    v += GetIndex(x, y + offs, w, h, region, EdgeHandling) is int idx ? dst[idx] : default;
+                    v += GetIndex(x, y + offs, w, region, EdgeHandling) is int idx ? dst[idx] : default;
 
                 dst[idx[i]] = v / iar;
             });
@@ -915,6 +977,67 @@ namespace Unknown6656.Imaging.Effects
     }
 
     #endregion
+
+    [SupportedOSPlatform("windows")]
+    public class BitmapBlend
+        : PartialBitmapEffect.Accelerated
+    {
+        public Bitmap BaseLayer { get; }
+        public BlendMode Mode { get; }
+        public double Amount { get; }
+
+
+        public BitmapBlend(Bitmap base_layer, BlendMode mode, double amount)
+        {
+            BaseLayer = base_layer;
+            Amount = amount;
+            Mode = mode;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal protected override unsafe void Process(Bitmap bmp, RGBAColor* p_top, RGBAColor* p_dest, Rectangle region)
+        {
+            if (bmp.Size != BaseLayer.Size)
+                throw new ArgumentException($"The top layer ('{nameof(bmp)}') must have the same dimensions as the base layer. The required dimensions are: {BaseLayer.Width}x{BaseLayer.Height}.", nameof(bmp));
+
+            int[] indices = GetIndices(BaseLayer, region);
+            BitmapLocker lck = BaseLayer;
+            BlendMode mode = Mode;
+
+            lck.LockRGBAPixels((p_base, w, h) => Parallel.For(0, indices.Length, i =>
+            {
+                int idx = indices[i];
+
+                p_dest[idx] = RGBAColor.Blend(p_base[idx], p_top[idx], mode);
+            }));
+        }
+    }
+
+    [SupportedOSPlatform("windows")]
+    public class SolidColorBlend
+        : PartialBitmapEffect.Accelerated
+    {
+        public RGBAColor Color { get; }
+        public BlendMode Mode { get; }
+        public double Amount { get; }
+
+
+        public SolidColorBlend(RGBAColor color, BlendMode mode, double amount)
+        {
+            Amount = amount;
+            Color = color;
+            Mode = mode;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal protected override unsafe void Process(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region)
+        {
+            RGBAColor color = Color;
+            BlendMode mode = Mode;
+
+            Parallel.ForEach(GetIndices(bmp, region), idx => destination[idx] = RGBAColor.Blend(source[idx], color, mode));
+        }
+    }
 
     public sealed class NoiseEffect
         : PartialBitmapEffect.Accelerated
@@ -1008,10 +1131,10 @@ namespace Unknown6656.Imaging.Effects
             Intensity = intensity.Max(0);
         }
 
-        public override Bitmap ApplyTo(Bitmap bmp, Rectangle region) => new ChainedPartialBitmapEffect(
+        private protected override Bitmap Process(Bitmap bmp, Rectangle region) => new ChainedPartialBitmapEffect(
             new FastBoxBlur(Radius),
             new RGBColorEffect(Matrix3.Identity * Intensity),
-            new BlendEffect(bmp, BlendMode.Add, 1)
+            new BitmapBlend(bmp, BlendMode.Add, 1)
         ).ApplyTo(bmp, region);
     }
 
@@ -1032,7 +1155,7 @@ namespace Unknown6656.Imaging.Effects
             Size = size.Max(Scalar.Zero);
         }
 
-        public override Bitmap ApplyTo(Bitmap bmp, Rectangle region)
+        private protected override Bitmap Process(Bitmap bmp, Rectangle region)
         {
             Vector2 shift = (Angle.Cos() * Size, Angle.Sin() * Size);
             Bitmap red = bmp.ApplyEffect(new AcceleratedChainedPartialBitmapEffect(
@@ -1069,8 +1192,8 @@ namespace Unknown6656.Imaging.Effects
                     0, 0, 0, 0,
                     0, 0, 0, 1
                 )),
-                new BlendEffect(red, BlendMode.Add, 1),
-                new BlendEffect(blue, BlendMode.Add, 1)
+                new BitmapBlend(red, BlendMode.Add, 1),
+                new BitmapBlend(blue, BlendMode.Add, 1)
             ), region);
         }
     }
@@ -1109,7 +1232,7 @@ namespace Unknown6656.Imaging.Effects
             FrameCount++;
         }
 
-        public override Bitmap ApplyTo(Bitmap bmp, Rectangle region)
+        private protected override Bitmap Process(Bitmap bmp, Rectangle region)
         {
             XorShift random = new(_curr);
 
@@ -1734,21 +1857,6 @@ namespace Unknown6656.Imaging.Effects
 
 /*
 
-    /// <summary>
-    /// Represents the Instagram smooth 'Walden' CSS bitmap effect
-    /// </summary>
-    public sealed unsafe class SmoothWaldenBitmapEffect
-        : InstagramEffect
-    {
-        public override Bitmap ApplyTo(Bitmap bmp) => bmp.ApplyEffectRange<BrightnessBitmapEffect>(Range, 1.1)
-                                                        .ApplyEffectRange<TintBitmapEffect>(Range, -PI)
-                                                        .ApplyEffectRange<SepiaBitmapEffect>(Range, .3)
-                                                        .ApplyEffectRange<SaturationBitmapEffect>(Range, 1.6)
-                                                        .ApplyEffectRange<ScreenColorBlendEffect>(Range, 0, .075, .225) // (0,¼,¾) * .3
-                                                        .Average(bmp, .3);
-        // -webkit-filter: brightness(1.1) hue-rotate(-10deg) sepia(.3) saturate(1.6);
-        // screen #04c .3
-    }
 
 
     /// <summary>

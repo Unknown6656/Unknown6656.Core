@@ -8,6 +8,7 @@ using System.Linq;
 using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
+using Unknown6656.Imaging.Effects;
 
 namespace Unknown6656.Imaging;
 
@@ -27,27 +28,15 @@ public abstract class BitmapEffect
 public abstract unsafe class PartialBitmapEffect
     : BitmapEffect
 {
-    protected int[] GetIndices(Bitmap bmp, Rectangle region)
-    {
-        int w = bmp.Width;
+    private protected abstract Bitmap Process(Bitmap bmp, Rectangle region);
 
-        region.Intersect(new Rectangle(0, 0, w, bmp.Height));
-
-        int rw = region.Width;
-        int x = region.Left;
-        int y = region.Top;
-        int[] indices = new int[rw * region.Height];
-
-        Parallel.For(0, indices.Length, i => indices[i] = (i / rw + y) * w + (i % rw) + x);
-
-        return indices;
-    }
-
-    protected (int X, int Y) GetRelativeCoordinates(int index, int width, Rectangle region) => ((index % width) - region.Left, (index / width) - region.Top);
-
-    protected (int X, int Y) GetAbsoluteCoordinates(int index, int width) => (index % width, index / width);
-
-    public abstract Bitmap ApplyTo(Bitmap bmp, Rectangle region);
+    /// <summary>
+    /// Applies the current effect to the given bitmap inside the given range and returns the result.
+    /// </summary>
+    /// <param name="bmp">Input bitmap</param>
+    /// <param name="region">Range, in which the effect should be applied.</param>
+    /// <returns>Output bitmap</returns>
+    public Bitmap ApplyTo(Bitmap bmp, Rectangle region) => Process(bmp, Rectangle.Intersect(region, new(0, 0, bmp.Width, bmp.Height)));
 
     public Bitmap ApplyTo(Bitmap bmp, Rectangle region, Scalar intensity)
     {
@@ -87,22 +76,77 @@ public abstract unsafe class PartialBitmapEffect
 
         fx = mask.ApplyTo(fx);
 
-        return new BlendEffect(bmp, BlendMode.Overlay, 1).ApplyTo(fx);
+        return new BitmapBlend(bmp, BlendMode.Overlay, 1).ApplyTo(fx);
     }
 
-    private protected static int minmax(int v, int min, int max) => v < min ? min : v > max ? max : v;
+    private protected static int[] GetIndices(Bitmap bmp, Rectangle region)
+    {
+        int w = bmp.Width;
+
+        region.Intersect(new Rectangle(0, 0, w, bmp.Height));
+
+        int rw = region.Width;
+        int x = region.Left;
+        int y = region.Top;
+        int[] indices = new int[rw * region.Height];
+
+        Parallel.For(0, indices.Length, i => indices[i] = (i / rw + y) * w + (i % rw) + x);
+
+        return indices;
+    }
+
+    private protected static (int X, int Y) GetRelativeCoordinates(int index, int width, Rectangle region) => ((index % width) - region.Left, (index / width) - region.Top);
+
+    private protected static (int X, int Y) GetAbsoluteCoordinates(int index, int width) => (index % width, index / width);
+
+    private protected static int Clamp(int v, int min, int max) => v < min ? min : v > max ? max : v;
+
+    private protected static int? GetIndex(int x, int y, int image_width, Rectangle region, EdgeHandlingMode mode)
+    {
+        int rx = region.X;
+        int ry = region.Y;
+        int rw = region.Width;
+        int rh = region.Height;
+
+        if (x < rx || y < ry || x >= rx + rw || y >= ry + rh)
+            switch (mode)
+            {
+                case EdgeHandlingMode.Black:
+                    return null;
+                case EdgeHandlingMode.Extend:
+                    x = Clamp(x, rx, rx + rw - 1);
+                    y = Clamp(y, ry, ry + rh - 1);
+
+                    break;
+                case EdgeHandlingMode.Wrap:
+                    x = rx + ((x - rx) % rw + rw) % rw;
+                    y = ry + ((y - ry) % rh + rh) % rh;
+
+                    break;
+                case EdgeHandlingMode.Mirror:
+                    x = ((x - rx) % (2 * rw) + 2 * rw) % (2 * rw);
+                    y = ((y - ry) % (2 * rh) + 2 * rh) % (2 * rh);
+
+                    if (x >= rw)
+                        x = 2 * rw - x;
+
+                    if (y >= rh)
+                        y = 2 * rh - y;
+
+                    x += rx;
+                    y += ry;
+
+                    break;
+            }
+
+        return y * image_width + x;
+    }
 
 
     public abstract unsafe class Accelerated
         : PartialBitmapEffect
     {
-        /// <summary>
-        /// Applies the current effect to the given bitmap inside the given range and returns the result.
-        /// </summary>
-        /// <param name="bmp">Input bitmap</param>
-        /// <param name="region">Range, in which the effect should be applied.</param>
-        /// <returns>Output bitmap</returns>
-        public override Bitmap ApplyTo(Bitmap bmp, Rectangle region)
+        private protected override Bitmap Process(Bitmap bmp, Rectangle region)
         {
             if (bmp.PixelFormat != PixelFormat.Format32bppArgb)
                 bmp = bmp.ToARGB32();
@@ -127,47 +171,6 @@ public abstract unsafe class PartialBitmapEffect
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal protected abstract void Process(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region);
-
-        private protected int? GetIndex(int x, int y, int w, int h, Rectangle region, EdgeHandlingMode mode)
-        {
-            int rx = region.X;
-            int ry = region.Y;
-            int rw = region.Width;
-            int rh = region.Height;
-
-            if (x < rx || y < ry || x >= rx + rw || y >= ry + rh)
-                switch (mode)
-                {
-                    case EdgeHandlingMode.Black:
-                        return null;
-                    case EdgeHandlingMode.Extend:
-                        x = minmax(x, rx, rx + rw - 1);
-                        y = minmax(y, ry, ry + rh - 1);
-
-                        break;
-                    case EdgeHandlingMode.Wrap:
-                        x = rx + ((x - rx) % rw + rw) % rw;
-                        y = ry + ((y - ry) % rh + rh) % rh;
-
-                        break;
-                    case EdgeHandlingMode.Mirror:
-                        x = ((x - rx) % (2 * rw) + 2 * rw) % (2 * rw);
-                        y = ((y - ry) % (2 * rh) + 2 * rh) % (2 * rh);
-
-                        if (x >= rw)
-                            x = 2 * rw - x;
-
-                        if (y >= rh)
-                            y = 2 * rh - y;
-
-                        x += rx;
-                        y += ry;
-
-                        break;
-                }
-
-            return y * w + x;
-        }
     }
 }
 
@@ -215,7 +218,7 @@ public class ChainedPartialBitmapEffect
     {
     }
 
-    public override Bitmap ApplyTo(Bitmap bmp, Rectangle region) => _effects.Length == 0 ? bmp : _effects.Aggregate(bmp, (b, fx) => fx.ApplyTo(b, region));
+    private protected override Bitmap Process(Bitmap bmp, Rectangle region) => _effects.Length == 0 ? bmp : _effects.Aggregate(bmp, (b, fx) => fx.ApplyTo(b, region));
 }
 
 [SupportedOSPlatform("windows")]
@@ -271,7 +274,7 @@ public abstract class ColorEffect
     : PartialBitmapEffect.Accelerated
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected abstract RGBAColor ProcessColor(RGBAColor input);
+    private protected abstract RGBAColor ProcessColor(RGBAColor input);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal protected override sealed unsafe void Process(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region)
@@ -298,7 +301,7 @@ public abstract class ColorEffect
         public Delegated(Func<RGBAColor, RGBAColor> @delegate) => Delegate = @delegate;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override RGBAColor ProcessColor(RGBAColor input) => Delegate(input);
+        private protected override RGBAColor ProcessColor(RGBAColor input) => Delegate(input);
     }
 }
 
@@ -398,7 +401,7 @@ public class RGBAColorEffect
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override RGBAColor ProcessColor(RGBAColor input) => (ColorMatrix * input) + ColorBias;
+    private protected override RGBAColor ProcessColor(RGBAColor input) => (ColorMatrix * input) + ColorBias;
 }
 
 public class RGBColorEffect
@@ -428,7 +431,7 @@ public class RGBColorEffect
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override RGBAColor ProcessColor(RGBAColor input) => (ColorMatrix * input) + ColorBias;
+    private protected override RGBAColor ProcessColor(RGBAColor input) => (ColorMatrix * input) + ColorBias;
 }
 
 /// <summary>
@@ -485,8 +488,8 @@ public class TransformEffect
         RGBAColor get_pixel(int x, int y)
         {
             if (EdgeHandling == EdgeHandlingMode.Extend)
-                return source[minmax(y, 0, h - 1) * w + minmax(x, 0, w - 1)];
-            else if (GetIndex(x, y, w, h, region, EdgeHandling) is int i)
+                return source[Clamp(y, 0, h - 1) * w + Clamp(x, 0, w - 1)];
+            else if (GetIndex(x, y, w, region, EdgeHandling) is int i)
                 return source[i];
 
             return 0;
@@ -545,40 +548,7 @@ public class TransformEffect
     }
 }
 
-public class BlendEffect
-    : PartialBitmapEffect.Accelerated
-{
-    public Bitmap BaseLayer { get; }
-    public BlendMode Mode { get; }
-    public double Amount { get; }
-
-
-    public BlendEffect(Bitmap base_layer, BlendMode mode, double amount)
-    {
-        BaseLayer = base_layer;
-        Amount = amount;
-        Mode = mode;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal protected override unsafe void Process(Bitmap bmp, RGBAColor* p_top, RGBAColor* p_dest, Rectangle region)
-    {
-        if (bmp.Size != BaseLayer.Size)
-            throw new ArgumentException($"The top layer ('bmp') must have the same dimensions as the base layer. The required dimensions are: {BaseLayer.Width}x{BaseLayer.Height}.", nameof(bmp));
-
-        int[] indices = GetIndices(BaseLayer, region);
-        BitmapLocker lck = BaseLayer;
-        BlendMode mode = Mode;
-
-        lck.LockRGBAPixels((p_base, w, h) => Parallel.For(0, indices.Length, i =>
-        {
-            int idx = indices[i];
-
-            p_dest[idx] = RGBAColor.Blend(p_base[idx], p_top[idx], mode);
-        }));
-    }
-}
-
+[SupportedOSPlatform("windows")]
 public class MultiConvolutionEffect
     : PartialBitmapEffect.Accelerated
 {
@@ -605,9 +575,8 @@ public class MultiConvolutionEffect
     internal protected override unsafe void Process(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region)
     {
         (int cols, int rows, Scalar[,] vals)[] kernels = ConvolutionKernel.Select(k => (k.ColumnCount, k.RowCount, k.Coefficients)).ToArray();
+        (int w, int h) = (bmp.Width, bmp.Height);
         int kcount = kernels.Length;
-        int w = bmp.Width;
-        int h = bmp.Height;
         bool ca = ConvoluteAlpha;
         int[] indices = GetIndices(bmp, region);
 
@@ -624,7 +593,7 @@ public class MultiConvolutionEffect
 
                 for (int sy = -kh; sy <= kh; ++sy)
                     for (int sx = -kw; sx <= kw; ++sx)
-                        if (GetIndex(x + sx, y + sy, w, h, region, EdgeHandling) is int idx)
+                        if (GetIndex(x + sx, y + sy, w, region, EdgeHandling) is int idx)
                             colors[i] += kernels[i].vals[sx + kw, sy + kh] * (Vector4)source[idx];
             }
 
@@ -640,6 +609,7 @@ public class MultiConvolutionEffect
     }
 }
 
+[SupportedOSPlatform("windows")]
 public class SingleConvolutionEffect
     : MultiConvolutionEffect
 {
@@ -656,8 +626,7 @@ public class SingleConvolutionEffect
         bool ca = ConvoluteAlpha;
         int kw = ConvolutionKernel.ColumnCount / 2;
         int kh = ConvolutionKernel.RowCount / 2;
-        int w = bmp.Width;
-        int h = bmp.Height;
+        (int w, int h) = (bmp.Width, bmp.Height);
         int[] indices = GetIndices(bmp, region);
 
         Parallel.For(0, indices.Length, i =>
@@ -668,7 +637,7 @@ public class SingleConvolutionEffect
 
             for (int sy = -kh; sy <= kh; ++sy)
                 for (int sx = -kw; sx <= kw; ++sx)
-                    if (GetIndex(x + sx, y + sy, w, h, region, EdgeHandling) is int idx)
+                    if (GetIndex(x + sx, y + sy, w, region, EdgeHandling) is int idx)
                         c += matrix[sx + kw, sy + kh] * (Vector4)source[idx];
 
             destination[y * w + x] = ca ? (RGBAColor)c : (RGBAColor)c.XYZ;

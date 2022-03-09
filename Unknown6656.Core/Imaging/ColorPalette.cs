@@ -1168,6 +1168,7 @@ public class ColorPalette
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RGBAColor GetNearestColor<Color>(Color color, ColorEqualityMetric metric, out double distance)
+        where Color : IColor<Color>
     {
         (RGBAColor result, distance) = GetNearestColors(color, metric).First();
 

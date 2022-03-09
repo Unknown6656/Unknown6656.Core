@@ -9,6 +9,7 @@ using System;
 using Unknown6656.Mathematics.LinearAlgebra;
 //using Unknown6656.Mathematics.Geometry;
 using Unknown6656.Mathematics.Statistics;
+using Unknown6656.Imaging.Effects;
 
 namespace Unknown6656.Imaging;
 
@@ -135,7 +136,7 @@ public sealed unsafe class BitmapMask
 
     public static BitmapMask FromHue(Bitmap bitmap) => FromBitmap(bitmap, c => c.ToHSL().H / Scalar.Tau);
 
-    public static BitmapMask BlendMasks(BitmapMask bottom, BitmapMask top, BlendMode mode) => new(new BlendEffect(bottom, mode, 1).ApplyTo(top));
+    public static BitmapMask BlendMasks(BitmapMask bottom, BitmapMask top, BlendMode mode) => new(new BitmapBlend(bottom, mode, 1).ApplyTo(top));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static BitmapMask FromBitmap(Bitmap bitmap, Func<RGBAColor, Scalar> func, bool ignore_alpha = false) =>

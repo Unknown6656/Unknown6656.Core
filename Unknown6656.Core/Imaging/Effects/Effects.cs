@@ -407,6 +407,9 @@ namespace Unknown6656.Imaging.Effects
 
         public Colorize(ColorMap map) => Map = map;
 
+        [Obsolete($"Use the effect '{nameof(ReduceColorSpace)}' instead.", true)]
+        public Colorize(ColorPalette palette) => throw new Exception($"Please use the class '{typeof(ReduceColorSpace)}' instead.");
+
         private protected override RGBAColor ProcessColor(RGBAColor input) => Map[input.Average];
     }
 
@@ -1350,7 +1353,7 @@ namespace Unknown6656.Imaging.Effects
                 hex = (rx, rz);
                 hex = hex_to_px * hex * SZ;
 
-                if (GetIndex((int)hex.X, (int)hex.Y, w, h, region, EdgeHandling) is int i)
+                if (GetIndex((int)hex.X, (int)hex.Y, w, region, EdgeHandling) is int i)
                     destination[coord] = source[i];
             });
         }
@@ -1405,7 +1408,7 @@ namespace Unknown6656.Imaging.Effects
 
                 tri = tri_to_px * tri * SZ;
 
-                if (GetIndex((int)tri.X, (int)tri.Y, w, h, region, EdgeHandling) is int i)
+                if (GetIndex((int)tri.X, (int)tri.Y, w, region, EdgeHandling) is int i)
                     destination[coord] = source[i];
             });
         }
@@ -1460,7 +1463,7 @@ namespace Unknown6656.Imaging.Effects
 
                 for (int sy = -1; sy <= 1; ++sy)
                     for (int sx = -1; sx <= 1; ++sx)
-                        if (GetIndex(x + sx, y + sy, w, h, region, EdgeHandling) is int idx)
+                        if (GetIndex(x + sx, y + sy, w, region, EdgeHandling) is int idx)
                         {
                             double g = source[idx].CIEGray;
 

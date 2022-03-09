@@ -952,6 +952,12 @@ public unsafe readonly /* ref */ partial struct Scalar
     #endregion
     #region OPERATORS
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator true(Scalar scalar) => scalar.IsNonZero;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator false(Scalar scalar) => scalar.IsZero;
+
     /// <summary>
     /// Compares whether the two given scalars are equal regarding their coefficients.
     /// </summary>
@@ -1928,6 +1934,12 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
 
     #endregion
     #region OPERATORS
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator true(Scalar<T> scalar) => scalar.IsNonZero;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator false(Scalar<T> scalar) => scalar.IsZero;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(Scalar<T> s1, Scalar<T> s2) => s1.Is(s2);

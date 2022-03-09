@@ -896,20 +896,26 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// <summary>
     /// Compares whether the two given vectors are equal regarding their coefficients.
     /// </summary>
-    /// <param name="v1">First Vector</param>
-    /// <param name="v2">Second Vector</param>
+    /// <param name="first">First Vector</param>
+    /// <param name="second">Second Vector</param>
     /// <returns>Comparison result</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator ==(<#=typename#> v1, <#=typename#> v2) => v1.Is(v2);
+    public static bool operator ==(<#=typename#> first, <#=typename#> second) => first.Is(second);
 
     /// <summary>
     /// Compares whether the two given vectors are unequal regarding their coefficients.
     /// </summary>
-    /// <param name="v1">First Vector</param>
-    /// <param name="v2">Second Vector</param>
+    /// <param name="first">First Vector</param>
+    /// <param name="second">Second Vector</param>
     /// <returns>Comparison result</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator !=(<#=typename#> v1, <#=typename#> v2) => v2.IsNot(v2);
+    public static bool operator !=(<#=typename#> first, <#=typename#> second) => first.IsNot(second);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator true(<#=typename#> vector) => vector.Length.IsNonZero;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator false(<#=typename#> vector) => vector.Length.IsZero;
 
     /// <summary>
     /// Compares the lengths of the two given vectors and returns whether the first is shorter than the second one.

@@ -771,6 +771,12 @@ public unsafe readonly /* ref */ struct Complex
     public static bool operator !=(Complex c1, Complex c2) => !(c1 == c2);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator true(Complex scalar) => scalar.IsNonZero;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator false(Complex scalar) => scalar.IsZero;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (Scalar re, Scalar im)(Complex c) => (c._re, c._im);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

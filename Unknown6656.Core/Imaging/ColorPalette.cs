@@ -1,24 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using System.Runtime.CompilerServices;
+using System.Collections.Generic;
+using System.Collections;
 using System.Reflection;
-using System.Drawing.Imaging;
 using System.Drawing;
 using System.Linq;
 using System;
-using System.Text;
+
 using Unknown6656.Generics;
-using System.Collections;
 
 namespace Unknown6656.Imaging;
 
 using sys_palette = System.Drawing.Imaging.ColorPalette;
 
 
-
-public class ColorPalette<Color>
+public class ColorPalette<@this, Color>
     : IEnumerable<Color>
+    where @this : ColorPalette<@this, Color>
     where Color : unmanaged, IColor<Color>
 {
     public HashSet<Color> Colors { get; }
+
+    public int Count => Colors.Count;
 
 
     public ColorPalette(params Color[] colors)
@@ -35,7 +37,7 @@ public class ColorPalette<Color>
         return $"{Colors.Count} Colors: [{Colors.Take(LIMIT).StringJoin(", ")}{(Colors.Count > LIMIT ? ", ..." : "")}]";
     }
 
-    public override bool Equals(object? obj) => obj is ColorPalette<Color> other && Colors.SetEquals(other.Colors);
+    public override bool Equals(object? obj) => obj is ColorPalette<@this, Color> other && Colors.SetEquals(other.Colors);
 
     public override int GetHashCode()
     {
@@ -54,13 +56,29 @@ public class ColorPalette<Color>
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public static bool operator ==(ColorPalette<Color>? c1, ColorPalette<Color>? c2) => c1?.Equals(c2) ?? c2 is null;
+    public bool Contains(Color color) => Colors.Contains(color);
 
-    public static bool operator !=(ColorPalette<Color>? c1, ColorPalette<Color>? c2) => !(c1 == c2);
+
+
+    public @this Intersect(ColorPalette<@this, Color> second) => new ColorPalette<@this, Color>(Colors.Intersect(second.Colors));
+
+    public @this Except(ColorPalette<@this, Color> second) => new ColorPalette<@this, Color>(Colors.Except(second.Colors));
+
+    public @this Union(ColorPalette<@this, Color> second) => new ColorPalette<@this, Color>(Colors.Union(second.Colors));
+
+    public static bool operator ==(ColorPalette<@this, Color>? c1, @this? c2) => c1?.Equals(c2) ?? c2 is null;
+
+    public static bool operator !=(ColorPalette<@this, Color>? c1, @this? c2) => !(c1 == c2);
+
+    public static bool operator ==(@this? c1, ColorPalette<@this, Color>? c2) => c2 == c1;
+
+    public static bool operator !=(@this? c1, ColorPalette<@this, Color>? c2) => c2 != c1;
+
+    public static implicit operator @this(ColorPalette<@this, Color> palette) => (@this)palette;
 }
 
 public class ColorPalette
-    : ColorPalette<RGBAColor>
+    : ColorPalette<ColorPalette, RGBAColor>
 {
     private static readonly ConstructorInfo _palette_ctor = typeof(sys_palette).GetConstructor(new[] { typeof(int) })!;
 
@@ -1133,6 +1151,39 @@ public class ColorPalette
     public ColorPalette(sys_palette palette)
         : this(palette.Entries)
     {
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool Contains(uint argb32) => base.Contains(argb32);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool Contains(Color color) => base.Contains(color);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool Contains<Color>(Color color) where Color : IColor<Color> => Contains(color.ToARGB32());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public RGBAColor GetNearestColor<Color>(Color color, ColorEqualityMetric metric)
+        where Color : IColor<Color> => GetNearestColor(color, metric, out _);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public RGBAColor GetNearestColor<Color>(Color color, ColorEqualityMetric metric, out double distance)
+    {
+        (RGBAColor result, distance) = GetNearestColors(color, metric).First();
+
+        return result;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public IEnumerable<(RGBAColor Color, double Distance)> GetNearestColors<Color>(Color color, ColorEqualityMetric metric)
+        where Color : IColor<Color>
+    {
+        RGBAColor given = (RGBAColor)color.ToARGB32();
+
+        return from c in Colors
+               let dist = c.DistanceTo(given, metric)
+               orderby dist ascending
+               select (c, dist);
     }
 
     public sys_palette ToImageColorPalette()

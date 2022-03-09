@@ -1245,6 +1245,7 @@ public enum ColorEqualityMetric
     Saturation,
     Luminance,
     CIEGray,
+    CIALAB94,
     Average,
     EucledianLength,
     LegacyConsoleColor,

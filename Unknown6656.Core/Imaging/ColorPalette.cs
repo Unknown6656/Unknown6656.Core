@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Runtime.Versioning;
 using System.Collections.Generic;
 using System.Collections;
 using System.Reflection;
@@ -7,6 +8,7 @@ using System.Linq;
 using System;
 
 using Unknown6656.Generics;
+using System.Collections.Concurrent;
 
 namespace Unknown6656.Imaging;
 
@@ -80,6 +82,9 @@ public class ColorPalette<@this, Color>
 public class ColorPalette
     : ColorPalette<ColorPalette, RGBAColor>
 {
+    private readonly ConcurrentDictionary<(ColorEqualityMetric metric, uint color), (uint color, double distance)> _cache = new();
+
+
     private static readonly ConstructorInfo _palette_ctor = typeof(sys_palette).GetConstructor(new[] { typeof(int) })!;
 
 
@@ -1108,13 +1113,11 @@ public class ColorPalette
     );
 
 
-    public ColorPalette(params RGBAColor[] colors)
-        : base(colors)
-    {
-    }
-
     public ColorPalette(IEnumerable<RGBAColor> colors)
-        : base(colors)
+        : base(colors) => _cache[this] = new();
+
+    public ColorPalette(params RGBAColor[] colors)
+        : this(colors as IEnumerable<RGBAColor>)
     {
     }
 
@@ -1170,7 +1173,17 @@ public class ColorPalette
     public RGBAColor GetNearestColor<Color>(Color color, ColorEqualityMetric metric, out double distance)
         where Color : IColor<Color>
     {
-        (RGBAColor result, distance) = GetNearestColors(color, metric).First();
+        uint argb32 = color.ToARGB32();
+        RGBAColor result;
+
+        if (_cache[this].TryGetValue((metric, argb32), out (uint, double) match))
+            (result, distance) = match;
+        else
+        {
+            (result, distance) = GetNearestColors(color, metric).First();
+
+            _cache[this][(metric, argb32)] = (result.ToARGB32(), distance);
+        }
 
         return result;
     }
@@ -1196,6 +1209,16 @@ public class ColorPalette
             palette.Entries[i++] = color;
 
         return palette;
+    }
+
+    [SupportedOSPlatform("windows")]
+    public static unsafe ColorPalette FromImage(Bitmap bitmap)
+    {
+        IEnumerable<RGBAColor>? colors = Enumerable.Empty<RGBAColor>();
+
+        bitmap.LockRGBAPixels((ptr, w, h) => colors = Enumerable.Range(0, w * h).Select(i => ptr[i]).Distinct());
+
+        return new(colors);
     }
 
     public static implicit operator sys_palette(ColorPalette palette) => palette.ToImageColorPalette();

@@ -1,4 +1,4 @@
-﻿#define USE_CACHE
+﻿// #define USE_CACHE
 
 using System.Runtime.CompilerServices;
 using System.Runtime.Versioning;
@@ -13,6 +13,7 @@ using System.Linq;
 using System;
 
 using Unknown6656.Generics;
+using Unknown6656.Runtime;
 
 namespace Unknown6656.Imaging;
 
@@ -1125,9 +1126,6 @@ public class ColorPalette
     public ColorPalette(IEnumerable<RGBAColor> colors)
         : base(colors)
     {
-#if USE_CACHE
-        _cache[this] = new();
-#endif
     }
 
     public ColorPalette(params RGBAColor[] colors)
@@ -1191,14 +1189,14 @@ public class ColorPalette
 #if USE_CACHE
         uint argb32 = color.ToARGB32();
 
-        if (_cache[this].TryGetValue((metric, argb32), out (uint, double) match))
+        if (_cache.TryGetValue((metric, argb32), out (uint, double) match))
             (result, distance) = match;
         else
         {
 #endif
             (result, distance) = GetNearestColors(color, metric).First();
 #if USE_CACHE
-            _cache[this][(metric, argb32)] = (result.ToARGB32(), distance);
+            _cache[(metric, argb32)] = (result.ToARGB32(), distance);
         }
 #endif
 

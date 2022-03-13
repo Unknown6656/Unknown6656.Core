@@ -298,6 +298,33 @@ namespace Unknown6656.Imaging.Effects
         }
     }
 
+    [SupportedOSPlatform(OS.WIN)]
+    public class ColorSpaceReductionError
+        : ColorEffect.Delegated
+    {
+        public ColorEqualityMetric EqualityMetric { get; }
+        public ColorPalette ColorPalette { get; }
+
+
+        public ColorSpaceReductionError(ColorPalette target_palette, ColorEqualityMetric equality_metric = ColorEqualityMetric.RGBChannels)
+            : base(c =>
+            {
+                target_palette.GetNearestColor(c, equality_metric, out double dist);
+                byte val = (byte)(dist * 255);
+
+                return new(val, val, val);
+            })
+        {
+            ColorPalette = target_palette;
+            EqualityMetric = equality_metric;
+        }
+
+        public ColorSpaceReductionError(IEnumerable<RGBAColor> target_palette, ColorEqualityMetric equality_metric = ColorEqualityMetric.RGBChannels)
+            : this(new ColorPalette(target_palette), equality_metric)
+        {
+        }
+    }
+
     public sealed class Cartoon
         : ColorEffect
     {

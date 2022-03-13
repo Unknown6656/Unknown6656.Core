@@ -10,6 +10,7 @@ using System;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Imaging.Effects;
 using Unknown6656.Runtime;
+using System.ComponentModel;
 
 namespace Unknown6656.Imaging;
 
@@ -94,6 +95,17 @@ public abstract unsafe class PartialBitmapEffect
         Parallel.For(0, indices.Length, i => indices[i] = (i / rw + y) * w + (i % rw) + x);
 
         return indices;
+    }
+
+    private protected static (int X, int Y)[] GetAbsoluteCoordinates(Bitmap bmp, Rectangle region)
+    {
+        int w = bmp.Width;
+        int[] idx = GetIndices(bmp, region);
+        (int x, int y)[] coords = new (int, int)[idx.Length];
+
+        Parallel.For(0, idx.Length, i => coords[i] = GetAbsoluteCoordinates(idx[i], w));
+
+        return coords;
     }
 
     private protected static (int X, int Y) GetRelativeCoordinates(int index, int width, Rectangle region) => ((index % width) - region.Left, (index / width) - region.Top);

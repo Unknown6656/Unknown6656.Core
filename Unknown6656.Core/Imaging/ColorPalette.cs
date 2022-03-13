@@ -1,5 +1,10 @@
-﻿using System.Runtime.CompilerServices;
+﻿#define USE_CACHE
+
+using System.Runtime.CompilerServices;
 using System.Runtime.Versioning;
+#if USE_CACHE
+using System.Collections.Concurrent;
+#endif
 using System.Collections.Generic;
 using System.Collections;
 using System.Reflection;
@@ -8,7 +13,6 @@ using System.Linq;
 using System;
 
 using Unknown6656.Generics;
-using System.Collections.Concurrent;
 
 namespace Unknown6656.Imaging;
 
@@ -82,9 +86,14 @@ public class ColorPalette<@this, Color>
 public class ColorPalette
     : ColorPalette<ColorPalette, RGBAColor>
 {
+    public const bool UsesCache =
+#if USE_CACHE
+        true;
+
     private readonly ConcurrentDictionary<(ColorEqualityMetric metric, uint color), (uint color, double distance)> _cache = new();
-
-
+#else
+        false;
+#endif
     private static readonly ConstructorInfo _palette_ctor = typeof(sys_palette).GetConstructor(new[] { typeof(int) })!;
 
 
@@ -1114,7 +1123,12 @@ public class ColorPalette
 
 
     public ColorPalette(IEnumerable<RGBAColor> colors)
-        : base(colors) => _cache[this] = new();
+        : base(colors)
+    {
+#if USE_CACHE
+        _cache[this] = new();
+#endif
+    }
 
     public ColorPalette(params RGBAColor[] colors)
         : this(colors as IEnumerable<RGBAColor>)
@@ -1173,17 +1187,20 @@ public class ColorPalette
     public RGBAColor GetNearestColor<Color>(Color color, ColorEqualityMetric metric, out double distance)
         where Color : IColor<Color>
     {
-        uint argb32 = color.ToARGB32();
         RGBAColor result;
+#if USE_CACHE
+        uint argb32 = color.ToARGB32();
 
         if (_cache[this].TryGetValue((metric, argb32), out (uint, double) match))
             (result, distance) = match;
         else
         {
+#endif
             (result, distance) = GetNearestColors(color, metric).First();
-
+#if USE_CACHE
             _cache[this][(metric, argb32)] = (result.ToARGB32(), distance);
         }
+#endif
 
         return result;
     }

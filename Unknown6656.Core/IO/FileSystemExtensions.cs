@@ -3,7 +3,7 @@ using System.Text;
 using System.IO;
 
 using Unknown6656.Mathematics.Graphs;
-using Unknown6656.Common;
+using Unknown6656.Runtime;
 
 namespace Unknown6656.IO;
 

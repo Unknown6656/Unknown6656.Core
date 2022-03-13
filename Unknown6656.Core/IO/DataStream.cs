@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Text.Json.Serialization;
 using System.Runtime.InteropServices;
@@ -26,8 +27,7 @@ using Unknown6656.Controls.Console;
 using Unknown6656.Generics;
 using Unknown6656.Imaging;
 using Unknown6656.Common;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
+using Unknown6656.Runtime;
 
 namespace Unknown6656.IO;
 
@@ -529,7 +529,8 @@ public unsafe record DataStream(byte[] Data)
         byte[] bytes = Data;
         void* buffer;
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+#pragma warning disable CA1416 // Validate platform compatibility
+        if (OS.IsWindows)
         {
             buffer = NativeInterop.VirtualAlloc(null, bytes.Length, 0x1000, 4);
 
@@ -538,12 +539,15 @@ public unsafe record DataStream(byte[] Data)
             Marshal.Copy(bytes, 0, (nint)buffer, bytes.Length);
             NativeInterop.VirtualProtect(buffer, bytes.Length, 0x20, &dummy);
         }
-        else
+        else if (OS.IsPosix)
         {
             NativeInterop.posix_memalign(&buffer, 4096, bytes.Length);
             Marshal.Copy(bytes, 0, (nint)buffer, bytes.Length);
             NativeInterop.mprotect(buffer, bytes.Length, 0b_0000_0111); // rwx
         }
+#pragma warning restore CA1416
+        else
+            throw new InvalidOperationException("The current OS execution platform is unsupported. Try running it again on Windows/Linux/MacOSX/FreeBSD.");
 
         return new UnsafeFunctionPointer(buffer, bytes.Length);
     }
@@ -560,6 +564,7 @@ public unsafe record DataStream(byte[] Data)
 
     public object? ToJSON(Type type, Encoding enc, JsonSerializerOptions? options = null) => JsonSerializer.Deserialize(ToString(enc), type, options ?? DefaultJSONOptions);
 
+    [Obsolete("See https://aka.ms/binaryformatter", true)]
     public object ToSerializable()
     {
         BinaryFormatter fmt = new();
@@ -571,6 +576,7 @@ public unsafe record DataStream(byte[] Data)
         return fmt.Deserialize(ms);
     }
 
+    [Obsolete("See https://aka.ms/binaryformatter", true)]
     public T ToSerializable<T>() => (T)ToSerializable();
 
     public object? ToObject() => LINQ.TryDo(() =>
@@ -779,6 +785,7 @@ public unsafe record DataStream(byte[] Data)
 
     public static DataStream FromObjectAsJSON(object? obj, Encoding enc, JsonSerializerOptions? options = null) => FromString(JsonSerializer.Serialize(obj, options ?? DefaultJSONOptions), enc);
 
+    [Obsolete("See https://aka.ms/binaryformatter", true)]
     public static DataStream FromSerializable(object serializable)
     {
         BinaryFormatter fmt = new();
@@ -1001,19 +1008,21 @@ public unsafe sealed partial class UnsafeFunctionPointer
 
     ~UnsafeFunctionPointer() => Dispose(false);
 
-    private void Dispose(bool disposing)
+    private void Dispose(bool managed)
     {
         if (!IsDisposed)
         {
-            if (disposing)
+            if (managed)
             {
                 // TODO: dispose managed state (managed objects)
             }
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+#pragma warning disable CA1416 // Validate platform compatibility
+            if (OS.IsWindows)
                 NativeInterop.VirtualFree(BufferAddress, 0, 0x8000);
             else
                 NativeInterop.free(BufferAddress);
+#pragma warning restore CA1416
 
             IsDisposed = true;
         }
@@ -1021,7 +1030,7 @@ public unsafe sealed partial class UnsafeFunctionPointer
 
     public void Dispose()
     {
-        Dispose(disposing: true);
+        Dispose(managed: true);
 
         GC.SuppressFinalize(this);
     }

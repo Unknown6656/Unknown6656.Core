@@ -283,15 +283,6 @@
             return (h, s, l);
         }",
         @"public readonly (double R, double G, double B) ToRGB() => ($R, $G, $B);",
-        @"public readonly uint ToARGB32()
-        {
-            uint a = (uint)(byte)($A * 255).Clamp() << 24;
-            uint r = (uint)(byte)($R * 255).Clamp() << 16;
-            uint g = (uint)(byte)($G * 255).Clamp() << 8;
-            uint b = (byte)($B * 255).Clamp();
-
-            return a | r | g | b;
-        }",
         @"public readonly (double H, double S, double V) ToHSV()
         {
             (double H, double S, double L) = ToHSL();

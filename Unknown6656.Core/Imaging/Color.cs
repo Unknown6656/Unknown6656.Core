@@ -284,6 +284,9 @@ public partial struct HDRColor
     public readonly HDRColor Complement => new(1 - R, 1 - G, 1 - B, A);
 
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly uint ToARGB32() => ARGB32.ARGBu;
+
     public int CompareTo(HDRColor other) => throw new NotImplementedException();
 
     public readonly override string ToString() => $"(R:{Math.Round(R, 6)}, G:{Math.Round(G, 6)}, B:{Math.Round(B, 6)}, α:{Math.Round(A, 6)})";
@@ -326,7 +329,7 @@ public unsafe partial struct RGBAColor
     /// </summary>
     [FieldOffset(2)]
     public byte R;
-    
+
     /// <summary>
     /// The color's alpha channel.
     /// </summary>
@@ -361,7 +364,7 @@ public unsafe partial struct RGBAColor
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         set
-    {
+        {
             if (value <= 0xffff)
                 value = ((value & 0xf000) << 16)
                       | ((value & 0xff00) << 12)
@@ -473,13 +476,15 @@ public unsafe partial struct RGBAColor
 
     public readonly override string ToString() => $"#{ARGB:x8}";
 
-
     public readonly int CompareTo([AllowNull] RGBAColor other)
     {
         int dist = ((Vector3)this).Length.CompareTo(((Vector3)other).Length);
 
         return dist == 0 ? A.CompareTo(other.A) : dist;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly uint ToARGB32() => ARGBu;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToVT100ForegroundString() => $"\x1b[38;2;{R};{G};{B}m";
@@ -516,7 +521,6 @@ public unsafe partial struct RGBAColor
     }
 
     #endregion
-
 
     // TODO : Adobe color space
     // TODO : CIE76
@@ -593,8 +597,6 @@ public unsafe partial struct RGBAColor
     public static implicit operator RGBAColor((byte r, byte g, byte b, byte α) color) => new(color.r, color.g, color.b, color.α);
 
     #endregion
-
-
 }
 
 public abstract class ColorMap

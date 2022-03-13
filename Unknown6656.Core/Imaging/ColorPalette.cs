@@ -1207,7 +1207,7 @@ public class ColorPalette
     public IEnumerable<(RGBAColor Color, double Distance)> GetNearestColors<Color>(Color color, ColorEqualityMetric metric)
         where Color : IColor<Color>
     {
-        RGBAColor given = (RGBAColor)color.ToARGB32();
+        RGBAColor given = color is RGBAColor rc ? rc : (RGBAColor)color.ToARGB32();
 
         return from c in Colors
                let dist = c.DistanceTo(given, metric)

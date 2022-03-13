@@ -560,6 +560,8 @@ public unsafe partial struct RGBAColor
             BlendMode.Remainder => b.ComponentwiseModulus(t),
             BlendMode.Screen => 1 - (1 - b).ComponentwiseMultiply(1 - t),
             BlendMode.Divide => b.ComponentwiseDivide(t),
+            BlendMode.Bottom => bottom,
+            BlendMode.Top => top,
             BlendMode.Overlay => ba < .5 ? 2 * b.ComponentwiseMultiply(t) : 1 - (1 - b).ComponentwiseMultiply(1 - t).Multiply(2),
             BlendMode.SoftLight => ta < .5 ? b.ComponentwiseMultiply(t).Multiply(2).Add(b.ComponentwiseMultiply(b).Multiply(1 - 2 * t)) : b.ComponentwiseMultiply(1 - t).Multiply(2).Add(b.ComponentwiseSqrt().Multiply(t.Multiply(2) - 1)),
             BlendMode.HardLight => ta < .5 ? b.ComponentwiseMultiply(t).Multiply(2) : 1 - (1 - b).ComponentwiseMultiply(1 - t).Multiply(2),

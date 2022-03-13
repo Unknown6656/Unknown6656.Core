@@ -693,6 +693,8 @@ public enum BlendMode
     /// Divide blend mode.
     /// </summary>
     Divide,
+    Bottom,
+    Top,
     Remainder,
     Overlay,
     SoftLight,

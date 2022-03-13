@@ -482,10 +482,13 @@ public unsafe partial struct RGBAColor
     #endregion
     #region INSTANCE METHODS
 
-    public readonly override string ToString() =>
-        
-        
-        $"#{ARGB:x8}";
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly override string ToString()
+    {
+        uint argb = ARGBu;
+
+        return IColor.KnownColorNames.TryGetValue(argb, out string? name) ? name : $"#{argb:x8}";
+    }
 
     public readonly int CompareTo([AllowNull] RGBAColor other)
     {

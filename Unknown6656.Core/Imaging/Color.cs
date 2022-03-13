@@ -13,7 +13,7 @@ using Unknown6656.Mathematics;
 namespace Unknown6656.Imaging;
 
 
-public interface IColor
+public partial interface IColor
 {
     internal static Dictionary<ConsoleColorScheme, Dictionary<ConsoleColor, uint>> ConsoleColorSchemes { get; } = new()
     {
@@ -365,12 +365,20 @@ public unsafe partial struct RGBAColor
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         set
         {
-            if (value <= 0xffff)
+            if (value <= 0xfff)
+                value = ((value & 0xf00) << 24)
+                      | ((value & 0xff0) << 16)
+                      | ((value & 0x0ff) << 8)
+                      | (value & 0x00f)
+                      | 0xff000000;
+            else if (value <= 0xffff)
                 value = ((value & 0xf000) << 16)
                       | ((value & 0xff00) << 12)
                       | ((value & 0x0ff0) << 8)
                       | ((value & 0x00ff) << 4)
                       | (value & 0x000f);
+            else if (value <= 0xffffff)
+                value |= 0xff000000;
 
             A = (byte)((value >> (int)BitmapChannel.A) & 0xff);
             R = (byte)((value >> (int)BitmapChannel.R) & 0xff);
@@ -474,7 +482,10 @@ public unsafe partial struct RGBAColor
     #endregion
     #region INSTANCE METHODS
 
-    public readonly override string ToString() => $"#{ARGB:x8}";
+    public readonly override string ToString() =>
+        
+        
+        $"#{ARGB:x8}";
 
     public readonly int CompareTo([AllowNull] RGBAColor other)
     {

@@ -11,7 +11,7 @@ namespace Unknown6656.Imaging.Effects;
 
 #if false
 
-[SupportedOSPlatform("windows")]
+[SupportedOSPlatform(OS.WIN)]
 public class Dithering
     : PartialBitmapEffect.Accelerated
 {

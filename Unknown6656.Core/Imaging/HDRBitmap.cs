@@ -3,6 +3,7 @@ using System.Drawing.Imaging;
 using System.Drawing;
 
 using Unknown6656.Mathematics.LinearAlgebra;
+using Unknown6656.Runtime;
 
 namespace Unknown6656.Imaging;
 
@@ -26,10 +27,11 @@ public unsafe class HDRBitmap
     {
     }
 
-    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform(OS.WIN)]
     public HDRBitmap(Bitmap bitmap)
         : this(bitmap.Width, bitmap.Height) => ReadFromBitmap(bitmap);
 
+    [SupportedOSPlatform(OS.WIN)]
     private void ReadFromBitmap(Bitmap bmp)
     {
         using Bitmap tmp = new(bmp);
@@ -49,7 +51,7 @@ public unsafe class HDRBitmap
         });
     }
 
-    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform(OS.WIN)]
     public Bitmap ToBitmap()
     {
         Bitmap bmp = new(Width, Height, PixelFormat.Format32bppArgb);

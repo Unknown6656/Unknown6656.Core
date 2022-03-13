@@ -9,13 +9,14 @@ using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Imaging.Effects;
+using Unknown6656.Runtime;
 
 namespace Unknown6656.Imaging;
 
 /// <summary>
 /// Represents an abstract bitmap effect.
 /// </summary>
-[SupportedOSPlatform("windows")]
+[SupportedOSPlatform(OS.WIN)]
 public abstract class BitmapEffect
 {
     public abstract Bitmap ApplyTo(Bitmap bmp);
@@ -24,7 +25,7 @@ public abstract class BitmapEffect
 /// <summary>
 /// Represents an abstract bitmap effect which can be partially applied by controlling the effect region and intensity.
 /// </summary>
-[SupportedOSPlatform("windows")]
+[SupportedOSPlatform(OS.WIN)]
 public abstract unsafe class PartialBitmapEffect
     : BitmapEffect
 {
@@ -181,7 +182,7 @@ public interface IChainedEffects<T, F>
     IReadOnlyCollection<F> Effects { get; }
 }
 
-[SupportedOSPlatform("windows")]
+[SupportedOSPlatform(OS.WIN)]
 public class ChainedBitmapEffect
     : BitmapEffect
     , IChainedEffects<ChainedBitmapEffect, BitmapEffect>
@@ -201,7 +202,7 @@ public class ChainedBitmapEffect
     public override Bitmap ApplyTo(Bitmap bmp) => _effects.Length == 0 ? bmp : _effects.Aggregate(bmp, (b, fx) => fx.ApplyTo(b));
 }
 
-[SupportedOSPlatform("windows")]
+[SupportedOSPlatform(OS.WIN)]
 public class ChainedPartialBitmapEffect
     : PartialBitmapEffect
     , IChainedEffects<ChainedPartialBitmapEffect, PartialBitmapEffect>
@@ -221,7 +222,7 @@ public class ChainedPartialBitmapEffect
     private protected override Bitmap Process(Bitmap bmp, Rectangle region) => _effects.Length == 0 ? bmp : _effects.Aggregate(bmp, (b, fx) => fx.ApplyTo(b, region));
 }
 
-[SupportedOSPlatform("windows")]
+[SupportedOSPlatform(OS.WIN)]
 public class AcceleratedChainedPartialBitmapEffect
     : PartialBitmapEffect.Accelerated
     , IChainedEffects<AcceleratedChainedPartialBitmapEffect, PartialBitmapEffect.Accelerated>
@@ -269,7 +270,7 @@ public class AcceleratedChainedPartialBitmapEffect
     }
 }
 
-[SupportedOSPlatform("windows")]
+[SupportedOSPlatform(OS.WIN)]
 public abstract class ColorEffect
     : PartialBitmapEffect.Accelerated
 {
@@ -305,7 +306,7 @@ public abstract class ColorEffect
     }
 }
 
-[SupportedOSPlatform("windows")]
+[SupportedOSPlatform(OS.WIN)]
 public abstract class CoordinateColorEffect
     : PartialBitmapEffect.Accelerated
 {
@@ -548,7 +549,7 @@ public class TransformEffect
     }
 }
 
-[SupportedOSPlatform("windows")]
+[SupportedOSPlatform(OS.WIN)]
 public class MultiConvolutionEffect
     : PartialBitmapEffect.Accelerated
 {
@@ -609,7 +610,7 @@ public class MultiConvolutionEffect
     }
 }
 
-[SupportedOSPlatform("windows")]
+[SupportedOSPlatform(OS.WIN)]
 public class SingleConvolutionEffect
     : MultiConvolutionEffect
 {

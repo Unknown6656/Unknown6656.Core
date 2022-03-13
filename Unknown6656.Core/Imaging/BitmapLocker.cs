@@ -5,6 +5,8 @@ using System.Drawing.Imaging;
 using System.Drawing;
 using System;
 
+using Unknown6656.Runtime;
+
 namespace Unknown6656.Imaging;
 
 
@@ -12,7 +14,7 @@ public unsafe delegate void BitmapLockerCallback<T>(T* pixels, int width, int he
 
 public unsafe delegate U BitmapLockerCallback<T, U>(T* pixels, int width, int height) where T : unmanaged;
 
-[SupportedOSPlatform("windows")]
+[SupportedOSPlatform(OS.WIN)]
 public unsafe class BitmapLocker
 {
     public Bitmap Bitmap { get; }

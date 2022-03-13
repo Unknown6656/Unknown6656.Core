@@ -13,6 +13,7 @@ using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Mathematics.Numerics;
 using Unknown6656.Mathematics;
+using Unknown6656.Runtime;
 
 using Random = Unknown6656.Mathematics.Numerics.Random;
 
@@ -276,7 +277,7 @@ namespace Unknown6656.Imaging.Effects
         }
     }
 
-    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform(OS.WIN)]
     public class ReduceColorSpace
         : ColorEffect.Delegated
     {
@@ -416,7 +417,7 @@ namespace Unknown6656.Imaging.Effects
     #endregion
     #region INSTAGRAM CSS COLOR FILTERS
 
-    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform(OS.WIN)]
     public sealed class SepiaFilter
         : RGBColorEffect
     {
@@ -438,7 +439,7 @@ namespace Unknown6656.Imaging.Effects
     /// <summary>
     /// Represents the Instagram 'Nashville' CSS bitmap filter.
     /// </summary>
-    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform(OS.WIN)]
     public sealed class NashvilleFilter
         : ChainedPartialBitmapEffect
     {
@@ -461,7 +462,7 @@ namespace Unknown6656.Imaging.Effects
     // /// <summary>
     /// Represents the Instagram smooth 'Walden' CSS bitmap effect
     /// </summary>
-    // [SupportedOSPlatform("windows")]
+    // [SupportedOSPlatform(OS.WIN)]
     // public sealed unsafe class SmoothWaldenBitmapEffect
     //     : ChainedPartialBitmapEffect
     // {
@@ -981,7 +982,7 @@ namespace Unknown6656.Imaging.Effects
 
     #endregion
 
-    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform(OS.WIN)]
     public class BitmapBlend
         : PartialBitmapEffect.Accelerated
     {
@@ -1016,7 +1017,7 @@ namespace Unknown6656.Imaging.Effects
         }
     }
 
-    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform(OS.WIN)]
     public class SolidColorBlend
         : PartialBitmapEffect.Accelerated
     {

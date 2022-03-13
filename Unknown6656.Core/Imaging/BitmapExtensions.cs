@@ -13,6 +13,7 @@ using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Mathematics.Numerics;
 using Unknown6656.Imaging.Effects;
 using Unknown6656.Generics;
+using Unknown6656.Runtime;
 using Unknown6656.Common;
 using Unknown6656.IO;
 
@@ -21,7 +22,7 @@ using Unknown6656.IO;
 namespace Unknown6656.Imaging;
 
 
-[SupportedOSPlatform("windows")]
+[SupportedOSPlatform(OS.WIN)]
 public static unsafe class BitmapExtensions
 {
     /// <summary>

@@ -1228,7 +1228,7 @@ public class ColorPalette
         return palette;
     }
 
-    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform(OS.WIN)]
     public static unsafe ColorPalette FromImage(Bitmap bitmap)
     {
         IEnumerable<RGBAColor>? colors = Enumerable.Empty<RGBAColor>();

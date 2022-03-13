@@ -10,11 +10,12 @@ using Unknown6656.Mathematics.LinearAlgebra;
 //using Unknown6656.Mathematics.Geometry;
 using Unknown6656.Mathematics.Statistics;
 using Unknown6656.Imaging.Effects;
+using Unknown6656.Runtime;
 
 namespace Unknown6656.Imaging;
 
 
-[SupportedOSPlatform("windows")]
+[SupportedOSPlatform(OS.WIN)]
 public sealed unsafe class BitmapMask
     : PartialBitmapEffect.Accelerated
 {

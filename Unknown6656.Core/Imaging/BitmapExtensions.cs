@@ -16,6 +16,7 @@ using Unknown6656.Generics;
 using Unknown6656.Runtime;
 using Unknown6656.Common;
 using Unknown6656.IO;
+using System.Diagnostics;
 
 // TODO : dithering functions
 
@@ -272,6 +273,35 @@ public static unsafe class BitmapExtensions
     public static Bitmap Remove(this Bitmap bmp, IEnumerable<RGBAColor> colors) => bmp.ApplyEffect(new Remove(colors));
 
     public static Bitmap Remove(this Bitmap bmp, IEnumerable<RGBAColor> colors, ColorTolerance tolerance) => bmp.ApplyEffect(new Remove(colors, tolerance));
+
+    public static Bitmap Replace(this Bitmap bmp, Bitmap replacement, Rectangle region) =>
+        Blend(bmp, replacement, BlendMode.Top, region);
+
+    public static Bitmap Replace(this Bitmap bmp, Bitmap replacement, BitmapMask mask) =>
+        Blend(bmp, replacement, BlendMode.Top, mask);
+
+    public static Bitmap Replace(this Bitmap bmp, Bitmap replacement, (Range Horizontal, Range Vertical) region) =>
+        Blend(bmp, replacement, BlendMode.Top, region);
+
+    public static Bitmap Blend(this Bitmap bottom_layer, Bitmap top_layer, BlendMode mode) => Blend(bottom_layer, top_layer, mode, Scalar.One);
+
+    public static Bitmap Blend(this Bitmap bottom_layer, Bitmap top_layer, BlendMode mode, Scalar amount) =>
+        new BitmapBlend(bottom_layer, mode, 1).ApplyTo(top_layer, amount);
+
+    public static Bitmap Blend(this Bitmap bottom_layer, Bitmap top_layer, BlendMode mode, BitmapMask mask) =>
+        new BitmapBlend(bottom_layer, mode, 1).ApplyTo(top_layer, mask);
+
+    public static Bitmap Blend(this Bitmap bottom_layer, Bitmap top_layer, BlendMode mode, Rectangle region) =>
+        Blend(bottom_layer, top_layer, mode, region, Scalar.One);
+
+    public static Bitmap Blend(this Bitmap bottom_layer, Bitmap top_layer, BlendMode mode, Rectangle region, Scalar amount) =>
+        new BitmapBlend(bottom_layer, mode, 1).ApplyTo(top_layer, region, amount);
+
+    public static Bitmap Blend(this Bitmap bottom_layer, Bitmap top_layer, BlendMode mode, (Range Horizontal, Range Vertical) region) =>
+        Blend(bottom_layer, top_layer, mode, region, Scalar.One);
+
+    public static Bitmap Blend(this Bitmap bottom_layer, Bitmap top_layer, BlendMode mode, (Range Horizontal, Range Vertical) region, Scalar amount) =>
+        new BitmapBlend(bottom_layer, mode, 1).ApplyTo(top_layer, region, amount);
 
     /// <summary>
     /// Sets the EXIF tag of the given bitmap to the given value.

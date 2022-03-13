@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
@@ -8,6 +9,7 @@ using System;
 
 using Unknown6656.Generics;
 using Unknown6656.Imaging;
+using Unknown6656.Runtime;
 using Unknown6656.Common;
 
 namespace Unknown6656.Controls.Console
@@ -16,6 +18,7 @@ namespace Unknown6656.Controls.Console
 
 
     [Flags]
+    [SupportedOSPlatform(OS.WIN)]
     public enum ConsoleMode
         : uint
     {
@@ -59,43 +62,27 @@ namespace Unknown6656.Controls.Console
             }
         }
 
-        public static bool IsWindowsConsole { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        [SupportedOSPlatform(OS.WIN)]
+        public static void* STDINHandle => OS.IsWindows ? NativeInterop.GetStdHandle(-10)
+                                                        : throw new InvalidOperationException("This operation is not supported on non-Windows operating systems.");
 
-        public static void* STDINHandle
-        {
-            get
-            {
-                if (!IsWindowsConsole)
-                    throw new InvalidOperationException("This operation is not supported on non-Windows operating systems.");
+        [SupportedOSPlatform(OS.WIN)]
+        public static void* STDOUTHandle => OS.IsWindows ? NativeInterop.GetStdHandle(-11)
+                                                         : throw new InvalidOperationException("This operation is not supported on non-Windows operating systems.");
 
-                return NativeInterop.GetStdHandle(-10);
-            }
-        }
-
-        public static void* STDOUTHandle
-        {
-            get
-            {
-                if (!IsWindowsConsole)
-                    throw new InvalidOperationException("This operation is not supported on non-Windows operating systems.");
-
-                return NativeInterop.GetStdHandle(-11);
-            }
-        }
-
+        [SupportedOSPlatform(OS.WIN)]
         public static ConsoleMode STDINConsoleMode
         {
             set
             {
-                if (!IsWindowsConsole)
+                if (!OS.IsWindows)
                     throw new InvalidOperationException("Writing the STDIN console mode is not supported on non-Windows operating systems.");
-
-                if (!NativeInterop.SetConsoleMode(STDINHandle, value))
+                else if (!NativeInterop.SetConsoleMode(STDINHandle, value))
                     throw new InvalidOperationException("An error occurred when writing the STDIN console mode.");
             }
             get
             {
-                if (!IsWindowsConsole)
+                if (!OS.IsWindows)
                     throw new InvalidOperationException("Reading the STDIN console mode is not supported on non-Windows operating systems.");
 
                 ConsoleMode mode = default;
@@ -104,19 +91,19 @@ namespace Unknown6656.Controls.Console
             }
         }
 
+        [SupportedOSPlatform(OS.WIN)]
         public static ConsoleMode STDOUTConsoleMode
         {
             set
             {
-                if (!IsWindowsConsole)
+                if (!OS.IsWindows)
                     throw new InvalidOperationException("Writing the STDOUT console mode is not supported on non-Windows operating systems.");
-
-                if (!NativeInterop.SetConsoleMode(STDOUTHandle, value))
+                else if (!NativeInterop.SetConsoleMode(STDOUTHandle, value))
                     throw new InvalidOperationException("An error occurred when writing the STDOUT console mode.");
             }
             get
             {
-                if (!IsWindowsConsole)
+                if (!OS.IsWindows)
                     throw new InvalidOperationException("Reading the STDOUT console mode is not supported on non-Windows operating systems.");
 
                 ConsoleMode mode = default;
@@ -128,7 +115,7 @@ namespace Unknown6656.Controls.Console
 
         static ConsoleExtensions()
         {
-            if (IsWindowsConsole)
+            if (OS.IsWindows)
             {
                 // STDINConsoleMode |= ConsoleMode.ENABLE_VIRTUAL_TERMINAL_INPUT;
                 STDINConsoleMode |= ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING;
@@ -339,9 +326,9 @@ namespace Unknown6656.Controls.Console
             Foreground = Console.ForegroundColor,
             InputEncoding = Console.InputEncoding,
             OutputEncoding = Console.OutputEncoding,
-            CursorVisible = LINQ.TryDo<bool?>(() => Console.CursorVisible, null),
-            CursorSize = LINQ.TryDo<int?>(() => Console.CursorSize, null),
-            Mode = IsWindowsConsole ? STDINConsoleMode : default,
+            CursorVisible = OS.IsPosix || Console.CursorVisible,
+            CursorSize = OS.IsWindows ? Console.CursorSize : 100,
+            Mode = OS.IsWindows ? STDINConsoleMode : default,
         };
 
         public static void RestoreConsoleState(ConsoleState? state)
@@ -353,11 +340,15 @@ namespace Unknown6656.Controls.Console
                 Console.InputEncoding = state.InputEncoding ?? Encoding.Default;
                 Console.OutputEncoding = state.OutputEncoding ?? Encoding.Default;
 
-                if (IsWindowsConsole)
+                if (OS.IsWindows)
+                {
+#pragma warning disable CA1416 // Validate platform compatibility
                     STDINConsoleMode = state.Mode;
 
-                if (state.CursorSize is int sz)
-                    LINQ.TryDo(() => Console.CursorSize = sz);
+                    if (state.CursorSize is int sz)
+                        LINQ.TryDo(() => Console.CursorSize = sz);
+#pragma warning restore CA1416
+                }
 
                 if (state.CursorVisible is bool vis)
                     LINQ.TryDo(() => Console.CursorVisible = vis);

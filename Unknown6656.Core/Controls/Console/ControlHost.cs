@@ -12,7 +12,7 @@ using System;
 
 using Unknown6656.Generics;
 using Unknown6656.Imaging;
-
+using Unknown6656.Runtime;
 
 namespace Unknown6656.Controls.Console
 {
@@ -341,7 +341,7 @@ namespace Unknown6656.Controls.Console
                     CursorSize = Console.CursorSize,
                     CursorX = Console.CursorLeft,
                     CursorY = Console.CursorTop,
-                    Mode = ConsoleExtensions.IsWindowsConsole ? ConsoleExtensions.STDINConsoleMode : default,
+                    Mode = OS.IsWindows ? ConsoleExtensions.STDINConsoleMode : default,
                 };
                 _yoffs = _old_state.CursorY + 1;
                 KeyListenerSuspended = false;
@@ -352,11 +352,14 @@ namespace Unknown6656.Controls.Console
                 Console.BackgroundColor = ConsoleColor.Black;
                 Console.InputEncoding = Encoding.Unicode;
                 Console.OutputEncoding = Encoding.Unicode;
-                Console.CursorSize = 1;
+
+                if (OS.IsWindows)
+                    Console.CursorSize = 1;
+
                 Console.CursorVisible = false;
                 Console.SetCursorPosition(0, _yoffs);
 
-                if (ConsoleExtensions.IsWindowsConsole)
+                if (OS.IsWindows)
                     ConsoleExtensions.STDINConsoleMode = (ConsoleExtensions.STDINConsoleMode & ~ConsoleMode.ENABLE_QUICK_EDIT_MODE) | ConsoleMode.ENABLE_EXTENDED_FLAGS;
 
                 _renderqueue.Clear();
@@ -395,7 +398,7 @@ namespace Unknown6656.Controls.Console
                     Console.InputEncoding = _old_state.InputEncoding ?? Encoding.Default;
                     Console.OutputEncoding = _old_state.OutputEncoding ?? Encoding.Default;
 
-                    if (ConsoleExtensions.IsWindowsConsole)
+                    if (OS.IsWindows)
                         ConsoleExtensions.STDINConsoleMode = _old_state.Mode | ConsoleMode.ENABLE_QUICK_EDIT_MODE | ConsoleMode.ENABLE_EXTENDED_FLAGS;
 
                     Clear(new RenderInformation(BoundingBox, BoundingBox, null, false, default, default));
@@ -406,7 +409,10 @@ namespace Unknown6656.Controls.Console
                         Console.SetCursorPosition(0, _yoffs);
 
                     Console.WriteLine();
-                    Console.CursorSize = _old_state.CursorSize;
+
+                    if (OS.IsWindows)
+                        Console.CursorSize = _old_state.CursorSize;
+
                     Console.CursorVisible = _old_state.CursorVisible;
                 }
                 else

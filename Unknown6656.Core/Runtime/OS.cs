@@ -14,6 +14,16 @@ public static class OS
     internal const string CAT = "MacCatalyst";
     internal const string AND = "android";
 
+    public static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+    public static bool IsLinux => RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+
+    public static bool IsFreeBSD => RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD);
+
+    public static bool IsOSX => RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+
+    public static bool IsPosix => IsWindows | IsOSX | IsFreeBSD;
+
 
     /// <summary>
     /// Executes the given bash command
@@ -45,7 +55,7 @@ public static class OS
     public static unsafe void CreateBluescreenOfDeath()
     {
 #pragma warning disable CA1416 // Validate platform compatibility
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (OS.IsWindows)
         {
             NativeInterop.RtlAdjustPrivilege(19, true, false, out _);
             NativeInterop.NtRaiseHardError(0xc0000420u, 0, 0, null, 6, out _);

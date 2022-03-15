@@ -61,7 +61,7 @@
         <PackageReference Include="Unknown6656.Currying" Version="1.0.2"/>
         <PackageReference Include="Unknown6656.Generics" Version="0.9.4"/>
         <PackageReference Include="Unknown6656.DiscriminatedUnions" Version="1.1.0"/>
-        <PackageReference Include="Unknown6656.IndexableProperties" Version="1.0.2"/>
+        <PackageReference Include="Unknown6656.IndexableProperties" Version="1.1.0"/>
     </ItemGroup>
     <ItemGroup>
         <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}"/>

@@ -108,8 +108,8 @@ namespace Unknown6656.Imaging
             ));
             using Bitmap fill = bmp.ApplyEffect(new ColorEffect.Delegated(col =>
             {
-                Scalar add = 1 - col.EucledianDistanceTo(RenderPass.COLOR_ADD).Clamp();
-                Scalar sub = 1 - col.EucledianDistanceTo(RenderPass.COLOR_SUB).Clamp();
+                Scalar add = 1 - col.EucledianRGBDistanceTo(RenderPass.COLOR_ADD).Clamp();
+                Scalar sub = 1 - col.EucledianRGBDistanceTo(RenderPass.COLOR_SUB).Clamp();
 
                 return new RGBAColor
                 {

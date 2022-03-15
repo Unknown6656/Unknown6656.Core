@@ -1,9 +1,13 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Collections.Generic;
+using System.Linq;
 using System;
 
 using Unknown6656.Mathematics.Analysis;
+using Unknown6656.Mathematics.Numerics;
 using Unknown6656.IO;
+
+using Random = Unknown6656.Mathematics.Numerics.Random;
 
 namespace Unknown6656.Common;
 
@@ -24,4 +28,23 @@ public static class LINQExtensions
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static unsafe U BinaryCast<T, U>(this T value) where T : unmanaged where U : unmanaged => *(U*)&value;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> collection) => collection.Shuffle(new XorShift());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static T[] Shuffle<T>(this IEnumerable<T> collection, Random rng)
+    {
+        T[] array = collection.ToArray();
+        int n = array.Length;
+
+        while (n --> 0)
+        {
+            int k = rng.NextInt(n + 1);
+
+            (array[k], array[n]) = (array[n], array[k]);
+        }
+
+        return array;
+    }
 }

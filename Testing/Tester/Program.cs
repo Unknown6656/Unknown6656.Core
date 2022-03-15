@@ -44,14 +44,15 @@ public static unsafe class Program
 
     private static void Main_BMP_effects_2()
     {
-        var reg = (360..1560, 200..880); //(960.., ..);
-        var img = ((Bitmap)Image.FromFile("img2.png")).ToARGB32();
+        var reg = (960.., ..); // (360..1560, 200..880)
+        var img = ((Bitmap)Image.FromFile("img4.png")).ToARGB32();
         var sw = Stopwatch.StartNew();
 
-        img = img.ApplyEffect(new ChainedPartialBitmapEffect(
-            new BoxBlur(5),
-            new Colorize(ColorMap.BlackbodyHeat)
-        ), reg);
+        var red = img.ApplyEffect(new ReduceColorSpace(ColorPalette.Apple2));
+        var err = img.ApplyEffect(new ColorSpaceReductionError(ColorPalette.Apple2));
+        var err_imask = err.ToAlphaMask();
+
+        img = BitmapExtensions.Replace(img, red, err_imask);
 
         sw.Stop();
         Console.WriteLine($"effects: {sw.ElapsedMilliseconds:F2} ms");
@@ -60,6 +61,7 @@ public static unsafe class Program
         sw.Stop();
         Console.WriteLine($"saving: {sw.ElapsedMilliseconds:F2} ms");
     }
+
 
     private static void evaluate_random<random>()
         where random : Random, new()

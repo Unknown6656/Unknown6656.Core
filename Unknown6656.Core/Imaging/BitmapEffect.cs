@@ -23,6 +23,8 @@ public abstract class BitmapEffect
     public abstract Bitmap ApplyTo(Bitmap bmp);
 }
 
+internal unsafe delegate void ProcessFunc(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region);
+
 /// <summary>
 /// Represents an abstract bitmap effect which can be partially applied by controlling the effect region and intensity.
 /// </summary>
@@ -113,6 +115,8 @@ public abstract unsafe class PartialBitmapEffect
     private protected static (int X, int Y) GetAbsoluteCoordinates(int index, int width) => (index % width, index / width);
 
     private protected static int Clamp(int v, int min, int max) => v < min ? min : v > max ? max : v;
+
+    private protected static int GetIndex(int x, int y, int image_width) => y * image_width + x;
 
     private protected static int? GetIndex(int x, int y, int image_width, Rectangle region, EdgeHandlingMode mode)
     {

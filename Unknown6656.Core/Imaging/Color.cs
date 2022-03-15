@@ -1265,7 +1265,8 @@ public enum ColorEqualityMetric
     CIEGray,
     CIALAB94,
     Average,
-    EucledianLength,
+    EucledianRGBLength,
+    EucledianRGBALength,
     LegacyConsoleColor,
     Windows10ConsoleColor,
 }

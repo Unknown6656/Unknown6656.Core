@@ -27,7 +27,7 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Unknown6656.DiscriminatedUnions" Version="1.1.1"/>
+        <PackageReference Include="Unknown6656.DiscriminatedUnions" Version="1.1.1" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\Unknown6656.Core.Windows\Unknown6656.Core.Windows.csproj" />
@@ -51,6 +51,12 @@
         </None>
         <None Update="img3.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="img6.png">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="img5.png">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="img4.png">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

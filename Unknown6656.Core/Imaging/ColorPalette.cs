@@ -1,4 +1,4 @@
-﻿// #define USE_CACHE
+﻿#define USE_CACHE
 
 using System.Runtime.CompilerServices;
 using System.Runtime.Versioning;
@@ -98,7 +98,13 @@ public class ColorPalette
     private static readonly ConstructorInfo _palette_ctor = typeof(sys_palette).GetConstructor(new[] { typeof(int) })!;
 
 
-    public static ColorPalette BlackAndWhite { get; } = new(Color.Black, Color.White);
+    public static ColorPalette BlackAndWhite { get; } = new(RGBAColor.Black, RGBAColor.White);
+
+    public static ColorPalette Grayscale3 { get; } = new(RGBAColor.Black, 0x888, RGBAColor.White);
+
+    public static ReadOnlyIndexer<int, ColorPalette> Grayscale { get; } = new(count => new(from i in Enumerable.Range(0, count)
+                                                                                           let gray = i / (double)(count - 1)
+                                                                                           select new RGBAColor(gray, gray, gray)));
 
     public static ColorPalette Grayscale256 { get; } = new(Enumerable.Range(0, 256).Select(i => Color.FromArgb(i, i, i)));
 
@@ -142,6 +148,25 @@ public class ColorPalette
         0xf5f,
         0xff5,
         RGBAColor.White
+    );
+
+    public static ColorPalette ScenePAL { get; } = new(
+        0x080000u,
+        0x201a0bu,
+        0x432817u,
+        0x492910u,
+        0x234309u,
+        0x5d4f1eu,
+        0x9c6b20u,
+        0xa9220fu,
+        0x2b347cu,
+        0x2b7409u,
+        0xd0ca40u,
+        0xe8a077u,
+        0x6a94abu,
+        0xd5c4b3u,
+        0xfce76eu,
+        0xfcfae2u
     );
 
     public static ColorPalette CGAMode4_Palette1_LowIntensity { get; } = new(RGBAColor.Black, 0x0aa, 0xa0a, 0xaaa);
@@ -1164,7 +1189,9 @@ public class ColorPalette
     }
 
     public ColorPalette(sys_palette palette)
+#pragma warning disable CA1416 // Validate platform compatibility
         : this(palette.Entries)
+#pragma warning restore CA1416
     {
     }
 
@@ -1220,8 +1247,10 @@ public class ColorPalette
         sys_palette palette = (sys_palette)_palette_ctor.Invoke(new object?[] { Colors.Count })!;
         int i = 0;
 
-        foreach (var color in Colors)
+#pragma warning disable CA1416 // Validate platform compatibility
+        foreach (RGBAColor color in Colors)
             palette.Entries[i++] = color;
+#pragma warning restore CA1416
 
         return palette;
     }

@@ -44,15 +44,11 @@ public static unsafe class Program
 
     private static void Main_BMP_effects_2()
     {
-        var reg = (960.., ..); // (360..1560, 200..880)
-        var img = ((Bitmap)Image.FromFile("img4.png")).ToARGB32();
+        var reg = (.., ..); // (960.., ..); // (360..1560, 200..880)
+        var img = ((Bitmap)Image.FromFile("img6.png")).ToARGB32();
         var sw = Stopwatch.StartNew();
 
-        var red = img.ApplyEffect(new ReduceColorSpace(ColorPalette.Apple2));
-        var err = img.ApplyEffect(new ColorSpaceReductionError(ColorPalette.Apple2));
-        var err_imask = err.ToAlphaMask();
-
-        img = BitmapExtensions.Replace(img, red, err_imask);
+        img = img.ApplyEffect(new Dithering(DitheringAlgorithm.Simple, ColorPalette.Grayscale[2]), reg);
 
         sw.Stop();
         Console.WriteLine($"effects: {sw.ElapsedMilliseconds:F2} ms");

@@ -130,6 +130,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     , IEnumerable<Scalar>
     , IComparable<<#=typename#>>
     , IComparable
+    , IFormattable
     , ICloneable
 {
     #region PRIVATE FIELDS
@@ -625,15 +626,26 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     public readonly override string ToString() => $"(<#=string.Join(", ", comps.Select(s => "{" + s + "}"))#>)";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly string ToString(string format) => ToString(format, null);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly string ToString(IFormatProvider prov) => ToString(null, prov);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly string ToString(string? format, IFormatProvider? prov) =>
+        string.Concat("(", <#=string.Join(", \", \", ", comps.Select(s => s + ".ToString(format, prov)"))#>, ")");
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override int GetHashCode() => LINQ.GetHashCode(Coefficients);
 
     // TODO : warning
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo(<#=typename#> other) => Length.CompareTo(other.Length);
 
-    // TODO : warning
+#pragma warning disable CS8995
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly int CompareTo(object? other) => CompareTo((<#=typename#>)other);
+    public readonly int CompareTo(object? other!!) => CompareTo((<#=typename#>)other);
+#pragma warning restore CS8995
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly IEnumerator<Scalar> GetEnumerator()
@@ -711,13 +723,13 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     public readonly Scalar[] ToArray() => Coefficients;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Polynomial ToPolynomial() => new Polynomial(Coefficients);
+    public readonly Polynomial ToPolynomial() => new(Coefficients);
 <#
         if (dim > 2)
         {
 #>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Vector<#=dim-1#> FromHomogeneousCoordinates() => new Vector<#=dim-1#>(<#=string.Join(", ", comps.Take(dim - 1).Select(c => $"{c} / {comps.Last()}"))#>);
+    public readonly Vector<#=dim-1#> FromHomogeneousCoordinates() => new(<#=string.Join(", ", comps.Take(dim - 1).Select(c => $"{c} / {comps.Last()}"))#>);
 <#
         }
 
@@ -725,13 +737,13 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         {
 #>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Vector<#=dim+1#> ToHomogeneousCoordinates() => new Vector<#=dim+1#>(<#=string.Join(", ", comps)#>, Scalar.One);
+    public readonly Vector<#=dim+1#> ToHomogeneousCoordinates() => new(<#=string.Join(", ", comps)#>, Scalar.One);
 <#
         }
 #>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly VectorN GetEntries(Range rows) => new VectorN(Coefficients[rows]); // TODO : range checks
+    public readonly VectorN GetEntries(Range rows) => new(Coefficients[rows]); // TODO : range checks
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> SetEntries(Range rows, VectorN values)
@@ -745,7 +757,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         for (int i = 0; i < idxs.Length; ++i)
             t[idxs[i]] = v[i];
 
-        return new <#=typename#>(t);
+        return new(t);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

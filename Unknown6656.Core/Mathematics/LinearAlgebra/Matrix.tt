@@ -1020,16 +1020,19 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     public readonly Scalar ComputePQMatrixCondition(Scalar p, Scalar q) => ComputePQNorm(p, q) * MultiplicativeInverse.ComputePQNorm(p, q);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly <#=typename#> ComponentwiseDivide(in <#=typename#> second) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}.ComponentwiseDivide(second._c{i})"))#>);
+    public readonly <#=typename#> ComponentwiseDivide(in <#=typename#> second) => new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}.ComponentwiseDivide(second._c{i})"))#>);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly <#=typename#> ComponentwiseMultiply(in <#=typename#> second) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}.ComponentwiseMultiply(second._c{i})"))#>);
+    public readonly <#=typename#> ComponentwiseMultiply(in <#=typename#> second) => new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}.ComponentwiseMultiply(second._c{i})"))#>);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> ComponentwiseApply(Func<Scalar, Scalar> function) => new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}.ComponentwiseApply(function)"))#>);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> Clamp() => Clamp(Scalar.Zero, Scalar.One);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly <#=typename#> Clamp(Scalar low, Scalar high) => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}.Clamp(low, high)"))#>);
+    public readonly <#=typename#> Clamp(Scalar low, Scalar high) => new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}.Clamp(low, high)"))#>);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> LinearInterpolate(in <#=typename#> other, Scalar factor) => Multiply(1 - factor).Add(other.Multiply(factor));
@@ -1621,8 +1624,12 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(string? format) => ToString(format, null);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly string ToString(IFormatProvider prov) => ToString(null, prov);
 
-    public readonly string ToString(string? format, IFormatProvider? provider) => Rows.Select(c => $"| {c.ToArray().Select(f => f.ToString(format, provider)).StringJoin(", ")} |").StringJoinLines();
+    public readonly string ToString(string? format, IFormatProvider? provider) =>
+        Rows.Select(c => $"| {c.ToArray().Select(f => f.ToString(format, provider)).StringJoin(", ")} |").StringJoinLines();
 
     /// <summary>
     /// The <#=dim#>x<#=dim#>-matrix' string representation

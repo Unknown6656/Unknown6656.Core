@@ -501,6 +501,9 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     public readonly <#=typename#> ComponentwiseSqrt() => new(<#=string.Join(", ", comps.Select(s => s + ".Sqrt()"))#>);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> ComponentwiseApply(Func<Scalar, Scalar> function) => new(<#=string.Join(", ", comps.Select(s => $"function({s})"))#>);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> Power(int e)
     {
         if (e < 0)

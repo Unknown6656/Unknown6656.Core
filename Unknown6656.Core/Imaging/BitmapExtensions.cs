@@ -16,7 +16,6 @@ using Unknown6656.Generics;
 using Unknown6656.Runtime;
 using Unknown6656.Common;
 using Unknown6656.IO;
-using System.Diagnostics;
 
 // TODO : dithering functions
 
@@ -176,6 +175,21 @@ public static unsafe class BitmapExtensions
         return result;
     }
 
+    public static Bitmap CropBitmap(this Bitmap bmp, Range horizontal, Range vertical)
+    {
+        int hs = horizontal.Start.GetOffset(bmp.Width);
+        int he = horizontal.End.GetOffset(bmp.Width);
+        int vs = vertical.Start.GetOffset(bmp.Height);
+        int ve = vertical.End.GetOffset(bmp.Height);
+        Rectangle rect = new(hs, vs, he - hs, ve - vs);
+
+        return CropBitmap(bmp, rect);
+    }
+
+    public static Bitmap CropBitmap(this Bitmap bmp, (Range horizontal, Range vertical) region) => CropBitmap(bmp, region.horizontal, region.vertical);
+
+    public static Bitmap CropBitmap(this Bitmap bmp, Rectangle region) => CropBitmap(bmp, region.Left, region.Top, region.Right, region.Bottom);
+
     /// <summary>
     /// Scales the bitmap uniformly by the given scaling factors. This is a non-destructive operation.
     /// </summary>
@@ -247,6 +261,10 @@ public static unsafe class BitmapExtensions
     public static Bitmap ApplyEffect(this Bitmap bmp, PartialBitmapEffect effect, Rectangle region, Scalar intensity) => effect.ApplyTo(bmp, region, intensity);
 
     public static Bitmap ApplyEffect(this Bitmap bmp, PartialBitmapEffect effect, Scalar intensity) => effect.ApplyTo(bmp, intensity);
+
+    public static Bitmap ApplyEffect(this Bitmap bmp, PartialBitmapEffect effect, Range horizontal, Range vertical, Scalar intensity) => effect.ApplyTo(bmp, horizontal, vertical, intensity);
+
+    public static Bitmap ApplyEffect(this Bitmap bmp, PartialBitmapEffect effect, Range horizontal, Range vertical) => effect.ApplyTo(bmp, horizontal, vertical);
 
     public static Bitmap ApplyEffect(this Bitmap bmp, PartialBitmapEffect effect, (Range Horizontal, Range Vertical) region, Scalar intensity) => effect.ApplyTo(bmp, region, intensity);
 

@@ -61,18 +61,22 @@ public abstract unsafe class PartialBitmapEffect
 
     public override Bitmap ApplyTo(Bitmap bmp) => ApplyTo(bmp, (.., ..), Scalar.One);
 
-    public Bitmap ApplyTo(Bitmap bmp, (Range Horizontal, Range Vertical) region, Scalar intensity)
+    public Bitmap ApplyTo(Bitmap bmp, (Range Horizontal, Range Vertical) region, Scalar intensity) => ApplyTo(bmp, region.Horizontal, region.Vertical, intensity);
+
+    public Bitmap ApplyTo(Bitmap bmp, (Range Horizontal, Range Vertical) region) => ApplyTo(bmp, region, Scalar.One);
+
+    public Bitmap ApplyTo(Bitmap bmp, Range horizontal, Range vertical) => ApplyTo(bmp, horizontal, vertical, Scalar.One);
+
+    public Bitmap ApplyTo(Bitmap bmp, Range horizontal, Range vertical, Scalar intensity)
     {
-        int hs = region.Horizontal.Start.GetOffset(bmp.Width);
-        int he = region.Horizontal.End.GetOffset(bmp.Width);
-        int vs = region.Vertical.Start.GetOffset(bmp.Height);
-        int ve = region.Vertical.End.GetOffset(bmp.Height);
+        int hs = horizontal.Start.GetOffset(bmp.Width);
+        int he = horizontal.End.GetOffset(bmp.Width);
+        int vs = vertical.Start.GetOffset(bmp.Height);
+        int ve = vertical.End.GetOffset(bmp.Height);
         Rectangle rect = new(hs, vs, he - hs, ve - vs);
 
         return ApplyTo(bmp, rect, intensity);
     }
-
-    public Bitmap ApplyTo(Bitmap bmp, (Range Horizontal, Range Vertical) region) => ApplyTo(bmp, region, Scalar.One);
 
     public Bitmap ApplyTo(Bitmap bmp, BitmapMask mask)
     {

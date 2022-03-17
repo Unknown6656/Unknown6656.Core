@@ -98,23 +98,23 @@ public class ColorPalette
     private static readonly ConstructorInfo _palette_ctor = typeof(sys_palette).GetConstructor(new[] { typeof(int) })!;
 
 
-    public static ColorPalette BlackAndWhite { get; } = new(RGBAColor.Black, RGBAColor.White);
-
-    public static ColorPalette Grayscale3 { get; } = new(RGBAColor.Black, 0x888, RGBAColor.White);
-
     public static ReadOnlyIndexer<int, ColorPalette> Grayscale { get; } = new(count => new(from i in Enumerable.Range(0, count)
                                                                                            let gray = i / (double)(count - 1)
                                                                                            select new RGBAColor(gray, gray, gray)));
 
-    public static ColorPalette Grayscale256 { get; } = new(Enumerable.Range(0, 256).Select(i => Color.FromArgb(i, i, i)));
+    public static ReadOnlyIndexer<int, ColorPalette> Reds { get; } = new(count => new(from i in Enumerable.Range(0, count)
+                                                                                      let v = i / (double)(count - 1)
+                                                                                      select new RGBAColor(v, 0, 0)));
 
-    public static ColorPalette Reds256 { get; } = new(Enumerable.Range(0, 256).Select(i => Color.FromArgb(i, 0, 0)));
+    public static ReadOnlyIndexer<int, ColorPalette> Greens { get; } = new(count => new(from i in Enumerable.Range(0, count)
+                                                                                        let v = i / (double)(count - 1)
+                                                                                        select new RGBAColor(0, v, 0)));
 
-    public static ColorPalette Greens256 { get; } = new(Enumerable.Range(0, 256).Select(i => Color.FromArgb(0, i, 0)));
+    public static ReadOnlyIndexer<int, ColorPalette> Blues { get; } = new(count => new(from i in Enumerable.Range(0, count)
+                                                                                       let v = i / (double)(count - 1)
+                                                                                       select new RGBAColor(0, 0, v)));
 
-    public static ColorPalette Blues256 { get; } = new(Enumerable.Range(0, 256).Select(i => Color.FromArgb(0, 0, i)));
-
-    public static ColorPalette ANSI_3Bit_RGB { get; } = new(Enumerable.Range(0, 8).Select(i => Color.FromArgb((i & 1) * 255, ((i >> 1) & 1) * 255, ((i >> 2) & 1) * 255)));
+    public static ColorPalette BlackAndWhite { get; } = Grayscale[2];
 
     public static ReadOnlyIndexer<ConsoleColorScheme, ColorPalette> ConsoleColorSchemes { get; } = new(scheme =>
     {
@@ -126,6 +126,8 @@ public class ColorPalette
     public static ColorPalette Windows10_ConsoleColors { get; } = ConsoleColorSchemes[ConsoleColorScheme.Windows10];
 
     public static ColorPalette Legacy_ConsoleColors { get; } = ConsoleColorSchemes[ConsoleColorScheme.Legacy];
+
+    public static ColorPalette ANSI_3Bit_RGB { get; } = new(Enumerable.Range(0, 8).Select(i => Color.FromArgb((i & 1) * 255, ((i >> 1) & 1) * 255, ((i >> 2) & 1) * 255)));
 
     public static ColorPalette _6Bit_RGB { get; } = new(Enumerable.Range(0, 64).Select(i => Color.FromArgb((i & 3) * 85, ((i >> 2) & 3) * 85, ((i >> 4) & 3) * 85)));
 

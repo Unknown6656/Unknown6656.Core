@@ -52,9 +52,6 @@
         <None Update="img3.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="img7.png">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
         <None Update="img6.png">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>

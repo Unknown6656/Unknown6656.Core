@@ -1,82 +1,99 @@
-﻿using System.Diagnostics;
+﻿using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using System.Drawing.Imaging;
 using System.Drawing;
+using System.Diagnostics;
 using System.IO;
 using System;
 
+using Unknown6656.Runtime;
 using Unknown6656.IO;
 
-namespace Unknown6656.Imaging
+namespace Unknown6656.Imaging;
+
+
+[SupportedOSPlatform(OS.WIN)]
+public static class VideoAssembler
 {
-    public delegate void FrameManipulator(int frameIndex, Bitmap frame);
+    public static bool CreateVideo(FileInfo output_file, int frame_count, Func<int, Bitmap> manipulator, string ffmpeg_path = "ffmpeg", int frame_rate = 30) =>
+        CreateVideo(output_file, frame_count, manipulator, ffmpeg_path, frame_rate, false);
 
-    public delegate void ParallelFrameManipulator(int frameIndex, Bitmap frame);
+    public static bool CreateVideoParallel(FileInfo output_file, int frame_count, Func<int, Bitmap> manipulator, string ffmpeg_path = "ffmpeg", int frame_rate = 30) =>
+        CreateVideo(output_file, frame_count, manipulator, ffmpeg_path, frame_rate, true);
 
-    public static class VideoAssembler
+    public static bool CreateVideo(FileInfo output_file, int frame_count, Size frame_size, Action<int, Bitmap> manipulator, string ffmpeg_path = "ffmpeg", int frame_rate = 30) =>
+        CreateVideo(output_file, frame_count, frame_size, manipulator, ffmpeg_path, frame_rate, false);
+
+    public static bool CreateVideoParallel(FileInfo output_file, int frame_count, Size frame_size, Action<int, Bitmap> manipulator, string ffmpeg_path = "ffmpeg", int frame_rate = 30) =>
+        CreateVideo(output_file, frame_count, frame_size, manipulator, ffmpeg_path, frame_rate, true);
+
+    private static bool CreateVideo(FileInfo output, int count, Size size, Action<int, Bitmap> cb, string ffmpeg, int rate, bool parallel)
     {
-        public static bool CreateVideo(FileInfo output_file, int frame_count, Size frame_size, FrameManipulator manipulator, string ffmpeg_path = "ffmpeg", int frame_rate = 30) =>
-            CreateVideo(output_file, frame_count, frame_size, manipulator, ffmpeg_path, frame_rate, false);
+        Bitmap[] frames = CreateFrames(count, size);
 
-        public static bool CreateVideoParallel(FileInfo output_file, int frame_count, Size frame_size, ParallelFrameManipulator manipulator, string ffmpeg_path = "ffmpeg", int frame_rate = 30) =>
-            CreateVideo(output_file, frame_count, frame_size, manipulator, ffmpeg_path, frame_rate, true);
+        if (parallel)
+            Parallel.For(0, count, i => cb(i, frames[i]));
+        else
+            for (int i = 0; i < count; ++i)
+                cb(i, frames[i]);
 
-        private static bool CreateVideo<T>(FileInfo output, int count, Size size, T cb, string ffmpeg, int rate, bool parallel)
-            where T : Delegate
+        return JoinVideoFrames(frames, output, ffmpeg, rate);
+    }
+
+    private static bool CreateVideo(FileInfo output, int count, Func<int, Bitmap> cb, string ffmpeg, int rate, bool parallel)
+    {
+        Bitmap[] frames = new Bitmap[count];
+
+        if (parallel)
+            Parallel.For(0, count, i => frames[i] = cb(i));
+        else
+            for (int i = 0; i < count; ++i)
+                frames[i] = cb(i);
+
+        return JoinVideoFrames(frames, output, ffmpeg, rate);
+    }
+
+    private static Bitmap[] CreateFrames(int count, Size frame_size)
+    {
+        Bitmap[] frames = new Bitmap[count];
+
+        Parallel.For(0, count, i => frames[i] = new Bitmap(frame_size.Width, frame_size.Height, PixelFormat.Format32bppArgb));
+
+        return frames;
+    }
+
+    public static bool JoinVideoFrames(this Image[] frames, FileInfo output_file, string ffmpeg_path = "ffmpeg", int frame_rate = 30)
+    {
+        DirectoryInfo temp = FileSystemExtensions.GetTemporaryDirectory();
+        bool result = false;
+
+        try
         {
-            Bitmap[] frames = CreateFrames(count, size);
+            Parallel.For(0, frames.Length, i => frames[i].Save($"{temp.FullName}/{i:D6}.png", ImageFormat.Png));
 
-            if (parallel)
-                Parallel.For(0, count, i => cb.DynamicInvoke(i, frames[i]));
-            else
-                for (int i = 0; i < count; ++i)
-                    cb.DynamicInvoke(i, frames[i]);
-
-            return JoinVideoFrames(frames, output, ffmpeg, rate);
-        }
-
-        private static Bitmap[] CreateFrames(int count, Size frame_size)
-        {
-            Bitmap[] frames = new Bitmap[count];
-
-            Parallel.For(0, count, i => frames[i] = new Bitmap(frame_size.Width, frame_size.Height, PixelFormat.Format32bppArgb));
-
-            return frames;
-        }
-
-        public static bool JoinVideoFrames(this Image[] frames, FileInfo output_file, string ffmpeg_path = "ffmpeg", int frame_rate = 30)
-        {
-            DirectoryInfo temp = FileSystemExtensions.GetTemporaryDirectory();
-            bool result = false;
-
-            try
+            using Process? proc = Process.Start(new ProcessStartInfo
             {
-                Parallel.For(0, frames.Length, i => frames[i].Save($"{temp.FullName}/{i:D6}.png", ImageFormat.Png));
+                FileName = ffmpeg_path,
+                Arguments = $"-start_number 0 -i \"{temp.FullName}/%06d.png\" -c:v libx264 -vf \"fps={frame_rate},format=yuv420p\" \"{temp.FullName}/output.mp4\"",
+                UseShellExecute = true,
+                CreateNoWindow = true,
+            });
 
-                using Process? proc = Process.Start(new ProcessStartInfo
-                {
-                    FileName = ffmpeg_path,
-                    Arguments = $"-start_number 0 -i \"{temp.FullName}/%06d.png\" -c:v libx264 -vf \"fps={frame_rate},format=yuv420p\" \"{temp.FullName}/output.mp4\"",
-                    UseShellExecute = true,
-                    CreateNoWindow = true,
-                });
+            proc?.WaitForExit();
 
-                proc?.WaitForExit();
-
-                if (proc?.ExitCode is 0)
-                {
-                    File.Move(temp.FullName + "/output.mp4", output_file.FullName, true);
-
-                    result = true;
-                }
-            }
-            catch
+            if (proc?.ExitCode is 0)
             {
+                File.Move(temp.FullName + "/output.mp4", output_file.FullName, true);
+
+                result = true;
             }
-
-            temp.Delete(true);
-
-            return result;
         }
+        catch
+        {
+        }
+
+        temp.Delete(true);
+
+        return result;
     }
 }

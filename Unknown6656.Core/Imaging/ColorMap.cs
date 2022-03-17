@@ -1,14 +1,10 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.CompilerServices;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System;
 
 using Unknown6656.Physics.Optics;
 using Unknown6656.Mathematics.LinearAlgebra;
-using Unknown6656.Mathematics;
 using Unknown6656.Generics;
 
 namespace Unknown6656.Imaging;
@@ -662,7 +658,7 @@ public class DiscreteColorMap
 
     public static implicit operator DiscreteColorMap(RGBAColor[] colors) => Uniform(colors);
 
-    public static implicit operator ColorPalette(DiscreteColorMap map) => map.ToColorPalette();
+    public static explicit operator ColorPalette(DiscreteColorMap map) => map.ToColorPalette();
 }
 
 public sealed record ColorTolerance(double Tolerance, ColorEqualityMetric Metric)

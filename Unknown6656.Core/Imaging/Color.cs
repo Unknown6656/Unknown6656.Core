@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Drawing;
@@ -287,8 +286,6 @@ public partial struct HDRColor
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly uint ToARGB32() => ARGB32.ARGBu;
 
-    public int CompareTo(HDRColor other) => throw new NotImplementedException();
-
     public readonly override string ToString() => $"(R:{Math.Round(R, 6)}, G:{Math.Round(G, 6)}, B:{Math.Round(B, 6)}, α:{Math.Round(A, 6)})";
 
     public static implicit operator HDRColor(RGBAColor color) => new() { ARGB32 = color };
@@ -488,13 +485,6 @@ public unsafe partial struct RGBAColor
         uint argb = ARGBu;
 
         return IColor.KnownColorNames.TryGetValue(argb, out string? name) ? name : $"#{argb:x8}";
-    }
-
-    public readonly int CompareTo([AllowNull] RGBAColor other)
-    {
-        int dist = ((Vector3)this).Length.CompareTo(((Vector3)other).Length);
-
-        return dist == 0 ? A.CompareTo(other.A) : dist;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

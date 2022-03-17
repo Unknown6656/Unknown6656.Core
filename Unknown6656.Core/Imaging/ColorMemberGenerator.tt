@@ -368,6 +368,12 @@ var members = new string[]
                 orderby copy.EucledianRGBDistanceTo(kvp.Value) / norm ascending
                 select kvp.Key).FirstOrDefault();
     }",
+    @"public readonly int CompareTo([AllowNull] $type other)
+    {
+        int dist = ((Vector3)this).Length.CompareTo(((Vector3)other).Length);
+
+        return dist is 0 ? $A.CompareTo(other.$A) : dist;
+    }",
     @"public readonly double DistanceTo($type other, ColorEqualityMetric metric) => metric switch
     {
         ColorEqualityMetric.RGBAChannels => Math.Abs($R - other.$R)
@@ -703,6 +709,12 @@ var members = new string[]
     }",
     @"public static $type FromARGB32(int argb) => new(argb);",
     @"public static $type FromARGB32(uint argb) => new(argb);",
+    @"public static bool operator ==($type first, $type second) => first.$HEX == second.$HEX;",
+    @"public static bool operator !=($type first, $type second) => !(first == second)",
+    @"public static bool operator <($type first, $type second) => first.CompareTo(second) < 0;",
+    @"public static bool operator >($type first, $type second) => first.CompareTo(second) > 0;",
+    @"public static bool operator <=($type first, $type second) => first.CompareTo(second) <= 0;",
+    @"public static bool operator >=($type first, $type second) => first.CompareTo(second) >= 0;",
     @"public static $type operator +($type color) => color;",
     @"public static $type operator -($type color) => new(-color.$R, -color.$G, -color.$B, -color.$A);",
     @"public static $type operator +($type first, $type second) => new(first.$R + second.$R, first.$G + second.$G, first.$B + second.$B, first.$A + second.$A);",
@@ -737,6 +749,7 @@ var types = new (string name, Func<string, string> proc)[]
 //   All your changes to this file will be lost upon re-generation.  //
 ///////////////////////////////////////////////////////////////////////
 
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 using System.Linq;

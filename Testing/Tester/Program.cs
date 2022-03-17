@@ -44,35 +44,33 @@ public static unsafe class Program
 
     private static void Main_BMP_effects_2()
     {
-        var reg = (960.., ..); // (360..1560, 200..880)
-        var img = ((Bitmap)Image.FromFile("img2.png")).ToARGB32();
+        var reg = (.., ..); // (360..1560, 200..880)
+        var img = ((Bitmap)Image.FromFile("img3.png")).ToARGB32();
         var sw = Stopwatch.StartNew();
 
         //img = img.ApplyEffect(new Dithering(DitheringAlgorithm.SierraLite, ColorPalette.ScenePAL), reg);
 
 
         foreach (var alg in new[] {
-            //DitheringAlgorithm.HilbertCurve
             DitheringAlgorithm.Thresholding,
-            //DitheringAlgorithm.FloydSteinberg,
-            //DitheringAlgorithm.Atkinson,
-            //DitheringAlgorithm.Randomized,
-            //DitheringAlgorithm.Simple,
             DitheringAlgorithm.Burkes,
             DitheringAlgorithm.JarvisJudiceNinke,
             DitheringAlgorithm.Stucki,
-            //DitheringAlgorithm.Sierra,
-            //DitheringAlgorithm.SierraTwoRow,
-            //DitheringAlgorithm.SierraLite,
-            //DitheringAlgorithm.TwoDimensional,
+
+            DitheringAlgorithm.HilbertCurve,
+            DitheringAlgorithm.FloydSteinberg,
+            DitheringAlgorithm.FalseFloydSteinberg,
+            DitheringAlgorithm.Atkinson,
+            DitheringAlgorithm.Randomized,
+            DitheringAlgorithm.Simple,
+            DitheringAlgorithm.Sierra,
+            DitheringAlgorithm.SierraTwoRow,
+            DitheringAlgorithm.SierraLite,
+            DitheringAlgorithm.TwoDimensional,
         })
         {
             Console.WriteLine(alg);
-            img.ApplyEffect(new ChainedPartialBitmapEffect(
-                new DitheringError(alg, ColorPalette.MC6847),
-                new FastBoxBlur(1),
-                new Colorize(ColorMap.BlackbodyHeat)
-            ), reg).Save($"dithering-{alg}.png");
+            img.ApplyEffect(new Dithering(alg, ColorPalette.ScenePAL), reg).Save($"dithering-{alg}.png");
         }
 
 

@@ -18,7 +18,9 @@ namespace Unknown6656.Imaging.Effects;
 public unsafe class Dithering
     : PartialBitmapEffect.Accelerated
 {
-    internal const ColorEqualityMetric COLOR_EQUALITY = ColorEqualityMetric.EucledianRGBLength;
+    internal const ColorEqualityMetric COLOR_EQUALITY = ColorEqualityMetric.EucledianRGBALength;
+
+    private readonly Lazy<(RGBAColor mid, RGBAColor low, RGBAColor high)[]> _ordered;
 
     public DitheringAlgorithm Algorithm { get; }
     public ColorPalette ColorPalette { get; }
@@ -28,6 +30,12 @@ public unsafe class Dithering
     {
         Algorithm = algorithm;
         ColorPalette = target_palette;
+        _ordered = new(() => (from low in ColorPalette
+                              from high in ColorPalette
+                              where low != high
+                              where low <= high
+                              let mid = (RGBAColor)(.5 * ((Vector4)low + (Vector4)high))
+                              select (mid, low, high)).DistinctBy(t => (t.low, t.high)).ToArray());
     }
 
     public Dithering(DitheringAlgorithm algorithm, IEnumerable<RGBAColor> target_palette)
@@ -41,6 +49,7 @@ public unsafe class Dithering
         {
             DitheringAlgorithm.Thresholding => new ReduceColorSpace(ColorPalette).Process,
             DitheringAlgorithm.FloydSteinberg => FloydSteinbergDithering,
+            DitheringAlgorithm.FalseFloydSteinberg => FalseFloydSteinbergDithering,
             DitheringAlgorithm.Atkinson => AtkinsonDithering,
             DitheringAlgorithm.Randomized => RandomDithering,
             DitheringAlgorithm.Simple => SimpleDithering,
@@ -61,11 +70,30 @@ public unsafe class Dithering
         func(bmp, source, destination, region);
     }
 
+
+    private void BayerDithering(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region) => OrderedDithering(bmp, source, destination, region, new double[8, 8]
+    {
+        { 0, 32,  8, 40,  2, 34, 10, 42},
+        { 48, 16, 56, 24, 50, 18, 58, 26},
+        { 12, 44,  4, 36, 14, 46,  6, 38},
+        { 60, 28, 52, 20, 62, 30, 54, 22},
+        { 3, 35, 11, 43,  1, 33,  9, 41},
+        { 51, 19, 59, 27, 49, 17, 57, 25},
+        { 15, 47,  7, 39, 13, 45,  5, 37},
+        { 63, 31, 55, 23, 61, 29, 53, 21}
+    });
+
     private void FloydSteinbergDithering(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region) => ErrorDiffusionDithering(bmp, source, destination, region,
         ( 1, 0, .4375),
         (-1, 1, .1875),
         ( 0, 1, .3125),
         ( 1, 1, .0625)
+    );
+
+    private void FalseFloydSteinbergDithering(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region) => ErrorDiffusionDithering(bmp, source, destination, region,
+        (1, 0, .375),
+        (0, 1, .25),
+        (1, 1, .375)
     );
 
     private void JarvisJudiceNinkeDithering(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region) => ErrorDiffusionDithering(bmp, source, destination, region,
@@ -151,6 +179,29 @@ public unsafe class Dithering
         (0, 1, .5)
     );
 
+
+    private void OrderedDithering(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region, double[,] dithering_matrix)
+    {
+        int w = bmp.Width;
+        int dw = dithering_matrix.GetLength(0);
+        int dh = dithering_matrix.GetLength(1);
+
+        Parallel.ForEach(GetIndices(bmp, region), idx =>
+        {
+            (int x, int y) = GetAbsoluteCoordinates(idx, w);
+            double threshold = dithering_matrix[x % dw, y % dh];
+            RGBAColor src = source[idx];
+
+            destination[idx] = (from t in _ordered.Value
+                                let dist = src.DistanceTo(t.mid, COLOR_EQUALITY)
+                                orderby dist descending
+                                let low_dist = src.DistanceTo(t.low, COLOR_EQUALITY)
+                                let high_dist = src.DistanceTo(t.high, COLOR_EQUALITY)
+                                let l = low_dist / (low_dist + high_dist)
+                                let activate = l > threshold
+                                select activate ? t.high : t.low).First();
+        });
+    }
 
     private void ErrorDiffusionDithering(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region, params (int rel_x, int rel_y, double factor)[] error_diffusion)
     {
@@ -323,6 +374,7 @@ public enum DitheringAlgorithm
     Bayer,
     VoidAndCluster,
     FloydSteinberg,
+    FalseFloydSteinberg,
     JarvisJudiceNinke,
     Stucki,
     Burkes,

@@ -289,13 +289,14 @@ public unsafe class ErrorDiffusionDithering
 public unsafe class OrderedDithering
     : Dithering
 {
-    private readonly Lazy<(RGBAColor mid, RGBAColor low, RGBAColor high)[]> _ordered;
-    private readonly int[,] _dithering_matrix;
+    private readonly double[] _dithering_matrix;
+    private readonly int _dithering_width, _dithering_height;
+    private readonly int _thresholding_steps;
 
     public OrderedDitheringAlgorithm Algorithm { get; } = OrderedDitheringAlgorithm.__UNDEFINED__;
 
 
-    public OrderedDithering(OrderedDitheringAlgorithm algorithm, ColorPalette target_palette)
+    public OrderedDithering(OrderedDitheringAlgorithm algorithm)
         : this(algorithm switch
         {
             OrderedDitheringAlgorithm.Bayer => new int[8, 8]
@@ -394,43 +395,32 @@ public unsafe class OrderedDithering
             },
             OrderedDitheringAlgorithm.__UNDEFINED__ => throw new ArgumentException("A valid ordered dithering algorithm has to be provided.", nameof(algorithm)),
             _ => throw new ArgumentOutOfRangeException(nameof(algorithm)),
-        }, target_palette) => Algorithm = algorithm;
+        }) => Algorithm = algorithm;
 
-    public OrderedDithering(int[,] dithering_matrix, ColorPalette target_palette)
-        : base(target_palette)
+    public OrderedDithering(int[,] dithering_matrix)
+        : base(ColorPalette.BlackAndWhite)
     {
-        _dithering_matrix = dithering_matrix;
-        _ordered = new(() => (from low in target_palette
-                              from high in target_palette
-                              where low != high
-                              where low <= high
-                              let mid = (RGBAColor)(.5 * ((Vector4)low + (Vector4)high))
-                              select (mid, low, high)).DistinctBy(t => (t.low, t.high)).ToArray());
+        _dithering_width = dithering_matrix.GetLength(0);
+        _dithering_height = dithering_matrix.GetLength(1);
+
+        double[] dithering = dithering_matrix.Flatten().ToArray(i => (double)i);
+        double max = dithering.Max();
+        double min = dithering.Min();
+
+        _dithering_matrix = dithering.ToArray(v => (v - min) / (max - min));
     }
 
     internal protected override void Process(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region)
     {
         int w = bmp.Width;
-        int dw = _dithering_matrix.GetLength(0);
-        int dh = _dithering_matrix.GetLength(1);
-        double[] dithering = _dithering_matrix.Flatten().ToArray(i => (double)i);
-        double max = dithering.Max();
-        double min = dithering.Min();
 
         Parallel.ForEach(GetIndices(bmp, region), idx =>
         {
             (int x, int y) = GetAbsoluteCoordinates(idx, w);
-            double threshold = (dithering[x % dw + (y % dh) * dw] - min) / (max - min);
-            RGBAColor src = source[idx];
+            double threshold = _dithering_matrix[x % _dithering_width + (y % _dithering_height) * _dithering_width];
+            double src = source[idx].CIEGray;
 
-            destination[idx] = (from t in _ordered.Value
-                                let dist = src.DistanceTo(t.mid, COLOR_EQUALITY)
-                                orderby dist descending
-                                let low_dist = src.DistanceTo(t.low, COLOR_EQUALITY)
-                                let high_dist = src.DistanceTo(t.high, COLOR_EQUALITY)
-                                let l = low_dist / (low_dist + high_dist)
-                                let activate = l > threshold
-                                select activate ? t.high : t.low).First();
+            destination[idx] = src < threshold ? RGBAColor.Black : RGBAColor.White;
         });
     }
 }

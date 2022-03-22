@@ -44,7 +44,7 @@ public static unsafe class Program
 
     private static void Main_BMP_effects_2()
     {
-        var reg = (.., 540..); // (360..1560, 200..880)
+        var reg = (.., ..); // (360..1560, 200..880)
         var img = ((Bitmap)Image.FromFile("img3.png")).ToARGB32();
         var sw = Stopwatch.StartNew();
         var pal = ColorPalette.PrimaryAndComplementaryColors;
@@ -90,7 +90,7 @@ public static unsafe class Program
         })
         {
             Console.WriteLine(alg);
-            img.ApplyEffect(new OrderedDithering(alg, pal), reg).Save($"dithering-{alg}.png");
+            img.ApplyEffect(new OrderedDithering(alg), reg).Save($"dithering-{alg}.png");
         }
 
 

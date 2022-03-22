@@ -14,8 +14,10 @@ var colors = typeof(Color).GetProperties(BindingFlags.Static | BindingFlags.Publ
 
     return (hex: argb.ToString("x8"), name: p.Name);
 }).ToList();
+var additional_colors = new List<(string, string)>();
 
-colors.AddRange(new[] {
+
+additional_colors.AddRange(new[] {
     (2000, 15, 4020, "FF9BB7D4"),
     (2001, 17, 203, "FFC74375"),
     (2002, 19, 166, "FFBF1932"),
@@ -42,7 +44,7 @@ colors.AddRange(new[] {
     (t.Item4, "Pantone" + t.Item1),
     (t.Item4, $"Pantone_{t.Item2}_{t.Item3}"),
 }));
-colors.AddRange(new[] {
+additional_colors.AddRange(new[] {
     ("FF92A8D1", "Pantone_15_3919"),
     ("FFF5DF4D", "Pantone_13_0647"),
     ("FF8FFE09", "KXCD_AcidGreen"),
@@ -1116,19 +1118,9 @@ colors.AddRange(new[] {
     ("FFFFAE42", "Crayon_YellowOrange"),
 });
 
-bool cleared = false;
-
-foreach ((string hex, string name) in colors.ToArray())
-{
-    if (!cleared)
-    {
-        colors.Clear();
-        cleared = true;
-    }
-
+foreach ((string hex, string name) in additional_colors)
     if (colors.All(t => t.Item1 != hex && t.Item2 != name))
         colors.Add((hex, name));
-}
 
 
 var members = new string[]

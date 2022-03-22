@@ -283,7 +283,6 @@ public partial struct HDRColor
     public readonly HDRColor Complement => new(1 - R, 1 - G, 1 - B, A);
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly uint ToARGB32() => ARGB32.ARGBu;
 
     public readonly override string ToString() => $"(R:{Math.Round(R, 6)}, G:{Math.Round(G, 6)}, B:{Math.Round(B, 6)}, α:{Math.Round(A, 6)})";
@@ -295,6 +294,10 @@ public partial struct HDRColor
     public static implicit operator HDRColor(Color color) => (HDRColor)(RGBAColor)color;
 
     public static implicit operator Color(HDRColor color) => (Color)(RGBAColor)color;
+
+    public static explicit operator HDRColor(int argb) => FromARGB32(argb);
+
+    public static explicit operator HDRColor(uint argb) => FromARGB32(argb);
 }
 
 /// <summary>
@@ -363,9 +366,9 @@ public unsafe partial struct RGBAColor
         set
         {
             if (value <= 0xfff)
-                value = ((value & 0xf00) << 24)
-                      | ((value & 0xff0) << 16)
-                      | ((value & 0x0ff) << 8)
+                value = ((value & 0xf00) << 12)
+                      | ((value & 0xff0) << 8)
+                      | ((value & 0x0ff) << 4)
                       | (value & 0x00f)
                       | 0xff000000;
             else if (value <= 0xffff)
@@ -589,6 +592,12 @@ public unsafe partial struct RGBAColor
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator uint(RGBAColor color) => color.ARGBu;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator RGBAColor(int argb) => FromARGB32(argb);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator RGBAColor(uint argb) => FromARGB32(argb);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (byte r, byte g, byte b, byte α)(RGBAColor color) => (color.R, color.G, color.B, color.A);

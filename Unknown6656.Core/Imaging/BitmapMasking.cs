@@ -108,11 +108,11 @@ public sealed unsafe class BitmapMask
 
     public static BitmapMask FromApproximation(Bitmap bitmap, DiscreteColorMap colormap) => FromBitmap(bitmap, colormap.Approximate);
 
-    public static BitmapMask FromChannels(Bitmap bitmap, params BitmapChannel[] channels)
+    public static BitmapMask FromChannels(Bitmap bitmap, params ColorChannel[] channels)
     {
         channels = channels.Distinct().ToArray();
 
-        bool α = channels.Contains(BitmapChannel.A);
+        bool α = channels.Contains(ColorChannel.A);
 
         return FromBitmap(bitmap, c =>
         {

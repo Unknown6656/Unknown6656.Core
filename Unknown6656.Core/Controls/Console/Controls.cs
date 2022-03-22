@@ -613,7 +613,7 @@ namespace Unknown6656.Controls.Console
     public sealed class ColorPicker
         : Control
     {
-        private static readonly BitmapChannel[] _channels = { BitmapChannel.R, BitmapChannel.G, BitmapChannel.B };
+        private static readonly ColorChannel[] _channels = { ColorChannel.R, ColorChannel.G, ColorChannel.B };
         private RGBAColor _PickedColor = RGBAColor.Red;
         private int _selectedchannelindex = 0;
         private int _selectedhexindex = 0;

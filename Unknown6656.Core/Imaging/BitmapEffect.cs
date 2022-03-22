@@ -10,9 +10,9 @@ using System;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Imaging.Effects;
 using Unknown6656.Runtime;
-using System.ComponentModel;
 
 namespace Unknown6656.Imaging;
+
 
 /// <summary>
 /// Represents an abstract bitmap effect.

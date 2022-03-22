@@ -201,7 +201,7 @@ public interface IColor<Color, Channel>
     /// The color's alpha channel.
     /// </summary>
     Channel A { get; }
-    public Channel this[BitmapChannel channel] { get; }
+    public Channel this[ColorChannel channel] { get; }
 
     //void Deconstruct(out Channel r, out Channel g, out Channel b);
     //void Deconstruct(out Channel r, out Channel g, out Channel b, out Channel α);
@@ -249,25 +249,25 @@ public partial struct HDRColor
         set => _α = value.Clamp();
     }
 
-    public double this[BitmapChannel channel]
+    public double this[ColorChannel channel]
     {
         readonly get => channel switch
         {
-            BitmapChannel.A => A,
-            BitmapChannel.R => R,
-            BitmapChannel.G => G,
-            BitmapChannel.B => B,
+            ColorChannel.A => A,
+            ColorChannel.R => R,
+            ColorChannel.G => G,
+            ColorChannel.B => B,
             _ => throw new ArgumentOutOfRangeException(nameof(channel)),
         };
         set
         {
-            if (channel == BitmapChannel.A)
+            if (channel == ColorChannel.A)
                 A = value;
-            else if (channel == BitmapChannel.R)
+            else if (channel == ColorChannel.R)
                 R = value;
-            else if (channel == BitmapChannel.G)
+            else if (channel == ColorChannel.G)
                 G = value;
-            else if (channel == BitmapChannel.B)
+            else if (channel == ColorChannel.B)
                 B = value;
             else
                 throw new ArgumentOutOfRangeException(nameof(channel));
@@ -337,7 +337,7 @@ public unsafe partial struct RGBAColor
     public byte A;
 
 
-    public byte this[BitmapChannel channel]
+    public byte this[ColorChannel channel]
     {
         readonly get => (byte)((ARGB >> (int)channel) & 0xff);
         set
@@ -380,16 +380,16 @@ public unsafe partial struct RGBAColor
             else if (value <= 0xffffff)
                 value |= 0xff000000;
 
-            A = (byte)((value >> (int)BitmapChannel.A) & 0xff);
-            R = (byte)((value >> (int)BitmapChannel.R) & 0xff);
-            G = (byte)((value >> (int)BitmapChannel.G) & 0xff);
-            B = (byte)((value >> (int)BitmapChannel.B) & 0xff);
+            A = (byte)((value >> (int)ColorChannel.A) & 0xff);
+            R = (byte)((value >> (int)ColorChannel.R) & 0xff);
+            G = (byte)((value >> (int)ColorChannel.G) & 0xff);
+            B = (byte)((value >> (int)ColorChannel.B) & 0xff);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        readonly get => (uint)((A << (int)BitmapChannel.A)
-                    | (R << (int)BitmapChannel.R)
-                    | (G << (int)BitmapChannel.G)
-                    | (B << (int)BitmapChannel.B));
+        readonly get => (uint)((A << (int)ColorChannel.A)
+                    | (R << (int)ColorChannel.R)
+                    | (G << (int)ColorChannel.G)
+                    | (B << (int)ColorChannel.B));
     }
 
     /// <summary>
@@ -614,12 +614,16 @@ public unsafe partial struct RGBAColor
     #endregion
 }
 
-public enum BitmapChannel
+[Flags]
+public enum ColorChannel
 {
     A = 24,
     R = 16,
     G = 8,
     B = 0,
+
+    RGB = R | G | B,
+    ARGB = A | RGB,
 }
 
 public enum ConsoleColorScheme

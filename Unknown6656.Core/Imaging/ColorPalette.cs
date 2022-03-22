@@ -1270,6 +1270,47 @@ public class ColorPalette
         return new(colors);
     }
 
+    public static ColorPalette FromChannels(ColorChannel channels)
+    {
+        List<RGBAColor> colors = new() { RGBAColor.Black };
+        bool a = channels.HasFlag(ColorChannel.A);
+        bool r = channels.HasFlag(ColorChannel.R);
+        bool g = channels.HasFlag(ColorChannel.G);
+        bool b = channels.HasFlag(ColorChannel.B);
+
+        if (a)
+            colors.Add(RGBAColor.Transparent);
+
+        if (r)
+        {
+            colors.Add(RGBAColor.Red);
+
+            if (g)
+            {
+                colors.Add(RGBAColor.Yellow);
+
+                if (b)
+                    colors.Add(RGBAColor.White);
+            }
+
+            if (b)
+                colors.Add(RGBAColor.Magenta);
+        }
+
+        if (g)
+        {
+            colors.Add(RGBAColor.Lime);
+
+            if (b)
+                colors.Add(RGBAColor.Cyan);
+        }
+
+        if (b)
+            colors.Add(RGBAColor.Blue);
+
+        return new(colors);
+    }
+
     public static implicit operator sys_palette(ColorPalette palette) => palette.ToImageColorPalette();
 
     public static implicit operator ColorPalette(sys_palette palette) => new(palette);

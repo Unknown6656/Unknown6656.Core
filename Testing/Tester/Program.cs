@@ -44,33 +44,53 @@ public static unsafe class Program
 
     private static void Main_BMP_effects_2()
     {
-        var reg = (.., ..); // (360..1560, 200..880)
+        var reg = (.., 540..); // (360..1560, 200..880)
         var img = ((Bitmap)Image.FromFile("img3.png")).ToARGB32();
         var sw = Stopwatch.StartNew();
+        var pal = ColorPalette.PrimaryAndComplementaryColors;
 
         //img = img.ApplyEffect(new Dithering(DitheringAlgorithm.SierraLite, ColorPalette.ScenePAL), reg);
 
 
-        foreach (var alg in new[] {
-            DitheringAlgorithm.Thresholding,
-            DitheringAlgorithm.Burkes,
-            DitheringAlgorithm.JarvisJudiceNinke,
-            DitheringAlgorithm.Stucki,
+        //foreach (var alg in new[] {
+        //    ErrorDiffusionDitheringAlgorithm.Thresholding,
+        //    ErrorDiffusionDitheringAlgorithm.Burkes,
+        //    ErrorDiffusionDitheringAlgorithm.JarvisJudiceNinke,
+        //    ErrorDiffusionDitheringAlgorithm.Stucki,
 
-            DitheringAlgorithm.HilbertCurve,
-            DitheringAlgorithm.FloydSteinberg,
-            DitheringAlgorithm.FalseFloydSteinberg,
-            DitheringAlgorithm.Atkinson,
-            DitheringAlgorithm.Randomized,
-            DitheringAlgorithm.Simple,
-            DitheringAlgorithm.Sierra,
-            DitheringAlgorithm.SierraTwoRow,
-            DitheringAlgorithm.SierraLite,
-            DitheringAlgorithm.TwoDimensional,
+        //    ErrorDiffusionDitheringAlgorithm.HilbertCurve,
+        //    ErrorDiffusionDitheringAlgorithm.FloydSteinberg,
+        //    ErrorDiffusionDitheringAlgorithm.FalseFloydSteinberg,
+        //    ErrorDiffusionDitheringAlgorithm.Atkinson,
+        //    ErrorDiffusionDitheringAlgorithm.Randomized,
+        //    ErrorDiffusionDitheringAlgorithm.Simple,
+        //    ErrorDiffusionDitheringAlgorithm.Sierra,
+        //    ErrorDiffusionDitheringAlgorithm.SierraTwoRow,
+        //    ErrorDiffusionDitheringAlgorithm.SierraLite,
+        //    ErrorDiffusionDitheringAlgorithm.TwoDimensional,
+        //})
+        //{
+        //    Console.WriteLine(alg);
+        //    img.ApplyEffect(new ErrorDiffusionDithering(alg, pal), reg).Save($"dithering-{alg}.png");
+        //}
+
+        foreach (var alg in new[] {
+            OrderedDitheringAlgorithm.Halftone,
+            OrderedDitheringAlgorithm.Bayer,
+            OrderedDitheringAlgorithm.Bayer2,
+            OrderedDitheringAlgorithm.Bayer3,
+            OrderedDitheringAlgorithm.DispersedDots_8,
+            OrderedDitheringAlgorithm.DispersedDots_6,
+            OrderedDitheringAlgorithm.DispersedDots_4,
+            OrderedDitheringAlgorithm.DispersedDots_3,
+            OrderedDitheringAlgorithm.DispersedDots_2,
+
+            OrderedDitheringAlgorithm.Ordered_2x8,
+            OrderedDitheringAlgorithm.Ordered_8x2,
         })
         {
             Console.WriteLine(alg);
-            img.ApplyEffect(new Dithering(alg, ColorPalette.ScenePAL), reg).Save($"dithering-{alg}.png");
+            img.ApplyEffect(new OrderedDithering(alg, pal), reg).Save($"dithering-{alg}.png");
         }
 
 

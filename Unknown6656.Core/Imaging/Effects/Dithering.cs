@@ -1,209 +1,174 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Runtime.Versioning;
+using System.Threading.Tasks;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.Versioning;
-using System.Text;
-using System.Threading.Tasks;
+using System;
 
-using Unknown6656.Common;
 using Unknown6656.Mathematics.LinearAlgebra;
+using Unknown6656.Generics;
 using Unknown6656.Runtime;
+using Unknown6656.Common;
 
 namespace Unknown6656.Imaging.Effects;
 
+using error_diffusion_factor = ValueTuple<int, int, double>;
+
 
 [SupportedOSPlatform(OS.WIN)]
-public unsafe class Dithering
+public unsafe abstract class Dithering
     : PartialBitmapEffect.Accelerated
 {
     internal const ColorEqualityMetric COLOR_EQUALITY = ColorEqualityMetric.EucledianRGBALength;
 
-    private readonly Lazy<(RGBAColor mid, RGBAColor low, RGBAColor high)[]> _ordered;
-
-    public DitheringAlgorithm Algorithm { get; }
     public ColorPalette ColorPalette { get; }
 
 
-    public Dithering(DitheringAlgorithm algorithm, ColorPalette target_palette)
+    public Dithering(ColorPalette target_palette) => ColorPalette = target_palette;
+
+    public Dithering(IEnumerable<RGBAColor> target_palette)
+        : this(new ColorPalette(target_palette))
     {
-        Algorithm = algorithm;
-        ColorPalette = target_palette;
-        _ordered = new(() => (from low in ColorPalette
-                              from high in ColorPalette
-                              where low != high
-                              where low <= high
-                              let mid = (RGBAColor)(.5 * ((Vector4)low + (Vector4)high))
-                              select (mid, low, high)).DistinctBy(t => (t.low, t.high)).ToArray());
     }
 
-    public Dithering(DitheringAlgorithm algorithm, IEnumerable<RGBAColor> target_palette)
-        : this(algorithm, new ColorPalette(target_palette))
+    protected RGBAColor GetColor(RGBAColor input, ref Vector3 error)
+    {
+        //var i = input;
+        //var e = error;
+
+        Vector3 offsetted = Vector3.Add(input, error);
+        RGBAColor output = ColorPalette.GetNearestColor<RGBAColor>(offsetted, COLOR_EQUALITY);
+
+        error = Vector3.Subtract(input, output);
+        output.A = input.A;
+
+        //Console.WriteLine($"{i,10} {e[0],22} -> {offsetted[0],22} -> {output,10} {error[0],22}");
+
+        return output;
+    }
+}
+
+[SupportedOSPlatform(OS.WIN)]
+public unsafe class ErrorDiffusionDithering
+    : Dithering
+{
+    public ErrorDiffusionDitheringAlgorithm Algorithm { get; }
+
+
+    public ErrorDiffusionDithering(ErrorDiffusionDitheringAlgorithm algorithm, ColorPalette target_palette)
+        : base(target_palette) => Algorithm = algorithm;
+
+    public ErrorDiffusionDithering(ErrorDiffusionDitheringAlgorithm algorithm, IEnumerable<RGBAColor> target_palette)
+        : this(algorithm, new(target_palette))
     {
     }
 
     internal protected override void Process(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region)
     {
-        ProcessFunc func = Algorithm switch
+        if (Algorithm switch
         {
-            DitheringAlgorithm.Thresholding => new ReduceColorSpace(ColorPalette).Process,
-            DitheringAlgorithm.FloydSteinberg => FloydSteinbergDithering,
-            DitheringAlgorithm.FalseFloydSteinberg => FalseFloydSteinbergDithering,
-            DitheringAlgorithm.Atkinson => AtkinsonDithering,
-            DitheringAlgorithm.Randomized => RandomDithering,
-            DitheringAlgorithm.Simple => SimpleDithering,
-            DitheringAlgorithm.Burkes => BurkesDithering,
-            DitheringAlgorithm.JarvisJudiceNinke => JarvisJudiceNinkeDithering,
-            DitheringAlgorithm.Stucki => StuckiDithering,
-            DitheringAlgorithm.Sierra => SierraDithering,
-            DitheringAlgorithm.SierraTwoRow => SierraTwoRowDithering,
-            DitheringAlgorithm.SierraLite => SierraLiteDithering,
-            DitheringAlgorithm.HilbertCurve => HilbertCurveDithering,
-            DitheringAlgorithm.TwoDimensional => TwoDimensionalDithering,
-            //DitheringAlgorithm.Patterning => ,
-            //DitheringAlgorithm.Halftone => ,
-            //DitheringAlgorithm.Bayer => ,
-            //DitheringAlgorithm.VoidAndCluster => ,
-            //DitheringAlgorithm.GradientBased => ,
-        };
-        func(bmp, source, destination, region);
+            ErrorDiffusionDitheringAlgorithm.Thresholding => new ReduceColorSpace(ColorPalette).Process,
+            ErrorDiffusionDitheringAlgorithm.Randomized => RandomDithering,
+            ErrorDiffusionDitheringAlgorithm.Simple => SimpleDithering,
+            ErrorDiffusionDitheringAlgorithm.HilbertCurve => HilbertCurveDithering,
+            _ => (ProcessFunc?)null,
+        } is ProcessFunc func)
+            func(bmp, source, destination, region);
+        else
+            Dither(bmp, source, destination, region, Algorithm switch
+            {
+                ErrorDiffusionDitheringAlgorithm.FloydSteinberg => new error_diffusion_factor[] {
+                    (1, 0, .4375),
+                    (-1, 1, .1875),
+                    (0, 1, .3125),
+                    (1, 1, .0625)
+                },
+                ErrorDiffusionDitheringAlgorithm.FalseFloydSteinberg => new error_diffusion_factor[] {
+                    (1, 0, .375),
+                    (0, 1, .25),
+                    (1, 1, .375)
+                },
+                ErrorDiffusionDitheringAlgorithm.Atkinson => new error_diffusion_factor[] {
+                    (1, 0, .125),
+                    (2, 0, .125),
+                    (-1, 1, .125),
+                    (0, 1, .125),
+                    (1, 1, .125),
+                    (0, 2, .125)
+                },
+                ErrorDiffusionDitheringAlgorithm.Burkes => new error_diffusion_factor[] {
+                    (1, 0, .25),
+                    (2, 0, .125),
+                    (-2, 1, .0625),
+                    (-1, 1, .125),
+                    (0, 1, .25),
+                    (1, 1, .125),
+                    (2, 1, .0625)
+                },
+                ErrorDiffusionDitheringAlgorithm.JarvisJudiceNinke => new error_diffusion_factor[] {
+                    (1, 0, .1458333333),
+                    (2, 0, .1041666667),
+                    (-2, 1, .0625),
+                    (-1, 1, .1041666667),
+                    (0, 1, .1458333333),
+                    (1, 1, .1041666667),
+                    (2, 1, .0625),
+                    (-2, 2, .0208333333),
+                    (-1, 2, .0625),
+                    (0, 2, .1041666667),
+                    (1, 2, .0625),
+                    (2, 2, .0208333333)
+                },
+                ErrorDiffusionDitheringAlgorithm.Stucki => new error_diffusion_factor[] {
+                    (1, 0, .1904761905),
+                    (2, 0, .0952380952),
+                    (-2, 1, .0476190476),
+                    (-1, 1, .0952380952),
+                    (0, 1, .1904761905),
+                    (1, 1, .0952380952),
+                    (2, 1, .0476190476),
+                    (-2, 2, .0238095238),
+                    (-1, 2, .0476190476),
+                    (0, 2, .0952380952),
+                    (1, 2, .0476190476),
+                    (2, 2, .0238095238)
+                },
+                ErrorDiffusionDitheringAlgorithm.Sierra => new error_diffusion_factor[] {
+                    (1, 0, .15625),
+                    (2, 0, .09375),
+                    (-2, 1, .0625),
+                    (-1, 1, .125),
+                    (0, 1, .15625),
+                    (1, 1, .125),
+                    (2, 1, .0625),
+                    (-1, 2, .0625),
+                    (0, 2, .09375),
+                    (1, 2, .0625)
+                },
+                ErrorDiffusionDitheringAlgorithm.SierraTwoRow => new error_diffusion_factor[] {
+                    (1, 0, .1875),
+                    (2, 0, .25),
+                    (-2, 1, .0625),
+                    (-1, 1, .125),
+                    (0, 1, .1875),
+                    (1, 1, .125),
+                    (2, 1, .0625)
+                },
+                ErrorDiffusionDitheringAlgorithm.SierraLite => new error_diffusion_factor[] {
+                    (1, 0, .5),
+                    (-1, 1, .25),
+                    (0, 1, .25)
+                },
+                ErrorDiffusionDitheringAlgorithm.TwoDimensional => new error_diffusion_factor[] {
+                    (1, 0, .5),
+                    (0, 1, .5)
+                },
+            });
     }
 
-
-    private void BayerDithering(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region) => OrderedDithering(bmp, source, destination, region, new double[8, 8]
-    {
-        { 0, 32,  8, 40,  2, 34, 10, 42},
-        { 48, 16, 56, 24, 50, 18, 58, 26},
-        { 12, 44,  4, 36, 14, 46,  6, 38},
-        { 60, 28, 52, 20, 62, 30, 54, 22},
-        { 3, 35, 11, 43,  1, 33,  9, 41},
-        { 51, 19, 59, 27, 49, 17, 57, 25},
-        { 15, 47,  7, 39, 13, 45,  5, 37},
-        { 63, 31, 55, 23, 61, 29, 53, 21}
-    });
-
-    private void FloydSteinbergDithering(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region) => ErrorDiffusionDithering(bmp, source, destination, region,
-        ( 1, 0, .4375),
-        (-1, 1, .1875),
-        ( 0, 1, .3125),
-        ( 1, 1, .0625)
-    );
-
-    private void FalseFloydSteinbergDithering(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region) => ErrorDiffusionDithering(bmp, source, destination, region,
-        (1, 0, .375),
-        (0, 1, .25),
-        (1, 1, .375)
-    );
-
-    private void JarvisJudiceNinkeDithering(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region) => ErrorDiffusionDithering(bmp, source, destination, region,
-        (1, 0, .1458333333),
-        (2, 0, .1041666667),
-        (-2, 1, .0625),
-        (-1, 1, .1041666667),
-        (0, 1, .1458333333),
-        (1, 1, .1041666667),
-        (2, 1, .0625),
-        (-2, 2, .0208333333),
-        (-1, 2, .0625),
-        (0, 2, .1041666667),
-        (1, 2, .0625),
-        (2, 2, .0208333333)
-    );
-
-    private void SierraLiteDithering(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region) => ErrorDiffusionDithering(bmp, source, destination, region,
-        (1, 0, .5),
-        (-1, 1, .25),
-        (0, 1, .25)
-    );
-
-    private void SierraTwoRowDithering(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region) => ErrorDiffusionDithering(bmp, source, destination, region,
-        (1, 0, .1875),
-        (2, 0, .25),
-        (-2, 1, .0625),
-        (-1, 1, .125),
-        (0, 1, .1875),
-        (1, 1, .125),
-        (2, 1, .0625)
-    );
-
-    private void StuckiDithering(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region) => ErrorDiffusionDithering(bmp, source, destination, region,
-        (1, 0, .1904761905),
-        (2, 0, .0952380952),
-        (-2, 1, .0476190476),
-        (-1, 1, .0952380952),
-        (0, 1, .1904761905),
-        (1, 1, .0952380952),
-        (2, 1, .0476190476),
-        (-2, 2, .0238095238),
-        (-1, 2, .0476190476),
-        (0, 2, .0952380952),
-        (1, 2, .0476190476),
-        (2, 2, .0238095238)
-    );
-
-    private void SierraDithering(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region) => ErrorDiffusionDithering(bmp, source, destination, region,
-        (1, 0, .15625),
-        (2, 0, .09375),
-        (-2, 1, .0625),
-        (-1, 1, .125),
-        (0, 1, .15625),
-        (1, 1, .125),
-        (2, 1, .0625),
-        (-1, 2, .0625),
-        (0, 2, .09375),
-        (1, 2, .0625)
-    );
-
-    private void BurkesDithering(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region) => ErrorDiffusionDithering(bmp, source, destination, region,
-        (1, 0, .25),
-        (2, 0, .125),
-        (-2, 1, .0625),
-        (-1, 1, .125),
-        (0, 1, .25),
-        (1, 1, .125),
-        (2, 1, .0625)
-    );
-
-    private void AtkinsonDithering(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region) => ErrorDiffusionDithering(bmp, source, destination, region,
-        ( 1, 0, .125),
-        ( 2, 0, .125),
-        (-1, 1, .125),
-        ( 0, 1, .125),
-        ( 1, 1, .125),
-        ( 0, 2, .125)
-    );
-
-    private void TwoDimensionalDithering(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region) => ErrorDiffusionDithering(bmp, source, destination, region,
-        (1, 0, .5),
-        (0, 1, .5)
-    );
-
-
-    private void OrderedDithering(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region, double[,] dithering_matrix)
-    {
-        int w = bmp.Width;
-        int dw = dithering_matrix.GetLength(0);
-        int dh = dithering_matrix.GetLength(1);
-
-        Parallel.ForEach(GetIndices(bmp, region), idx =>
-        {
-            (int x, int y) = GetAbsoluteCoordinates(idx, w);
-            double threshold = dithering_matrix[x % dw, y % dh];
-            RGBAColor src = source[idx];
-
-            destination[idx] = (from t in _ordered.Value
-                                let dist = src.DistanceTo(t.mid, COLOR_EQUALITY)
-                                orderby dist descending
-                                let low_dist = src.DistanceTo(t.low, COLOR_EQUALITY)
-                                let high_dist = src.DistanceTo(t.high, COLOR_EQUALITY)
-                                let l = low_dist / (low_dist + high_dist)
-                                let activate = l > threshold
-                                select activate ? t.high : t.low).First();
-        });
-    }
-
-    private void ErrorDiffusionDithering(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region, params (int rel_x, int rel_y, double factor)[] error_diffusion)
+    private void Dither(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region, params (int rel_x, int rel_y, double factor)[] error_diffusion)
     {
         int w = bmp.Width;
         Vector3[,] errors = new Vector3[region.Width, region.Height];
@@ -225,75 +190,12 @@ public unsafe class Dithering
             }
     }
 
-    static IEnumerable<(int x, int y)> hilbert2D(int w, int h) => w >= h ? hilbert2D(0, 0, w, 0, 0, h) : hilbert2D(0, 0, 0, w, h, 0);
-
-    static IEnumerable<(int x, int y)> hilbert2D(int x, int y, int ax, int ay, int bx, int by)
-    {
-        int w = Math.Abs(ax + ay);
-        int h = Math.Abs(bx + by);
-        (int dax, int day) = (Math.Sign(ax), Math.Sign(ay));
-        (int dbx, int dby) = (Math.Sign(bx), Math.Sign(by));
-
-        if (h is 1)
-            for (int i = 0; i < w; ++i)
-            {
-                yield return (x, y);
-
-                x += dax;
-                y += day;
-            }
-        else if (w is 1)
-            for (int i = 0; i < h; ++i)
-            {
-                yield return (x, y);
-
-                x += dbx;
-                y += dby;
-            }
-        else
-        {
-            List<(int, int)> coordinates = new();
-            (int ax2, int ay2) = (ax / 2, ay / 2);
-            (int bx2, int by2) = (bx / 2, by / 2);
-            int w2 = Math.Abs(ax2 + ay2);
-            int h2 = Math.Abs(bx2 + by2);
-
-            if (2 * w > 3 * h)
-            {
-                if ((w2 & 1) != 0 && w > 2)
-                {
-                    ax2 += dax;
-                    ay2 += day;
-                }
-
-                coordinates.AddRange(hilbert2D(x, y, ax2, ay2, bx, by));
-                coordinates.AddRange(hilbert2D(x + ax2, y + ay2, ax - ax2, ay - ay2, bx, by));
-            }
-            else
-            {
-                if ((h2 & 1) != 0 && h > 2)
-                {
-                    bx2 += dbx;
-                    by2 += dby;
-                }
-
-                coordinates.AddRange(hilbert2D(x, y, bx2, by2, ax2, ay2));
-                coordinates.AddRange(hilbert2D(x + bx2, y + by2, ax, ay, bx - bx2, by - by2));
-                coordinates.AddRange(hilbert2D(x + (ax - dax) + (bx2 - dbx), y + (ay - day) + (by2 - dby), -bx2, -by2, -(ax - ax2), -(ay - ay2)));
-            }
-
-            foreach (var coord in coordinates)
-                yield return coord;
-        }
-    }
-
-
     private void HilbertCurveDithering(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region)
     {
         Vector3 error = Vector3.Zero;
         int w = bmp.Width;
 
-        foreach ((int x, int y) in hilbert2D(region.Width, region.Height))
+        foreach ((int x, int y) in gen_hilbert_2d_curve(region.Width, region.Height))
         {
             int index = (x + region.Left) + w * (y + region.Top);
 
@@ -317,20 +219,219 @@ public unsafe class Dithering
             destination[index] = GetColor(source[index], ref error);
     }
 
-    private RGBAColor GetColor(RGBAColor input, ref Vector3 error)
+    private static IEnumerable<(int x, int y)> gen_hilbert_2d_curve(int w, int h)
     {
-        //var i = input;
-        //var e = error;
+        return w >= h ? h2d(0, 0, w, 0, 0, h) : h2d(0, 0, 0, w, h, 0);
 
-        Vector3 offsetted = Vector3.Add(input, error);
-        RGBAColor output = ColorPalette.GetNearestColor<RGBAColor>(offsetted, COLOR_EQUALITY);
+        static IEnumerable<(int x, int y)> h2d(int x, int y, int ax, int ay, int bx, int by)
+        {
+            int w = Math.Abs(ax + ay);
+            int h = Math.Abs(bx + by);
+            (int dax, int day) = (Math.Sign(ax), Math.Sign(ay));
+            (int dbx, int dby) = (Math.Sign(bx), Math.Sign(by));
 
-        error = Vector3.Subtract(input, output);
-        output.A = input.A;
+            if (h is 1)
+                for (int i = 0; i < w; ++i)
+                {
+                    yield return (x, y);
 
-        //Console.WriteLine($"{i,10} {e[0],22} -> {offsetted[0],22} -> {output,10} {error[0],22}");
+                    x += dax;
+                    y += day;
+                }
+            else if (w is 1)
+                for (int i = 0; i < h; ++i)
+                {
+                    yield return (x, y);
 
-        return output;
+                    x += dbx;
+                    y += dby;
+                }
+            else
+            {
+                List<(int, int)> coordinates = new();
+                (int ax2, int ay2) = (ax / 2, ay / 2);
+                (int bx2, int by2) = (bx / 2, by / 2);
+                int w2 = Math.Abs(ax2 + ay2);
+                int h2 = Math.Abs(bx2 + by2);
+
+                if (2 * w > 3 * h)
+                {
+                    if ((w2 & 1) != 0 && w > 2)
+                    {
+                        ax2 += dax;
+                        ay2 += day;
+                    }
+
+                    coordinates.AddRange(h2d(x, y, ax2, ay2, bx, by));
+                    coordinates.AddRange(h2d(x + ax2, y + ay2, ax - ax2, ay - ay2, bx, by));
+                }
+                else
+                {
+                    if ((h2 & 1) != 0 && h > 2)
+                    {
+                        bx2 += dbx;
+                        by2 += dby;
+                    }
+
+                    coordinates.AddRange(h2d(x, y, bx2, by2, ax2, ay2));
+                    coordinates.AddRange(h2d(x + bx2, y + by2, ax, ay, bx - bx2, by - by2));
+                    coordinates.AddRange(h2d(x + (ax - dax) + (bx2 - dbx), y + (ay - day) + (by2 - dby), -bx2, -by2, -(ax - ax2), -(ay - ay2)));
+                }
+
+                foreach (var coord in coordinates)
+                    yield return coord;
+            }
+        }
+    }
+}
+
+[SupportedOSPlatform(OS.WIN)]
+public unsafe class OrderedDithering
+    : Dithering
+{
+    private readonly Lazy<(RGBAColor mid, RGBAColor low, RGBAColor high)[]> _ordered;
+    private readonly int[,] _dithering_matrix;
+
+    public OrderedDitheringAlgorithm Algorithm { get; } = OrderedDitheringAlgorithm.__UNDEFINED__;
+
+
+    public OrderedDithering(OrderedDitheringAlgorithm algorithm, ColorPalette target_palette)
+        : this(algorithm switch
+        {
+            OrderedDitheringAlgorithm.Bayer => new int[8, 8]
+            {
+                { 0, 32,  8, 40,  2, 34, 10, 42},
+                { 48, 16, 56, 24, 50, 18, 58, 26},
+                { 12, 44,  4, 36, 14, 46,  6, 38},
+                { 60, 28, 52, 20, 62, 30, 54, 22},
+                { 3, 35, 11, 43,  1, 33,  9, 41},
+                { 51, 19, 59, 27, 49, 17, 57, 25},
+                { 15, 47,  7, 39, 13, 45,  5, 37},
+                { 63, 31, 55, 23, 61, 29, 53, 21}
+            },
+            OrderedDitheringAlgorithm.Bayer2 => new int[8, 8]
+            {
+                { 52, 14, 58, 4 , 53, 9 , 59, 1 },
+                { 30, 36, 20, 42, 25, 37, 17, 43 },
+                { 57, 8 , 48, 16, 61, 5 , 49, 10 },
+                { 24, 41, 32, 32, 21, 45, 26, 33 },
+                { 54, 11, 62, 2 , 51, 15, 56, 3 },
+                { 27, 38, 18, 46, 31, 35, 19, 40 },
+                { 60, 6 , 50, 12, 55, 7 , 47, 13 },
+                { 22, 44, 28, 34, 23, 39, 29, 31 },
+            },
+            OrderedDitheringAlgorithm.Bayer3 => new int[4, 4]
+            {
+                { 5, 9, 6, 10 },
+                { 13, 1, 14, 2 },
+                { 7, 11, 4, 8 },
+                { 15, 3, 12, 0 },
+            },
+            OrderedDitheringAlgorithm.Halftone => new int[8, 8]
+            {
+                { 62, 58, 50, 36, 32, 46, 55, 63},
+                { 54, 40, 27, 23, 19, 28, 41, 59},
+                { 45, 31, 14, 10, 6, 15, 24, 51},
+                { 35, 18, 5, 1, 2, 11, 20, 37},
+                { 39, 22, 9, 0, 3, 7, 16, 33},
+                { 49, 26, 13, 4, 8, 12, 29, 47},
+                { 57, 43, 30, 17, 21, 25, 42, 56},
+                { 61, 53, 48, 34, 38, 52, 60, 64},
+            },
+            OrderedDitheringAlgorithm.Ordered_2x8 => new int[2, 8]
+            {
+                { 14, 12, 10, 8, 9, 11, 13, 15 },
+                { 6, 4, 2, 0, 1, 3, 5, 7 },
+            },
+            OrderedDitheringAlgorithm.Ordered_8x2 => new int[8, 2]
+            {
+                { 6, 14 },
+                { 4, 12 },
+                { 2, 10 },
+                { 0, 8 },
+                { 1, 9 },
+                { 3, 11 },
+                { 5, 13 },
+                { 7, 15 },
+            },
+            OrderedDitheringAlgorithm.DispersedDots_8 => new int[8, 8]
+            {
+                { 65, 59, 51, 42, 43, 52, 60, 66 },
+                { 58, 36, 29, 21, 22, 30, 37, 61 },
+                { 50, 28, 15, 9 , 10, 16, 31, 53 },
+                { 41, 20, 8 , 2 , 3 , 11, 23, 45 },
+                { 40, 19, 7 , 1 , 4 , 12, 24, 46 },
+                { 49, 27, 14, 6 , 5 , 13, 32, 54 },
+                { 57, 35, 26, 18, 17, 25, 34, 62 },
+                { 64, 56, 48, 39, 38, 47, 55, 63 },
+            },
+            OrderedDitheringAlgorithm.DispersedDots_6 => new int[6, 6]
+            {
+                { 32, 24, 16, 20, 31, 35 },
+                { 28, 12, 4 , 8 , 15, 27 },
+                { 21, 9 , 0 , 2 , 7 , 19 },
+                { 17, 5 , 3 , 1 , 11, 23 },
+                { 25, 13, 10, 6 , 14, 30 },
+                { 33, 29, 22, 18, 26, 34 },
+            },
+            OrderedDitheringAlgorithm.DispersedDots_4 => new int[4, 4]
+            {
+                { 15, 8, 5 , 12 },
+                { 4 , 0, 3 , 9  },
+                { 11, 2, 1 , 6  },
+                { 14, 7, 10, 13 },
+            },
+            OrderedDitheringAlgorithm.DispersedDots_3 => new int[3, 3]
+            {
+                { 6, 2, 7 },
+                { 1, 0, 3 },
+                { 5, 4, 8 },
+            },
+            OrderedDitheringAlgorithm.DispersedDots_2 => new int[2, 2]
+            {
+                { 1, 2 },
+                { 0, 3 },
+            },
+            OrderedDitheringAlgorithm.__UNDEFINED__ => throw new ArgumentException("A valid ordered dithering algorithm has to be provided.", nameof(algorithm)),
+            _ => throw new ArgumentOutOfRangeException(nameof(algorithm)),
+        }, target_palette) => Algorithm = algorithm;
+
+    public OrderedDithering(int[,] dithering_matrix, ColorPalette target_palette)
+        : base(target_palette)
+    {
+        _dithering_matrix = dithering_matrix;
+        _ordered = new(() => (from low in target_palette
+                              from high in target_palette
+                              where low != high
+                              where low <= high
+                              let mid = (RGBAColor)(.5 * ((Vector4)low + (Vector4)high))
+                              select (mid, low, high)).DistinctBy(t => (t.low, t.high)).ToArray());
+    }
+
+    internal protected override void Process(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region)
+    {
+        int w = bmp.Width;
+        int dw = _dithering_matrix.GetLength(0);
+        int dh = _dithering_matrix.GetLength(1);
+        double[] dithering = _dithering_matrix.Flatten().ToArray(i => (double)i);
+        double max = dithering.Max();
+        double min = dithering.Min();
+
+        Parallel.ForEach(GetIndices(bmp, region), idx =>
+        {
+            (int x, int y) = GetAbsoluteCoordinates(idx, w);
+            double threshold = (dithering[x % dw + (y % dh) * dw] - min) / (max - min);
+            RGBAColor src = source[idx];
+
+            destination[idx] = (from t in _ordered.Value
+                                let dist = src.DistanceTo(t.mid, COLOR_EQUALITY)
+                                orderby dist descending
+                                let low_dist = src.DistanceTo(t.low, COLOR_EQUALITY)
+                                let high_dist = src.DistanceTo(t.high, COLOR_EQUALITY)
+                                let l = low_dist / (low_dist + high_dist)
+                                let activate = l > threshold
+                                select activate ? t.high : t.low).First();
+        });
     }
 }
 
@@ -340,13 +441,10 @@ public sealed class DitheringError
 {
     private readonly Dithering _dithering;
 
-    public DitheringAlgorithm Algorithm => _dithering.Algorithm;
     public ColorPalette ColorPalette => _dithering.ColorPalette;
 
 
-    public DitheringError(DitheringAlgorithm algorithm, ColorPalette target_palette) => _dithering = new(algorithm, target_palette);
-
-    public DitheringError(DitheringAlgorithm algorithm, IEnumerable<RGBAColor> target_palette) => _dithering = new(algorithm, target_palette);
+    public DitheringError(Dithering dithering) => _dithering = dithering;
 
     private protected unsafe override Bitmap Process(Bitmap bmp, Rectangle region)
     {
@@ -361,17 +459,18 @@ public sealed class DitheringError
 
         return result;
     }
+
+    public static implicit operator DitheringError(Dithering dithering) => new(dithering);
+
+    public static implicit operator Dithering(DitheringError dithering) => dithering._dithering;
 }
 
-public enum DitheringAlgorithm
+public enum ErrorDiffusionDitheringAlgorithm
 {
     Simple,
     [Obsolete($"Use the effect '{nameof(ReduceColorSpace)}' instead.")]
     Thresholding,
     Randomized,
-    Patterning,
-    Halftone,
-    Bayer,
     VoidAndCluster,
     FloydSteinberg,
     FalseFloydSteinberg,
@@ -385,4 +484,25 @@ public enum DitheringAlgorithm
     TwoDimensional,
     GradientBased,
     HilbertCurve,
+
+    // VoidAndCluster,
+    // GradientBased,
+}
+
+public enum OrderedDitheringAlgorithm
+{
+    [DebuggerBrowsable(DebuggerBrowsableState.Never), EditorBrowsable(EditorBrowsableState.Never)]
+    __UNDEFINED__ = -1,
+
+    Halftone,
+    Bayer,
+    Bayer2,
+    Bayer3,
+    DispersedDots_8,
+    DispersedDots_6,
+    DispersedDots_4,
+    DispersedDots_3,
+    DispersedDots_2,
+    Ordered_2x8,
+    Ordered_8x2,
 }

@@ -254,7 +254,7 @@ public static unsafe class Program
     {
         double total = 1000;
 
-        VideoAssembler.CreateVideoParallel(
+        VideoAssembler.CreateVideo(
             new FileInfo("render.mp4"),
             (int)total,
             new(1920, 1080),
@@ -279,7 +279,11 @@ public static unsafe class Program
                 }
                 .Plot(g, frame.Width, frame.Height);
             },
-            frame_rate: 60
+            new VideoAssemblerOptions
+            {
+                FrameRate = 60,
+                Parallelized = true,
+            }
         );
     }
 

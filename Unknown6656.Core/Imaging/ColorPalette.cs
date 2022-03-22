@@ -116,6 +116,19 @@ public class ColorPalette
 
     public static ColorPalette BlackAndWhite { get; } = Grayscale[2];
 
+    public static ColorPalette PrimaryColors { get; } = new(RGBAColor.Red, RGBAColor.Lime, RGBAColor.Blue);
+
+    public static ColorPalette PrimaryAndComplementaryColors { get; } = new(
+        RGBAColor.Black,
+        RGBAColor.White,
+        RGBAColor.Red,
+        RGBAColor.Yellow,
+        RGBAColor.Lime,
+        RGBAColor.Cyan,
+        RGBAColor.Blue,
+        RGBAColor.Magenta
+    );
+
     public static ReadOnlyIndexer<ConsoleColorScheme, ColorPalette> ConsoleColorSchemes { get; } = new(scheme =>
     {
         Dictionary<ConsoleColor, uint> dict = IColor.ConsoleColorSchemes[scheme];
@@ -188,7 +201,7 @@ public class ColorPalette
         RGBAColor.Navy,
         RGBAColor.Blue,
         RGBAColor.Green,
-        0x0f0,
+        RGBAColor.Lime,
         RGBAColor.Teal,
         RGBAColor.Cyan,
         RGBAColor.Maroon,
@@ -221,7 +234,7 @@ public class ColorPalette
     public static ColorPalette ThomsonMO5 { get; } = new(
         RGBAColor.Black,
         RGBAColor.Red,
-        0x0f0,
+        RGBAColor.Lime,
         RGBAColor.Yellow,
         RGBAColor.Blue,
         RGBAColor.Magenta,
@@ -238,7 +251,7 @@ public class ColorPalette
     public static ColorPalette ThomsonTO770_Palette1 { get; } = new(
         RGBAColor.Black,
         RGBAColor.Red,
-        0x0f0,
+        RGBAColor.Lime,
         RGBAColor.Yellow,
         RGBAColor.Blue,
         RGBAColor.Magenta,
@@ -257,7 +270,7 @@ public class ColorPalette
     public static ColorPalette ThomsonTO770_Palette2 { get; } = new(
         RGBAColor.Black,
         RGBAColor.Red,
-        0x0f0,
+        RGBAColor.Lime,
         RGBAColor.Yellow,
         RGBAColor.Blue,
         RGBAColor.Magenta,
@@ -276,7 +289,7 @@ public class ColorPalette
     public static ColorPalette ThomsonTO770_Palette3 { get; } = new(
         RGBAColor.Black,
         RGBAColor.Red,
-        0x0f0,
+        RGBAColor.Lime,
         RGBAColor.Yellow,
         RGBAColor.Blue,
         RGBAColor.Magenta,
@@ -1157,16 +1170,6 @@ public class ColorPalette
 
     public ColorPalette(params RGBAColor[] colors)
         : this(colors as IEnumerable<RGBAColor>)
-    {
-    }
-
-    public ColorPalette(params uint[] argb_values)
-        : this(argb_values as IEnumerable<uint>)
-    {
-    }
-
-    public ColorPalette(IEnumerable<uint> argb_values)
-        : this(argb_values.Select(argb => new RGBAColor(argb)))
     {
     }
 

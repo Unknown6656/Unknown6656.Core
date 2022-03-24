@@ -6,14 +6,18 @@ using System;
 using Unknown6656.Mathematics.Cryptography;
 using Unknown6656.Mathematics.Numerics;
 using Unknown6656.Generics;
+using System.Diagnostics;
+using System.ComponentModel;
 
 namespace Unknown6656.IO;
 
 
+/// <completionlist cref="CompressionFunction"/>
 public abstract partial class CompressionFunction
     : HashFunction<CompressionFunction>
 {
-    public static RLECompression__old__ RLE__old__ { get; } = new RLECompression__old__();
+    [Obsolete, EditorBrowsable(EditorBrowsableState.Never), DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    public static RLECompression RLE { get; } = new();
 
     public sealed override int HashSize => throw new InvalidOperationException("The size of compressed data cannot be determined outside an active data compression.");
 
@@ -25,10 +29,11 @@ public abstract partial class CompressionFunction
     public abstract byte[] UncompressData(byte[] data);
 }
 
-public sealed class RLECompression__old__
+[Obsolete, EditorBrowsable(EditorBrowsableState.Never)]
+public sealed class RLECompression
     : CompressionFunction
 {
-    private class DictionaryEntry
+    private sealed class DictionaryEntry
     {
         public byte[]? Sequence { set; get; }
         public VarInt? Codepoint { set; get; }
@@ -36,6 +41,7 @@ public sealed class RLECompression__old__
 
         public override string ToString() => $"{Occurrence}x {Codepoint}: {DataStream.FromBytes(Sequence).ToHexString()}";
     }
+
 
     public override byte[] CompressData(byte[] data)
     {

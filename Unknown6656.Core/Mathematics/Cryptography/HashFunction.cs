@@ -68,8 +68,6 @@ public unsafe abstract class HashFunction<T>
 /// <completionlist cref="HashFunction"/>
 public static partial class HashFunction
 {
-    // TODO : all hashfunctions
-
     public static CRC32Hash CRC32 { get; } = new CRC32Hash();
 }
 

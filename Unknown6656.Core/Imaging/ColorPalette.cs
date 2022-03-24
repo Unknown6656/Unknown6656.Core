@@ -84,6 +84,7 @@ public class ColorPalette<@this, Color>
     public static implicit operator @this(ColorPalette<@this, Color> palette) => (@this)palette;
 }
 
+/// <completionlist cref="ColorPalette"/>
 public class ColorPalette
     : ColorPalette<ColorPalette, RGBAColor>
 {

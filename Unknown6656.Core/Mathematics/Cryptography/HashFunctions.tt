@@ -26,52 +26,46 @@ using System;
      // ("RIPEMD160Hash", "RIPEMD160", 20),
     };
 #>
+namespace Unknown6656.Mathematics.Cryptography;
 
-namespace Unknown6656.Mathematics.Cryptography
+
+public static partial class HashFunction
 {
-    public static partial class HashFunctions
-    {
 <#
     foreach ((string typename, string clsname, _) in algorithms)
-    {
+        WriteLine($"    public static {typename} {clsname} {{ get; }} = new();");
 #>
-
-        public static <#=typename#> <#=clsname#> { get; } = new <#=typename#>();
-<#
-    }
-#>
-    }
+}
 <#
     foreach ((string typename, string clsname, int size) in algorithms)
     {
         var intname = '_' + clsname.ToLower();
 #>
 
-    public sealed class <#=typename#>
-        : HashFunction<<#=typename#>>
-        , IDisposable
+public sealed class <#=typename#>
+    : HashFunction<<#=typename#>>
+    , IDisposable
+{
+    private readonly <#=clsname#> <#=intname#>;
+
+    public override int HashSize { get; } = <#=size#>;
+
+
+    public <#=typename#>()
     {
-        private readonly <#=clsname#> <#=intname#>;
-
-        public override int HashSize { get; } = <#=size#>;
-
-
-        public <#=typename#>()
-        {
-            <#=intname#> = <#=clsname#>.Create();
-            <#=intname#>.Initialize();
-        }
-
-        public void Dispose()
-        {
-            <#=intname#>.Clear();
-            <#=intname#>.Dispose();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override byte[] Hash(byte[] data) => <#=intname#>.ComputeHash(data);
+        <#=intname#> = <#=clsname#>.Create();
+        <#=intname#>.Initialize();
     }
+
+    public void Dispose()
+    {
+        <#=intname#>.Clear();
+        <#=intname#>.Dispose();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override byte[] Hash(byte[] data) => <#=intname#>.ComputeHash(data);
+}
 <#
     }
 #>
-}

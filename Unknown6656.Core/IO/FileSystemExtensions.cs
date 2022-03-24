@@ -53,10 +53,13 @@ public static unsafe class FileSystemExtensions
 
     public static DirectoryInfo GetTemporaryDirectory()
     {
-        DirectoryInfo dir = new(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
+        DirectoryInfo dir;
 
-        if (!dir.Exists)
-            dir.Create();
+        do
+            dir = new(Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()));
+        while (dir.Exists);
+
+        dir.Create();
 
         return dir;
     }

@@ -16,6 +16,7 @@ using Unknown6656.Mathematics.Geometry;
 using Unknown6656.Controls.WinForms;
 using Unknown6656.Controls.Console;
 using Unknown6656.Imaging.Effects;
+using Unknown6656.Imaging.Video;
 using Unknown6656.Imaging;
 using Unknown6656.Common;
 using Unknown6656.Generics;
@@ -23,7 +24,6 @@ using Unknown6656.IO;
 
 using Random = Unknown6656.Mathematics.Numerics.Random;
 using winforms = System.Windows.Forms;
-using Tester;
 
 namespace Testing;
 
@@ -34,8 +34,6 @@ public static unsafe class Program
     public static void Main(string[] args)
     {
         Console.OutputEncoding = Encoding.UTF8;
-
-
 
 
         Main_BMP_effects_2();

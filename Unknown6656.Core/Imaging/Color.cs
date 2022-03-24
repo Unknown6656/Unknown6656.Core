@@ -217,6 +217,7 @@ public interface IColor<Color, Channel>
 /// Represents a color information structure consisting of 4x64Bit floating-point structures for the channels
 /// red (<see cref="R"/>), green (<see cref="G"/>), blue (<see cref="B"/>), and opacity (<see cref="A"/>).
 /// </summary>
+/// <completionlist cref="HDRColor"/>
 [NativeCppClass, Serializable, StructLayout(LayoutKind.Sequential)]
 public partial struct HDRColor
     : IColor<HDRColor, double>
@@ -303,6 +304,7 @@ public partial struct HDRColor
 /// <summary>
 /// Represents a native pixel 32-bit color information structure.
 /// </summary>
+/// <completionlist cref="RGBAColor"/>
 [NativeCppClass, Serializable, StructLayout(LayoutKind.Explicit)]
 public unsafe partial struct RGBAColor
     : IColor<RGBAColor, byte>

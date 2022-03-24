@@ -22,60 +22,55 @@ using System.IO;
     };
 #>
 
-namespace Unknown6656.IO
+namespace Unknown6656.IO;
+
+
+public abstract partial class CompressionFunction
 {
-    public abstract partial class CompressionFunction
-    {
 <#
     foreach (string name in algorithms)
-    {
-#>
-
-        public static <#=name#>Compression <#=name#> { get; } = new <#=name#>Compression();
-<#
-    }
-#>
-    }
-<#
-    foreach (string name in algorithms)
-    {
-#>
-
-    public sealed class <#=name#>Compression
-        : CompressionFunction
-    {
-        public override byte[] CompressData(byte[] data)
-        {
-            using MemoryStream mso = new MemoryStream();
-            using <#=name#>Stream compr = new <#=name#>Stream(mso, CompressionLevel.Optimal);
-            using BinaryWriter wr = new BinaryWriter(compr);
-
-            wr.Write(data.Length);
-            wr.Write(data, 0, data.Length);
-            wr.Flush();
-            wr.Close();
-            compr.Close();
-
-            return mso.ToArray();
-        }
-
-        public override byte[] UncompressData(byte[] data)
-        {
-            using MemoryStream msi = new MemoryStream(data);
-            using <#=name#>Stream decompr = new <#=name#>Stream(msi, CompressionMode.Decompress);
-            using MemoryStream mso = new MemoryStream();
-            using BinaryReader rd = new BinaryReader(mso);
-
-            decompr.CopyTo(mso);
-            decompr.Close();
-            mso.Seek(0, SeekOrigin.Begin);
-
-            int count = rd.ReadInt32();
-
-            return rd.ReadBytes(count);
-        }
-    }
-<#
-    }
+        WriteLine($"    public static {name}Compression {name} {{ get; }} = new();");
 #>
 }
+<#
+    foreach (string name in algorithms)
+    {
+#>
+
+public sealed class <#=name#>Compression
+    : CompressionFunction
+{
+    public override byte[] CompressData(byte[] data)
+    {
+        using MemoryStream mso = new();
+        using <#=name#>Stream compr = new(mso, CompressionLevel.Optimal);
+        using BinaryWriter wr = new(compr);
+
+        wr.Write(data.Length);
+        wr.Write(data, 0, data.Length);
+        wr.Flush();
+        wr.Close();
+        compr.Close();
+
+        return mso.ToArray();
+    }
+
+    public override byte[] UncompressData(byte[] data)
+    {
+        using MemoryStream msi = new(data);
+        using <#=name#>Stream decompr = new(msi, CompressionMode.Decompress);
+        using MemoryStream mso = new();
+        using BinaryReader rd = new(mso);
+
+        decompr.CopyTo(mso);
+        decompr.Close();
+        mso.Seek(0, SeekOrigin.Begin);
+
+        int count = rd.ReadInt32();
+
+        return rd.ReadBytes(count);
+    }
+}
+<#
+    }
+#>

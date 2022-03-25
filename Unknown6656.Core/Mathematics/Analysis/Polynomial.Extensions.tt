@@ -14,11 +14,10 @@
 using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
-using Unknown6656.Common;
+
+namespace Unknown6656.Mathematics.Analysis;
 
 
-namespace Unknown6656.Mathematics.Analysis
-{
 <#
     const string baseiface = "IMatrix";
     int maxdim = 4;
@@ -34,20 +33,20 @@ namespace Unknown6656.Mathematics.Analysis
     string uniontype = "Union<Scalar, " + string.Join(", ", Enumerable.Range(2, maxdim - 2).Select(i => "Matrix" + i)) + ">";
 #>
 
-    public partial class Polynomial
+public partial class Polynomial
+{
+    /// <summary>
+    /// Returns the Hurwitz Matrix associated with this polynomial
+    /// </summary>
+    public <#=uniontype#> HurwitzMatrix => Degree switch
     {
-        /// <summary>
-        /// Returns the Hurwitz Matrix associated with this polynomial
-        /// </summary>
-        public <#=uniontype#> HurwitzMatrix => Degree switch
-        {
-            <= 0 => throw new InvalidOperationException("The Hurwitz matrix is not defined for polynomials of degree zero."),
-            1 => (<#=uniontype#>)(Scalar)LeadingCoefficient,
+        <= 0 => throw new InvalidOperationException("The Hurwitz matrix is not defined for polynomials of degree zero."),
+        1 => (<#=uniontype#>)(Scalar)LeadingCoefficient,
 <#
     for (int i = 2; i < maxdim; ++i)
     {
 #>
-            <#=i#> => (<#=uniontype#>)new Matrix<#=i#>(
+        <#=i#> => (<#=uniontype#>)new Matrix<#=i#>(
 <#
         for (int j = 0; j < i; ++j)
         {
@@ -78,19 +77,23 @@ namespace Unknown6656.Mathematics.Analysis
 <#
     }
 #>
-            _ => throw new NotImplementedException($"The Hurwitz matrix has not been implemented for a degree of {Degree}.")
-        };
-
+        _ => throw new NotImplementedException($"The Hurwitz matrix has not (yet) been implemented for a degree of {Degree}.") // TODO!
+    };
 <#
     for (int i = 2; i < 64; ++i)
     {
         string s_type = string.Join(", ", Enumerable.Range(0, i).Select(x => $"Scalar _{x}"));
         string s_pars = string.Join(", ", Enumerable.Range(0, i).Select(x => $"t._{x}"));
 #>
-        public static implicit operator Polynomial((<#=s_type#>) t) =>
-            new Polynomial(<#=s_pars#>);
+
+    /// <summary>
+    /// Converts the given tuple of coefficients to the corresponding polynomial.
+    /// The coefficients are passed in ascending exponential order, meaning that the i-th coefficient represents the factor for Xⁱ.
+    /// </summary>
+    /// <param name="t">Tuple of polynomial coefficients.</param>
+    public static implicit operator Polynomial((<#=s_type#>) t) =>
+        new(<#=s_pars#>);
 <#
     }
 #>
-    }
 }

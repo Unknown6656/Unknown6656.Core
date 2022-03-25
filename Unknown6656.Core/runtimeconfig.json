@@ -1,5 +1,9 @@
 {
-    "configProperties": {
-        "System.Drawing.EnableUnixSupport": true
+    "runtimeOptions": {
+        "previewFeatures": true,
+        "configProperties": {
+            "System.Drawing.EnableUnixSupport": true,
+            "System.Runtime.TieredCompilation": true
+        }
     }
 }

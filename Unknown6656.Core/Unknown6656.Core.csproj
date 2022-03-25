@@ -3,7 +3,7 @@
         <TargetFramework>net6.0</TargetFramework>
         <!--<RuntimeFrameworkVersion>5.0.2</RuntimeFrameworkVersion>-->
 
-        <LangVersion>preview</LangVersion>
+        <LangVersion>Preview</LangVersion>
         <EnablePreviewFeatures>True</EnablePreviewFeatures>
         <Nullable>enable</Nullable>
         <NullableContextOptions>enable</NullableContextOptions>

@@ -31,7 +31,7 @@ namespace Unknown6656.Mathematics.Numerics
 
         private string GetDebuggerDisplay() => $"{this}     ({Size} Byte(s): {DataStream.FromBytes(InternalBytes).ToHexString(false, true)})";
 
-        public override int GetHashCode() => DataStream.FromArray(InternalBytes).Hash(HashFunctions.CRC32).ToUnmanaged<int>();
+        public override int GetHashCode() => DataStream.FromArray(InternalBytes).Hash(HashFunction.CRC32).ToUnmanaged<int>();
 
         public override bool Equals(object? obj) => obj is VarInt other && Equals(other);
 

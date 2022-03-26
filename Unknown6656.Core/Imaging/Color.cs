@@ -550,7 +550,7 @@ public unsafe partial struct RGBAColor
 
         Vector3 cout = mode switch
         {
-            BlendMode.Normal => (ta * t + (1 - ta) * ba * t) / α,
+            BlendMode.Normal or BlendMode.Alpha => (ta * t + (1 - ta) * ba * t) / α,
             BlendMode.Multiply => b.ComponentwiseMultiply(t),
             BlendMode.Remainder => b.ComponentwiseModulus(t),
             BlendMode.Screen => 1 - (1 - b).ComponentwiseMultiply(1 - t),
@@ -570,12 +570,12 @@ public unsafe partial struct RGBAColor
             BlendMode.BinaryNOR => (Vector3)new RGBAColor(~(bottom.ARGB | top.ARGB)),
             BlendMode.BinaryNAND => (Vector3)new RGBAColor(~(bottom.ARGB & top.ARGB)),
             BlendMode.BinaryNXOR => (Vector3)new RGBAColor(~(bottom.ARGB ^ top.ARGB)),
-            BlendMode.Min => (
+            BlendMode.Min => new(
                 Math.Min(b.X, t.X),
                 Math.Min(b.Y, t.Y),
                 Math.Min(b.Z, t.Z)
             ),
-            BlendMode.Max => (
+            BlendMode.Max => new(
                 Math.Max(b.X, t.X),
                 Math.Max(b.Y, t.Y),
                 Math.Max(b.Z, t.Z)
@@ -665,6 +665,80 @@ public enum ColorEqualityMetric
     EucledianRGBALength,
     LegacyConsoleColor,
     Windows10ConsoleColor,
+}
+
+/// <summary>
+/// Represents an enumeration of blend modes.
+/// </summary>
+public enum BlendMode
+{
+    /// <summary>
+    /// Normal blend mode (alpha-screening).
+    /// </summary>
+    Normal = 0,
+    Alpha = Normal,
+    /// <summary>
+    /// Multiply blend mode.
+    /// </summary>
+    Multiply,
+    /// <summary>
+    /// Screen blend mode (Inverse multiply mode).
+    /// </summary>
+    Screen,
+    /// <summary>
+    /// Divide blend mode.
+    /// </summary>
+    Divide,
+    Bottom,
+    Top,
+
+    Color,
+    Luminosity,
+
+
+    Remainder,
+    Overlay,
+    SoftLight,
+    HardLight,
+    /// <summary>
+    /// Additive blend mode.
+    /// </summary>
+    Add,
+    /// <summary>
+    /// Subtractive blend mode.
+    /// </summary>
+    Subtract,
+    /// <summary>
+    /// Difference blend mode.
+    /// </summary>
+    Difference,
+    Average,
+    /// <summary>
+    /// Binary XOR blend mode.
+    /// </summary>
+    BinaryXOR,
+    /// <summary>
+    /// Binary NXOR blend mode.
+    /// </summary>
+    BinaryNXOR,
+    /// <summary>
+    /// Binary AND blend mode.
+    /// </summary>
+    BinaryAND,
+    /// <summary>
+    /// Binary NAND blend mode.
+    /// </summary>
+    BinaryNAND,
+    /// <summary>
+    /// Binary OR blend mode.
+    /// </summary>
+    BinaryOR,
+    /// <summary>
+    /// Binary NOR blend mode.
+    /// </summary>
+    BinaryNOR,
+    Min,
+    Max,
 }
 
 

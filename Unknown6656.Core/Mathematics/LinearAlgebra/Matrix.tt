@@ -1029,6 +1029,14 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     public readonly <#=typename#> ComponentwiseApply(Func<Scalar, Scalar> function) => new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}.ComponentwiseApply(function)"))#>);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> ComponentwiseApply(<#=typename#> second, Func<Scalar, Scalar, Scalar> function) =>
+        new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}.ComponentwiseApply(second._c{i}, function)"))#>);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly <#=typename#> ComponentwiseApply(<#=typename#> second, <#=typename#> third, Func<Scalar, Scalar, Scalar> function) =>
+        new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}.ComponentwiseApply(second._c{i}, third._c{i}, function)"))#>);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> Clamp() => Clamp(Scalar.Zero, Scalar.One);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

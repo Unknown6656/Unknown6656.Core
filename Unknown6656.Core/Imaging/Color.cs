@@ -8,6 +8,7 @@ using System;
 using Unknown6656.Physics.Optics;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics;
+using Unknown6656.Generics;
 
 namespace Unknown6656.Imaging;
 
@@ -551,6 +552,20 @@ public unsafe partial struct RGBAColor
         Vector3 cout = mode switch
         {
             BlendMode.Normal or BlendMode.Alpha => (ta * t + (1 - ta) * ba * t) / α,
+            BlendMode.ColorBurn => b.ComponentwiseApply(t, (b, t) => b >= 1 ? 1 : t <= 0 ? 0 : 1 - Math.Min(1, (1 - b) / t)),
+            BlendMode.ColorDodge => b.ComponentwiseApply(t, (b, t) => b <= 0 ? 0 : t >= 1 ? 1 : Math.Min(1, b / (1 - t))),
+
+
+            BlendMode.Darken => new(
+                Math.Min(b.X, t.X),
+                Math.Min(b.Y, t.Y),
+                Math.Min(b.Z, t.Z)
+            ),
+            BlendMode.Lighten => new(
+                Math.Max(b.X, t.X),
+                Math.Max(b.Y, t.Y),
+                Math.Max(b.Z, t.Z)
+            ),
             BlendMode.Multiply => b.ComponentwiseMultiply(t),
             BlendMode.Remainder => b.ComponentwiseModulus(t),
             BlendMode.Screen => 1 - (1 - b).ComponentwiseMultiply(1 - t),
@@ -570,16 +585,6 @@ public unsafe partial struct RGBAColor
             BlendMode.BinaryNOR => (Vector3)new RGBAColor(~(bottom.ARGB | top.ARGB)),
             BlendMode.BinaryNAND => (Vector3)new RGBAColor(~(bottom.ARGB & top.ARGB)),
             BlendMode.BinaryNXOR => (Vector3)new RGBAColor(~(bottom.ARGB ^ top.ARGB)),
-            BlendMode.Min => new(
-                Math.Min(b.X, t.X),
-                Math.Min(b.Y, t.Y),
-                Math.Min(b.Z, t.Z)
-            ),
-            BlendMode.Max => new(
-                Math.Max(b.X, t.X),
-                Math.Max(b.Y, t.Y),
-                Math.Max(b.Z, t.Z)
-            ),
             _ => throw new ArgumentException($"The blend mode '{mode}' is unknown or unsupported.", nameof(mode))
         };
 
@@ -691,11 +696,14 @@ public enum BlendMode
     Divide,
     Bottom,
     Top,
+    ColorBurn,
+    ColorDodge,
 
     Color,
     Luminosity,
 
-
+    Darken,
+    Lighten,
     Remainder,
     Overlay,
     SoftLight,
@@ -737,8 +745,6 @@ public enum BlendMode
     /// Binary NOR blend mode.
     /// </summary>
     BinaryNOR,
-    Min,
-    Max,
 }
 
 

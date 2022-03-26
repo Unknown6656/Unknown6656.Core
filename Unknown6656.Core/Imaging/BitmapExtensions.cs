@@ -272,25 +272,25 @@ public static unsafe class BitmapExtensions
 
     public static Bitmap ApplyEffect(this Bitmap bmp, PartialBitmapEffect effect, BitmapMask mask) => effect.ApplyTo(bmp, mask);
 
-    public static Bitmap Replace(this Bitmap bmp, RGBAColor search, RGBAColor replace) => bmp.ApplyEffect(new Replace(search, replace));
+    public static Bitmap Replace(this Bitmap bmp, RGBAColor search, RGBAColor replace) => bmp.ApplyEffect(new ReplaceColor(search, replace));
 
-    public static Bitmap Replace(this Bitmap bmp, RGBAColor search, RGBAColor replace, ColorTolerance tolerance) => bmp.ApplyEffect(new Replace(search, replace, tolerance));
+    public static Bitmap Replace(this Bitmap bmp, RGBAColor search, RGBAColor replace, ColorTolerance tolerance) => bmp.ApplyEffect(new ReplaceColor(search, replace, tolerance));
 
-    public static Bitmap Replace(this Bitmap bmp, IEnumerable<(RGBAColor search, RGBAColor replace)> pairs) => bmp.ApplyEffect(new Replace(pairs));
+    public static Bitmap Replace(this Bitmap bmp, IEnumerable<(RGBAColor search, RGBAColor replace)> pairs) => bmp.ApplyEffect(new ReplaceColor(pairs));
 
-    public static Bitmap Replace(this Bitmap bmp, IEnumerable<(RGBAColor search, RGBAColor replace)> pairs, ColorTolerance tolerance) => bmp.ApplyEffect(new Replace(pairs, tolerance));
+    public static Bitmap Replace(this Bitmap bmp, IEnumerable<(RGBAColor search, RGBAColor replace)> pairs, ColorTolerance tolerance) => bmp.ApplyEffect(new ReplaceColor(pairs, tolerance));
 
-    public static Bitmap Replace(this Bitmap bmp, IEnumerable<RGBAColor> search, RGBAColor replace) => bmp.ApplyEffect(new Replace(search, replace));
+    public static Bitmap Replace(this Bitmap bmp, IEnumerable<RGBAColor> search, RGBAColor replace) => bmp.ApplyEffect(new ReplaceColor(search, replace));
 
-    public static Bitmap Replace(this Bitmap bmp, IEnumerable<RGBAColor> search, RGBAColor replace, ColorTolerance tolerance) => bmp.ApplyEffect(new Replace(search, replace, tolerance));
+    public static Bitmap Replace(this Bitmap bmp, IEnumerable<RGBAColor> search, RGBAColor replace, ColorTolerance tolerance) => bmp.ApplyEffect(new ReplaceColor(search, replace, tolerance));
 
-    public static Bitmap Remove(this Bitmap bmp, RGBAColor color) => bmp.ApplyEffect(new Remove(color));
+    public static Bitmap Remove(this Bitmap bmp, RGBAColor color) => bmp.ApplyEffect(new RemoveColor(color));
 
-    public static Bitmap Remove(this Bitmap bmp, RGBAColor color, ColorTolerance tolerance) => bmp.ApplyEffect(new Remove(color, tolerance));
+    public static Bitmap Remove(this Bitmap bmp, RGBAColor color, ColorTolerance tolerance) => bmp.ApplyEffect(new RemoveColor(color, tolerance));
 
-    public static Bitmap Remove(this Bitmap bmp, IEnumerable<RGBAColor> colors) => bmp.ApplyEffect(new Remove(colors));
+    public static Bitmap Remove(this Bitmap bmp, IEnumerable<RGBAColor> colors) => bmp.ApplyEffect(new RemoveColor(colors));
 
-    public static Bitmap Remove(this Bitmap bmp, IEnumerable<RGBAColor> colors, ColorTolerance tolerance) => bmp.ApplyEffect(new Remove(colors, tolerance));
+    public static Bitmap Remove(this Bitmap bmp, IEnumerable<RGBAColor> colors, ColorTolerance tolerance) => bmp.ApplyEffect(new RemoveColor(colors, tolerance));
 
     public static Bitmap Replace(this Bitmap bmp, Bitmap replacement, Rectangle region) =>
         Blend(bmp, replacement, BlendMode.Top, region);

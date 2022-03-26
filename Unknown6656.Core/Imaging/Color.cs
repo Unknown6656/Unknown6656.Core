@@ -556,6 +556,11 @@ public unsafe partial struct RGBAColor
             BlendMode.ColorDodge => b.ComponentwiseApply(t, (b, t) => b <= 0 ? 0 : t >= 1 ? 1 : Math.Min(1, b / (1 - t))),
 
 
+            BlendMode.Color => throw new NotImplementedException(), // TODO
+            BlendMode.Hue => throw new NotImplementedException(), // TODO : B(Cb, Cs) = SetLum(SetSat(Cs, Sat(Cb)), Lum(Cb))
+            BlendMode.Luminosity => throw new NotImplementedException(), // TODO
+
+
             BlendMode.Darken => new(
                 Math.Min(b.X, t.X),
                 Math.Min(b.Y, t.Y),
@@ -578,6 +583,7 @@ public unsafe partial struct RGBAColor
             BlendMode.Add => b + t,
             BlendMode.Subtract => b - t,
             BlendMode.Difference => (b - t).ComponentwiseAbsolute(),
+            BlendMode.Exclusion => b + t - 2 * b.ComponentwiseMultiply(t),
             BlendMode.Average => (b + t).Divide(2),
             BlendMode.BinaryOR => (Vector3)new RGBAColor(bottom.ARGB | top.ARGB),
             BlendMode.BinaryAND => (Vector3)new RGBAColor(bottom.ARGB & top.ARGB),
@@ -585,7 +591,7 @@ public unsafe partial struct RGBAColor
             BlendMode.BinaryNOR => (Vector3)new RGBAColor(~(bottom.ARGB | top.ARGB)),
             BlendMode.BinaryNAND => (Vector3)new RGBAColor(~(bottom.ARGB & top.ARGB)),
             BlendMode.BinaryNXOR => (Vector3)new RGBAColor(~(bottom.ARGB ^ top.ARGB)),
-            _ => throw new ArgumentException($"The blend mode '{mode}' is unknown or unsupported.", nameof(mode))
+            _ => throw new ArgumentOutOfRangeException(nameof(mode), $"The blend mode '{mode}' is unknown or unsupported.")
         };
 
         return new Vector4(cout, α);
@@ -698,10 +704,9 @@ public enum BlendMode
     Top,
     ColorBurn,
     ColorDodge,
-
+    Hue,
     Color,
     Luminosity,
-
     Darken,
     Lighten,
     Remainder,
@@ -720,6 +725,7 @@ public enum BlendMode
     /// Difference blend mode.
     /// </summary>
     Difference,
+    Exclusion,
     Average,
     /// <summary>
     /// Binary XOR blend mode.

@@ -21,6 +21,8 @@ namespace Unknown6656.Imaging;
 public abstract class BitmapEffect
 {
     public abstract Bitmap ApplyTo(Bitmap bmp);
+
+    // TODO : add apply with intensity.
 }
 
 internal unsafe delegate void ProcessFunc(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region);
@@ -86,6 +88,8 @@ public abstract unsafe class PartialBitmapEffect
 
         return new BitmapBlend(bmp, BlendMode.Overlay, 1).ApplyTo(fx);
     }
+
+    public static PartialBitmapEffect FromDelegate(Func<Bitmap, Rectangle, Bitmap> function) => new Delegated(function);
 
     private protected static int[] GetIndices(Bitmap bmp, Rectangle region)
     {
@@ -192,6 +196,17 @@ public abstract unsafe class PartialBitmapEffect
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal protected abstract void Process(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region);
+    }
+
+    private sealed class Delegated
+        : PartialBitmapEffect
+    {
+        public Func<Bitmap, Rectangle, Bitmap> Function { get; }
+
+
+        public Delegated(Func<Bitmap, Rectangle, Bitmap> function) => Function = function;
+
+        private protected override Bitmap Process(Bitmap bmp, Rectangle region) => Function(bmp, region);
     }
 }
 

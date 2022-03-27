@@ -538,32 +538,6 @@ namespace Unknown6656.Imaging.Effects
         }
     }
 
-    [SupportedOSPlatform(OS.WIN)]
-    public class SolidColorBlend
-        : PartialBitmapEffect.Accelerated
-    {
-        public RGBAColor Color { get; }
-        public BlendMode Mode { get; }
-        public double Amount { get; }
-
-
-        public SolidColorBlend(RGBAColor color, BlendMode mode, double amount)
-        {
-            Amount = amount;
-            Color = color;
-            Mode = mode;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal protected override unsafe void Process(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region)
-        {
-            RGBAColor color = Color;
-            BlendMode mode = Mode;
-
-            Parallel.ForEach(GetIndices(bmp, region), idx => destination[idx] = RGBAColor.Blend(source[idx], color, mode));
-        }
-    }
-
     public sealed class NoiseEffect
         : PartialBitmapEffect.Accelerated
     {

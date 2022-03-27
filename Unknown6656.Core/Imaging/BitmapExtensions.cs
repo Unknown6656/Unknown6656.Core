@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.Drawing;
 using System.Linq;
+using System.IO;
 using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
@@ -16,8 +17,6 @@ using Unknown6656.Generics;
 using Unknown6656.Runtime;
 using Unknown6656.Common;
 using Unknown6656.IO;
-
-// TODO : dithering functions
 
 namespace Unknown6656.Imaging;
 
@@ -42,6 +41,31 @@ public static unsafe class BitmapExtensions
 
     public static RGBAColor[] ToPixelArray(this Bitmap bmp) => new BitmapLocker(bmp).ToRGBAPixels();
 
+    public static void SaveAsJPEG(this Bitmap bmp, string path, int quality_level)
+    {
+        using MemoryStream ms = new();
+
+        bmp.SaveAsJPEG(ms, quality_level);
+
+        DataStream.FromStream(ms).ToFile(path);
+    }
+
+    public static void SaveAsJPEG(this Bitmap bmp, Stream stream, int quality_level)
+    {
+        quality_level = quality_level switch { < 0 => 0, > 100 => 100, _ => quality_level };
+
+        if (ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid) is ImageCodecInfo encoder)
+        {
+            EncoderParameters @params = new(1);
+
+            @params.Param[0] = new EncoderParameter(Encoder.Quality, quality_level);
+
+            bmp.Save(stream, encoder, @params);
+        }
+        else
+            throw new InvalidOperationException("The JPEG codec could not be found in the list of available image codecs.");
+    }
+
     public static void LockRGBAPixels(this Bitmap bmp, BitmapLockerCallback<RGBAColor> callback) => new BitmapLocker(bmp).LockRGBAPixels(callback);
 
     public static T LockRGBAPixels<T>(this Bitmap bmp, BitmapLockerCallback<RGBAColor, T> callback) => new BitmapLocker(bmp).LockRGBAPixels(callback);
@@ -62,8 +86,7 @@ public static unsafe class BitmapExtensions
         if (first.Width != second.Width || first.Height != second.Height)
             throw new ArgumentException($"The second bitmap is required to thave the resolution {first.Width}px x {first.Height}px.", nameof(second));
 
-        return
-            first.LockRGBAPixels((fst, w, h) =>
+        return first.LockRGBAPixels((fst, w, h) =>
             second.LockRGBAPixels((snd, _, _) =>
             {
                 int total = w * h;

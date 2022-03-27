@@ -135,6 +135,10 @@ public readonly struct Wavelength
 
     public static bool operator >=(Wavelength left, Wavelength right) => left.CompareTo(right) >= 0;
 
+    public static bool operator ==(Wavelength first, Wavelength second) => first.Equals(second);
+
+    public static bool operator !=(Wavelength first, Wavelength second) => !(first == second);
+
     public static implicit operator Wavelength(double nm) => new(nm);
 
     public static implicit operator HDRColor(Wavelength wavelength) => wavelength.ToColor();

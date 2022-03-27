@@ -295,12 +295,31 @@ public class DiscreteSpectrum
         return color;
     }
 
+    public ColorPalette ColorPalette() => new(Intensities.Keys.Select(λ => (RGBAColor)λ.ToColor()));
+
+    public DiscreteColorMap ToColorMap()
+    {
+        if (Intensities.Keys.OrderBy(λ => λ.InNanometers).ToArray() is { Length: > 0 } wavelengths)
+        {
+            double min = wavelengths[^1].InNanometers;
+            double max = wavelengths[0].InNanometers;
+
+            return new(wavelengths.Select(λ => ((λ.InNanometers - min) / (max - min), (RGBAColor)λ.ToColor())));
+        }
+        else
+            throw new InvalidOperationException("The spectrum must not be empty.");
+    }
+
     public override string ToString() => $"{Intensities.Count} Wavelengths: [{string.Join(", ", Intensities.Select(kvp => $"{kvp.Key.InNanometers}nm:{kvp.Value}"))}]";
 
     public IEnumerator<(Wavelength Wavelength, double Intensity)> GetEnumerator() => Intensities.Select(kvp => (kvp.Key, kvp.Value)).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+
+    public static implicit operator ColorPalette(DiscreteSpectrum spectrum) => spectrum.ToColorPalette();
+
+    public static implicit operator DiscreteColorMap(DiscreteSpectrum spectrum) => spectrum.ToColorMap();
 
     public static implicit operator ContinuousSpectrum(DiscreteSpectrum spectrum) => spectrum.ToContinuous();
 

@@ -50,6 +50,38 @@ public sealed unsafe class BitmapMask
 
     public BitmapMask BlendWith(BitmapMask second, BlendMode mode) => BlendMasks(this, second, mode);
 
+    public Bitmap Composite(Bitmap bottom, Bitmap top)
+    {
+        Bitmap destination = new(bottom.Width, bottom.Height, PixelFormat.Format32bppArgb);
+
+        Bitmap.LockRGBAPixels((mask, mw, mh) =>
+        bottom.LockRGBAPixels((bottom, bw, bh) =>
+        top.LockRGBAPixels((top, tw, th) =>
+        destination.LockRGBAPixels((dest, _, _) =>
+        {
+            int w = Math.Min(bw, tw);
+            int h = Math.Min(bh, th);
+
+            Parallel.For(0, w * h, i =>
+            {
+                int x = i % w;
+                int y = i / w;
+
+                if (x < mw && y < mh)
+                {
+                    int mi = GetIndex(x, y, mw);
+                    int ti = GetIndex(x, y, tw);
+                    int bi = GetIndex(x, y, bw);
+                    double factor = mask[mi].Af * mask[mi].CIEGray;
+
+                    dest[bi] = RGBAColor.LinearInterpolate(bottom[bi], top[ti], factor);
+                }
+            });
+        }))));
+
+        return destination;
+    }
+
     public (Bitmap masked, Bitmap inverted) Split(Bitmap bitmap)
     {
         Bitmap destination = new(bitmap.Width, bitmap.Height, PixelFormat.Format32bppArgb);
@@ -93,15 +125,16 @@ public sealed unsafe class BitmapMask
         return hist;
     }
 
-    public BitmapMask ToBinaryMask(Scalar threshold) => new(Bitmap.ApplyEffect(new ColorEffect.Delegated(c => c.Average < threshold ? (0, 0, 0, c.Af) : (1, 1, 1, c.Af))));
+    public BitmapMask ToBinaryMask(Scalar threshold) => new(Bitmap.ApplyEffect(new ColorEffect.Delegated(c => new RGBAColor(c.Average < threshold ? 0 : 1, c.Af))));
 
     // entire picture
     // rectangle
-    // circle/ellipse
+    // ellipse
     // text/path
     // xor
     // and
     // or
+    // blend
 
     // TODO:
     //public static BitmapMask FromShape<T>(T shape) where T : Shape2D<T> => ;
@@ -139,9 +172,34 @@ public sealed unsafe class BitmapMask
 
     public static BitmapMask BlendMasks(BitmapMask bottom, BitmapMask top, BlendMode mode) => new(new BitmapBlend(bottom, mode, 1).ApplyTo(top));
 
+    public static BitmapMask Radial(int width, int height, RadialMaskConfiguration configuration)
+    {
+        RGBAColor start = new(configuration.StartIntensity);
+        RGBAColor end = new(configuration.EndIntensity);
+        using Bitmap bmp = new(width, height, PixelFormat.Format32bppRgb);
+        Bitmap intensities = bmp.ApplyEffect(new RadialGradient(configuration.Center, configuration.Radius, new DiscreteColorMap(
+            (Scalar.Zero, start),
+            (configuration.StartOffset.Clamp(), start),
+            (Scalar.One - configuration.EndOffset.Clamp(), end),
+            (Scalar.One, end)
+        )));
+
+        return new(intensities);
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static BitmapMask FromBitmap(Bitmap bitmap, Func<RGBAColor, Scalar> func, bool ignore_alpha = false) =>
         new(bitmap.ApplyEffect(new ColorEffect.Delegated(c => func(c).Clamp() * new Vector4(1, 1, 1, 0) + (0, 0, 0, ignore_alpha ? c.Af : 1))));
 
     public static implicit operator Bitmap(BitmapMask mask) => mask.Bitmap;
+}
+
+public sealed record RadialMaskConfiguration
+{
+    public Vector2? Center { get; init; } = null;
+    public Scalar? Radius { get; init; } = null;
+    public Scalar StartOffset { get; init; } = Scalar.Zero;
+    public Scalar EndOffset { get; init; } = Scalar.Zero;
+    public Scalar StartIntensity { get; init; } = Scalar.One;
+    public Scalar EndIntensity { get; init; } = Scalar.Zero;
 }

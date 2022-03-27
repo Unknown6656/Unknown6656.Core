@@ -1325,4 +1325,16 @@ public class ColorPalette
     public static implicit operator RGBAColor[](ColorPalette palette) => palette.Colors.ToArray();
 
     public static implicit operator ColorPalette(RGBAColor[] palette) => new(palette);
+
+    public static ColorPalette operator +(ColorPalette palette, RGBAColor color) => palette + new ColorPalette(color);
+
+    public static ColorPalette operator +(RGBAColor color, ColorPalette palette) => palette + color;
+
+    public static ColorPalette operator +(ColorPalette first, ColorPalette second) => new(first.Colors.Union(second.Colors));
+
+    public static ColorPalette operator -(ColorPalette palette, RGBAColor color) => palette - new ColorPalette(color);
+
+    public static ColorPalette operator -(ColorPalette first, ColorPalette second) => new(first.Colors.Except(second.Colors));
+
+    public static ColorPalette operator &(ColorPalette first, ColorPalette second) => new(first.Colors.Intersect(second.Colors));
 }

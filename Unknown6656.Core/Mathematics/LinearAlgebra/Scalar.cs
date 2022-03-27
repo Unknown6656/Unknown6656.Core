@@ -91,10 +91,8 @@ public unsafe readonly /* ref */ partial struct Scalar
         get => _cepsilon;
         set
         {
-            if (value * value > IEEE754Epsilon && value < 1)
-                _cepsilon = value;
-            else
-                throw new ArgumentOutOfRangeException(nameof(value), $"The computational epislon must be inside the exclusive range ({IEEE754Epsilon.Sqrt():e0}..1).");
+            _cepsilon = value * value > IEEE754Epsilon && value < 1 ? value
+                : throw new ArgumentOutOfRangeException(nameof(value), $"The computational epislon must be inside the exclusive range ({IEEE754Epsilon.Sqrt():e0}..1).");
         }
     }
 
@@ -153,7 +151,7 @@ public unsafe readonly /* ref */ partial struct Scalar
 
     public readonly bool IsPositive => Determinant > 0;
 
-    public readonly bool IsPositiveDefinite => IsPositive;
+    public readonly bool IsPositiveDefinite => IsPositive && IsFinite;
 
     public readonly bool IsFinite => __scalar.IsFinite(Determinant);
 

@@ -336,16 +336,10 @@ public abstract class CoordinateColorEffect
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected internal override sealed unsafe void Process(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region)
     {
-        int[] indices = GetIndices(bmp, region);
         int w = bmp.Width;
         int h = bmp.Height;
 
-        Parallel.For(0, indices.Length, i =>
-        {
-            int idx = indices[i];
-
-            destination[idx] = ProcessCoordinate(idx % w, idx / w, w, h, source[idx]);
-        });
+        Parallel.ForEach(GetIndices(bmp, region), idx => destination[idx] = ProcessCoordinate(idx % w, idx / w, w, h, source[idx]));
     }
 
     public static CoordinateColorEffect FromDelegate(Func<int, int, int, int, RGBAColor, RGBAColor> func) => new __del(func);

@@ -465,6 +465,14 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         VectorNorm.EucledianNorm => EucledianNorm,
         VectorNorm.TaxicabNorm => TaxicabNorm,
         VectorNorm.MaximumNorm => MaximumNorm,
+<#
+        for (int i = 0; i < dim; ++i)
+            if (i < comp.Length)
+                WriteLine($"        VectorNorm.{comp[i]}Coordinate => {comps[i]}.Abs(),");
+            else
+                WriteLine($"        // VectorNorm.{i + 1} => ,");
+#>
+        _ => throw new InvalidOperationException($"A vector of the type '<#=typename#>' does not support the vector norm '{norm}'."),
     };
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -722,7 +730,10 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar DistanceTo(in <#=typename#> second) => Subtract(second).Length;
+    public readonly Scalar DistanceTo(in <#=typename#> second) => DistanceTo(in second, VectorNorm.EucledianNorm);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly Scalar DistanceTo(in <#=typename#> second, VectorNorm norm) => Subtract(in second).ComputeNorm(norm);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
@@ -1246,3 +1257,19 @@ public partial class VectorN
 }
 
 #endregion
+
+public enum VectorNorm
+{
+    EucledianNorm = 0,
+<#
+    for (int i = 0; i <= maxdim; ++i)
+        if (i < comp.Length)
+            WriteLine($"    {comp[i]}Coordinate = {i + 1},");
+        else
+            WriteLine($"    // TODO = {i + 1},");
+#>
+    TaxicabNorm,
+    MaximumNorm,
+    ManhattanNorm = TaxicabNorm,
+    Linf_Norm = MaximumNorm,
+}

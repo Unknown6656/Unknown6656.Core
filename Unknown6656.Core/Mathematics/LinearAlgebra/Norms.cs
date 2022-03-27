@@ -1,15 +1,6 @@
 ﻿namespace Unknown6656.Mathematics.LinearAlgebra;
 
 
-public enum VectorNorm
-{
-    EucledianNorm,
-    TaxicabNorm,
-    MaximumNorm,
-    ManhattanNorm = TaxicabNorm,
-    Linf_Norm = MaximumNorm,
-}
-
 public enum MatrixNorm
 {
     EucledianNorm,

@@ -1249,6 +1249,14 @@ var members = new string[]
         : this(color.$R, color.$G, color.$B, α)
     {
     }",
+    @"public $type(double gray)
+        : this(gray, 1.0)
+    {
+    }",
+    @"public $type(double gray, double α)
+        : this(gray, gray, gray, α)
+    {
+    }",
     @"public $type($type* ptr)
         : this(*ptr)
     {

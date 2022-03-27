@@ -17,21 +17,192 @@ using Random = Unknown6656.Mathematics.Numerics.Random;
 namespace Unknown6656.Imaging.Effects;
 
 
+/// <summary>
+/// Represents an abstract color gradient effect.
+/// A gradient effect generates a coordinate-based color, which is blended with the original bitmap using the <see cref="Blending"/>-property.
+/// <para/>
+/// Known implementations of this class are <see cref="ConstantColor"/>, <see cref="LinearGradient"/>, <see cref="RadialGradient"/>,
+/// <see cref="MultiPointGradient"/>, <see cref="VoronoiGradient"/>, etc.
+/// </summary>
+/// <completionlist cref="Gradient"/>
+public abstract class Gradient
+    : CoordinateColorEffect
+{
+    public BlendMode Blending { get; set; } = BlendMode.Top;
+
+
+    private protected abstract RGBAColor ProcessCoordinate(int x, int y, int w, int h);
+
+    private protected sealed override RGBAColor ProcessCoordinate(int x, int y, int w, int h, RGBAColor source) =>
+        RGBAColor.Blend(source, ProcessCoordinate(x, y, w, h), Blending);
+
+
+    // TODO : add static methods
+}
+
+/// <summary>
+/// An effect which fills a given bitmap with a specified <see cref="RGBAColor"/> using a specified <see cref="BlendMode"/>.
+/// </summary>
 public sealed class ConstantColor
-    : ColorEffect
+    : Gradient
 {
     public RGBAColor Color { get; }
 
-    public BlendMode Mode { get; }
+
+    public ConstantColor(RGBAColor color) => Color = color;
+
+    private protected override RGBAColor ProcessCoordinate(int x, int y, int w, int h) => Color;
+}
+
+public sealed class LinearGradient
+    : Gradient
+{
+    public ColorMap Colors { get; }
+    public Vector2 Start { get; }
+    public Vector2 End { get; }
+
+    private readonly Vector2 _to;
+    private readonly Scalar _min;
+    private readonly Scalar _max;
 
 
-    public ConstantColor(RGBAColor color, BlendMode mode = BlendMode.Top)
+    public LinearGradient(Vector2 start, Vector2 end, params RGBAColor[] colors)
+        : this(start, end, ColorMap.Uniform(colors))
     {
-        Color = color;
-        Mode = mode;
     }
 
-    private protected override RGBAColor ProcessColor(RGBAColor input) => RGBAColor.Blend(input, Color, Mode);
+    public LinearGradient(Vector2 start, Vector2 end, IEnumerable<RGBAColor> colors)
+        : this(start, end, colors as RGBAColor[] ?? colors.ToArray())
+    {
+    }
+
+    public LinearGradient(Vector2 start, Vector2 end, ColorMap colors)
+    {
+        if (colors is DiscreteColorMap { Size: 0 })
+            throw new ArgumentException("The color map must not be empty.", nameof(colors));
+
+        Colors = colors;
+        Start = start;
+        End = end;
+
+        _to = End - Start;
+        _min = _to * Start;
+        _max = _to * End;
+    }
+
+    private protected override RGBAColor ProcessCoordinate(int x, int y, int w, int h)
+    {
+        Scalar progress = _to * (x, y);
+
+        return Colors[progress <= _min ? 0 : progress >= _max ? 1 : (progress - _min) / (_max - _min)];
+    }
+}
+
+public sealed class RadialGradient
+    : Gradient
+{
+    public ColorMap Colors { get; }
+    public Vector2 Center { get; }
+    public Scalar? Size { get; }
+
+
+    public RadialGradient(Vector2 center, Scalar? size, params RGBAColor[] colors)
+        : this(center, size, ColorMap.Uniform(colors))
+    {
+    }
+
+    public RadialGradient(Vector2 center, Scalar? size, IEnumerable<RGBAColor> colors)
+        : this(center, size, colors as RGBAColor[] ?? colors.ToArray())
+    {
+    }
+
+    public RadialGradient(Vector2 center, Scalar? size, ColorMap colors)
+    {
+        if (colors is DiscreteColorMap { Size: 0 })
+            throw new ArgumentException("The color map must not be empty.", nameof(colors));
+        else if (size is Scalar s && (s.IsNegative || !s.IsFinite))
+            throw new ArgumentException("The size must either be null, zero, or a positive, finite number.", nameof(size));
+
+        Colors = colors;
+        Center = center;
+        Size = size;
+    }
+
+    private protected override RGBAColor ProcessCoordinate(int x, int y, int w, int h)
+    {
+        Scalar dist = Center.DistanceTo((x, y));
+        Scalar size = Size ?? new Vector2(w, h).Length / 2;
+
+        return size > Scalar.ComputationalEpsilon ? Colors[dist, Scalar.Zero, size] : Colors[Scalar.One];
+    }
+}
+
+public sealed class MultiPointGradient
+    : Gradient
+{
+    public (Vector2 Position, RGBAColor Color)[] Points { get; }
+
+
+    public MultiPointGradient(IEnumerable<(Vector2 Position, RGBAColor Color)> points)
+        : this(points as (Vector2, RGBAColor)[] ?? points.ToArray())
+    {
+    }
+
+    public MultiPointGradient(params (Vector2 Position, RGBAColor Color)[] points) =>
+        Points = points.Length is 0 ? throw new ArgumentException("At least one point has to be provided.", nameof(points)) : points;
+
+    private protected override RGBAColor ProcessCoordinate(int x, int y, int w, int h, RGBAColor source)
+    {
+        Vector2 pos = (x, y);
+        Scalar[] distances = Points.ToArray(p => p.Position.DistanceTo(in pos));
+        Scalar maxdist = distances.Max();
+
+
+
+        RGBAColor color = ;
+
+        return color;
+    }
+}
+
+public enum VoronoiMode
+{
+    EucledianDistance,
+    ManhattanDistance,
+    XCoordinate,
+    YCoordinate,
+    // TODO : more ?
+}
+
+public sealed class VoronoiGradient
+    : CoordinateColorEffect
+{
+    public VoronoiMode VoronoiDistanceMetric { get; set; } = VoronoiMode.EucledianDistance;
+    public (Vector2 Position, RGBAColor Color)[] Points { get; }
+
+
+    public VoronoiGradient(IEnumerable<(Vector2 Position, RGBAColor Color)> points)
+        : this(points as (Vector2, RGBAColor)[] ?? points.ToArray())
+    {
+    }
+
+    public VoronoiGradient(params (Vector2 Position, RGBAColor Color)[] points) =>
+        Points = points.Length is 0 ? throw new ArgumentException("At least one point has to be provided.", nameof(points)) : points;
+
+    private protected override RGBAColor ProcessCoordinate(int x, int y, int w, int h, RGBAColor source)
+    {
+        Vector2 pos = (x, y);
+        Func<Vector2, Scalar> dist = VoronoiDistanceMetric switch
+        {
+            VoronoiMode.XCoordinate => v => v.X.Subtract(x).Abs(),
+            VoronoiMode.YCoordinate => v => v.Y.Subtract(y).Abs(),
+            VoronoiMode.ManhattanDistance => v => v.X.Subtract(x).Abs() + v.Y.Subtract(y).Abs(),
+            VoronoiMode.EucledianDistance => v => v.DistanceTo(pos),
+            _ => throw new ArgumentOutOfRangeException(nameof(VoronoiDistanceMetric)),
+        };
+
+        return Points.OrderBy(p => dist(p.Position)).FirstOrDefault().Color;
+    }
 }
 
 /// <summary>

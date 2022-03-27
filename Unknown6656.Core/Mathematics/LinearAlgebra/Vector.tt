@@ -516,7 +516,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         new(<#=string.Join(", ", comps.Select(s => $"function({s}, second.{s})"))#>);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly <#=typename#> ComponentwiseApply(<#=typename#> second, <#=typename#> third, Func<Scalar, Scalar, Scalar> function) =>
+    public readonly <#=typename#> ComponentwiseApply(<#=typename#> second, <#=typename#> third, Func<Scalar, Scalar, Scalar, Scalar> function) =>
         new(<#=string.Join(", ", comps.Select(s => $"function({s}, second.{s}, third.{s})"))#>);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

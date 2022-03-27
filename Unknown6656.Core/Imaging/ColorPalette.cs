@@ -115,6 +115,12 @@ public class ColorPalette
                                                                                        let v = i / (double)(count - 1)
                                                                                        select new RGBAColor(0, 0, v)));
 
+    public static ReadOnlyIndexer<RGBAColor, ColorPalette> Analogous { get; } = new(c => c.Analogous);
+
+    public static ReadOnlyIndexer<RGBAColor, ColorPalette> Neutrals { get; } = new(c => c.Neutrals);
+
+    public static ReadOnlyIndexer<RGBAColor, ColorPalette> Triadics { get; } = new(c => c.Triadic.ToArray());
+
     public static ColorPalette BlackAndWhite { get; } = Grayscale[2];
 
     public static ColorPalette PrimaryColors { get; } = new(RGBAColor.Red, RGBAColor.Lime, RGBAColor.Blue);
@@ -1315,4 +1321,8 @@ public class ColorPalette
     public static implicit operator sys_palette(ColorPalette palette) => palette.ToImageColorPalette();
 
     public static implicit operator ColorPalette(sys_palette palette) => new(palette);
+
+    public static implicit operator RGBAColor[](ColorPalette palette) => palette.Colors.ToArray();
+
+    public static implicit operator ColorPalette(RGBAColor[] palette) => new(palette);
 }

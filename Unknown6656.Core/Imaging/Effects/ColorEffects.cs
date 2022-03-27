@@ -102,21 +102,21 @@ public sealed class RadialGradient
     : Gradient
 {
     public ColorMap Colors { get; }
-    public Vector2 Center { get; }
+    public Vector2? Center { get; }
     public Scalar? Size { get; }
 
 
-    public RadialGradient(Vector2 center, Scalar? size, params RGBAColor[] colors)
+    public RadialGradient(Vector2? center, Scalar? size, params RGBAColor[] colors)
         : this(center, size, ColorMap.Uniform(colors))
     {
     }
 
-    public RadialGradient(Vector2 center, Scalar? size, IEnumerable<RGBAColor> colors)
+    public RadialGradient(Vector2? center, Scalar? size, IEnumerable<RGBAColor> colors)
         : this(center, size, colors as RGBAColor[] ?? colors.ToArray())
     {
     }
 
-    public RadialGradient(Vector2 center, Scalar? size, ColorMap colors)
+    public RadialGradient(Vector2? center, Scalar? size, ColorMap colors)
     {
         if (colors is DiscreteColorMap { Size: 0 })
             throw new ArgumentException("The color map must not be empty.", nameof(colors));
@@ -130,8 +130,9 @@ public sealed class RadialGradient
 
     private protected override RGBAColor ProcessCoordinate(int x, int y, int w, int h)
     {
-        Scalar dist = Center.DistanceTo((x, y));
-        Scalar size = Size ?? new Vector2(w, h).Length / 2;
+        Vector2 mid = new Vector2(w, h).Multiply(.5);
+        Scalar dist = (Center ?? mid).DistanceTo((x, y));
+        Scalar size = Size ?? mid.Length;
 
         return size > Scalar.ComputationalEpsilon ? Colors[dist, Scalar.Zero, size] : Colors[Scalar.One];
     }
@@ -140,6 +141,7 @@ public sealed class RadialGradient
 public sealed class MultiPointGradient
     : Gradient
 {
+    public VectorNorm VectorDistanceMetric { get; set; } = VectorNorm.EucledianNorm;
     public (Vector2 Position, RGBAColor Color)[] Points { get; }
 
 
@@ -151,33 +153,23 @@ public sealed class MultiPointGradient
     public MultiPointGradient(params (Vector2 Position, RGBAColor Color)[] points) =>
         Points = points.Length is 0 ? throw new ArgumentException("At least one point has to be provided.", nameof(points)) : points;
 
-    private protected override RGBAColor ProcessCoordinate(int x, int y, int w, int h, RGBAColor source)
+    private protected override RGBAColor ProcessCoordinate(int x, int y, int w, int h)
     {
         Vector2 pos = (x, y);
-        Scalar[] distances = Points.ToArray(p => p.Position.DistanceTo(in pos));
-        Scalar maxdist = distances.Max();
+        Vector4 color = Vector4.Zero;
+        Scalar[] distances = Points.ToArray(p => p.Position.DistanceTo(in pos, VectorDistanceMetric));
 
+        for (int i = 0; i < distances.Length; ++i)
+            color += distances[i] * (Vector4)Points[i].Color;
 
-
-        RGBAColor color = ;
-
-        return color;
+        return color / distances.Sum();
     }
-}
-
-public enum VoronoiMode
-{
-    EucledianDistance,
-    ManhattanDistance,
-    XCoordinate,
-    YCoordinate,
-    // TODO : more ?
 }
 
 public sealed class VoronoiGradient
     : CoordinateColorEffect
 {
-    public VoronoiMode VoronoiDistanceMetric { get; set; } = VoronoiMode.EucledianDistance;
+    public VectorNorm VectorDistanceMetric { get; set; } = VectorNorm.EucledianNorm;
     public (Vector2 Position, RGBAColor Color)[] Points { get; }
 
 
@@ -192,16 +184,8 @@ public sealed class VoronoiGradient
     private protected override RGBAColor ProcessCoordinate(int x, int y, int w, int h, RGBAColor source)
     {
         Vector2 pos = (x, y);
-        Func<Vector2, Scalar> dist = VoronoiDistanceMetric switch
-        {
-            VoronoiMode.XCoordinate => v => v.X.Subtract(x).Abs(),
-            VoronoiMode.YCoordinate => v => v.Y.Subtract(y).Abs(),
-            VoronoiMode.ManhattanDistance => v => v.X.Subtract(x).Abs() + v.Y.Subtract(y).Abs(),
-            VoronoiMode.EucledianDistance => v => v.DistanceTo(pos),
-            _ => throw new ArgumentOutOfRangeException(nameof(VoronoiDistanceMetric)),
-        };
 
-        return Points.OrderBy(p => dist(p.Position)).FirstOrDefault().Color;
+        return Points.OrderBy(p => p.Position.DistanceTo(in pos, VectorDistanceMetric)).FirstOrDefault().Color;
     }
 }
 

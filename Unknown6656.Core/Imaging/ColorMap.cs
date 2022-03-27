@@ -982,6 +982,7 @@ public abstract class ColorMap
     public static implicit operator ColorMap(Func<Scalar, RGBAColor> function) => Continuous(function);
 }
 
+/// <completionlist cref="ColorMap"/>
 public class ContinuousColorMap
     : ColorMap
 {
@@ -996,10 +997,13 @@ public class ContinuousColorMap
     public static implicit operator ContinuousColorMap(Func<Scalar, RGBAColor> function) => Continuous(function);
 }
 
+/// <completionlist cref="ColorMap"/>
 public class DiscreteColorMap
     : ColorMap
 {
     private readonly (Scalar X, RGBAColor Color)[] _colors;
+
+    public int Size => _colors.Length;
 
 
     public DiscreteColorMap(params RGBAColor[] colors)

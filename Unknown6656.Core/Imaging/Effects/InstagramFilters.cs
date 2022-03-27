@@ -63,7 +63,7 @@ public sealed class _1977Filter
 {
     public _1977Filter()
         : base(
-            new ConstantColor(0x4cf36abcu, BlendMode.Screen),
+            new ConstantColor(0x4cf36abcu) { Blending = BlendMode.Screen },
             new Contrast(1.1),
             new Brightness(1.1),
             new Saturation(1.3)

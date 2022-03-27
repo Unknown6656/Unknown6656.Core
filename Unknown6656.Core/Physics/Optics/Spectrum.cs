@@ -299,14 +299,14 @@ public class DiscreteSpectrum
         return color;
     }
 
-    public ColorPalette ColorPalette() => new(Intensities.Keys.Select(λ => (RGBAColor)λ.ToColor()));
+    public ColorPalette ToColorPalette() => new(Intensities.Keys.Select(λ => (RGBAColor)λ.ToColor()));
 
     public DiscreteColorMap ToColorMap()
     {
         if (Intensities.Keys.OrderBy(λ => λ.InNanometers).ToArray() is { Length: > 0 } wavelengths)
         {
-            double min = wavelengths[^1].InNanometers;
-            double max = wavelengths[0].InNanometers;
+            Scalar min = wavelengths[^1].InNanometers;
+            Scalar max = wavelengths[0].InNanometers;
 
             return new(wavelengths.Select(λ => ((λ.InNanometers - min) / (max - min), (RGBAColor)λ.ToColor())));
         }

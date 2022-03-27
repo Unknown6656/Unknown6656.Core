@@ -331,10 +331,10 @@ public abstract class CoordinateColorEffect
     : PartialBitmapEffect.Accelerated
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected abstract RGBAColor ProcessCoordinate(int x, int y, int w, int h, RGBAColor source);
+    private protected abstract RGBAColor ProcessCoordinate(int x, int y, int w, int h, RGBAColor source);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected internal override sealed unsafe void Process(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region)
+    internal protected override sealed unsafe void Process(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region)
     {
         int w = bmp.Width;
         int h = bmp.Height;

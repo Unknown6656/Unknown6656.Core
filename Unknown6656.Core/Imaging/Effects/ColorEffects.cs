@@ -141,6 +141,7 @@ public sealed class RadialGradient
 public sealed class MultiPointGradient
     : Gradient
 {
+    public Scalar PowerParameter { set; get; } = Scalar.One;
     public VectorNorm VectorDistanceMetric { get; set; } = VectorNorm.EucledianNorm;
     public (Vector2 Position, RGBAColor Color)[] Points { get; }
 
@@ -155,14 +156,46 @@ public sealed class MultiPointGradient
 
     private protected override RGBAColor ProcessCoordinate(int x, int y, int w, int h)
     {
-        Vector2 pos = (x, y);
+        Vector2 pixel = (x, y);
         Vector4 color = Vector4.Zero;
-        Scalar[] distances = Points.ToArray(p => p.Position.DistanceTo(in pos, VectorDistanceMetric));
+        Scalar scale = Scalar.Zero;
 
-        for (int i = 0; i < distances.Length; ++i)
-            color += distances[i] * (Vector4)Points[i].Color;
+        for (int i = 0; i < Points.Length; ++i)
+        {
+            (Vector2 pos, RGBAColor col) = Points[i];
 
-        return color / distances.Sum();
+            if (pos.Is(pixel))
+                return col;
+
+            Scalar f = pos.DistanceTo(in pixel, VectorDistanceMetric).Power(-PowerParameter);
+
+            color += f * (Vector4)col;
+            scale += f;
+        }
+
+        return color / scale;
+    }
+}
+
+public sealed class HyperbolicGradient
+    : Gradient
+{
+    public (Vector2 Position, RGBAColor Color) From { get; }
+    public (Vector2 Position, RGBAColor Color) To { get; }
+
+
+    public HyperbolicGradient((Vector2 Position, RGBAColor Color) from, (Vector2 Position, RGBAColor Color) to)
+    {
+        From = from;
+        To = to;
+    }
+
+    private protected override RGBAColor ProcessCoordinate(int x, int y, int w, int h)
+    {
+        Scalar f = From.Position.Subtract((x, y)).Length;
+        Scalar t = To.Position.Subtract((x, y)).Length;
+
+        return RGBAColor.LinearInterpolate(From.Color, To.Color, f / (f + t));
     }
 }
 

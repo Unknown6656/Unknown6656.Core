@@ -42,79 +42,19 @@ public static unsafe class Program
 
     private static void Main_BMP_effects_2()
     {
-        var reg = (.., ..); // (360..1560, 200..880)
+        var reg = (360..1560, 200..880);
         var img = ((Bitmap)Image.FromFile("img3.png")).ToARGB32();
         var sw = Stopwatch.StartNew();
         var pal = ColorPalette.PrimaryAndComplementaryColors;
 
-        //img = img.ApplyEffect(new Dithering(DitheringAlgorithm.SierraLite, ColorPalette.ScenePAL), reg);
-
-
-        //foreach (var alg in new[] {
-        //    ErrorDiffusionDitheringAlgorithm.Thresholding,
-        //    ErrorDiffusionDitheringAlgorithm.Burkes,
-        //    ErrorDiffusionDitheringAlgorithm.JarvisJudiceNinke,
-        //    ErrorDiffusionDitheringAlgorithm.Stucki,
-
-        //    ErrorDiffusionDitheringAlgorithm.HilbertCurve,
-        //    ErrorDiffusionDitheringAlgorithm.FloydSteinberg,
-        //    ErrorDiffusionDitheringAlgorithm.FalseFloydSteinberg,
-        //    ErrorDiffusionDitheringAlgorithm.Atkinson,
-        //    ErrorDiffusionDitheringAlgorithm.Randomized,
-        //    ErrorDiffusionDitheringAlgorithm.Simple,
-        //    ErrorDiffusionDitheringAlgorithm.Sierra,
-        //    ErrorDiffusionDitheringAlgorithm.SierraTwoRow,
-        //    ErrorDiffusionDitheringAlgorithm.SierraLite,
-        //    ErrorDiffusionDitheringAlgorithm.TwoDimensional,
-        //})
-        //{
-        //    Console.WriteLine(alg);
-        //    img.ApplyEffect(new ErrorDiffusionDithering(alg, pal), reg).Save($"dithering-{alg}.png");
-        //}
-
-        foreach (var alg in new[] {
-            OrderedDitheringAlgorithm.Halftone,
-            OrderedDitheringAlgorithm.Bayer,
-            OrderedDitheringAlgorithm.Bayer2,
-            OrderedDitheringAlgorithm.Bayer3,
-            OrderedDitheringAlgorithm.DispersedDots_8,
-            OrderedDitheringAlgorithm.DispersedDots_6,
-            OrderedDitheringAlgorithm.DispersedDots_4,
-            OrderedDitheringAlgorithm.DispersedDots_3,
-            OrderedDitheringAlgorithm.DispersedDots_2,
-
-            OrderedDitheringAlgorithm.Ordered_2x8,
-            OrderedDitheringAlgorithm.Ordered_8x2,
-        })
-        {
-            Console.WriteLine(alg);
-            img.ApplyEffect(new OrderedDithering(alg), reg).Save($"dithering-{alg}.png");
-        }
-
-
-
+        img = img.ApplyEffect(InstagramFilters.Brooklyn, reg, .5);
 
         sw.Stop();
         Console.WriteLine($"effects: {sw.ElapsedMilliseconds:F2} ms");
         sw.Restart();
-        //img.Save("conv.png");
+        img.Save("conv.png");
         sw.Stop();
         Console.WriteLine($"saving: {sw.ElapsedMilliseconds:F2} ms");
-    }
-
-
-    private static void evaluate_random<random>()
-        where random : Random, new()
-    {
-        int runs = 30_000_000;
-        int[] buckets = new int[50];
-        var rng = new random();
-        for (int i = 0; i < runs; ++i)
-            ++buckets[(int)(rng.NextDouble() * buckets.Length)];
-        int total = buckets.Sum();
-
-        Console.WriteLine($"{typeof(random)}:\n-------------------------\n bucket       variation from expected probability");
-        Console.WriteLine(buckets.Select((v, i) => $"{i,3} => {((double)v / total * buckets.Length - 1) * 100,20:F4} %").StringJoin("\n"));
     }
 
     //class pso_problem : PSOProblem<Scalar>
@@ -135,6 +75,20 @@ public static unsafe class Program
     //    var o = s.Solve();
     //    var v = o.OptimalValue;
     //}
+
+    private static void evaluate_random<random>()
+        where random : Random, new()
+    {
+        int runs = 30_000_000;
+        int[] buckets = new int[50];
+        var rng = new random();
+        for (int i = 0; i < runs; ++i)
+            ++buckets[(int)(rng.NextDouble() * buckets.Length)];
+        int total = buckets.Sum();
+
+        Console.WriteLine($"{typeof(random)}:\n-------------------------\n bucket       variation from expected probability");
+        Console.WriteLine(buckets.Select((v, i) => $"{i,3} => {((double)v / total * buckets.Length - 1) * 100,20:F4} %").StringJoin("\n"));
+    }
 
     private static void Main_Statistics()
     {
@@ -486,6 +440,54 @@ public static unsafe class Program
         .Save("conv.png");
     }
 
+    private static void Main_BMP_dithering()
+    {
+        var reg = (.., ..); // (960.., ..);
+        var img = ((Bitmap)Image.FromFile("img3.png")).ToARGB32();
+        var pal = ColorPalette.PrimaryAndComplementaryColors;
+
+        foreach (var alg in new[] {
+            ErrorDiffusionDitheringAlgorithm.Thresholding,
+            ErrorDiffusionDitheringAlgorithm.Burkes,
+            ErrorDiffusionDitheringAlgorithm.JarvisJudiceNinke,
+            ErrorDiffusionDitheringAlgorithm.Stucki,
+
+            ErrorDiffusionDitheringAlgorithm.HilbertCurve,
+            ErrorDiffusionDitheringAlgorithm.FloydSteinberg,
+            ErrorDiffusionDitheringAlgorithm.FalseFloydSteinberg,
+            ErrorDiffusionDitheringAlgorithm.Atkinson,
+            ErrorDiffusionDitheringAlgorithm.Randomized,
+            ErrorDiffusionDitheringAlgorithm.Simple,
+            ErrorDiffusionDitheringAlgorithm.Sierra,
+            ErrorDiffusionDitheringAlgorithm.SierraTwoRow,
+            ErrorDiffusionDitheringAlgorithm.SierraLite,
+            ErrorDiffusionDitheringAlgorithm.TwoDimensional,
+        })
+        {
+            Console.WriteLine(alg);
+            img.ApplyEffect(new ErrorDiffusionDithering(alg, pal), reg).Save($"dithering-{alg}.png");
+        }
+
+        foreach (var alg in new[] {
+            OrderedDitheringAlgorithm.Halftone,
+            OrderedDitheringAlgorithm.Bayer,
+            OrderedDitheringAlgorithm.Bayer2,
+            OrderedDitheringAlgorithm.Bayer3,
+            OrderedDitheringAlgorithm.DispersedDots_8,
+            OrderedDitheringAlgorithm.DispersedDots_6,
+            OrderedDitheringAlgorithm.DispersedDots_4,
+            OrderedDitheringAlgorithm.DispersedDots_3,
+            OrderedDitheringAlgorithm.DispersedDots_2,
+
+            OrderedDitheringAlgorithm.Ordered_2x8,
+            OrderedDitheringAlgorithm.Ordered_8x2,
+        })
+        {
+            Console.WriteLine(alg);
+            img.ApplyEffect(new OrderedDithering(alg), reg).Save($"dithering-{alg}.png");
+        }
+    }
+
     private static void Main_BMP_colormaps()
     {
         ColorMap[] maps = typeof(ColorMap).GetMembers(BindingFlags.Public | BindingFlags.Static | BindingFlags.GetProperty)
@@ -493,7 +495,7 @@ public static unsafe class Program
                                           .Where(m => m is { })
                                           .ToArray()!;
         Bitmap img = new Bitmap(1920, 1080, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
-            .ApplyEffect(new LinearGradient((Vector2.Zero, RGBAColor.Black), ((0, 1080), RGBAColor.White)));
+            .ApplyEffect(new LinearGradient(Vector2.Zero, (0, 1080), RGBAColor.Black, RGBAColor.White));
         int width = img.Width / maps.Length;
 
         for (int i = 0; i < maps.Length; ++i)

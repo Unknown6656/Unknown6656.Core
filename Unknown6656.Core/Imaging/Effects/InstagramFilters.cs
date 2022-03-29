@@ -25,33 +25,35 @@ namespace Unknown6656.Imaging.Effects;
 /// A static class containing all known instagram bitmap filters.
 /// </summary>
 /// <completionlist cref="InstagramFilters"/>
-public static class InstagramFilters
+public abstract class InstagramFilter
+    : PartialBitmapEffect
 {
     public static _1977Filter _1977 { get; } = new();
     public static AdenFilter Aden { get; } = new();
     public static BrannanFilter Brannan { get; } = new();
     public static BrooklynFilter Brooklyn { get; } = new();
     public static ClarendonFilter Clarendon { get; } = new();
-    // public static EarlybirdFilter Earlybird { get; } = new();
-    // public static GinghamFilter Gingham { get; } = new();
-    // public static HudsonFilter Hudson { get; } = new();
-    // public static InkwellFilter Inkwell { get; } = new();
-    // public static KelvinFilter Kelvin { get; } = new();
-    // public static LarkFilter Lark { get; } = new();
-    // public static LofiFilter Lofi { get; } = new();
-    // public static MavenFilter Maven { get; } = new();
-    // public static MayfairFilter Mayfair { get; } = new();
-    // public static MoonFilter Moon { get; } = new();
-    // public static PerpetuaFilter Perpetua { get; } = new();
-    // public static ReyesFilter Reyes { get; } = new();
-    // public static RiseFilter Rise { get; } = new();
-    // public static SlumberFilter Slumber { get; } = new();
-    // public static StinsonFilter Stinson { get; } = new();
-    // public static ToasterFilter Toaster { get; } = new();
-    // public static ValenciaFilter Valencia { get; } = new();
-    // public static WaldenFilter Walden { get; } = new();
-    // public static WillowFilter Willow { get; } = new();
-    // public static XPro2Filter XPro2 { get; } = new();
+    public static EarlybirdFilter Earlybird { get; } = new();
+    public static GinghamFilter Gingham { get; } = new();
+    public static HudsonFilter Hudson { get; } = new();
+    public static InkwellFilter Inkwell { get; } = new();
+    //public static JunoFilter Juno { get; } = new();
+    public static KelvinFilter Kelvin { get; } = new();
+    public static LarkFilter Lark { get; } = new();
+    //public static LofiFilter Lofi { get; } = new();
+    public static MavenFilter Maven { get; } = new();
+    //public static MayfairFilter Mayfair { get; } = new();
+    public static MoonFilter Moon { get; } = new();
+    //public static PerpetuaFilter Perpetua { get; } = new();
+    //public static ReyesFilter Reyes { get; } = new();
+    //public static RiseFilter Rise { get; } = new();
+    public static SlumberFilter Slumber { get; } = new();
+    public static StinsonFilter Stinson { get; } = new();
+    //public static ToasterFilter Toaster { get; } = new();
+    //public static ValenciaFilter Valencia { get; } = new();
+    //public static WaldenFilter Walden { get; } = new();
+    //public static WillowFilter Willow { get; } = new();
+    //public static XPro2Filter XPro2 { get; } = new();
     public static LegacyNashvilleFilter LegacyNashville { get; } = new();
 }
 
@@ -108,7 +110,7 @@ public sealed class BrooklynFilter
 {
     public BrooklynFilter()
         : base(
-            PartialBitmapEffect.FromDelegate((bmp, region) =>
+            FromDelegate((bmp, region) =>
             {
                 BitmapMask mask = BitmapMask.Radial(bmp.Width, bmp.Height, new()
                 {
@@ -159,6 +161,125 @@ public sealed class ClarendonFilter
 }
 
 /// <summary>
+/// Represents the Instagram 'Earlybird' bitmap filter.
+/// </summary>
+public sealed class EarlybirdFilter
+    : AcceleratedChainedPartialBitmapEffect
+{
+    public EarlybirdFilter()
+        : base(
+            new RadialGradient(null, null,
+                0x33D0BA8Eu,
+                0xCE360309u,
+                0xFF1D0210u
+            ) { Blending = BlendMode.Overlay },
+            new Contrast(.9),
+            new Sepia(.2)
+        )
+    {
+    }
+}
+
+public sealed class GinghamFilter
+    : AcceleratedChainedPartialBitmapEffect
+{
+    public GinghamFilter()
+        : base(
+            new ConstantColor(0xFFE6E6FA) { Blending = BlendMode.Overlay },
+            new Brightness(1.05),
+            new Hue(-10)
+        )
+    {
+    }
+}
+
+public sealed class HudsonFilter
+    : ChainedPartialBitmapEffect
+{
+    public HudsonFilter()
+        : base(
+            FromDelegate((bmp, region) => new BitmapBlend(bmp, BlendMode.Normal, .5).ApplyTo(new RadialGradient(null, null,
+                0x7FA6B1FFu,
+                0x19342134u
+            ) { Blending = BlendMode.Multiply }.ApplyTo(bmp))),
+            new Brightness(1.2),
+            new Contrast(.9),
+            new Saturation(1.1)
+        )
+    {
+    }
+}
+
+public sealed class InkwellFilter
+    : AcceleratedChainedPartialBitmapEffect
+{
+    public InkwellFilter()
+        : base(
+            new Sepia(.3),
+            new Contrast(1.1),
+            new Brightness(1.1),
+            new Grayscale()
+        )
+    {
+    }
+}
+
+public sealed class KelvinFilter
+    : AcceleratedChainedPartialBitmapEffect
+{
+    public KelvinFilter()
+        : base(
+            new ConstantColor(0x382C34) { Blending = BlendMode.ColorDodge },
+            new ConstantColor(0xB77D21) { Blending = BlendMode.Overlay }
+        )
+    {
+    }
+}
+
+public sealed class LarkFilter
+    : AcceleratedChainedPartialBitmapEffect
+{
+    public LarkFilter()
+        : base(
+            new ConstantColor(0xFF22253F) { Blending = BlendMode.ColorDodge },
+            new ConstantColor(0xCCF2F2F2) { Blending = BlendMode.Darken },
+            new Contrast(.9)
+        )
+    {
+    }
+}
+
+public sealed class MavenFilter
+    : AcceleratedChainedPartialBitmapEffect
+{
+    public MavenFilter()
+        : base(
+            new ConstantColor(0x3303E61A) { Blending = BlendMode.Hue },
+            new Sepia(.25),
+            new Brightness(.95),
+            new Contrast(.95),
+            new Saturation(1.5)
+        )
+    {
+    }
+}
+
+public sealed class MoonFilter
+    : AcceleratedChainedPartialBitmapEffect
+{
+    public MoonFilter()
+        : base(
+            new ConstantColor(0xA0A0A0) { Blending = BlendMode.SoftLight },
+            new ConstantColor(0x383838) { Blending = BlendMode.Lighten },
+            new Grayscale(),
+            new Contrast(1.1),
+            new Brightness(1.1)
+        )
+    {
+    }
+}
+
+/// <summary>
 /// Represents the Instagram 'Nashville' bitmap filter.
 /// </summary>
 public sealed class NashvilleFilter
@@ -196,40 +317,53 @@ public sealed class LegacyNashvilleFilter
     }
 }
 
-// /// <summary>
+/// <summary>
 /// Represents the Instagram smooth 'Walden' bitmap effect
 /// </summary>
-// [SupportedOSPlatform(OS.WIN)]
-// public sealed unsafe class SmoothWaldenBitmapEffect
-//     : ChainedPartialBitmapEffect
-// {
-//     // -webkit-filter: brightness(1.1) hue-rotate(-10deg) sepia(.3) saturate(1.6);
-//     // screen #04c .3
-// 
-//     public SmoothWaldenBitmapEffect()
-//         : base(
-//             new Brightness(1.1),
-//             new Hue(-Scalar.Pi),
-//             new SepiaFilter(.3),
-//             new Saturation(1.6),
-//             new BlendEffect()
-// 
-//             ,
-//             .ApplyEffectRange<ScreenColorBlendEffect>(Range, 0, .075, .225) // (0,¼,¾) * .3
-//             .Average(bmp, .3);
-//             ,
-//         )
-//     {
-//     }
-// }
+public sealed unsafe class SmoothWaldenBitmapEffect
+     : ChainedPartialBitmapEffect
+{
+    // -webkit-filter: brightness(1.1) hue-rotate(-10deg) sepia(.3) saturate(1.6);
+    // screen #04c .3
 
+    public SmoothWaldenBitmapEffect()
+        : base(
+            new Brightness(1.1),
+            new Hue(-Scalar.Pi),
+            new Sepia(.3),
+            new Saturation(1.6),
+            new ConstantColor(0x4c001339) { Blending = BlendMode.Screen }
+        )
+    {
+    }
+ }
 
-// ADEN
-// INKWELL
-// REYES
-// WALDEN
+public sealed class SlumberFilter
+    : AcceleratedChainedPartialBitmapEffect
+{
+    public SlumberFilter()
+        : base(
+            new ConstantColor(0x6645290Cu) { Blending = BlendMode.Lighten },
+            new ConstantColor(0x7F7D6918u) { Blending = BlendMode.SoftLight },
+            new Saturation(.66),
+            new Brightness(1.05)
+        )
+    {
+    }
+}
+
+public sealed class StinsonFilter
+    : AcceleratedChainedPartialBitmapEffect
+{
+    public StinsonFilter()
+        : base(
+            new ConstantColor(0x33F09580u) { Blending = BlendMode.SoftLight },
+            new Contrast(.75),
+            new Saturation(.85),
+            new Brightness(1.15)
+        )
+    {
+    }
+}
+
 // JUNO
-// MAVEN
-// PERPETUA
-// SLUMBER
-// LOFI

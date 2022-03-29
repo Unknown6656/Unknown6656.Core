@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using System.Runtime.Versioning;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Drawing.Imaging;
@@ -9,7 +8,6 @@ using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Imaging.Effects;
-using Unknown6656.Runtime;
 
 namespace Unknown6656.Imaging;
 
@@ -17,7 +15,6 @@ namespace Unknown6656.Imaging;
 /// <summary>
 /// Represents an abstract bitmap effect.
 /// </summary>
-[SupportedOSPlatform(OS.WIN)]
 public abstract class BitmapEffect
 {
     public abstract Bitmap ApplyTo(Bitmap bmp);
@@ -30,7 +27,6 @@ internal unsafe delegate void ProcessFunc(Bitmap bmp, RGBAColor* source, RGBACol
 /// <summary>
 /// Represents an abstract bitmap effect which can be partially applied by controlling the effect region and intensity.
 /// </summary>
-[SupportedOSPlatform(OS.WIN)]
 public abstract unsafe class PartialBitmapEffect
     : BitmapEffect
 {
@@ -198,7 +194,7 @@ public abstract unsafe class PartialBitmapEffect
         internal protected abstract void Process(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region);
     }
 
-    private sealed class Delegated
+    public class Delegated
         : PartialBitmapEffect
     {
         public Func<Bitmap, Rectangle, Bitmap> Function { get; }
@@ -210,102 +206,63 @@ public abstract unsafe class PartialBitmapEffect
     }
 }
 
-public interface IChainedEffects<T, F>
-    where T : F, IChainedEffects<T, F>
-    where F : BitmapEffect
-{
-    IReadOnlyCollection<F> Effects { get; }
-}
-
-[SupportedOSPlatform(OS.WIN)]
-public class ChainedBitmapEffect
-    : BitmapEffect
-    , IChainedEffects<ChainedBitmapEffect, BitmapEffect>
-{
-    private readonly BitmapEffect[] _effects;
-
-    public IReadOnlyCollection<BitmapEffect> Effects => _effects;
-
-
-    public ChainedBitmapEffect(params BitmapEffect[] effects) => _effects = effects;
-
-    public ChainedBitmapEffect(IEnumerable<BitmapEffect> effects)
-        : this(effects.ToArray())
-    {
-    }
-
-    public override Bitmap ApplyTo(Bitmap bmp) => _effects.Length == 0 ? bmp : _effects.Aggregate(bmp, (b, fx) => fx.ApplyTo(b));
-}
-
-[SupportedOSPlatform(OS.WIN)]
 public class ChainedPartialBitmapEffect
     : PartialBitmapEffect
-    , IChainedEffects<ChainedPartialBitmapEffect, PartialBitmapEffect>
 {
-    private readonly PartialBitmapEffect[] _effects;
+    public PartialBitmapEffect[] Effects { get; }
 
-    public IReadOnlyCollection<PartialBitmapEffect> Effects => _effects;
-
-
-    public ChainedPartialBitmapEffect(params PartialBitmapEffect[] effects) => _effects = effects;
 
     public ChainedPartialBitmapEffect(IEnumerable<PartialBitmapEffect> effects)
         : this(effects.ToArray())
     {
     }
 
-    private protected override Bitmap Process(Bitmap bmp, Rectangle region) => _effects.Length == 0 ? bmp : _effects.Aggregate(bmp, (b, fx) => fx.ApplyTo(b, region));
+    public ChainedPartialBitmapEffect(params PartialBitmapEffect[] effects) => Effects = effects;
+
+    private protected override Bitmap Process(Bitmap bmp, Rectangle region) => Effects.Length is 0 ? bmp : Effects.Aggregate(bmp, (b, fx) => fx.ApplyTo(b, region));
 }
 
-[SupportedOSPlatform(OS.WIN)]
 public class AcceleratedChainedPartialBitmapEffect
     : PartialBitmapEffect.Accelerated
-    , IChainedEffects<AcceleratedChainedPartialBitmapEffect, PartialBitmapEffect.Accelerated>
 {
-    private readonly Accelerated[] _effects;
+    public Accelerated[] Effects { get; }
 
-    public IReadOnlyCollection<Accelerated> Effects => _effects;
-
-
-    public AcceleratedChainedPartialBitmapEffect(params Accelerated[] effects) => _effects = effects;
 
     public AcceleratedChainedPartialBitmapEffect(IEnumerable<Accelerated> effects)
         : this(effects.ToArray())
     {
     }
 
+    public AcceleratedChainedPartialBitmapEffect(params Accelerated[] effects) => Effects = effects;
+
     internal protected override unsafe void Process(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region)
     {
-        if (_effects.Length == 0)
-        {
-            Parallel.For(0, bmp.Width * bmp.Height, i => destination[i] = source[i]);
+        int w = bmp.Width;
+        int h = bmp.Height;
 
-            return;
-        }
-        else if (_effects.Length == 1)
-        {
-            _effects[0].Process(bmp, source, destination, region);
-
-            return;
-        }
-
-        RGBAColor[] tmp = new RGBAColor[bmp.Width * bmp.Height];
-
-        if ((_effects.Length % 2) == 0)
-            Parallel.For(0, tmp.Length, i => destination[i] = source[i]);
+        if (Effects.Length is 0)
+            Parallel.For(0, w * h, i => destination[i] = source[i]);
+        else if (Effects.Length is 1)
+            Effects[0].Process(bmp, source, destination, region);
         else
-            Parallel.For(0, tmp.Length, i => tmp[i] = source[i]);
+        {
+            RGBAColor[] tmp = new RGBAColor[w * h];
 
-        fixed (RGBAColor* ptmp = tmp)
-            for (int i = 0, l = _effects.Length; i < l; ++i)
-                if ((l - i) % 2 == 0)
-                    _effects[i].Process(bmp, destination, ptmp, region);
-                else
-                    _effects[i].Process(bmp, ptmp, destination, region);
+            if ((Effects.Length % 2) == 0)
+                Parallel.For(0, tmp.Length, i => destination[i] = source[i]);
+            else
+                Parallel.For(0, tmp.Length, i => tmp[i] = source[i]);
+
+            fixed (RGBAColor* ptmp = tmp)
+                for (int i = 0, l = Effects.Length; i < l; ++i)
+                    if ((l - i) % 2 == 0)
+                        Effects[i].Process(bmp, destination, ptmp, region);
+                    else
+                        Effects[i].Process(bmp, ptmp, destination, region);
+        }
     }
 }
 
-[SupportedOSPlatform(OS.WIN)]
 public abstract class ColorEffect
     : PartialBitmapEffect.Accelerated
 {
@@ -341,7 +298,6 @@ public abstract class ColorEffect
     }
 }
 
-[SupportedOSPlatform(OS.WIN)]
 public abstract class CoordinateColorEffect
     : PartialBitmapEffect.Accelerated
 {
@@ -369,7 +325,7 @@ public abstract class CoordinateColorEffect
         public __del(Func<int, int, int, int, RGBAColor, RGBAColor> func) => _func = func;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override RGBAColor ProcessCoordinate(int x, int y, int w, int h, RGBAColor source) => _func(x, y, w, h, source);
+        private protected override RGBAColor ProcessCoordinate(int x, int y, int w, int h, RGBAColor source) => _func(x, y, w, h, source);
     }
 
     /// <summary>
@@ -381,7 +337,8 @@ public abstract class CoordinateColorEffect
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected abstract RGBAColor ProcessCoordinate(Vector2 coord, Scalar aspect_ratio, RGBAColor source);
 
-        protected sealed override RGBAColor ProcessCoordinate(int x, int y, int w, int h, RGBAColor source) => ProcessCoordinate(new Vector2((2d * x / w) - 1, (2d * y / h) - 1), (Scalar)w / h, source);
+        private protected sealed override RGBAColor ProcessCoordinate(int x, int y, int w, int h, RGBAColor source) =>
+            ProcessCoordinate(new Vector2((2d * x / w) - 1, (2d * y / h) - 1), (Scalar)w / h, source);
 
         public static Relative FromDelegate(Func<Vector2, RGBAColor> func) => new __del((xy, r, c) => func(xy));
 
@@ -578,7 +535,6 @@ public class TransformEffect
     }
 }
 
-[SupportedOSPlatform(OS.WIN)]
 public class MultiConvolutionEffect
     : PartialBitmapEffect.Accelerated
 {
@@ -639,7 +595,6 @@ public class MultiConvolutionEffect
     }
 }
 
-[SupportedOSPlatform(OS.WIN)]
 public class SingleConvolutionEffect
     : MultiConvolutionEffect
 {

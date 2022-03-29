@@ -1055,26 +1055,6 @@ namespace Unknown6656.Imaging.Effects
 
     // gnerators: grid, checkerboard, mandelbrot
 
-    public sealed class SolidColor
-        : PartialBitmapEffect.Accelerated
-    {
-        public RGBAColor Color { get; }
-
-
-        public SolidColor(RGBAColor color) => Color = color;
-
-        protected internal override unsafe void Process(Bitmap bmp, RGBAColor* _, RGBAColor* destination, Rectangle region)
-        {
-            RGBAColor col = Color;
-            int rw = region.Width;
-            int rx = region.X;
-            int ry = region.Y;
-            int w = bmp.Width;
-
-            Parallel.For(0, rw * region.Height, i => destination[(i / rw + ry) * w + (i % rw) + rx] = col);
-        }
-    }
-
     public sealed class GridGenerator
         : PartialBitmapEffect.Accelerated
     {

@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Threading.Tasks;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Generics;
-using System.Runtime.CompilerServices;
-using Unknown6656.Imaging.Effects;
 
 namespace Unknown6656.Mathematics.Analysis;
 
@@ -83,6 +78,30 @@ public class AnimationFunction
 
         return result;
     }));
+
+    /// <summary>
+    /// Represents the hyperbolic tangent function, which has been resized to fit the 0..1 value range. The function is parameterized using the given coefficient c.
+    /// <para/>
+    /// <c>f(x) = 1 / (sinh(c) * coth(cx) - cosh(c) + 1)</c>
+    /// </summary>
+    public static ReadOnlyIndexer<Scalar, AnimationFunction> Tanh_01 { get; } = new(c => new(x =>
+        (c.Sinh() * (c * x).Coth() - c.Cosh() + 1).MultiplicativeInverse));
+
+    /// <summary>
+    /// Represents the logistic function, which has been resized to fit the 0..1 value range. The function is parameterized using the given coefficient c.
+    /// <para/>
+    /// <c>f(x) = 0.5 + |2cx - c| * (1 + |c|) / (2c + 2c * |2cx - c|)</c>
+    /// </summary>
+    public static ReadOnlyIndexer<Scalar, AnimationFunction> Logistic_01 { get; } = new(c => new(x =>
+    {
+        Scalar c2 = c + c;
+        Scalar c2x_m_c = c2 * x - c;
+        Scalar div = c2 + c2 * c2x_m_c.Abs();
+        Scalar res = c2x_m_c * (1 + c.Abs()) / div;
+
+        return .5 + res;
+    }));
+
 
     public bool IsExtrapolationEnabled { get; }
 

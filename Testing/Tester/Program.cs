@@ -17,7 +17,7 @@ using Unknown6656.Controls.WinForms;
 using Unknown6656.Controls.Console;
 using Unknown6656.Imaging.Effects;
 using Unknown6656.Imaging.Video;
-using Unknown6656.Imaging;
+using Unknown6656.Imaging; 
 using Unknown6656.Generics;
 using Unknown6656.Common;
 using Unknown6656.IO;
@@ -45,14 +45,35 @@ public static unsafe class Program
         var reg = (360..1560, 200..880);
         var img = ((Bitmap)Image.FromFile("img3.png")).ToARGB32();
         var sw = Stopwatch.StartNew();
-        var pal = ColorPalette.PrimaryAndComplementaryColors;
-
-        img = img.ApplyEffect(InstagramFilters.Brooklyn, reg, .5);
+        
+        foreach (var fx in new InstagramFilter[]
+        {
+            InstagramFilter._1977,
+            InstagramFilter.Aden,
+            InstagramFilter.Brannan,
+            InstagramFilter.Brooklyn,
+            InstagramFilter.Clarendon,
+            InstagramFilter.Earlybird,
+            InstagramFilter.Gingham,
+            InstagramFilter.Hudson,
+            InstagramFilter.Inkwell,
+            InstagramFilter.Kelvin,
+            InstagramFilter.Lark,
+            InstagramFilter.Maven,
+            InstagramFilter.Moon,
+            InstagramFilter.Slumber,
+            InstagramFilter.Stinson,
+            InstagramFilter.LegacyNashville,
+        })
+        {
+            string name = fx.GetType().Name;
+            Console.WriteLine(name);
+            img.ApplyEffect(fx, reg).Save($"ig-{name}.png");
+        }
 
         sw.Stop();
         Console.WriteLine($"effects: {sw.ElapsedMilliseconds:F2} ms");
         sw.Restart();
-        img.Save("conv.png");
         sw.Stop();
         Console.WriteLine($"saving: {sw.ElapsedMilliseconds:F2} ms");
     }
@@ -537,7 +558,7 @@ public static unsafe class Program
         //    .ApplyEffect(new HexagonalPixelation(20), (1440.., ..), .6)
         //    ;
 
-        img = img.ApplyEffect(new ChainedBitmapEffect(
+        img = img.ApplyEffect(new ChainedPartialBitmapEffect(
                 new BoxBlur(5),
                 new Colorize(ColorMap.BlackbodyHeat)
             ));

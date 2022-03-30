@@ -861,6 +861,15 @@ public unsafe readonly /* ref */ partial struct Scalar
     public static Complex Cis(Scalar s) => s.Cis();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar Cot(Scalar s) => s.Cot();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar Sec(Scalar s) => s.Sec();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar Csc(Scalar s) => s.Csc();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar Asin(Scalar s) => s.Asin();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -870,6 +879,15 @@ public unsafe readonly /* ref */ partial struct Scalar
     public static Scalar Atan(Scalar s) => s.Atan();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar Acot(Scalar s) => s.Acot();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar Acsc(Scalar s) => s.Acsc();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar Asec(Scalar s) => s.Asec();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar Sinh(Scalar s) => s.Sinh();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -877,6 +895,33 @@ public unsafe readonly /* ref */ partial struct Scalar
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar Tanh(Scalar s) => s.Tanh();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar Coth(Scalar s) => s.Coth();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar Sech(Scalar s) => s.Sech();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar Csch(Scalar s) => s.Csch();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar Asinh(Scalar s) => s.Asinh();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar Acosh(Scalar s) => s.Acosh();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar Atanh(Scalar s) => s.Atanh();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar Acoth(Scalar s) => s.Acoth();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar Acsch(Scalar s) => s.Acsch();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar Asech(Scalar s) => s.Asech();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar Add(Scalar s1, Scalar s2) => s1.Add(s2);

@@ -1,4 +1,5 @@
 ﻿using System;
+
 using Unknown6656.Mathematics.LinearAlgebra;
 
 namespace Unknown6656.Mathematics.Analysis;

@@ -1150,6 +1150,28 @@ var members = new string[]
             ($R, $G, $B) = (color.$R, color.$G, color.$B);
         }
     }",
+    @"public (double Hue, double Chroma, double Luma) HCL
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        readonly get => ToHCL();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set
+        {
+            $type color = FromHCL(value.Hue, value.Chroma, value.Luma);
+            ($R, $G, $B) = (color.$R, color.$G, color.$B);
+        }
+    }",
+    @"public (double Hue, double Chroma, double Y) HCY
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        readonly get => ToHCY();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set
+        {
+            $type color = FromHCY(value.Hue, value.Chroma, value.Y);
+            ($R, $G, $B) = (color.$R, color.$G, color.$B);
+        }
+    }",
     @"public (double C, double M, double Y, double K) CMYK
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1377,6 +1399,15 @@ var members = new string[]
 
         return (H, V > 0 ? 2 - 2 * L / V : 0, V);
     }",
+    @"public readonly (double H, double C, double Y) ToHCY()
+    {
+        Vector3 HCV = ToHCV();
+        double Y = (Vector3)this * HCYwts;
+        double Z = FromHue(HCV.X) * HCYwts;
+        double C = Y < Z ? Z / (1e-10 + Y) : (1 - Z) / (1e-10 + 1 - Y);
+
+        return (HCV.X, HCV.Y * C, Y);
+    }",
     @"public readonly (double L, double a, double b) ToCIELAB94()
     {
         static double pre(double channel) => channel > .04045 ? Math.Pow((channel + .055) / 1.055, 2.4) : channel / 12.92;
@@ -1445,6 +1476,37 @@ var members = new string[]
         -.16874 * $R - .33126 * $G + .5     * $B + 128,
          .5     * $R - .41869 * $G - .08131 * $B + 128
     );",
+    @"public readonly (double H, double C, double V) ToHCV()
+    {
+        Vector4 P = $G < $B ? new($B, $G, -1, 2 / 3.0) : new($G, $B, 0, -1 / 3.0);
+        Vector4 Q = $R < P.x ? new(P.XYW, $R) : new($R, P.YZX);
+        double C = Q.x - Math.Min(Q.W, Q.Y);
+        double H = Math.Abs((Q.W - Q.Y) / (6 * C + 1e-10) + Q.Z);
+
+        return (H, C, Q.X);
+    }",
+    @"public readonly (double H, double C, double L) ToHCL()
+    {
+        double H = 0;
+        double U = Math.Min($R, Math.Min($G, $B));
+        double V = Math.Max($R, Math.Max($G, $B));
+        double Q = HCLgamma / HCLy0;
+        double C = V - U;
+
+        if (C != 0)
+        {
+            H = Math.Atan2($G - $B, $R - $G) / Math.PI;
+            Q *= U / V;
+        }
+
+        Q = Math.Exp(Q);
+        H = (H / 2 - Math.Min(H % 1, -H % 1) / 6) % 1;
+        C *= Q;
+
+        double L = (-U * (1 - Q) + V * Q) / (HCLmaxL * 2);
+
+        return (H, C, L);
+    }",
     @"public readonly ConsoleColor ToConsoleColor(ConsoleColorScheme color_scheme)
     {
         $type copy = this;
@@ -1578,6 +1640,7 @@ var members = new string[]
             }
         }
     }",
+    @"public static $type FromHue(double hue) => FromHSV(hue, 1, 1, 1);",
     @"public static $type FromHSV(double H, double S, double V) => FromHSV(H, S, V, 1);",
     @"public static $type FromHSV(double H, double S, double V, double α)
     {
@@ -1585,6 +1648,19 @@ var members = new string[]
         double m = Math.Min(L, 1 - L);
 
         return FromHSL(H, m > 0 ? (V - L) / m : 0, L, α);
+    }",
+    @"public static $type FromHCY(double H, double C, double Y) => FromHCY(H, C, Y, 1);",
+    @"public static $type FromHCY(double H, double C, double Y, double α)
+    {
+        $type RGB = FromHue(H);
+        double Z = RGB * HCYwts;
+
+        if (Y < Z)
+            C *= Y / Z;
+        else if (Z < 1)
+            C *= (1 - Y) / (1 - Z);
+
+        return new Vector4((RGB - Z) * C + Y, α);
     }",
     @"public static $type FromCIELAB94(double L, double a, double b) => FromCIELAB94(L, a, b, 1);",
     @"public static $type FromCIELAB94(double L, double a, double b, double α)
@@ -1637,6 +1713,38 @@ var members = new string[]
             1.164 * Y + 2.017 * U,
             α
         );
+    }",
+    @"public static $type FromHCL(double H, double C, double L) => FromHCL(H, C, L, 1);",
+    @"public static $type FromHCL(double H, double C, double L, double α)
+    {
+        Vector3 rgb = Vector3.Zero;
+
+        if (L != 0)
+        {
+            L *= HCLmaxL;
+
+            double Q = Math.Exp((1 - C / (2 * L)) * (HCLgamma / HCLy0));
+            double U = (2 * L - C) / (2 * Q - 1);
+            double V = C / Q;
+            double A = (H + Math.Min(((2 * H) % 1) / 4, ((-2 * H) % 1) / 8)) * Math.Tau;
+            double T = Math.tan(A);
+
+            H *= 6;
+            rgb = H switch
+            {
+                <= 0.999 => new(1, T / (1 + T), 0),
+                <= 1.001 => new(1, 1, 0),
+                <= 2 => new((1 + T) / T, 1, 0),
+                <= 3 => new(0, 1, 1 + T),
+                <= 3.999 => new(0, 1 / (1 + T), 1),
+                <= 4.001 => new(0, 0, 1),
+                <= 5 => new(-1 / T, 0, 1),
+                _ => new(1, 0, -T)
+            };
+            rgb = rgb * V + U;
+        }
+
+        return new Vector4(rgb, α);
     }",
     @"public static $type FromYIQ(double Y, double I, double Q) => FromYIQ(Y, I, Q, 1);",
     @"public static $type FromYIQ(double Y, double I, double Q, double α) => new $type(
@@ -1869,6 +1977,12 @@ foreach ((string name, Func<string, string> process) in types)
 
 public unsafe partial struct <#=name#>
 {
+    private const double HCLgamma = 3;
+    private const double HCLy0 = 100;
+    private static readonly double HCLmaxL = Math.Exp(HCLgamma / HCLy0) - 0.5;
+    private static readonly Vector3 HCYwts = new(0.299, 0.587, 0.114);
+
+
 <#
     foreach (string member in members)
     {

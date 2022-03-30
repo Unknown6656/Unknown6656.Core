@@ -83,6 +83,68 @@ public static class StringExtensions
 
     public static string Remove(this string input, string search) => input.Replace(search, string.Empty);
 
+    public static string GetCommonSuffix(params string[] words)
+    {
+        string suffix = words[0];
+        int len = suffix.Length;
+
+        for (int i = 1, l = words.Length; i < l; i++)
+        {
+            string word = words[i];
+
+            if (!word.EndsWith(suffix))
+            {
+                int wordlen = word.Length;
+                int max = wordlen < len ? wordlen : len;
+
+                if (max == 0)
+                    return "";
+
+                for (int j = 1; j < max; j++)
+                    if (suffix[len - j] != word[wordlen - j])
+                    {
+                        suffix = suffix.Substring(len - j + 1, j - 1);
+                        len = j - 1;
+
+                        break;
+                    }
+            }
+        }
+
+        return suffix;
+    }
+
+    public static string GetCommonPrefix(params string[] words)
+    {
+        string suffix = words[0];
+        int len = suffix.Length;
+
+        for (int i = 1, l = words.Length; i < l; i++)
+        {
+            string word = words[i];
+
+            if (!word.StartsWith(suffix))
+            {
+                int wordlen = word.Length;
+                int max = wordlen < len ? wordlen : len;
+
+                if (max == 0)
+                    return "";
+
+                for (int j = 1; j < max; j++)
+                    if (suffix[j] != word[j])
+                    {
+                        suffix = word.Substring(0, j);
+                        len = j + 1;
+
+                        break;
+                    }
+            }
+        }
+
+        return suffix;
+    }
+
     public static string ToSubScript(this string input) => input.Select(ToSubScript).StringConcat();
 
     public static string ToSuperScript(this string input) => input.Select(ToSuperScript).StringConcat();

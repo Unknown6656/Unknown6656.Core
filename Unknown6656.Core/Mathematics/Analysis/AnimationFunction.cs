@@ -137,7 +137,7 @@ public class AnimationFunction
         while (elapsed.ElapsedTicks is long e && e < total)
         {
             await callback(Interpolate(from, to, e / (double)total));
-            await Task.Delay(step);
+            await Task.Delay((int)step);
         }
 
         await callback(to);

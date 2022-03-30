@@ -590,6 +590,7 @@ public unsafe partial struct RGBAColor
             BlendMode.BinaryNOR => (Vector3)new RGBAColor(~(bottom.ARGB | top.ARGB)),
             BlendMode.BinaryNAND => (Vector3)new RGBAColor(~(bottom.ARGB & top.ARGB)),
             BlendMode.BinaryNXOR => (Vector3)new RGBAColor(~(bottom.ARGB ^ top.ARGB)),
+            BlendMode.HalfwayLerp => LinearInterpolate(bottom, top, .5),
             _ => throw new ArgumentOutOfRangeException(nameof(mode), $"The blend mode '{mode}' is unknown or unsupported.")
         };
 
@@ -750,6 +751,7 @@ public enum BlendMode
     /// Binary NOR blend mode.
     /// </summary>
     BinaryNOR,
+    HalfwayLerp,
 }
 
 

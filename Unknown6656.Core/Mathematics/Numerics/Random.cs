@@ -60,6 +60,16 @@ public abstract unsafe class Random
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Scalar NextScalar() => NextDouble();
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool NextBool() => NextBool(.5);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool NextBool(Scalar true_probability) => NextDouble() >= true_probability;
+
+    public ref T Choose<T>(ref T left, ref T right) => ref Choose(ref left, ref right, .5);
+
+    public ref T Choose<T>(ref T left, ref T right, Scalar right_probability) => ref NextBool(right_probability) ? ref right : ref left;
+
     public float NextGaussian(float mean, float deviation) => (float)NextGaussian((double)mean, deviation);
 
     public decimal NextGaussian(decimal mean, decimal deviation) => (decimal)NextGaussian((double)mean, (double)deviation);

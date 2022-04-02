@@ -98,7 +98,7 @@ public sealed class AdenFilter
                 EndIntensity = 1,
                 StartIntensity = .8
             });
-            Bitmap darkened = bmp.ApplyEffect(new ConstantColor(0xff420a0eu) { Blending = BlendMode.Darken }, region);
+            using Bitmap darkened = bmp.ApplyEffect(new ConstantColor(0xff420a0eu) { Blending = BlendMode.Darken }, region);
 
             return mask.Composite(darkened, bmp);
         }),
@@ -119,12 +119,12 @@ public sealed class BrooklynFilter
     {
         FromDelegate((bmp, region) =>
         {
-            BitmapMask mask = BitmapMask.Radial(bmp.Width, bmp.Height, new()
+            using BitmapMask mask = BitmapMask.Radial(bmp.Width, bmp.Height, new()
             {
                 Radius = .7 * new Vector2(bmp.Width, bmp.Height).Length,
             });
-            Bitmap b1 = bmp.ApplyEffect(new ConstantColor(0x66A8DFC1) { Blending = BlendMode.Overlay }, region);
-            Bitmap b2 = bmp.ApplyEffect(new ConstantColor(0xFFC4B7C8) { Blending = BlendMode.Overlay }, region);
+            using Bitmap b1 = bmp.ApplyEffect(new ConstantColor(0x66A8DFC1) { Blending = BlendMode.Overlay }, region);
+            using Bitmap b2 = bmp.ApplyEffect(new ConstantColor(0xFFC4B7C8) { Blending = BlendMode.Overlay }, region);
 
             return mask.Composite(b1, b2);
         }),
@@ -342,4 +342,39 @@ public sealed class StinsonFilter
     };
 }
 
-// JUNO
+public sealed class JunoFilter
+    : InstagramFilter
+{
+    protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
+    {
+        new ConstantColor(0x337fBBE3) { Blending = BlendMode.Overlay },
+        new Sepia(.35),
+        new Contrast(1.15),
+        new Brightness(1.15),
+        new Saturation(1.8),
+    };
+}
+
+public sealed class XPro2Filter
+    : InstagramFilter
+{
+    protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
+    {
+        FromDelegate((bmp, region) =>
+        {
+            using Bitmap cs1 = bmp.ApplyEffect(new ConstantColor(0xFFE6E7E0u) { Blending = BlendMode.Top }, region);
+            using Bitmap cs2 = bmp.ApplyEffect(new ConstantColor(0x992B2AA1u) { Blending = BlendMode.Normal }, region);
+            BitmapMask mask = BitmapMask.Radial(bmp.Width, bmp.Height, new()
+            {
+                StartOffset = .6,
+            });
+
+            using Bitmap cs = mask.Composite(cs1, cs2);
+            using Bitmap cm1 = BitmapExtensions.Blend(bmp, cs, BlendMode.ColorBurn, regions);
+            using Bitmap cm2 = BitmapExtensions.Blend(bmp, cm1, BlendMode.Normal, region, .6);
+
+            return mask.Composite(cm1, cm2);
+        }),
+        new Sepia(.3),
+    };
+}

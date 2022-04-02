@@ -8,7 +8,6 @@ using Random = Unknown6656.Mathematics.Numerics.Random;
 namespace Unknown6656.Mathematics;
 
 
-
 public sealed class PerlinNoise
 {
     public const int PERMUTATION_SIZE = 256;
@@ -19,7 +18,11 @@ public sealed class PerlinNoise
 
     public Scalar this[Scalar x] => GetValue1D(x);
 
+    public Scalar this[Vector2 xy] => GetValue2D(xy);
+
     public Scalar this[Scalar x, Scalar y] => GetValue2D(x, y);
+
+    public Scalar this[Vector3 xyz] => GetValue3D(xyz);
 
     public Scalar this[Scalar x, Scalar y, Scalar z] => GetValue3D(x, y, z);
 
@@ -78,7 +81,11 @@ public sealed class PerlinNoise
 
     public Scalar GetValue1D(Scalar x) => GetValue3D(x, 0, 0);
 
+    public Scalar GetValue2D(Vector2 xy) => GetValue3D(xy.X, xy.Y, 0);
+
     public Scalar GetValue2D(Scalar x, Scalar y) => GetValue3D(x, y, 0);
+
+    public Scalar GetValue3D(Vector3 xyz) => GetValue3D(xyz.X, xyz.Y, xyz.Z);
 
     public Scalar GetValue3D(Scalar x, Scalar y, Scalar z)
     {

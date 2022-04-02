@@ -806,6 +806,14 @@ public enum BlendMode
     /// </summary>
     BinaryNOR,
     HalfwayLerp,
+
+
+    // TODO : VividLight,
+    // TODO : LinearLight,
+    // TODO : PinLight,
+    // TODO : HardMix,
+    // TODO : Exclusion
+    // https://photoblogstop.com/photoshop/photoshop-blend-modes-explained
 }
 
 

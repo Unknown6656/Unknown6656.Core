@@ -6,7 +6,7 @@
         <LangVersion>preview</LangVersion>
         <PlatformTarget>x64</PlatformTarget>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <OutputPath>$(SolutionDir)tests</OutputPath>
+        <OutputPath>$(SolutionDir)bin/tests</OutputPath>
         <NullableContextOptions>enable</NullableContextOptions>
         <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
         <RootNamespace>Unknown6656.Testing</RootNamespace>

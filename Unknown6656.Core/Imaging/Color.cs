@@ -9,6 +9,7 @@ using Unknown6656.Physics.Optics;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics;
 using Unknown6656.Generics;
+using Unknown6656.Mathematics.Numerics;
 
 namespace Unknown6656.Imaging;
 
@@ -313,6 +314,8 @@ public unsafe partial struct RGBAColor
 {
     #region PROPERTIES AND FIELDS
 
+    private static readonly XorShift _random = new();
+
     //////////////////////////// DO NOT CHANGE THE ORDER OF THE FOLLOWING FIELDS ! NATIVE CODE DEPENDS ON THIS ORDER ! ////////////////////////////
 
     /// <summary>
@@ -338,6 +341,8 @@ public unsafe partial struct RGBAColor
     /// </summary>
     [FieldOffset(3)]
     public byte A;
+
+    //////////////////////////// DO NOT ADD ANY AUTO PROPERTIES OR INSTANCE FIELDS ! NATIVE CODE DEPENDS ON THE CORRECT BINARY SIZE ////////////////////////////
 
 
     public byte this[ColorChannel channel]
@@ -453,6 +458,12 @@ public unsafe partial struct RGBAColor
 
     #endregion
     #region CONSTRUCTORS
+
+    static RGBAColor()
+    {
+        if (sizeof(RGBAColor) != sizeof(uint))
+            throw new InvalidProgramException($"The size of the structure '{typeof(RGBAColor)}' is {sizeof(RGBAColor)} Bytes. However, due to binary constraints, the expected size are {sizeof(uint)} bytes.");
+    }
 
     /// <summary>
     /// Creates a new instance
@@ -582,6 +593,12 @@ public unsafe partial struct RGBAColor
 
                 return FromHSL(H, S, L);
             }),
+            BlendMode.Dissolve => LINQ.Do(delegate
+            {
+                double p = ta + ba is double sum && sum > 0 ? ta / sum : .5;
+
+                return _random.Choose(ref top, ref bottom, p);
+            }),
             BlendMode.Darken => new(
                 Math.Min(b.X, t.X),
                 Math.Min(b.Y, t.Y),
@@ -710,6 +727,7 @@ public enum BlendMode
     /// </summary>
     Normal = 0,
     Alpha = Normal,
+    Dissolve,
     /// <summary>
     /// Multiply blend mode.
     /// </summary>
@@ -752,6 +770,7 @@ public enum BlendMode
     /// Additive blend mode.
     /// </summary>
     Add,
+    LinearDodge = Add,
     /// <summary>
     /// Subtractive blend mode.
     /// </summary>

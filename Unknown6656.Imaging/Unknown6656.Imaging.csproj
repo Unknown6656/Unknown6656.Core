@@ -59,4 +59,13 @@
     <ItemGroup>
         <None Include="unknown6656-logo-1024.png" Pack="true" PackagePath="" />
     </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\Unknown6656.Core\Unknown6656.Core.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Update="Imaging\ColorMemberGenerator.tt">
+        <LastGenOutput>ColorMemberGenerator.cs</LastGenOutput>
+        <Generator>TextTemplatingFileGenerator</Generator>
+      </None>
+    </ItemGroup>
 </Project>

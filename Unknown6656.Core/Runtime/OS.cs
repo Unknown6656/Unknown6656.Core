@@ -7,12 +7,12 @@ namespace Unknown6656.Runtime;
 
 public static class OS
 {
-    internal const string WIN = "windows";
-    internal const string LIN = "linux";
-    internal const string IOS = "iOS";
-    internal const string MAC = "macos";
-    internal const string CAT = "MacCatalyst";
-    internal const string AND = "android";
+    public const string WIN = "windows";
+    public const string LIN = "linux";
+    public const string IOS = "iOS";
+    public const string MAC = "macos";
+    public const string CAT = "MacCatalyst";
+    public const string AND = "android";
 
     public static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 

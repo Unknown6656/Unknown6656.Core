@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
+using System.Collections.Generic;
 using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
@@ -146,6 +147,12 @@ public abstract unsafe class Random
 
         return buffer;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public IEnumerable<T> Shuffle<T>(IEnumerable<T> collection) => collection.Shuffle(this);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ref T Choose<T>(params T[] items) => ref items[NextInt(items.Length)];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T Next<T>()

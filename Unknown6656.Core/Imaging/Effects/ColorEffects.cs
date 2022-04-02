@@ -222,6 +222,70 @@ public sealed class VoronoiGradient
     }
 }
 
+public sealed class NoiseEffect
+    : CoordinateColorEffect
+{
+    public NoiseMode Mode { get; init; } = NoiseMode.Regular;
+    public Random RandomNumberGenerator { get; }
+
+    public long Seed => RandomNumberGenerator.Seed;
+
+
+    public NoiseEffect(Random rng)
+        : this(rng, NoiseMode.Regular)
+    {
+    }
+
+    public NoiseEffect(Random rng, NoiseMode mode)
+    {
+        RandomNumberGenerator = rng;
+        Mode = mode;
+    }
+
+    private protected override RGBAColor ProcessCoordinate(int x, int y, int w, int h, RGBAColor source)
+    {
+        bool gray = Mode.HasFlag(NoiseMode.Grayscale);
+        bool alpha = Mode.HasFlag(NoiseMode.AlphaNoise);
+        RGBAColor c = new(RandomNumberGenerator.NextByte(), RandomNumberGenerator.NextByte(), RandomNumberGenerator.NextByte(), destination[index].A);
+
+        if (gray)
+            c = new(c.Rf, c.Af);
+
+        if (alpha)
+            c.A = RandomNumberGenerator.NextByte();
+
+        return c;
+    }
+}
+
+[Flags, Serializable]
+public enum NoiseMode
+    : byte
+{
+    Regular = 0,
+    Grayscale = 1,
+    AlphaNoise = 2,
+}
+
+public sealed class PerlinNoiseEffect
+    : CoordinateColorEffect
+{
+    public PerlinNoise Noise { get; }
+
+
+    public PerlinNoiseEffect(PerlinNoise noise) => Noise = noise;
+
+    public PerlinNoiseEffect(PerlinNoiseSettings settings) => Noise = new PerlinNoise(settings);
+
+    private protected override RGBAColor ProcessCoordinate(int x, int y, int w, int h, RGBAColor source)
+    {
+        Vector2 pos = new(x, y);
+        double value = Noise[pos / Math.Max(Math.Max(w, h), 1)];
+
+        return new(.5 * (1 + value), 1);
+    }
+}
+
 /// <summary>
 /// Represents a grayscale bitmap color effect.
 /// </summary>

@@ -8,6 +8,7 @@ using System;
 using Unknown6656.Physics.Optics;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics;
+using Unknown6656.Generics;
 
 namespace Unknown6656.Imaging;
 
@@ -553,13 +554,34 @@ public unsafe partial struct RGBAColor
             BlendMode.Normal or BlendMode.Alpha => (ta * t + (1 - ta) * ba * t) / α,
             BlendMode.ColorBurn => b.ComponentwiseApply(t, (b, t) => b >= 1 ? 1 : t <= 0 ? 0 : 1 - Math.Min(1, (1 - b) / t)),
             BlendMode.ColorDodge => b.ComponentwiseApply(t, (b, t) => b <= 0 ? 0 : t >= 1 ? 1 : Math.Min(1, b / (1 - t))),
+            BlendMode.Color => LINQ.Do(delegate
+            {
+                (_, _, double L) = bottom.ToHCL();
+                (double H, double C, _) = top.ToHCL();
 
+                return FromHCL(H, C, L);
+            }),
+            BlendMode.Hue => LINQ.Do(delegate
+            {
+                (_, double C, double L) = bottom.ToHCL();
+                (double H, _, _) = top.ToHCL();
 
-            BlendMode.Color => throw new NotImplementedException(), // TODO
-            BlendMode.Hue => throw new NotImplementedException(), // TODO : B(Cb, Cs) = SetLum(SetSat(Cs, Sat(Cb)), Lum(Cb))
-            BlendMode.Luminosity => throw new NotImplementedException(), // TODO
+                return FromHCL(H, C, L);
+            }),
+            BlendMode.Saturation => LINQ.Do(delegate
+            {
+                (double H, _, double L) = bottom.ToHSL();
+                (_, double S, _) = top.ToHSL();
 
+                return FromHSL(H, S, L);
+            }),
+            BlendMode.Luminosity => LINQ.Do(delegate
+            {
+                (double H, double S, _) = bottom.ToHSL();
+                (_, _, double L) = top.ToHSL();
 
+                return FromHSL(H, S, L);
+            }),
             BlendMode.Darken => new(
                 Math.Min(b.X, t.X),
                 Math.Min(b.Y, t.Y),
@@ -704,8 +726,21 @@ public enum BlendMode
     Top,
     ColorBurn,
     ColorDodge,
+    /// <summary>
+    /// Preserves the luma and chroma of the bottom layer, while adopting the hue of the top layer.
+    /// </summary>
     Hue,
+    /// <summary>
+    /// Preserves the luma of the bottom layer, while adopting the hue and chroma of the top layer.
+    /// </summary>
     Color,
+    /// <summary>
+    /// Preserves the luma and hue of the bottom layer, while adopting the chroma of the top layer.
+    /// </summary>
+    Saturation,
+    /// <summary>
+    /// Preserves the hue and chroma of the bottom layer, while adopting the luma of the top layer.
+    /// </summary>
     Luminosity,
     Darken,
     Lighten,

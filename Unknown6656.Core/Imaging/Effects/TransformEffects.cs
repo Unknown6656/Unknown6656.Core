@@ -83,3 +83,20 @@ public sealed class Translate
     {
     }
 }
+
+public sealed class Skew
+    : TransformEffect
+{
+    public Skew(Vector2 φ_degrees)
+        : this(φ_degrees.X, φ_degrees.Y)
+    {
+    }
+
+    public Skew(Scalar φx_degrees, Scalar φy_degrees)
+        : base((
+            1, φx_degrees.Radians().Cot(),
+            φy_degrees.Radians().Cot(), 1
+        ))
+    {
+    }
+}

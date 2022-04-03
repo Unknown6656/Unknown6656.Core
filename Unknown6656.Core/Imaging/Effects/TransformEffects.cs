@@ -1,10 +1,13 @@
-﻿using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.Drawing;
+using System.Linq;
 using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics;
+using System.Collections.Generic;
 
 namespace Unknown6656.Imaging.Effects;
 
@@ -143,9 +146,7 @@ public class PixelTransform
 {
     public Func<Vector2, Vector2> TransformationFunction { get; }
 
-    public EdgeHandlingMode EdgeHandling { set; get; } = EdgeHandlingMode.Extend;
-
-    public PixelInterpolationMode Interpolation { set; get; } = PixelInterpolationMode.BilinearInterpolation;
+    public int IterpolationSampleSize { get; init; } = 4;
 
 
     public PixelTransform(Func<Vector2, Vector2> transform) => TransformationFunction = transform;
@@ -153,24 +154,127 @@ public class PixelTransform
     protected internal override unsafe void Process(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region)
     {
         int w = bmp.Width;
-        Scalar sc = .5 / Math.Max(w, bmp.Height);
+        int h = bmp.Height;
+        Scalar sc = 2d / Math.Max(w, h);
+        (bool set, Vector2 source)[,] map = new(bool, Vector2)[w, h];
+        Vector4 get_src_color(Vector2 coord) => coord is { X.Rounded: { IsFinite: true } x, Y.Rounded: { IsFinite: true } y } && x >= 0 && x < w && y >= 0 && y < h
+                                              ? (Vector4)source[(int)x + (int)y * w]
+                                              : Vector4.Zero;
 
-        Parallel.ForEach(GetIndices(bmp, region), src_idx =>
+        Parallel.For(0, w * h, src_idx =>
         {
             Vector2 coord = GetAbsoluteCoordinates(src_idx, w);
+            Vector2 orig = coord;
 
             coord = coord * sc - 1;
             coord = TransformationFunction(coord);
             coord = (coord + 1) / sc;
 
-            if (coord is { X.Rounded: { IsFinite: true } x, Y.Rounded: { IsFinite: true } y } &&
-                GetIndex((int)x, (int)y, w, region, EdgeHandling) is int dst_idx)
-            {
-                 // TODO : interpolation
+            if (coord is { X.Rounded: { IsFinite: true } x, Y.Rounded: { IsFinite: true } y } && x >= 0 && x < w && y >= 0 && y < h)
+                map[(int)x, (int)y] = (true, orig);
+        });
 
-                destination[dst_idx] = source[src_idx];
+        Parallel.For(0, w * h, src_idx =>
+        {
+            (int x, int y) = GetAbsoluteCoordinates(src_idx, w);
+
+            if (!map[x, y].set)
+            {
+                List<Vector2> coords = new(IterpolationSampleSize);
+                int samples = 0;
+                int count = 0;
+                int sx = x;
+                int sy = y;
+
+                do
+                {
+                    int N = (1 + count) / 2;
+                    int sign = (N & 1) * 2 - 1;
+
+                    ((count & 1) == 0 ? ref sx : ref sy) += N * sign;
+
+                    if (sx >= 0 && sy >= 0 && sx < w && sy < h && map[sx, sy].set)
+                    {
+                        coords.Add(map[sx, sy].source);
+
+                        ++samples;
+                    }
+
+                    ++count;
+                }
+                while (samples < IterpolationSampleSize && count * 4 < w * h);
+
+                Vector2 coord = Vector2.Zero;
+                Scalar scale = Scalar.Zero;
+
+                for (int i = 0; i < coords.Count; ++i)
+                {
+                    Scalar f = coords[i].DistanceTo((x, y)).MultiplicativeInverse;
+
+                    coord += f * coord;
+                    scale += f;
+                }
+
+                map[x, y] = (true, coord / scale);
             }
         });
+
+        Parallel.ForEach(GetIndices(bmp, region), dst_idx =>
+        {
+            (int x, int y) = GetAbsoluteCoordinates(dst_idx, w);
+            Vector2 src = map[x, y].source;
+
+            // TODO : interpolation
+
+            destination[dst_idx] = get_src_color(src);
+        });
+    }
+}
+
+public sealed class RelativeCrop
+    : BitmapEffect
+{
+    public int Left { get; }
+    public int Top { get; }
+    public int Right { get; }
+    public int Bottom { get; }
+
+
+    public RelativeCrop(int left, int top, int right, int bottom)
+    {
+        Top = top;
+        Left = left;
+        Right = right;
+        Bottom = bottom;
+    }
+
+    public override Bitmap ApplyTo(Bitmap bmp) => bmp.ApplyEffect(new CropTo(Left, Top, bmp.Width - Right - Left, bmp.Height - Bottom - Top));
+}
+
+public sealed class CropTo
+    : BitmapEffect
+{
+    public Rectangle Rectangle { get; }
+
+
+    public CropTo(int x, int y, int width, int height)
+        : this(new(x, y, width, height))
+    {
+    }
+
+    public CropTo(Rectangle rectangle) => Rectangle = rectangle;
+
+    public override Bitmap ApplyTo(Bitmap bmp)
+    {
+        Bitmap res = new(Rectangle.Width, Rectangle.Height, PixelFormat.Format32bppArgb);
+        using Graphics g = Graphics.FromImage(res);
+
+        g.CompositingMode = CompositingMode.SourceCopy;
+        g.CompositingQuality = CompositingQuality.AssumeLinear;
+        g.InterpolationMode = InterpolationMode.NearestNeighbor;
+        g.DrawImage(bmp, -Rectangle.Left, -Rectangle.Top);
+
+        return res;
     }
 }
 
@@ -275,12 +379,17 @@ public sealed class CartesianToPolar
     : PixelTransform
 {
     public CartesianToPolar()
+        : this(Scalar.One)
+    {
+    }
+
+    public CartesianToPolar(Scalar amount)
         : base(pos =>
         {
             Scalar r = pos.Length / Scalar.Sqrt2 * 2 - 1;
             Scalar φ = pos.Angle / Scalar.Pi;
 
-            return new(φ, r);
+            return Vector2.LinearInterpolate(in pos, new(φ, r), amount.Clamp());
         })
     {
     }
@@ -290,6 +399,11 @@ public sealed class PolarToCartesian
     : PixelTransform
 {
     public PolarToCartesian()
+        : this(Scalar.One)
+    {
+    }
+
+    public PolarToCartesian(Scalar amount)
         : base(pos =>
         {
             (Scalar φ, Scalar r) = pos;
@@ -297,8 +411,11 @@ public sealed class PolarToCartesian
             φ *= Scalar.Pi;
             r = (r + 1) * .5 * Scalar.Sqrt2;;
 
-            return (Vector2)φ.Cis() * r;
+            return Vector2.LinearInterpolate(in pos, (Vector2)φ.Cis() * r, amount.Clamp());
         })
     {
     }
 }
+
+
+// TODO : 3D rotation

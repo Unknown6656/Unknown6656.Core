@@ -36,46 +36,8 @@ public static unsafe class Program
         Console.OutputEncoding = Encoding.UTF8;
 
 
-        Main_BMP_effects_2();
+        Main_BMP_effects_3();
         //Main_PSO();
-    }
-
-    private static void Main_BMP_effects_2()
-    {
-        var reg = (360..1560, 200..880);
-        var img = ((Bitmap)Image.FromFile("img3.png")).ToARGB32();
-        var sw = Stopwatch.StartNew();
-        
-        foreach (var fx in new InstagramFilter[]
-        {
-            InstagramFilter._1977,
-            InstagramFilter.Aden,
-            InstagramFilter.Brannan,
-            InstagramFilter.Brooklyn,
-            InstagramFilter.Clarendon,
-            InstagramFilter.Earlybird,
-            InstagramFilter.Gingham,
-            InstagramFilter.Hudson,
-            InstagramFilter.Inkwell,
-            InstagramFilter.Kelvin,
-            InstagramFilter.Lark,
-            InstagramFilter.Maven,
-            InstagramFilter.Moon,
-            InstagramFilter.Slumber,
-            InstagramFilter.Stinson,
-            InstagramFilter.LegacyNashville,
-        })
-        {
-            string name = fx.GetType().Name;
-            Console.WriteLine(name);
-            img.ApplyEffect(fx, reg).Save($"ig-{name}.png");
-        }
-
-        sw.Stop();
-        Console.WriteLine($"effects: {sw.ElapsedMilliseconds:F2} ms");
-        sw.Restart();
-        sw.Stop();
-        Console.WriteLine($"saving: {sw.ElapsedMilliseconds:F2} ms");
     }
 
     //class pso_problem : PSOProblem<Scalar>
@@ -96,6 +58,84 @@ public static unsafe class Program
     //    var o = s.Solve();
     //    var v = o.OptimalValue;
     //}
+
+    private static void Main_BMP_effects_3()
+    {
+        var reg = (360..1560, 200..880);
+        var img = ((Bitmap)Image.FromFile("img4.png")).ToARGB32();
+        var sw = Stopwatch.StartNew();
+
+        img.ApplyEffect(
+            
+        ).Save($"conv.png");
+
+        sw.Stop();
+        Console.WriteLine($"effects: {sw.ElapsedMilliseconds:F2} ms");
+        sw.Restart();
+        sw.Stop();
+        Console.WriteLine($"saving: {sw.ElapsedMilliseconds:F2} ms");
+    }
+
+    private static void Main_BMP_effects_2()
+    {
+        var reg = (360..1560, 200..880);
+        var img = ((Bitmap)Image.FromFile("img4.png")).ToARGB32();
+        var sw = Stopwatch.StartNew();
+        
+        foreach (var fx in new InstagramFilter[]
+        {
+            InstagramFilter._1977,
+            InstagramFilter.Aden,
+            InstagramFilter.Ashby,
+            InstagramFilter.Brannan,
+            InstagramFilter.Brooklyn,
+            InstagramFilter.Clarendon,
+            InstagramFilter.Crema,
+            InstagramFilter.Charmes,
+            InstagramFilter.Dogpatch,
+            InstagramFilter.Ginza,
+            //InstagramFilter.Hefe,
+            InstagramFilter.Helena,
+            InstagramFilter.Ludwig,
+            //InstagramFilter.Poprocket,
+            //InstagramFilter.Sierra,
+            InstagramFilter.Sutro,
+            InstagramFilter.Vesper,
+            InstagramFilter.Earlybird,
+            InstagramFilter.Gingham,
+            InstagramFilter.Hudson,
+            InstagramFilter.Inkwell,
+            InstagramFilter.Juno,
+            InstagramFilter.Kelvin,
+            InstagramFilter.Lark,
+            //InstagramFilter.Lofi,
+            InstagramFilter.Maven,
+            //InstagramFilter.Mayfair,
+            InstagramFilter.Moon,
+            //InstagramFilter.Perpetua,
+            //InstagramFilter.Reyes,
+            //InstagramFilter.Rise,
+            InstagramFilter.Slumber,
+            InstagramFilter.Stinson,
+            //InstagramFilter.Toaster,
+            //InstagramFilter.Valencia,
+            //InstagramFilter.Walden,
+            //InstagramFilter.Willow,
+            InstagramFilter.XPro2,
+            InstagramFilter.LegacyNashville,
+        })
+        {
+            string name = fx.GetType().Name;
+            Console.WriteLine(name);
+            img.ApplyEffect(fx, reg).Save($"ig-{name}.png");
+        }
+
+        sw.Stop();
+        Console.WriteLine($"effects: {sw.ElapsedMilliseconds:F2} ms");
+        sw.Restart();
+        sw.Stop();
+        Console.WriteLine($"saving: {sw.ElapsedMilliseconds:F2} ms");
+    }
 
     private static void evaluate_random<random>()
         where random : Random, new()

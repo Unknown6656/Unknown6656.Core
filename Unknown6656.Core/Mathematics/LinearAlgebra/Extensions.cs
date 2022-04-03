@@ -474,13 +474,15 @@ public partial struct Vector2
     );
 
 
+    public readonly Scalar Angle => Scalar.Atan2(Y, X);
+
     /// <summary>
     /// Tries to convert the current vector interpreted as [lat, lon] coordinates into the corresponding plus-code (as used by Google Maps) using the given precision level.
     /// The coordinates are interpreted as WGS84 coordinates in degrees.
     /// </summary>
     /// <param name="precision"></param>
     /// <returns>The generated plus-code.</returns>
-    public string ToPlusCode(PlusCodePreicsionLevel precision = PlusCodePreicsionLevel.Highest)
+    public readonly string ToPlusCode(PlusCodePreicsionLevel precision = PlusCodePreicsionLevel.Highest)
     {
         if (!Enum.IsDefined(precision))
             throw new ArgumentOutOfRangeException(nameof(precision));

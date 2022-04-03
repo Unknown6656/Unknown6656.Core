@@ -879,6 +879,9 @@ public unsafe readonly /* ref */ partial struct Scalar
     public static Scalar Atan(Scalar s) => s.Atan();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar Atan2(Scalar y, Scalar x) => Math.Atan2(y, x);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar Acot(Scalar s) => s.Acot();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

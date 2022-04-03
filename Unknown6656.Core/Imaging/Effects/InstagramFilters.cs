@@ -3,6 +3,7 @@
 
 using System.Drawing;
 using System.Linq;
+using System.Linq.Expressions;
 
 using Unknown6656.Mathematics.LinearAlgebra;
 
@@ -18,14 +19,26 @@ public abstract class InstagramFilter
 {
     public static _1977Filter _1977 { get; } = new();
     public static AdenFilter Aden { get; } = new();
+    public static AshbyFilter Ashby { get; } = new();
     public static BrannanFilter Brannan { get; } = new();
     public static BrooklynFilter Brooklyn { get; } = new();
     public static ClarendonFilter Clarendon { get; } = new();
+    public static CremaFilter Crema { get; } = new();
+    public static CharmesFilter Charmes { get; } = new();
+    public static DogpatchFilter Dogpatch { get; } = new();
+    public static GinzaFilter Ginza { get; } = new();
+    public static HefeFilter Hefe { get; } = new();
+    public static HelenaFilter Helena { get; } = new();
+    public static LudwigFilter Ludwig { get; } = new();
+    public static PoprocketFilter Poprocket { get; } = new();
+    public static SierraFilter Sierra { get; } = new();
+    public static SutroFilter Sutro { get; } = new();
+    public static VesperFilter Vesper { get; } = new();
     public static EarlybirdFilter Earlybird { get; } = new();
     public static GinghamFilter Gingham { get; } = new();
     public static HudsonFilter Hudson { get; } = new();
     public static InkwellFilter Inkwell { get; } = new();
-    //public static JunoFilter Juno { get; } = new();
+    public static JunoFilter Juno { get; } = new();
     public static KelvinFilter Kelvin { get; } = new();
     public static LarkFilter Lark { get; } = new();
     //public static LofiFilter Lofi { get; } = new();
@@ -41,7 +54,7 @@ public abstract class InstagramFilter
     //public static ValenciaFilter Valencia { get; } = new();
     //public static WaldenFilter Walden { get; } = new();
     //public static WillowFilter Willow { get; } = new();
-    //public static XPro2Filter XPro2 { get; } = new();
+    public static XPro2Filter XPro2 { get; } = new();
     public static LegacyNashvilleFilter LegacyNashville { get; } = new();
 
 
@@ -109,6 +122,18 @@ public sealed class AdenFilter
     };
 }
 
+public sealed class AshbyFilter
+    : InstagramFilter
+{
+    protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
+    {
+        new ConstantColor(0x597D6918) { Blending = BlendMode.Lighten },
+        new Sepia(.5),
+        new Contrast(1.2),
+        new Saturation(1.8),
+    };
+}
+
 /// <summary>
 /// Represents the Instagram 'Brooklyn' bitmap filter.
 /// </summary>
@@ -119,7 +144,7 @@ public sealed class BrooklynFilter
     {
         FromDelegate((bmp, region) =>
         {
-            using BitmapMask mask = BitmapMask.Radial(bmp.Width, bmp.Height, new()
+            BitmapMask mask = BitmapMask.Radial(bmp.Width, bmp.Height, new()
             {
                 Radius = .7 * new Vector2(bmp.Width, bmp.Height).Length,
             });
@@ -161,6 +186,45 @@ public sealed class ClarendonFilter
     };
 }
 
+public sealed class CremaFilter
+    : InstagramFilter
+{
+    protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
+    {
+        new ConstantColor(0x337D6918) { Blending = BlendMode.Multiply },
+        new Sepia(.5),
+        new Contrast(1.25),
+        new Brightness(1.15),
+        new Saturation(.9),
+        new Hue(-2),
+    };
+}
+
+public sealed class CharmesFilter
+    : InstagramFilter
+{
+    protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
+    {
+        new ConstantColor(0x3F7D6918u) { Blending = BlendMode.Darken },
+        new Sepia(.25),
+        new Contrast(1.25),
+        new Brightness(1.25),
+        new Saturation(1.35),
+        new Hue(-5),
+    };
+}
+
+public sealed class DogpatchFilter
+    : InstagramFilter
+{
+    protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
+    {
+        new Sepia(.35),
+        new Saturation(1.1),
+        new Contrast(1.5),
+    };
+}
+
 /// <summary>
 /// Represents the Instagram 'Earlybird' bitmap filter.
 /// </summary>
@@ -187,6 +251,33 @@ public sealed class GinghamFilter
         new ConstantColor(0xFFE6E6FA) { Blending = BlendMode.Overlay },
         new Brightness(1.05),
         new Hue(-10),
+    };
+}
+
+public sealed class GinzaFilter
+    : InstagramFilter
+{
+    protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
+    {
+        new ConstantColor(0x267D6918u) { Blending = BlendMode.Darken },
+        new Sepia(.25),
+        new Contrast(1.15),
+        new Brightness(1.2),
+        new Saturation(1.35),
+        new Hue(-5),
+    };
+}
+
+public sealed class HelenaFilter
+    : InstagramFilter
+{
+    protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
+    {
+        new ConstantColor(0x3f9EAF1Eu) { Blending = BlendMode.Overlay },
+        new Sepia(.5),
+        new Contrast(1.05),
+        new Brightness(1.05),
+        new Saturation(1.35),
     };
 }
 
@@ -235,6 +326,19 @@ public sealed class LarkFilter
         new ConstantColor(0xFF22253F) { Blending = BlendMode.ColorDodge },
         new ConstantColor(0xCCF2F2F2) { Blending = BlendMode.Darken },
         new Contrast(.9),
+    };
+}
+
+public sealed class LudwigFilter
+    : InstagramFilter
+{
+    protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
+    {
+        new ConstantColor(0x177D6918u) { Blending = BlendMode.Overlay },
+        new Sepia(.25),
+        new Contrast(1.05),
+        new Brightness(1.05),
+        new Saturation(2),
     };
 }
 
@@ -342,6 +446,23 @@ public sealed class StinsonFilter
     };
 }
 
+public sealed class SutroFilter
+    : InstagramFilter
+{
+    protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
+    {
+        FromDelegate((bmp, region) =>
+        {
+            // background: radial-gradient(circle closest-corner, transparent 50%, rgba(0, 0, 0, .5) 90%);
+            // mix-blend-mode: darken;
+        }),
+        new Sepia(.4),
+        new Contrast(1.2),
+        new Brightness(.9),
+        new Saturation(1.4),
+        new Hue(-10),
+    };
+}
 public sealed class JunoFilter
     : InstagramFilter
 {
@@ -352,6 +473,19 @@ public sealed class JunoFilter
         new Contrast(1.15),
         new Brightness(1.15),
         new Saturation(1.8),
+    };
+}
+
+public sealed class VesperFilter
+    : InstagramFilter
+{
+    protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
+    {
+        new ConstantColor(0x3F7D6918u) { Blending = BlendMode.Overlay },
+        new Sepia(.35),
+        new Contrast(1.15),
+        new Brightness(1.2),
+        new Saturation(1.3),
     };
 }
 

@@ -105,7 +105,7 @@ namespace Unknown6656.Imaging.Effects
                     0, 0, 0, 0,
                     0, 0, 0, 0
                 )),
-                new TranslateTransform(shift)
+                new Translate(shift)
                 {
                     EdgeHandling = EdgeHandling,
                     Interpolation = Interpolation
@@ -118,7 +118,7 @@ namespace Unknown6656.Imaging.Effects
                     0, 0, 1, 0,
                     0, 0, 0, 0
                 )),
-                new TranslateTransform(-shift)
+                new Translate(-shift)
                 {
                     EdgeHandling = EdgeHandling,
                     Interpolation = Interpolation

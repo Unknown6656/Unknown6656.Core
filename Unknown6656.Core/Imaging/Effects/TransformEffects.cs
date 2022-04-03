@@ -1,23 +1,23 @@
-﻿
-using Unknown6656.Mathematics.LinearAlgebra;
+﻿using Unknown6656.Mathematics.LinearAlgebra;
+using Unknown6656.Mathematics;
 
 namespace Unknown6656.Imaging.Effects;
 
 
-public sealed class ScaleTransform
+public sealed class Scale
     : TransformEffect
 {
-    public ScaleTransform(Scalar factor)
+    public Scale(Scalar factor)
         : this(factor, factor)
     {
     }
 
-    public ScaleTransform(Vector2 factors)
+    public Scale(Vector2 factors)
         : this(factors.X, factors.Y)
     {
     }
 
-    public ScaleTransform(Scalar sx, Scalar sy)
+    public Scale(Scalar sx, Scalar sy)
         : base((
             sx, 0,
             0, sy
@@ -26,53 +26,60 @@ public sealed class ScaleTransform
     }
 
 
-    public static ScaleTransform Uniform(Scalar factor) => new(factor);
+    public static Scale Uniform(Scalar factor) => new(factor);
 
-    public static ScaleTransform X(Scalar factor) => new(factor, 0);
+    public static Scale X(Scalar factor) => new(factor, 0);
 
-    public static ScaleTransform Y(Scalar factor) => new(0, factor);
+    public static Scale Y(Scalar factor) => new(0, factor);
 }
 
-public sealed class FlipTransform
+public sealed class Flip
     : TransformEffect
 {
-    public FlipTransform(bool xdir, bool ydir)
+    public static Flip FlipX { get; } = new(true, false);
+
+    public static Flip FlipY { get; } = new(false, true);
+
+
+    public Flip(bool xdir, bool ydir)
         : base((
             xdir ? -1 : 1, 0,
             0, ydir ? -1 : 1
         ))
     {
     }
-
-    public static FlipTransform FlipX => new(true, false);
-
-    public static FlipTransform FlipY => new(false, true);
 }
 
-public sealed class RotateTransform
+public sealed class Rotate
     : TransformEffect
 {
+    public static Rotate Rotate90 { get; } = new(90);
+
+    public static Rotate Rotate180 { get; } = new(180);
+
+    public static Rotate Rotate270 { get; } = new(270);
+
     // TODO : fix this shite
 
-    public RotateTransform(Scalar φ)
+    public Rotate(Scalar φ_degrees)
         : base((
-            φ.Cos(), -φ.Sin(),
-            φ.Sin(), φ.Cos()
+            φ_degrees.Radians().Cos(), -φ_degrees.Radians().Sin(),
+            φ_degrees.Radians().Sin(), φ_degrees.Radians().Cos()
         ))
     {
     }
 }
 
-public sealed class TranslateTransform
+public sealed class Translate
     : TransformEffect
 {
-    public TranslateTransform(Vector2 t)
-        : base((1, 0, 0, 1), t)
+    public Translate(Vector2 translation)
+        : base(new(1, 0, 0, 1), translation)
     {
     }
 
-    public TranslateTransform(Scalar tx, Scalar ty)
-        : this(new Vector2(tx, ty))
+    public Translate(Scalar translation_x, Scalar translation_y)
+        : this(new(translation_x, translation_y))
     {
     }
 }

@@ -27,11 +27,11 @@ public abstract class InstagramFilter
     public static CharmesFilter Charmes { get; } = new();
     public static DogpatchFilter Dogpatch { get; } = new();
     public static GinzaFilter Ginza { get; } = new();
-    public static HefeFilter Hefe { get; } = new();
+    //public static HefeFilter Hefe { get; } = new();
     public static HelenaFilter Helena { get; } = new();
     public static LudwigFilter Ludwig { get; } = new();
-    public static PoprocketFilter Poprocket { get; } = new();
-    public static SierraFilter Sierra { get; } = new();
+    //public static PoprocketFilter Poprocket { get; } = new();
+    //public static SierraFilter Sierra { get; } = new();
     public static SutroFilter Sutro { get; } = new();
     public static VesperFilter Vesper { get; } = new();
     public static EarlybirdFilter Earlybird { get; } = new();
@@ -451,11 +451,7 @@ public sealed class SutroFilter
 {
     protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
     {
-        FromDelegate((bmp, region) =>
-        {
-            // background: radial-gradient(circle closest-corner, transparent 50%, rgba(0, 0, 0, .5) 90%);
-            // mix-blend-mode: darken;
-        }),
+        new RadialGradient(null, null, new(0d, .5), new(0d, .4)) { Blending = BlendMode.Darken },
         new Sepia(.4),
         new Contrast(1.2),
         new Brightness(.9),
@@ -463,6 +459,7 @@ public sealed class SutroFilter
         new Hue(-10),
     };
 }
+
 public sealed class JunoFilter
     : InstagramFilter
 {
@@ -504,7 +501,7 @@ public sealed class XPro2Filter
             });
 
             using Bitmap cs = mask.Composite(cs1, cs2);
-            using Bitmap cm1 = BitmapExtensions.Blend(bmp, cs, BlendMode.ColorBurn, regions);
+            using Bitmap cm1 = BitmapExtensions.Blend(bmp, cs, BlendMode.ColorBurn, region);
             using Bitmap cm2 = BitmapExtensions.Blend(bmp, cm1, BlendMode.Normal, region, .6);
 
             return mask.Composite(cm1, cm2);

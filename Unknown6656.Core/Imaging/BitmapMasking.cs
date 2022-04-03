@@ -44,7 +44,7 @@ public sealed unsafe class BitmapMask
         });
     });
 
-    public Bitmap ApplyTo(Bitmap bitmap, Vector2 offset) => new BitmapMask(Bitmap.ApplyEffect(new TransformEffect(Matrix2.Identity, offset))).ApplyTo(bitmap);
+    public Bitmap ApplyTo(Bitmap bitmap, Vector2 offset) => new BitmapMask(Bitmap.ApplyEffect(new AffinePixelTransform(Matrix2.Identity, offset))).ApplyTo(bitmap);
 
     public BitmapMask Invert() => FromLumaInverted(Bitmap);
 

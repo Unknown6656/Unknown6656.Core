@@ -10,9 +10,9 @@ namespace Unknown6656.Imaging.Effects;
 
 
 /// <summary>
-/// Represents an abstract bitmap effect wich applies a stored transformation matrix to each of the bitmap's pixel
+/// Represents a bitmap effect wich applies a stored transformation matrix to each of the bitmap's pixel
 /// </summary>
-public class TransformEffect
+public class AffinePixelTransform
     : PartialBitmapEffect.Accelerated
 {
     /// <summary>
@@ -31,12 +31,12 @@ public class TransformEffect
     public PixelInterpolationMode Interpolation { set; get; } = PixelInterpolationMode.BilinearInterpolation;
 
 
-    public TransformEffect(Matrix2 matrix)
+    public AffinePixelTransform(Matrix2 matrix)
         : this(matrix, default)
     {
     }
 
-    public TransformEffect(Matrix2 matrix, Vector2 offset)
+    public AffinePixelTransform(Matrix2 matrix, Vector2 offset)
     {
         var (a, b, c, d) = matrix;
 
@@ -138,8 +138,44 @@ public class TransformEffect
     }
 }
 
+public class PixelTransform
+    : PartialBitmapEffect.Accelerated
+{
+    public Func<Vector2, Vector2> TransformationFunction { get; }
+
+    public EdgeHandlingMode EdgeHandling { set; get; } = EdgeHandlingMode.Extend;
+
+    public PixelInterpolationMode Interpolation { set; get; } = PixelInterpolationMode.BilinearInterpolation;
+
+
+    public PixelTransform(Func<Vector2, Vector2> transform) => TransformationFunction = transform;
+
+    protected internal override unsafe void Process(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region)
+    {
+        int w = bmp.Width;
+        Scalar sc = .5 / Math.Max(w, bmp.Height);
+
+        Parallel.ForEach(GetIndices(bmp, region), src_idx =>
+        {
+            Vector2 coord = GetAbsoluteCoordinates(src_idx, w);
+
+            coord = coord * sc - 1;
+            coord = TransformationFunction(coord);
+            coord = (coord + 1) / sc;
+
+            if (coord is { X.Rounded: { IsFinite: true } x, Y.Rounded: { IsFinite: true } y } &&
+                GetIndex((int)x, (int)y, w, region, EdgeHandling) is int dst_idx)
+            {
+                 // TODO : interpolation
+
+                destination[dst_idx] = source[src_idx];
+            }
+        });
+    }
+}
+
 public sealed class Scale
-    : TransformEffect
+    : AffinePixelTransform
 {
     public Scale(Scalar factor)
         : this(factor, factor)
@@ -168,7 +204,7 @@ public sealed class Scale
 }
 
 public sealed class Flip
-    : TransformEffect
+    : AffinePixelTransform
 {
     public static Flip FlipX { get; } = new(true, false);
 
@@ -185,7 +221,7 @@ public sealed class Flip
 }
 
 public sealed class Rotate
-    : TransformEffect
+    : AffinePixelTransform
 {
     public static Rotate Rotate90 { get; } = new(90);
 
@@ -205,7 +241,7 @@ public sealed class Rotate
 }
 
 public sealed class Translate
-    : TransformEffect
+    : AffinePixelTransform
 {
     public Translate(Vector2 translation)
         : base(new(1, 0, 0, 1), translation)
@@ -219,7 +255,7 @@ public sealed class Translate
 }
 
 public sealed class Skew
-    : TransformEffect
+    : AffinePixelTransform
 {
     public Skew(Vector2 φ_degrees)
         : this(φ_degrees.X, φ_degrees.Y)
@@ -231,6 +267,38 @@ public sealed class Skew
             1, φx_degrees.Radians().Cot(),
             φy_degrees.Radians().Cot(), 1
         ))
+    {
+    }
+}
+
+public sealed class CartesianToPolar
+    : PixelTransform
+{
+    public CartesianToPolar()
+        : base(pos =>
+        {
+            Scalar r = pos.Length / Scalar.Sqrt2 * 2 - 1;
+            Scalar φ = pos.Angle / Scalar.Pi;
+
+            return new(φ, r);
+        })
+    {
+    }
+}
+
+public sealed class PolarToCartesian
+    : PixelTransform
+{
+    public PolarToCartesian()
+        : base(pos =>
+        {
+            (Scalar φ, Scalar r) = pos;
+
+            φ *= Scalar.Pi;
+            r = (r + 1) * .5 * Scalar.Sqrt2;;
+
+            return (Vector2)φ.Cis() * r;
+        })
     {
     }
 }

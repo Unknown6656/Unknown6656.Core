@@ -19,10 +19,6 @@ using Random = Unknown6656.Mathematics.Numerics.Random;
 
 namespace Unknown6656.Imaging.Effects
 {
-    #region TRANSFORM EFFECTS
-
-    #endregion
-
     [SupportedOSPlatform(OS.WIN)]
     public class BitmapBlend
         : PartialBitmapEffect.Accelerated

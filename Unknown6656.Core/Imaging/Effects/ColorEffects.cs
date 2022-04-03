@@ -246,10 +246,10 @@ public sealed class NoiseEffect
     {
         bool gray = Mode.HasFlag(NoiseMode.Grayscale);
         bool alpha = Mode.HasFlag(NoiseMode.AlphaNoise);
-        RGBAColor c = new(RandomNumberGenerator.NextByte(), RandomNumberGenerator.NextByte(), RandomNumberGenerator.NextByte(), destination[index].A);
+        RGBAColor c = new(RandomNumberGenerator.NextByte(), RandomNumberGenerator.NextByte(), RandomNumberGenerator.NextByte(), source.A);
 
         if (gray)
-            c = new(c.Rf, c.Af);
+            c = new(c.R, c.R, c.R, c.A);
 
         if (alpha)
             c.A = RandomNumberGenerator.NextByte();

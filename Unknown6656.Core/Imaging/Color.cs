@@ -465,6 +465,18 @@ public unsafe partial struct RGBAColor
             throw new InvalidProgramException($"The size of the structure '{typeof(RGBAColor)}' is {sizeof(RGBAColor)} Bytes. However, due to binary constraints, the expected size are {sizeof(uint)} bytes.");
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public RGBAColor(byte gray)
+        : this(gray, 255)
+    {
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public RGBAColor(byte gray, byte α)
+        : this(gray, gray, gray, α)
+    {
+    }
+
     /// <summary>
     /// Creates a new instance
     /// </summary>

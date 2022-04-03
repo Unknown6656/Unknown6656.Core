@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Drawing;
+using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics;
@@ -46,19 +47,13 @@ public class TransformEffect
         );
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal protected sealed override unsafe void Process(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region)
+    protected internal override unsafe void Process(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region)
     {
-        bool invertible = LinearTransformMatrix.Determinant.IsInvertible;
-        Matrix2 m = invertible ? LinearTransformMatrix.Inverse : LinearTransformMatrix;
-        Vector2 offset = TranslationOffset;
-        int[] indices = GetIndices(bmp, region);
-        int rw = region.Width;
-        int rh = region.Height;
-        int rx = region.X;
-        int ry = region.Y;
         int w = bmp.Width;
         int h = bmp.Height;
+        Scalar scale = .5 * Math.Max(w, h);
+        Matrix2 inv_transf = LinearTransformMatrix.Inverse;
+
         RGBAColor get_pixel(int x, int y)
         {
             if (EdgeHandling == EdgeHandlingMode.Extend)
@@ -69,10 +64,63 @@ public class TransformEffect
             return 0;
         }
 
-        Parallel.For(0, rw * rh, i =>
+        Parallel.ForEach(GetIndices(bmp, region), idx =>
         {
-            int ix = i % rw;
-            int iy = i / rw;
+            Vector2 dst_coord = GetAbsoluteCoordinates(idx, w);
+            Vector2 src_coord = (dst_coord - TranslationOffset) / scale - 1;
+
+            src_coord = inv_transf.Multiply(in src_coord);
+            src_coord = (src_coord + 1) * scale;
+
+            if (src_coord.X.IsInteger && src_coord.Y.IsInteger)
+                destination[idx] = get_pixel((int)src_coord.X, (int)src_coord.Y);
+            else if (Interpolation == PixelInterpolationMode.NearestNeighbour)
+                destination[idx] = get_pixel((int)src_coord.X.Rounded, (int)src_coord.Y.Rounded);
+            else
+            {
+                Vector4 tl = get_pixel((int)src_coord.X, (int)src_coord.Y);
+                Vector4 tr = get_pixel((int)src_coord.X.Increment(), (int)src_coord.Y);
+                Vector4 bl = get_pixel((int)src_coord.X, (int)src_coord.Y.Increment());
+                Vector4 br = get_pixel((int)src_coord.X.Increment(), (int)src_coord.Y.Increment());
+                Scalar dx = src_coord.X.DecimalPlaces;
+                Scalar dy = src_coord.Y.DecimalPlaces;
+
+                destination[idx] = Vector4.LinearInterpolate(
+                    Vector4.LinearInterpolate(in tl, in tr, dx),
+                    Vector4.LinearInterpolate(in bl, in br, dx),
+                    dy
+                );
+            }
+        });
+    }
+
+
+    unsafe void __old__Process(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region)
+    {
+        bool invertible = LinearTransformMatrix.Determinant.IsInvertible;
+        Matrix2 m = invertible ? LinearTransformMatrix.Inverse : LinearTransformMatrix;
+        Vector2 offset = TranslationOffset;
+        int rw = region.Width;
+        int rh = region.Height;
+        int rx = region.X;
+        int ry = region.Y;
+        int w = bmp.Width;
+        int h = bmp.Height;
+
+        RGBAColor get_pixel(int x, int y)
+        {
+            if (EdgeHandling == EdgeHandlingMode.Extend)
+                return source[Clamp(y, 0, h - 1) * w + Clamp(x, 0, w - 1)];
+            else if (GetIndex(x, y, w, region, EdgeHandling) is int i)
+                return source[i];
+
+            return 0;
+        }
+
+        Parallel.ForEach(GetIndices(bmp, region), idx =>
+        {
+            int ix = idx % rw;
+            int iy = idx / rw;
             Vector2 coord = m * (
                 (ix * 2d / rw) - 1,
                 (iy * 2d / rh) - 1
@@ -121,7 +169,6 @@ public class TransformEffect
         });
     }
 }
-
 
 public sealed class Scale
     : TransformEffect

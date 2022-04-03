@@ -830,6 +830,12 @@ public enum BlendMode
 
 
 //////////// TODO ////////////
+// https://en.wikipedia.org/wiki/CIELAB_color_space#Hunter_Lab
+// https://en.wikipedia.org/wiki/CIE_1931_color_space#Tristimulus_values
+// https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_standard_observer
+// https://en.wikipedia.org/wiki/Adams_chromatic_valence_color_space
+// 
+
 internal struct CIEColorSystem 
 {
 public static (double x, double y) XY_RED { get; } = (0.7355, 0.2645);
@@ -872,3 +878,5 @@ bool constrain_rgb(ref double r, ref double g, ref double b)
 
 
 }
+
+

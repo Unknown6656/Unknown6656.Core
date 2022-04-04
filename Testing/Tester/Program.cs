@@ -24,6 +24,7 @@ using Unknown6656.IO;
 
 using Random = Unknown6656.Mathematics.Numerics.Random;
 using winforms = System.Windows.Forms;
+using Unknown6656.Runtime;
 
 namespace Testing;
 
@@ -34,6 +35,9 @@ public static unsafe class Program
     public static void Main(string[] args)
     {
         Console.OutputEncoding = Encoding.UTF8;
+
+        var prov = new CSharpSignatureProvider();
+        var sign = prov.GenerateMethodSignature(Main_BMP_effects_3);
 
 
         Main_BMP_effects_3();
@@ -66,7 +70,7 @@ public static unsafe class Program
         var sw = Stopwatch.StartNew();
 
         img.ApplyEffect(
-            
+            new RadialGradient(null, null, RGBAColor.Blue, RGBAColor.Red, RGBAColor.Lime)
         ).Save($"conv.png");
 
         sw.Stop();

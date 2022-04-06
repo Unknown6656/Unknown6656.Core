@@ -1,7 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Collections.ObjectModel;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Runtime.Versioning;
-using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.Drawing;
 using System.Linq;
@@ -17,6 +19,7 @@ using Unknown6656.Generics;
 using Unknown6656.Runtime;
 using Unknown6656.Common;
 using Unknown6656.IO;
+using System.Threading.Tasks;
 
 namespace Unknown6656.Imaging;
 
@@ -167,7 +170,7 @@ public static unsafe class BitmapExtensions
     /// <param name="width">New bitmap width. This value must be greater than zero.</param>
     /// <param name="height">New bitmap height. This value must be greater than zero.</param>
     /// <returns>Cropped/Extended bitmap.</returns>
-    public static Bitmap CropBitmap(this Bitmap bmp, int width, int height) => CropBitmap(bmp, 0, 0, width - bmp.Width, height - bmp.Width);
+    public static Bitmap CropTo(this Bitmap bmp, int width, int height) => CropTo(bmp, 0, 0, width - bmp.Width, height - bmp.Height);
 
     /// <summary>
     /// Crops or extends the bitmap bounds by the given offsets.
@@ -180,25 +183,11 @@ public static unsafe class BitmapExtensions
     /// <param name="right">The right offset. A negative amount crops the bitmap on the right side by the given value. A positive amount extends the bound by the given value. The extended region will be filled with the color <see cref="RGBAColor.Transparent"/>.</param>
     /// <param name="bottom">The bottom offset. A negative amount crops the bitmap on the bottom side by the given value. A positive amount extends the bound by the given value. The extended region will be filled with the color <see cref="RGBAColor.Transparent"/>.</param>
     /// <returns>Cropped/Extended bitmap.</returns>
-    public static Bitmap CropBitmap(this Bitmap bmp, int left, int top, int right, int bottom)
-    {
-        int width = bmp.Width + left + right;
-        int height = bmp.Height + top + bottom;
+    public static Bitmap CropBy(this Bitmap bmp, int left, int top, int right, int bottom) => Crop.By(left, top, right, bottom).ApplyTo(bmp);
 
-        if (width < 0)
-            throw new ArgumentException($"The sum of the left ({left}) and right ({right}) values must be greater than {1 - bmp.Width}.");
-        else if (height < 0)
-            throw new ArgumentException($"The sum of the top ({top}) and bottom ({bottom}) values must be greater than {1 - bmp.Height}.");
+    public static Bitmap CropTo(this Bitmap bmp, int left, int top, int right, int bottom) => Crop.To(left, top, right, bottom).ApplyTo(bmp);
 
-        Bitmap result = new(width, height, bmp.PixelFormat);
-        using Graphics g = Graphics.FromImage(result);
-
-        g.DrawImageUnscaled(bmp, left, right);
-
-        return result;
-    }
-
-    public static Bitmap CropBitmap(this Bitmap bmp, Range horizontal, Range vertical)
+    public static Bitmap CropTo(this Bitmap bmp, Range horizontal, Range vertical)
     {
         int hs = horizontal.Start.GetOffset(bmp.Width);
         int he = horizontal.End.GetOffset(bmp.Width);
@@ -206,12 +195,12 @@ public static unsafe class BitmapExtensions
         int ve = vertical.End.GetOffset(bmp.Height);
         Rectangle rect = new(hs, vs, he - hs, ve - vs);
 
-        return CropBitmap(bmp, rect);
+        return CropTo(bmp, rect);
     }
 
-    public static Bitmap CropBitmap(this Bitmap bmp, (Range horizontal, Range vertical) region) => CropBitmap(bmp, region.horizontal, region.vertical);
+    public static Bitmap CropTo(this Bitmap bmp, (Range horizontal, Range vertical) region) => CropTo(bmp, region.horizontal, region.vertical);
 
-    public static Bitmap CropBitmap(this Bitmap bmp, Rectangle region) => CropBitmap(bmp, region.Left, region.Top, region.Right, region.Bottom);
+    public static Bitmap CropTo(this Bitmap bmp, Rectangle region) => CropTo(bmp, region.Left, region.Top, region.Right, region.Bottom);
 
     /// <summary>
     /// Scales the bitmap uniformly by the given scaling factors. This is a non-destructive operation.
@@ -219,7 +208,7 @@ public static unsafe class BitmapExtensions
     /// <param name="bmp">Input bitmap.</param>
     /// <param name="factor">The scaling factor. This value must be greater than zero.</param>
     /// <returns>The scaled/resized bitmap.</returns>
-    public static Bitmap ScaleBitmap(this Bitmap bmp, Scalar factor) => ScaleBitmap(bmp, factor, factor);
+    public static Bitmap Scale(this Bitmap bmp, Scalar factor) => Scale(bmp, factor, factor);
 
     /// <summary>
     /// Scales the bitmap by the given X- and Y-dimension factors. This is a non-destructive operation.
@@ -227,7 +216,7 @@ public static unsafe class BitmapExtensions
     /// <param name="bmp">Input bitmap.</param>
     /// <param name="factor">A composite of the X and Y scaling factors. These values must be greater than zero.</param>
     /// <returns>The scaled/resized bitmap.</returns>
-    public static Bitmap ScaleBitmap(this Bitmap bmp, Vector2 factor) => ScaleBitmap(bmp, factor.X, factor.Y);
+    public static Bitmap Scale(this Bitmap bmp, Vector2 factor) => Scale(bmp, factor.X, factor.Y);
 
     /// <summary>
     /// Scales the bitmap by the given X- and Y-dimension factors. This is a non-destructive operation.
@@ -236,10 +225,7 @@ public static unsafe class BitmapExtensions
     /// <param name="xfactor">Scaling factor in X-dimension. This value must be greater than zero.</param>
     /// <param name="yfactor">Scaling factor in Y-dimension. This value must be greater than zero.</param>
     /// <returns>The scaled/resized bitmap.</returns>
-    public static Bitmap ScaleBitmap(this Bitmap bmp, Scalar xfactor, Scalar yfactor) => 
-        xfactor <= 0 ? throw new ArgumentOutOfRangeException(nameof(xfactor)) :
-        yfactor <= 0 ? throw new ArgumentOutOfRangeException(nameof(yfactor)) :
-        ResizeBitmap(bmp, (int)(bmp.Width * xfactor), (int)(bmp.Height * yfactor));
+    public static Bitmap Scale(this Bitmap bmp, Scalar xfactor, Scalar yfactor) => new Scale(xfactor, yfactor).ApplyTo(bmp);
 
     /// <summary>
     /// Resizes the bitmap to match the given new dimensions. This is a non-destructive operation.
@@ -263,9 +249,9 @@ public static unsafe class BitmapExtensions
         if (r.IsOne)
             return bmp;
         else if (r < 1)
-            return ScaleBitmap(bmp, r, 1);
+            return Scale(bmp, r, 1);
         else
-            return ScaleBitmap(bmp, 1, r.MultiplicativeInverse);
+            return Scale(bmp, 1, r.MultiplicativeInverse);
     }
 
     public static Bitmap ApplyEffect<T>(this Bitmap bmp) where T : BitmapEffect, new() => bmp.ApplyEffect(new T());
@@ -294,6 +280,25 @@ public static unsafe class BitmapExtensions
     public static Bitmap ApplyEffect(this Bitmap bmp, PartialBitmapEffect effect, (Range Horizontal, Range Vertical) region) => effect.ApplyTo(bmp, region);
 
     public static Bitmap ApplyEffect(this Bitmap bmp, PartialBitmapEffect effect, BitmapMask mask) => effect.ApplyTo(bmp, mask);
+
+    public static int CountPixel(this Bitmap bmp, RGBAColor color) => CountPixels(bmp, color)[color];
+
+    public static ReadOnlyDictionary<RGBAColor, int> CountPixels(this Bitmap bmp, params RGBAColor[] colors) => CountPixels(bmp, colors as IEnumerable<RGBAColor>);
+
+    public static ReadOnlyDictionary<RGBAColor, int> CountPixels(this Bitmap bmp, IEnumerable<RGBAColor> colors)
+    {
+        ConcurrentDictionary<RGBAColor, int> counts = new();
+
+        bmp.LockRGBAPixels((ptr, w, h) => Parallel.For(0, w * h, idx =>
+        {
+            if (!counts.TryGetValue(ptr[idx], out int count))
+                count = 0;
+
+            counts[ptr[idx]] = count + 1;
+        });
+
+        return counts.AsReadOnly();
+    }
 
     public static Bitmap Replace(this Bitmap bmp, RGBAColor search, RGBAColor replace) => bmp.ApplyEffect(new ReplaceColor(search, replace));
 

@@ -231,56 +231,72 @@ public class PixelTransform
     }
 }
 
-public sealed class RelativeCrop
+public sealed class Crop
     : BitmapEffect
 {
     public int Left { get; }
     public int Top { get; }
     public int Right { get; }
     public int Bottom { get; }
+    public bool Relative { get; }
 
 
-    public RelativeCrop(int left, int top, int right, int bottom)
+    private Crop(int left, int top, int right, int bottom, bool relative)
     {
-        Top = top;
         Left = left;
+        Top = top;
         Right = right;
         Bottom = bottom;
+        Relative = relative;
     }
-
-    public override Bitmap ApplyTo(Bitmap bmp) => bmp.ApplyEffect(new CropTo(Left, Top, bmp.Width - Right - Left, bmp.Height - Bottom - Top));
-}
-
-public sealed class CropTo
-    : BitmapEffect
-{
-    public Rectangle Rectangle { get; }
-
-
-    public CropTo(int x, int y, int width, int height)
-        : this(new(x, y, width, height))
-    {
-    }
-
-    public CropTo(Rectangle rectangle) => Rectangle = rectangle;
 
     public override Bitmap ApplyTo(Bitmap bmp)
     {
-        Bitmap res = new(Rectangle.Width, Rectangle.Height, PixelFormat.Format32bppArgb);
-        using Graphics g = Graphics.FromImage(res);
+        (int width, int height) = Relative ? (bmp.Width - Right - Left, bmp.Height - Bottom - Top) : (Right - Left, Bottom - Top);
+
+        if (width < 0)
+            throw new ArgumentException("The horizontal cropping margins result in a bitmap with a negative width.");
+        else if (height < 0)
+            throw new ArgumentException("The vertical cropping margins result in a bitmap with a negative height.");
+
+        Bitmap result = new(width, height, bmp.PixelFormat);
+        using Graphics g = Graphics.FromImage(result);
 
         g.CompositingMode = CompositingMode.SourceCopy;
         g.CompositingQuality = CompositingQuality.AssumeLinear;
         g.InterpolationMode = InterpolationMode.NearestNeighbor;
-        g.DrawImage(bmp, -Rectangle.Left, -Rectangle.Top);
+        g.DrawImageUnscaled(bmp, -Left, -Top);
 
-        return res;
+        return result;
     }
+
+    public static Crop To(int width, int height) => To(new(0, 0, width, height));
+
+    public static Crop To(int x, int y, int width, int height) => To(new(x, y, width, height));
+
+    public static Crop To(Rectangle rectangle) => new(rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Bottom, false);
+
+    public static Crop By(int left_right, int top_bottom) => By(left_right, top_bottom, left_right, top_bottom);
+
+    /// <summary>
+    /// Crops or extends the bitmap bounds by the given offsets.
+    /// The extended regions will be filled with the color <see cref="RGBAColor.Transparent"/>.
+    /// This is a non-destructive operation.
+    /// </summary>
+    /// <param name="left">The left offset. A positive amount crops the bitmap on the left side by the given value. A negative amount extends the bound by the given value. The extended region will be filled with the color <see cref="RGBAColor.Transparent"/>.</param>
+    /// <param name="top">The top offset. A positive amount crops the bitmap on the top side by the given value. A negative amount extends the bound by the given value. The extended region will be filled with the color <see cref="RGBAColor.Transparent"/>.</param>
+    /// <param name="right">The right offset. A positive amount crops the bitmap on the right side by the given value. A negative amount extends the bound by the given value. The extended region will be filled with the color <see cref="RGBAColor.Transparent"/>.</param>
+    /// <param name="bottom">The bottom offset. A positive amount crops the bitmap on the bottom side by the given value. A negative amount extends the bound by the given value. The extended region will be filled with the color <see cref="RGBAColor.Transparent"/>.</param>
+    public static Crop By(int left, int top, int right, int bottom) => new(left, top, right, bottom, true);
 }
 
 public sealed class Scale
-    : AffinePixelTransform
+    : BitmapEffect
 {
+    public Scalar HorizontalFactor { get; }
+    public Scalar VerticalFactor { get; }
+
+
     public Scale(Scalar factor)
         : this(factor, factor)
     {
@@ -292,13 +308,29 @@ public sealed class Scale
     }
 
     public Scale(Scalar sx, Scalar sy)
-        : base((
-            sx, 0,
-            0, sy
-        ))
     {
+        HorizontalFactor = sx;
+        VerticalFactor = sy;
     }
 
+    public override Bitmap ApplyTo(Bitmap bmp)
+    {
+        int w = (int)(bmp.Width * HorizontalFactor);
+        int h = (int)(bmp.Height * VerticalFactor);
+        Flip? optional_flip = (w, h) switch
+        {
+            (0, _) => throw new InvalidOperationException("The resulting bitmap would have a width of 0px."),
+            (_, 0) => throw new InvalidOperationException("The resulting bitmap would have a height of 0px."),
+            ( < 1, < 1) => Flip.FlipBoth,
+            ( < 1, _) => Flip.FlipX,
+            (_, < 1) => Flip.FlipY,
+            _ => null,
+        };
+
+        bmp = optional_flip?.ApplyTo(bmp) ?? bmp;
+
+        return new(bmp, Math.Abs(w), Math.Abs(h));
+    }
 
     public static Scale Uniform(Scalar factor) => new(factor);
 
@@ -313,6 +345,8 @@ public sealed class Flip
     public static Flip FlipX { get; } = new(true, false);
 
     public static Flip FlipY { get; } = new(false, true);
+
+    public static Flip FlipBoth { get; } = new(true, true);
 
 
     public Flip(bool xdir, bool ydir)

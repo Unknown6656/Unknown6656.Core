@@ -80,6 +80,13 @@ public class AnimationFunction
     }));
 
     /// <summary>
+    /// Represents the sinus function, which has been resized to fit the 0..1 value range.
+    /// <para/>
+    /// <c>f(x) = (1 + sin(π * (x - 0.5))) / 2</c>
+    /// </summary>
+    public static AnimationFunction Sin_01 { get; } = new(x => (1 - x.Multiply(Scalar.Pi).Cos()) * .5);
+
+    /// <summary>
     /// Represents the hyperbolic tangent function, which has been resized to fit the 0..1 value range. The function is parameterized using the given coefficient c.
     /// <para/>
     /// <c>f(x) = 1 / (sinh(c) * coth(cx) - cosh(c) + 1)</c>

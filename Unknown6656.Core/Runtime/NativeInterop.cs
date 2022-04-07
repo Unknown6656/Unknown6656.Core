@@ -7,7 +7,7 @@ using Unknown6656.Controls.Console;
 namespace Unknown6656.Runtime;
 
 
-public static unsafe class NativeInterop
+internal static unsafe class NativeInterop
 {
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
     [SupportedOSPlatform(OS.WIN)]

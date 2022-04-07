@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
+﻿using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Linq;
+using System;
 
 using Unknown6656.Common;
 using Unknown6656.Generics;
@@ -18,13 +16,13 @@ public abstract class SignatureProvider
     public SignatureOptions Options { get; init; } = SignatureOptions.Default;
 
 
-    protected abstract string GetTypeName(Type? type);
+    protected abstract string GetTypeName(Type? type, bool[]? nullability_annotations = null);
 
     protected abstract string GetValueRepresentation(object? value, Type type);
 
     protected abstract string GetAttribute(CustomAttributeData attribute, bool return_params = false);
 
-    protected abstract string GetParameter(ParameterInfo parameter);
+    protected abstract string GetParameter(ParameterInfo parameter, bool extension_parameter = false);
 
     protected List<string> GetAttributes(IEnumerable<CustomAttributeData>? attributes, bool return_params = false)
     {
@@ -37,13 +35,13 @@ public abstract class SignatureProvider
         return attrs;
     }
 
-    protected List<string> GetParameters(IEnumerable<ParameterInfo>? parameters)
+    protected List<string> GetParameters(IEnumerable<ParameterInfo>? parameters, bool extension_method = false)
     {
         List<string> ps = new();
 
         if (parameters is { })
             foreach (ParameterInfo param in parameters.OrderBy(p => p.Position))
-                ps.Add(GetParameter(param));
+                ps.Add(GetParameter(param, extension_method && ps.Count is 0));
 
         return ps;
     }
@@ -63,9 +61,11 @@ public class CSharpSignatureProvider
     : SignatureProvider
 {
     private static readonly Regex REGEX_GENTPE = new(@"`\d+\b", RegexOptions.Compiled);
+    private const string TYPE_NULLABLE_ATTRIBUTE = "System.Runtime.CompilerServices.NullableAttribute";
+    private const char TYPE_DELIMITER = '.';
 
 
-    private static string GetModifiers(MethodAttributes attributes)
+    protected static string GetModifiers(MethodAttributes attributes)
     {
         string visibility = (attributes & MethodAttributes.MemberAccessMask) switch
         {
@@ -90,7 +90,7 @@ public class CSharpSignatureProvider
         return visibility + modifiers;
     }
 
-    private static string GetModifiers(FieldAttributes attributes)
+    protected static string GetModifiers(FieldAttributes attributes)
     {
         string visibility = (attributes & FieldAttributes.FieldAccessMask) switch
         {
@@ -115,7 +115,7 @@ public class CSharpSignatureProvider
         return visibility + modifiers;
     }
 
-    private static string GetLiteral(char character) => character switch
+    protected static string GetLiteral(char character) => character switch
     {
         '\"' => @"\""",
         '\\' => @"\\",
@@ -131,7 +131,7 @@ public class CSharpSignatureProvider
         _ => $"\\u{character:x4}",
     };
 
-    private string GetConstructorTypeName(ConstructorInfo constructor)
+    protected string GetConstructorTypeName(ConstructorInfo constructor)
     {
         Type? type = constructor.ReflectedType ?? constructor.DeclaringType;
         string name = type?.Name ?? "?";
@@ -142,21 +142,27 @@ public class CSharpSignatureProvider
         return name;
     }
 
-    protected override string GetTypeName(Type? type)
+    protected string GetTypeName(Type? type) => GetTypeName(type, null);
+
+    protected override string GetTypeName(Type? type, bool[]? nullability_annotations)
     {
         string? ns = type?.DeclaringType is Type parent ? GetTypeName(parent) : (type?.Namespace);
+
+        ns = ns?.Replace(Type.Delimiter, TYPE_DELIMITER);
 
         if (!Options.Compact)
             ns ??= "global::";
 
         if (ns is { })
-            ns += '.';
+            ns += TYPE_DELIMITER;
 
         if (type?.IsGenericParameter is true)
             ns = "";
 
+        nullability_annotations ??= new[] { false };
+
         if (type is null)
-            return "?";
+            return "<error-type>";
         else if (type == typeof(bool))
             return "bool";
         else if (type == typeof(void))
@@ -190,15 +196,15 @@ public class CSharpSignatureProvider
         else if (type == typeof(decimal))
             return "decimal";
         else if (type == typeof(string))
-            return "string";
+            return nullability_annotations.Any(LINQ.id) ? "string?" : "string";
         else if (type == typeof(object))
-            return "object";
-        else if (type.IsArray)
-            return $"{GetTypeName(type.GetElementType())}[{new string(',', type.GetArrayRank() - 1)}]";
+            return nullability_annotations.Any(LINQ.id) ? "object?" : "object";
         else if (type.IsPointer)
-            return $"{GetTypeName(type.GetElementType())}*";
+            return $"{GetTypeName(type.GetElementType(), nullability_annotations)}*";
         else if (type.IsByRef)
-            return $"ref {GetTypeName(type.GetElementType())}";
+            return $"ref {GetTypeName(type.GetElementType(), nullability_annotations)}";
+        else if (type.IsArray)
+            return $"{GetTypeName(type.GetElementType())}[{new string(',', type.GetArrayRank() - 1)}]"; // nullable
         else
         {
             string name = type.Name;
@@ -226,6 +232,12 @@ public class CSharpSignatureProvider
     protected override string GetValueRepresentation(object? value, Type type) => value switch
     {
         null => "null",
+        _ when type.IsEnum => LINQ.Do(delegate
+        {
+            string @enum = GetTypeName(type);
+
+            return Enum.GetName(type, value) is string name ? $"{@enum}.{name}" : $"({@enum}){(long)(dynamic)value}";
+        }),
         true => "true",
         false => "false",
         byte x => $"(byte){x}",
@@ -246,18 +258,12 @@ public class CSharpSignatureProvider
         DateTime x => $"new {GetTypeName(typeof(DateTime))}({x.Ticks})",
         TimeSpan x => $"new {GetTypeName(typeof(TimeSpan))}({x.Ticks})",
         string x => $"\"{x.Select(GetLiteral).StringConcat()}\"",
-        _ when type.IsEnum => LINQ.Do(delegate
-        {
-            string @enum = GetTypeName(type);
-
-            return Enum.GetName(type, value) is string name ? $"{@enum}.{name}" : $"({@enum}){(long)(dynamic)value}";
-        }),
 
         // Array x => ,
         _ => throw new NotImplementedException(),
     };
 
-    protected override string GetAttribute(CustomAttributeData? attribute, bool return_params = false)
+    protected override string GetAttribute(CustomAttributeData attribute, bool return_params = false)
     {
         string name = GetTypeName(attribute.AttributeType);
         List<string> args = new();
@@ -274,42 +280,38 @@ public class CSharpSignatureProvider
         return $"[{(return_params ? "return: " : "")}{name}{(args.Count > 0 ? $"({args.StringJoin(", ")})" : "")}]";
     }
 
-    private List<CustomAttributeData> StripNullabilityInfo(IEnumerable<CustomAttributeData> attributes)
+    protected (List<CustomAttributeData> attributes, string type_name) ProcessNullabilityInfo(IEnumerable<CustomAttributeData> attributes, Type type)
     {
         List<CustomAttributeData> attrs = new();
+        string? name = null;
 
-        foreach (CustomAttributeData attr in attributes)
-        {
-            Type type = attr.AttributeType;
-
-            if ((type.FullName ?? type.AssemblyQualifiedName ?? type.Name).Contains("System.Runtime.CompilerServices.NullableAttribute"))
+        foreach (CustomAttributeData attribute in attributes)
+            if (attribute.AttributeType is Type tattr && (tattr.FullName ?? tattr.AssemblyQualifiedName ?? tattr.Name)
+                .Replace(Type.Delimiter, TYPE_DELIMITER).Contains(TYPE_NULLABLE_ATTRIBUTE, StringComparison.InvariantCultureIgnoreCase))
             {
+                IList<CustomAttributeTypedArgument> rawargs = attribute.ConstructorArguments;
+                bool[] args = (rawargs.All(a => a.ArgumentType == typeof(byte))
+                             ? rawargs.Select(a => (byte)a.Value!)
+                             : rawargs.All(a => a.ArgumentType == typeof(byte[]))
+                             ? rawargs.SelectMany(a => a.Value as byte[] ?? Array.Empty<byte>())
+                             : throw new NotImplementedException()).ToArray(b => b is 2);
 
-
-                //attr.ConstructorArguments;
-
-
+                if (args.Length > 0 && args.Any(LINQ.id))
+                    name = GetTypeName(type, args);
             }
             else
-                attrs.Add(attr);
-        }
+                attrs.Add(attribute);
 
-        return attrs;
+        return (attrs, name ?? GetTypeName(type));
     }
 
-    protected override string GetParameter(ParameterInfo parameter)
+    protected override string GetParameter(ParameterInfo parameter, bool extension_parameter = false)
     {
         List<CustomAttributeData> attributes = parameter.CustomAttributes.ToList();
 
-
-        //attributes.FirstOrDefault(attr => attr.AttributeType == typeof(System.Runtime.CompilerServices.))
-
-        
-
-
+        (attributes, string p_type) = ProcessNullabilityInfo(attributes, parameter.ParameterType);
 
         List<string>? p_attrs = GetAttributes(attributes);
-        string p_type = GetTypeName(parameter.ParameterType);
         string p_name = parameter.Name ?? "_";
 
         foreach (Type mod in parameter.GetOptionalCustomModifiers().Concat(parameter.GetRequiredCustomModifiers()))
@@ -318,7 +320,7 @@ public class CSharpSignatureProvider
         if (parameter.Attributes.HasFlag(ParameterAttributes.Retval))
             p_attrs.Add("[RetVal]");
 
-        string p_mod = "";
+        string p_mod = extension_parameter ? "this " : "";
 
         if (parameter.Attributes.HasFlag(ParameterAttributes.In))
             p_mod = "in " + p_mod;
@@ -326,12 +328,12 @@ public class CSharpSignatureProvider
             p_mod = "out " + p_mod;
 
         string p_value = parameter.HasDefaultValue && parameter.Attributes.HasFlag(ParameterAttributes.Optional)
-                        ? " = " + GetValueRepresentation(parameter.RawDefaultValue, parameter.ParameterType) : "";
+                       ? " = " + GetValueRepresentation(parameter.RawDefaultValue, parameter.ParameterType) : "";
 
         return $"{p_attrs.Select(p => p + ' ').StringConcat()}{p_mod}{p_type} {p_name}{p_value}";
     }
 
-    private (string arguments, string constraints) GetGenericArguments(IEnumerable<Type> generic_arguments)
+    protected (string arguments, string constraints) GetGenericArguments(IEnumerable<Type> generic_arguments)
     {
         List<string> genparams = new();
         string genconstr = "";
@@ -364,10 +366,12 @@ public class CSharpSignatureProvider
         return (genparams.Count > 0 ? $"<{genparams.StringJoin(", ")}>" : "", genconstr);
     }
 
-    private (List<string> attributes, string signature) GenerateSignature(MethodBase method)
+    protected (List<string> attributes, string signature) GenerateSignature(MethodBase method)
     {
-        List<string> attributes = new();
-        string parameters = $"({GetParameters(method.GetParameters()).StringJoin(", ")})";
+        IEnumerable<CustomAttributeData> custom_attributes = method.CustomAttributes;
+        List<string> parameterlist = GetParameters(method.GetParameters(), custom_attributes.Any(a => a.AttributeType == typeof(ExtensionAttribute)));
+        List<string> attributes = GetAttributes(custom_attributes.Where(a => a.AttributeType != typeof(ExtensionAttribute)));
+        string parameters = $"({parameterlist.StringJoin(", ")})";
         string signature;
 
 
@@ -385,10 +389,12 @@ public class CSharpSignatureProvider
         else if (method is MethodInfo function)
         {
             (string genparams, string genconstr) = GetGenericArguments(function.GetGenericArguments());
-            string rettype = GetTypeName(function.ReturnType);
             string name = function.Name;
 
-            attributes.AddRange(GetAttributes((function.ReturnTypeCustomAttributes as ParameterInfo)?.CustomAttributes, true));
+            IEnumerable<CustomAttributeData> retattrs = (function.ReturnTypeCustomAttributes as ParameterInfo)?.CustomAttributes ?? Enumerable.Empty<CustomAttributeData>();
+            (retattrs, string rettype) = ProcessNullabilityInfo(retattrs, function.ReturnType);
+
+            attributes.AddRange(GetAttributes(retattrs, true));
             signature = $"{rettype} {name}{genparams}{parameters}{genconstr}";
         }
         else
@@ -402,12 +408,14 @@ public class CSharpSignatureProvider
         string? value = field.IsLiteral ? $" = {GetValueRepresentation(field.GetRawConstantValue(), field.FieldType)}" : null;
 
 
+
         throw new NotImplementedException();
     }
 
     public override string GenerateSignature(MemberInfo member)
     {
-        List<string> attributes = GetAttributes(member.CustomAttributes);
+        IEnumerable<CustomAttributeData> custom_attributes = member.CustomAttributes;
+        List<string> attributes;
         Type? container = member.DeclaringType;
         string modifiers;
         string signature;
@@ -415,6 +423,8 @@ public class CSharpSignatureProvider
         switch (member)
         {
             case FieldInfo field:
+                (custom_attributes, string field_type) = ProcessNullabilityInfo(custom_attributes, field.FieldType);
+                attributes = GetAttributes(custom_attributes);
                 modifiers = GetModifiers(field.Attributes);
                 signature = GenerateSignature(field);
 
@@ -425,22 +435,20 @@ public class CSharpSignatureProvider
                 if (container != (method as MethodInfo)?.GetBaseDefinition()?.DeclaringType)
                     modifiers += " override";
 
-                (var cattr, signature) = GenerateSignature(method);
-                attributes.AddRange(cattr);
+                (attributes, signature) = GenerateSignature(method);
 
                 break;
             case EventInfo ei:
                 var add = ei.AddMethod;
                 var rem = ei.RemoveMethod;
 
-
-
                 throw new NotImplementedException();
             case PropertyInfo pi:
+                var set = pi.SetMethod;
+                var get = pi.GetMethod;
 
                 throw new NotImplementedException();
             case Type ti:
-
                 throw new NotImplementedException();
             default:
                 throw new NotImplementedException();

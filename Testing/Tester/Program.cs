@@ -25,9 +25,28 @@ using Unknown6656.IO;
 using Random = Unknown6656.Mathematics.Numerics.Random;
 using winforms = System.Windows.Forms;
 using Unknown6656.Runtime;
+using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 
 namespace Testing;
 
+
+static class test
+{
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    public static extern void m0(this string? s);
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    public static extern void m1(this string s);
+    public static void m2(object? a) { }
+    public static void m3(object? a, object b!!) { }
+    public static void m4(object a, object? b) { }
+    public static void m5(object? a, object? b) { }
+    public static object? m6(object? a, object? b) => a;
+    public static object? m7(object a, object? b) => b;
+    public static object[]? m8(object?[] a) => null;
+    public static object?[] m9(object[]? a) => a;
+    public static object?[]? m10(object?[]? a) => a;
+}
 
 public static unsafe class Program
 {
@@ -37,8 +56,9 @@ public static unsafe class Program
         Console.OutputEncoding = Encoding.UTF8;
 
         var prov = new CSharpSignatureProvider();
-        var sign = prov.GenerateMethodSignature(Main_BMP_effects_3);
 
+        typeof(test).GetMembers().Do(m => Console.WriteLine(prov.GenerateSignature(m) + "\n"));
+        return;
 
         Main_BMP_effects_3();
         //Main_PSO();
@@ -50,7 +70,7 @@ public static unsafe class Program
     //    public override Scalar GetValue(VectorN position) { Scalar x = position[0]; return (x - 3).Tanh() + x * x - x * x * x; }
     //    public override bool IsValidSearchPosition(VectorN position) => true;
     //}
-    //private static void Main_PSO()
+    //public static void Main_PSO()
     //{
     //    var pp = new Unknown6656.Computation.ParticleSwarmOptimization.
 
@@ -63,7 +83,7 @@ public static unsafe class Program
     //    var v = o.OptimalValue;
     //}
 
-    private static void Main_BMP_effects_3()
+    public static void Main_BMP_effects_3()
     {
         var reg = (360..1560, 200..880);
         var img = ((Bitmap)Image.FromFile("img4.png")).ToARGB32();
@@ -80,7 +100,7 @@ public static unsafe class Program
         Console.WriteLine($"saving: {sw.ElapsedMilliseconds:F2} ms");
     }
 
-    private static void Main_BMP_effects_2()
+    public static void Main_BMP_effects_2()
     {
         var reg = (360..1560, 200..880);
         var img = ((Bitmap)Image.FromFile("img4.png")).ToARGB32();
@@ -141,7 +161,7 @@ public static unsafe class Program
         Console.WriteLine($"saving: {sw.ElapsedMilliseconds:F2} ms");
     }
 
-    private static void evaluate_random<random>()
+    public static void evaluate_random<random>()
         where random : Random, new()
     {
         int runs = 30_000_000;
@@ -155,7 +175,7 @@ public static unsafe class Program
         Console.WriteLine(buckets.Select((v, i) => $"{i,3} => {((double)v / total * buckets.Length - 1) * 100,20:F4} %").StringJoin("\n"));
     }
 
-    private static void Main_Statistics()
+    public static void Main_Statistics()
     {
         XorShift sh = new();
         int i = 20;
@@ -169,7 +189,7 @@ public static unsafe class Program
         }
     }
 
-    private static void Main_ConsoleUI()
+    public static void Main_ConsoleUI()
     {
         for (int i = 0; i < 56; ++i)
             Console.WriteLine($"{i,3}:\x1b[{i}m top kkk kek      lol \x1b[0m");
@@ -244,7 +264,7 @@ public static unsafe class Program
         Console.Write("new");
     }
 
-    private static void Main_Math()
+    public static void Main_Math()
     {
         Fraction f = Scalar.Pi.ToFraction(1e-300);
 
@@ -267,7 +287,7 @@ public static unsafe class Program
 
     }
 
-    private static void Main_BMP1()
+    public static void Main_BMP1()
     {
         double total = 1000;
 
@@ -304,7 +324,7 @@ public static unsafe class Program
         );
     }
 
-    private static void Main_complex_plotter_ui()
+    public static void Main_complex_plotter_ui()
     {
         //using var f = new Form
         //{
@@ -353,7 +373,7 @@ public static unsafe class Program
 
     }
 
-    private static void Main_complex_plotter_bmp()
+    public static void Main_complex_plotter_bmp()
     {
         new ComplexFunctionPlotter<ComplexFunction>(
             new ComplexFunction(c =>
@@ -390,7 +410,7 @@ public static unsafe class Program
         .Save("conv.png");
     }
 
-    private static void Main_BMP_complex_function_plotter_animation()
+    public static void Main_BMP_complex_function_plotter_animation()
     {
         for (int i = 0; i <= 800; ++i)
         {
@@ -419,7 +439,7 @@ public static unsafe class Program
         }
     }
 
-    private static void Main_BMP_mandelbrot_plotter()
+    public static void Main_BMP_mandelbrot_plotter()
     {
         int i = 0;
 
@@ -438,7 +458,7 @@ public static unsafe class Program
             .Save($"mandelbrot-3/frame-{++i:D4}.png");
     }
 
-    private static void Main_BMP_draw_triangles()
+    public static void Main_BMP_draw_triangles()
     {
         var sw = new Stopwatch();
         sw.Start();
@@ -477,7 +497,7 @@ public static unsafe class Program
         Console.WriteLine($"{sw.ElapsedMilliseconds:F2} ms");
     }
 
-    private static void Main_BMP_plot_transformation_function()
+    public static void Main_BMP_plot_transformation_function()
     {
         new Transformation2DPlotter<Function<Vector2>>(
             // (Polynomial.Parse(".1x^2-5"), RGBAColor.Green),
@@ -505,7 +525,7 @@ public static unsafe class Program
         .Save("conv.png");
     }
 
-    private static void Main_BMP_dithering()
+    public static void Main_BMP_dithering()
     {
         var reg = (.., ..); // (960.., ..);
         var img = ((Bitmap)Image.FromFile("img3.png")).ToARGB32();
@@ -553,7 +573,7 @@ public static unsafe class Program
         }
     }
 
-    private static void Main_BMP_colormaps()
+    public static void Main_BMP_colormaps()
     {
         ColorMap[] maps = typeof(ColorMap).GetMembers(BindingFlags.Public | BindingFlags.Static | BindingFlags.GetProperty)
                                           .Select(p => (p as PropertyInfo)?.GetValue(null) as ColorMap)
@@ -569,7 +589,7 @@ public static unsafe class Program
         img.Save("conv.png");
     }
 
-    private static void Main_BMP_effects()
+    public static void Main_BMP_effects()
     {
         var sw = new Stopwatch();
         sw.Start();
@@ -619,7 +639,7 @@ public static unsafe class Program
         Console.WriteLine($"saving: {sw.ElapsedMilliseconds:F2} ms");
     }
 
-    private static void Main_Automaton()
+    public static void Main_Automaton()
     {
         var parser = new ParserBuilder<char>("abc")
                      .Start()
@@ -679,7 +699,7 @@ public static unsafe class Program
             Console.WriteLine(new string(w));
     }
 
-    private static void Main_LinearAlgebra()
+    public static void Main_LinearAlgebra()
     {
         var π = Math.PI;
         var τ = 2 * π;
@@ -720,7 +740,7 @@ public static unsafe class Program
         Console.WriteLine(mat);
     }
 
-    private static void Main_Graph()
+    public static void Main_Graph()
     {
         var g = new DirectedGraph<string, char>();
 

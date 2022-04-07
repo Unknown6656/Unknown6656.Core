@@ -295,7 +295,7 @@ public static unsafe class BitmapExtensions
                 count = 0;
 
             counts[ptr[idx]] = count + 1;
-        });
+        }));
 
         return counts.AsReadOnly();
     }

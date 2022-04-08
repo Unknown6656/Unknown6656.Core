@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Drawing;
@@ -17,36 +19,44 @@ using Unknown6656.Controls.WinForms;
 using Unknown6656.Controls.Console;
 using Unknown6656.Imaging.Effects;
 using Unknown6656.Imaging.Video;
-using Unknown6656.Imaging; 
+using Unknown6656.Imaging;
 using Unknown6656.Generics;
+using Unknown6656.Runtime;
 using Unknown6656.Common;
 using Unknown6656.IO;
 
 using Random = Unknown6656.Mathematics.Numerics.Random;
 using winforms = System.Windows.Forms;
-using Unknown6656.Runtime;
-using System.Runtime.InteropServices;
-using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Testing;
 
 
+#nullable enable
 static class test
 {
     [MethodImpl(MethodImplOptions.InternalCall)]
     public static extern void m0(this string? s);
-    [MethodImpl(MethodImplOptions.InternalCall)]
-    public static extern void m1(this string s);
+    public static void m1(object a) { }
     public static void m2(object? a) { }
-    public static void m3(object? a, object b!!) { }
-    public static void m4(object a, object? b) { }
     public static void m5(object? a, object? b) { }
     public static object? m6(object? a, object? b) => a;
-    public static object? m7(object a, object? b) => b;
     public static object[]? m8(object?[] a) => null;
     public static object?[] m9(object[]? a) => a;
     public static object?[]? m10(object?[]? a) => a;
+    public static void m11((object?, (object, object))? a) { }
+
+    public static void m12(A<object>? a) { }
+    public static void m13(A<object?> a) { }
+    public static void m14(A<object?>? a) { }
+    public static void m15(A<A<A<A<object?>>>> a) { }
+
+    public static Task m16() => Task.CompletedTask;
+    public static async Task m17() => await Task.CompletedTask;
+
+    public class A<T>{}
 }
+#nullable restore
 
 public static unsafe class Program
 {
@@ -57,7 +67,7 @@ public static unsafe class Program
 
         var prov = new CSharpSignatureProvider();
 
-        typeof(test).GetMembers().Do(m => Console.WriteLine(prov.GenerateSignature(m) + "\n"));
+        typeof(test).GetMembers().Append(typeof(test)).Do(m => Console.WriteLine(prov.GenerateSignature(m) + "\n"));
         return;
 
         Main_BMP_effects_3();

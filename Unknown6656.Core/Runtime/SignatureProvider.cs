@@ -11,18 +11,58 @@ using Unknown6656.Generics;
 namespace Unknown6656.Runtime;
 
 
+public record NullabilityInformation(bool[] RawNullability, Ref<int> Processed)
+{
+    public static NullabilityInformation Empty { get; } = new(new[] { false }, Ref<int>.Null);
+
+    public bool IsNullable { get; } = RawNullability.Any(LINQ.id);
+
+    public bool this[Index index] => RawNullability[index.GetOffset(RawNullability.Length) + (Processed.IsNull ? 0 : Processed.Value)];
+
+    public NullabilityInformation this[Range range] => Slice(range, Ref<int>.Null);
+
+
+    public NullabilityInformation ExtendRawNullability(int length = 2) => this with
+    {
+        RawNullability = RawNullability.Length is 1 ? Enumerable.Repeat(RawNullability[0], length).ToArray() : RawNullability,
+    };
+
+    public NullabilityInformation Slice(Range range, Ref<int> new_ref)
+    {
+        int offs = Processed.IsNull ? 0 : Processed.Value;
+        int start = offs + range.Start.GetOffset(RawNullability.Length);
+        int end = offs + range.End.GetOffset(RawNullability.Length);
+
+        return new(RawNullability[start..end], new_ref);
+    }
+
+    public override string ToString() => $"proc={(Processed.IsNull ? "null" : Processed.Value.ToString())},len={RawNullability.Length}:[{RawNullability.Select(n => n ? 't' : 'f').StringJoin(",")}]";
+
+    public void IncrementProcessed(int count = 1) => Processed.Reference += count;
+}
+
 public abstract class SignatureProvider
 {
     public SignatureOptions Options { get; init; } = SignatureOptions.Default;
 
 
-    protected abstract string GetTypeName(Type? type, bool[]? nullability_annotations = null);
+    protected abstract string GetTypeName(Type? type, NullabilityInformation? nullability = null);
 
     protected abstract string GetValueRepresentation(object? value, Type type);
 
     protected abstract string GetAttribute(CustomAttributeData attribute, bool return_params = false);
 
     protected abstract string GetParameter(ParameterInfo parameter, bool extension_parameter = false);
+
+    protected List<string> GetAttributes(MemberInfo? member, bool return_params = false) => GetAttributes(member switch
+    {
+        Type t => t.CustomAttributes,
+        FieldInfo f => f.CustomAttributes,
+        EventInfo e => e.CustomAttributes,
+        MethodBase m => m.CustomAttributes,
+        PropertyInfo p => p.CustomAttributes,
+        _ => Enumerable.Empty<CustomAttributeData>(),
+    }, return_params);
 
     protected List<string> GetAttributes(IEnumerable<CustomAttributeData>? attributes, bool return_params = false)
     {
@@ -62,6 +102,7 @@ public class CSharpSignatureProvider
 {
     private static readonly Regex REGEX_GENTPE = new(@"`\d+\b", RegexOptions.Compiled);
     private const string TYPE_NULLABLE_ATTRIBUTE = "System.Runtime.CompilerServices.NullableAttribute";
+    private const string TYPE_NULLABLE_CONTEXT_ATTRIBUTE = "System.Runtime.CompilerServices.NullableContextAttribute";
     private const char TYPE_DELIMITER = '.';
 
 
@@ -144,7 +185,7 @@ public class CSharpSignatureProvider
 
     protected string GetTypeName(Type? type) => GetTypeName(type, null);
 
-    protected override string GetTypeName(Type? type, bool[]? nullability_annotations)
+    protected override string GetTypeName(Type? type, NullabilityInformation? nullability = null)
     {
         string? ns = type?.DeclaringType is Type parent ? GetTypeName(parent) : (type?.Namespace);
 
@@ -159,7 +200,7 @@ public class CSharpSignatureProvider
         if (type?.IsGenericParameter is true)
             ns = "";
 
-        nullability_annotations ??= new[] { false };
+        nullability ??= NullabilityInformation.Empty;
 
         if (type is null)
             return "<error-type>";
@@ -196,15 +237,26 @@ public class CSharpSignatureProvider
         else if (type == typeof(decimal))
             return "decimal";
         else if (type == typeof(string))
-            return nullability_annotations.Any(LINQ.id) ? "string?" : "string";
+            return $"string{(nullability.IsNullable ? "?" : "")}";
         else if (type == typeof(object))
-            return nullability_annotations.Any(LINQ.id) ? "object?" : "object";
+            return $"object{(nullability.IsNullable ? "?" : "")}";
         else if (type.IsPointer)
-            return $"{GetTypeName(type.GetElementType(), nullability_annotations)}*";
+            return $"{GetTypeName(type.GetElementType(), nullability)}*";
         else if (type.IsByRef)
-            return $"ref {GetTypeName(type.GetElementType(), nullability_annotations)}";
+            return $"ref {GetTypeName(type.GetElementType(), nullability)}";
         else if (type.IsArray)
-            return $"{GetTypeName(type.GetElementType())}[{new string(',', type.GetArrayRank() - 1)}]"; // nullable
+        {
+            nullability = nullability.ExtendRawNullability(2);
+            int progress = 0;
+
+            return $"{GetTypeName(type.GetElementType(), nullability.Slice(1.., new(ref progress)))}[{new string(',', type.GetArrayRank() - 1)}]{(nullability[0] ? "?" : "")}";
+        }
+        else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && false)
+        {
+            int progress = 0;
+
+            return $"{GetTypeName(type.GenericTypeArguments[0], nullability.Slice(1.., new(ref progress)))}?";
+        }
         else
         {
             string name = type.Name;
@@ -212,9 +264,6 @@ public class CSharpSignatureProvider
 
             if (type.IsGenericType)
             {
-                if (type.GetGenericTypeDefinition() == typeof(Nullable<>))
-                    return $"{GetTypeName(type.GenericTypeArguments[0])}?";
-
                 string genargs = type.GenericTypeArguments.Select(GetTypeName).StringJoin(", ");
 
                 if (name.Match(REGEX_GENTPE, out Match? m))
@@ -222,8 +271,8 @@ public class CSharpSignatureProvider
 
                 suffix = $"<{genargs}>";
             }
-
-            // TODO : ?
+            else if (!type.IsValueType && nullability.IsNullable)
+                suffix += '?';
 
             return $"{ns}{name}{suffix}";
         }
@@ -258,6 +307,22 @@ public class CSharpSignatureProvider
         DateTime x => $"new {GetTypeName(typeof(DateTime))}({x.Ticks})",
         TimeSpan x => $"new {GetTypeName(typeof(TimeSpan))}({x.Ticks})",
         string x => $"\"{x.Select(GetLiteral).StringConcat()}\"",
+        CustomAttributeNamedArgument arg => GetValueRepresentation(arg.TypedValue, type),
+        CustomAttributeTypedArgument arg => GetValueRepresentation(arg.Value, arg.ArgumentType),
+        IEnumerable<CustomAttributeNamedArgument> args => GetValueRepresentation(args.Select(a => a.TypedValue), type),
+        IEnumerable<CustomAttributeTypedArgument> args => GetValueRepresentation(
+            args.ToArray(a => a.Value),
+            (args.DistinctBy(a => a.ArgumentType).FirstOrDefault().ArgumentType ?? typeof(object)).MakeArrayType()
+        ),
+        Array arr => LINQ.Do(delegate
+        {
+            Type elem = type.GetElementType() ?? typeof(object);
+            int len = arr.Length;
+
+            return $"new {GetTypeName(elem)}[{len}] {{{Enumerable.Range(0, len)
+                                                                 .Select(i => ' ' + GetValueRepresentation(arr.GetValue(i), elem))
+                                                                 .StringJoin(",")} }}";
+        }),
 
         // Array x => ,
         _ => throw new NotImplementedException(),
@@ -280,6 +345,52 @@ public class CSharpSignatureProvider
         return $"[{(return_params ? "return: " : "")}{name}{(args.Count > 0 ? $"({args.StringJoin(", ")})" : "")}]";
     }
 
+    protected bool? GetNullabilityContext(MemberInfo? member)
+    {
+        Stack<bool?> contexts = new();
+        bool? context = null;
+
+        while (member is { })
+        {
+            int count = contexts.Count;
+
+            foreach (CustomAttributeData attr in FilterByName(member switch
+            {
+                Type t => t.CustomAttributes,
+                FieldInfo f => f.CustomAttributes,
+                EventInfo e => e.CustomAttributes,
+                MethodBase m => m.CustomAttributes,
+                PropertyInfo p => p.CustomAttributes,
+                _ => Enumerable.Empty<CustomAttributeData>()
+            }, TYPE_NULLABLE_CONTEXT_ATTRIBUTE))
+                if (attr.ConstructorArguments is { Count: > 0 } args && args[0].ArgumentType == typeof(byte))
+                    contexts.Push((byte?)args[0].Value switch
+                    {
+                        2 => true,
+                        1 => false,
+                        _ => null,
+                    });
+
+            if (contexts.Count == count)
+                contexts.Push(null);
+
+            member = member.DeclaringType;
+        }
+
+        while (contexts.TryPop(out bool? ctx))
+            if (ctx is bool)
+                context = ctx;
+
+        return context;
+    }
+
+    protected IEnumerable<CustomAttributeData> FilterByName(IEnumerable<CustomAttributeData> attributes, string typename) =>
+        from attribute in attributes
+        let type = attribute.AttributeType
+        let name = type.FullName ?? type.AssemblyQualifiedName ?? type.Name
+        where name.Replace(Type.Delimiter, TYPE_DELIMITER).Contains(typename, StringComparison.InvariantCultureIgnoreCase)
+        select attribute;
+
     protected (List<CustomAttributeData> attributes, string type_name) ProcessNullabilityInfo(IEnumerable<CustomAttributeData> attributes, Type type)
     {
         List<CustomAttributeData> attrs = new();
@@ -287,17 +398,30 @@ public class CSharpSignatureProvider
 
         foreach (CustomAttributeData attribute in attributes)
             if (attribute.AttributeType is Type tattr && (tattr.FullName ?? tattr.AssemblyQualifiedName ?? tattr.Name)
-                .Replace(Type.Delimiter, TYPE_DELIMITER).Contains(TYPE_NULLABLE_ATTRIBUTE, StringComparison.InvariantCultureIgnoreCase))
+                .Replace(Type.Delimiter, TYPE_DELIMITER)
+                .Contains(TYPE_NULLABLE_ATTRIBUTE, StringComparison.InvariantCultureIgnoreCase))
             {
-                IList<CustomAttributeTypedArgument> rawargs = attribute.ConstructorArguments;
-                bool[] args = (rawargs.All(a => a.ArgumentType == typeof(byte))
-                             ? rawargs.Select(a => (byte)a.Value!)
-                             : rawargs.All(a => a.ArgumentType == typeof(byte[]))
-                             ? rawargs.SelectMany(a => a.Value as byte[] ?? Array.Empty<byte>())
-                             : throw new NotImplementedException()).ToArray(b => b is 2);
+                List<byte> args = new();
 
-                if (args.Length > 0 && args.Any(LINQ.id))
-                    name = GetTypeName(type, args);
+                foreach (CustomAttributeTypedArgument arg in attribute.ConstructorArguments)
+                    if (arg.ArgumentType == typeof(byte))
+                        args.Add((byte)arg.Value!);
+                    else if (arg.ArgumentType == typeof(byte[]))
+                        foreach (CustomAttributeTypedArgument elem in arg.Value as IEnumerable<CustomAttributeTypedArgument>)
+                            args.Add((byte)elem.Value!);
+                    else
+                        throw new NotImplementedException();
+
+                if (args.Count > 0 && args.Any(b => b is 2))
+                {
+                    int processed = 0;
+                    bool[] nullability = args.ToArray(b => b is 2);
+
+                    name = GetTypeName(type, new(nullability, new(ref processed)));
+                }
+#if DEBUG
+                attrs.Add(attribute);
+#endif
             }
             else
                 attrs.Add(attribute);
@@ -449,6 +573,7 @@ public class CSharpSignatureProvider
 
                 throw new NotImplementedException();
             case Type ti:
+                return $"[not implemented: {ti}]";
                 throw new NotImplementedException();
             default:
                 throw new NotImplementedException();

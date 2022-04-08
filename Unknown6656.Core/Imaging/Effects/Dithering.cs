@@ -393,6 +393,25 @@ public unsafe class OrderedDithering
                 { 1, 2 },
                 { 0, 3 },
             },
+            OrderedDitheringAlgorithm.WavyHatchet_16 => new int[16, 16]
+            {
+                { 7 , 2 , 11, 11, 11, 2 , 11, 9 , 11, 11, 2 , 11, 11, 11, 11, 6 },
+                { 15, 2 , 20, 27, 2 , 27, 24, 21, 1 , 1 , 1 , 2 , 18, 27, 3 , 21 },
+                { 15, 26, 8 , 6 , 2 , 19, 1 , 1 , 5 , 10, 23, 1 , 1 , 3 , 25, 26 },
+                { 15, 21, 1 , 1 , 2 , 27, 20, 5 , 16, 21, 10, 27, 2 , 1 , 1 , 27 },
+                { 1 , 1 , 13, 13, 8 , 2 , 7 , 13, 13, 13, 13, 6 , 2 , 13, 13, 1 },
+                { 2 , 27, 22, 21, 17, 2 , 20, 27, 16, 27, 6 , 21, 2 , 27, 20, 27 },
+                { 15, 19, 22, 1 , 1 , 1 , 2 , 19, 16, 3 , 23, 2 , 18, 9 , 25, 2 },
+                { 15, 1 , 1 , 5 , 17, 21, 1 , 1 , 3 , 27, 20, 2 , 18, 21, 7 , 2 },
+                { 12, 12, 5 , 12, 12, 12, 12, 2 , 1 , 1 , 12, 12, 12, 1 , 1 , 2 },
+                { 2 , 6 , 20, 27, 17, 27, 3 , 2 , 16, 10, 1 , 1 , 1 , 27, 25, 21 },
+                { 2 , 9 , 22, 19, 17, 6 , 24, 2 , 16, 26, 2 , 4 , 18, 19, 25, 26 },
+                { 1 , 2 , 9 , 27, 6 , 27, 2 , 27, 16, 21, 2 , 10, 18, 27, 1 , 1 },
+                { 14, 1 , 1 , 3 , 14, 14, 2 , 14, 14, 2 , 14, 14, 1 , 1 , 5 , 14 },
+                { 15, 27, 2 , 1 , 1 , 27, 20, 27, 1 , 1 , 23, 21, 18, 5 , 20, 27 },
+                { 15, 3 , 2 , 26, 17, 1 , 1 , 1 , 16, 2 , 23, 26, 6 , 26, 10, 19 },
+                { 6 , 27, 2 , 27, 17, 2 , 4 , 27, 16, 27, 2 , 7 , 18, 21, 25, 8 },
+            },
             OrderedDitheringAlgorithm.__UNDEFINED__ => throw new ArgumentException("A valid ordered dithering algorithm has to be provided.", nameof(algorithm)),
             _ => throw new ArgumentOutOfRangeException(nameof(algorithm)),
         }) => Algorithm = algorithm;
@@ -483,7 +502,6 @@ public enum OrderedDitheringAlgorithm
 {
     [DebuggerBrowsable(DebuggerBrowsableState.Never), EditorBrowsable(EditorBrowsableState.Never)]
     __UNDEFINED__ = -1,
-
     Halftone,
     Bayer,
     Bayer2,
@@ -495,4 +513,5 @@ public enum OrderedDitheringAlgorithm
     DispersedDots_2,
     Ordered_2x8,
     Ordered_8x2,
+    WavyHatchet_16,
 }

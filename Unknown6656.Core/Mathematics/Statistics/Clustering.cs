@@ -226,13 +226,13 @@ public class KMeansClustering<Item>
         {
             int[] sizes = new int[K];
 
-            for (int i = 0; i < data.Length; ++i)
+            for (int i = 0; i < count; ++i)
                 ++sizes[updated[i]];
 
             if (sizes.Contains(0))
                 return false;
 
-            Array.Copy(updated, clustering, updated.Length);
+            Array.Copy(updated, clustering, count);
         }
 
         return changed;

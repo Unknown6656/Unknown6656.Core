@@ -52,7 +52,7 @@ public abstract class SignatureProvider
 
     protected abstract string GetAttribute(CustomAttributeData attribute, bool return_params = false);
 
-    protected abstract string GetParameter(ParameterInfo parameter, bool extension_parameter = false);
+    protected abstract string GetParameter(ParameterInfo parameter, bool extension_parameter = false, bool? nullable_context = null);
 
     protected List<string> GetAttributes(MemberInfo? member, bool return_params = false) => GetAttributes(member switch
     {

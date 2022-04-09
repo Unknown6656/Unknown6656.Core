@@ -1,82 +1,120 @@
 ﻿using System.Collections.Generic;
 using System.Collections;
+using System.Threading.Tasks;
 using System.Linq;
 using System;
 
-using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Numerics;
 using Unknown6656.Generics;
-using System.Threading.Tasks;
 
 namespace Unknown6656.Mathematics.Statistics;
 
-using _data = Vector3;
 
+public record Cluster<Item>(Clustering<Item> Source, int ClusterID, Item[] Values)
+    : IEnumerable<Item>
+{
+    public ClusteringConfiguration<Item> Configuration => Source.Configuration;
+
+    public int ClusterSize => Values.Length;
+
+    public double[] MeanCoefficients { get; } = LINQ.Do(delegate
+    {
+        int dim = Source.Configuration.InputDimensionality;
+        var get = Source.Configuration.GetCoefficients;
+        double[] mean = new double[dim];
+
+        foreach (double[] coeff in Values.Select(get))
+            for (int i = 0; i < mean.Length; ++i)
+                mean[i] += coeff[i];
+
+        for (int i = 0; i < mean.Length; ++i)
+            mean[i] /= Values.Length;
+
+        return mean;
+    });
+
+    // public double MeanDistance { get; } = Values.Select(v => v.Distance).Average();
+
+
+    public IEnumerator<Item> GetEnumerator() => ((IEnumerable<Item>)Values).GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => Values.GetEnumerator();
+
+    public Item GetCenterItem()
+    {
+        int dim = Configuration.InputDimensionality;
+        double[] mean = MeanCoefficients;
+        double[] dist = new double[ClusterSize];
+
+        Parallel.For(0, ClusterSize, i =>
+        {
+            double[] coeff = Configuration.GetCoefficients(Values[i]);
+            double sum = 0;
+
+            for (int j = 0; j < dim; ++j)
+                sum += (mean[j] - coeff[j]) * (mean[j] - coeff[j]);
+
+            dist[i] = Math.Sqrt(sum);
+        });
+
+        return Values[dist.MinIndex()];
+    }
+}
+
+public record ClusteringConfiguration<Item>(int InputDimensionality, Func<Item, double[]> GetCoefficients);
 
 /// <summary>
 /// Represents an abstract clustering algorithm, which clusters a given dataset based on a specified distance metric.
 /// </summary>
 /// <completionlist cref="Clustering"/>
-public abstract class Clustering<Scalar, Item>
-    where Scalar : unmanaged, IScalar<Scalar>
-    where Item : Algebra<Scalar>.IMetricVectorSpace<Item>
+public abstract class Clustering<Item>
 {
-    public IEnumerable<Cluster> Process(IEnumerable<Item> collection) =>
-         Process(collection, (x, y) => x?.DistanceTo(in y) ?? y?.DistanceTo(in x) ?? Scalar.NaN);
+    public ClusteringConfiguration<Item> Configuration { get; }
 
-    public IEnumerable<Cluster> Process(IEnumerable<Item> collection, Func<Item, Item, Scalar> distance_metric)
+
+    public Clustering(ClusteringConfiguration<Item> config) => Configuration = config;
+
+    public IEnumerable<Cluster<Item>> Process(IEnumerable<Item>? collection)
     {
-        var data = collection.ToArray();
-        var clustering = process(data);
+        if ((collection as Item[] ?? collection?.ToArray()) is Item[] array)
+        {
+            int dim = Configuration.InputDimensionality;
+            double[,] data = new double[array.Length, dim];
 
-        throw new NotImplementedException();
-        //return from t in clustering.Zip(data)
-        //       let cluster = t.First
-        //       let item = t.Second
-        //       group item by cluster into groups
-        //       select new Cluster(..., groups);
+            Parallel.For(0, array.Length, i =>
+            {
+                double[] coeff = Configuration.GetCoefficients(array[i]);
+
+                if (coeff.Length != dim)
+                    throw new ArgumentException($"The item at index {i} has a dimensionality of {coeff.Length}, which conflicts with the expected dimensionality of {dim}.", nameof(collection));
+
+                for (int j = 0; j < dim; ++j)
+                    data[i, j] = coeff[j];
+            });
+
+            int[] clustering = AssignCluster(data);
+
+            return from t in clustering.Zip(array)
+                   let id = t.First
+                   group t.Second by id into @group
+                   select new Cluster<Item>(this, @group.Key, @group.ToArray());
+        }
+        else
+            return Enumerable.Empty<Cluster<Item>>();
     }
 
-    private protected int[] process(Item[] data)
-    {
-        throw new NotImplementedException();
-    }
-
-
-    public record Cluster(Item Key, IEnumerable<(Item Value, Scalar Distance)> Values)
-        : IGrouping<Item, (Item Value, Scalar Distance)>
-    {
-        public Scalar MeanDistance { get; } = Values.Select(v => v.Distance).Average();
-
-
-        public IEnumerator<(Item Value, Scalar Distance)> GetEnumerator() => Values.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => Values.GetEnumerator();
-    }
+    private protected abstract int[] AssignCluster(double[,] data);
 }
 
-public class KMeansClustering<Scalar, Item>
-    : Clustering<Scalar, Item>
-    where Scalar : unmanaged, IScalar<Scalar>
-    where Item : Algebra<Scalar>.IMetricVectorSpace<Item>
+public class KMeansClustering<Item>
+    : Clustering<Item>
 {
-    IEnumerable<Cluster> ____Cluster(IEnumerable<Item> collection, Func<Item, Item, Scalar> distance_metric)
-    {
-        //var lol = Item.Dimension;
+    public int K { get; }
 
 
+    public KMeansClustering(int k, ClusteringConfiguration<Item> config) : base(config) => K = k;
 
-        throw new NotImplementedException();
-    }
-
-
-
-
-
-
-
-
-    private static int[] Cluster(double[,] data, int K)
+    private protected override int[] AssignCluster(double[,] data)
     {
         int count = data.GetLength(0);
         int dim = data.GetLength(1);
@@ -93,14 +131,14 @@ public class KMeansClustering<Scalar, Item>
 
         while (changed && success && max_iterations --> 0)
         {
-            success = UpdateMeans(normalized, clustering, means, count, dim, K);
-            changed = UpdateClustering(normalized, clustering, means, count, dim, K);
+            success = UpdateMeans(normalized, clustering, means, count, dim);
+            changed = UpdateClustering(normalized, clustering, means, count, dim);
         }
 
         return clustering;
     }
 
-    private static double[,] Normalized(double[,] rawData, int dim)
+    private double[,] Normalized(double[,] rawData, int dim)
     {
         int count = rawData.GetLength(0);
         double[,] result = new double[count, dim];
@@ -129,7 +167,7 @@ public class KMeansClustering<Scalar, Item>
         return result;
     }
 
-    private static bool UpdateMeans(double[,] data, int[] clustering, double[,] means, int count, int dim, int K)
+    private bool UpdateMeans(double[,] data, int[] clustering, double[,] means, int count, int dim)
     {
         int[] sizes = new int[K];
 
@@ -157,7 +195,7 @@ public class KMeansClustering<Scalar, Item>
         return true;
     }
 
-    private static bool UpdateClustering(double[,] data, int[] clustering, double[,] means, int count, int dim, int K)
+    private bool UpdateClustering(double[,] data, int[] clustering, double[,] means, int count, int dim)
     {
         bool changed = false;
         int[] updated = new int[count];
@@ -168,7 +206,14 @@ public class KMeansClustering<Scalar, Item>
         for (int i = 0; i < count; ++i)
         {
             for (int k = 0; k < K; ++k)
-                distances[k] = Distance(data[i], means[k]);
+            {
+                double sum = 0;
+
+                for (int j = 0; j < dim; ++j)
+                    sum += (data[i, j] - means[k, j]) * (data[i, j] - means[k, j]);
+
+                distances[k] = Math.Sqrt(sum);
+            }
 
             if (distances.MinIndex() is int @new && @new != updated[i])
             {
@@ -192,5 +237,4 @@ public class KMeansClustering<Scalar, Item>
 
         return changed;
     }
-
 }

@@ -12,8 +12,8 @@ using System.Drawing;
 using System.Linq;
 using System;
 
+using Unknown6656.Mathematics.Statistics;
 using Unknown6656.Generics;
-using Unknown6656.Runtime;
 
 namespace Unknown6656.Imaging;
 
@@ -1267,14 +1267,32 @@ public class ColorPalette
         return palette;
     }
 
-    [SupportedOSPlatform(OS.WIN)]
     public static unsafe ColorPalette FromImage(Bitmap bitmap)
     {
-        IEnumerable<RGBAColor>? colors = Enumerable.Empty<RGBAColor>();
+        IEnumerable<RGBAColor> colors = Enumerable.Empty<RGBAColor>();
 
         bitmap.LockRGBAPixels((ptr, w, h) => colors = Enumerable.Range(0, w * h).Select(i => ptr[i]).Distinct());
 
         return new(colors);
+    }
+
+    public static unsafe ColorPalette FromImage(Bitmap bitmap, Clustering<RGBAColor> clustering)
+    {
+        IEnumerable<RGBAColor> colors = Enumerable.Empty<RGBAColor>();
+
+        bitmap.LockRGBAPixels((ptr, w, h) => colors = Enumerable.Range(0, w * h).Select(i => ptr[i]));
+
+        IEnumerable<Cluster<RGBAColor>> clusters = clustering.Process(colors);
+
+        return new(clusters.Select(c => c.GetCenterItem()));
+    }
+
+    public static unsafe ColorPalette FromImage(Bitmap bitmap, int palette_size, bool ignore_alpha = true)
+    {
+        ClusteringConfiguration<RGBAColor> config = ignore_alpha ? new(3, c => new[] { c.Rf, c.Bf, c.Gf }) : new(4, c => new[] { c.Af, c.Rf, c.Bf, c.Gf });
+        KMeansClustering<RGBAColor> clustering = new(palette_size, config);
+
+        return FromImage(bitmap, clustering);
     }
 
     public static ColorPalette FromChannels(ColorChannel channels)

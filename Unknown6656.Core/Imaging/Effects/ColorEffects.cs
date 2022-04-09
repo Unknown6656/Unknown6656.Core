@@ -5,7 +5,7 @@ using System.Linq;
 using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
-using Unknown6656.Mathematics;
+using Unknown6656.Mathematics.Numerics;
 
 using Random = Unknown6656.Mathematics.Numerics.Random;
 

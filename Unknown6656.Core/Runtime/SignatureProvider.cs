@@ -61,7 +61,6 @@ public abstract class SignatureProvider
         EventInfo e => e.CustomAttributes,
         MethodBase m => m.CustomAttributes,
         PropertyInfo p => p.CustomAttributes,
-        ParameterInfo p => p.CustomAttributes,
         _ => Enumerable.Empty<CustomAttributeData>(),
     }, return_params);
 
@@ -491,6 +490,7 @@ public class CSharpSignatureProvider
         IEnumerable<CustomAttributeData> custom_attributes = method.CustomAttributes;
         List<string> parameterlist = GetParameters(method.GetParameters(), custom_attributes.Any(a => a.AttributeType == typeof(ExtensionAttribute)));
         List<string> attributes = GetAttributes(custom_attributes.Where(a => a.AttributeType != typeof(ExtensionAttribute)));
+        bool? nullable_context = GetNullabilityContext(method);
         string parameters = $"({parameterlist.StringJoin(", ")})";
         string signature;
 
@@ -512,7 +512,8 @@ public class CSharpSignatureProvider
             string name = function.Name;
 
             IEnumerable<CustomAttributeData> retattrs = (function.ReturnTypeCustomAttributes as ParameterInfo)?.CustomAttributes ?? Enumerable.Empty<CustomAttributeData>();
-            (retattrs, string rettype) = ProcessNullabilityInfo(retattrs, function.ReturnType);
+            
+            (retattrs, string rettype) = ProcessNullabilityInfo(retattrs, function.ReturnType, nullable_context);
 
             attributes.AddRange(GetAttributes(retattrs, true));
             signature = $"{rettype} {name}{genparams}{parameters}{genconstr}";
@@ -534,16 +535,17 @@ public class CSharpSignatureProvider
 
     public override string GenerateSignature(MemberInfo member)
     {
+        Type? container = member.DeclaringType;
+        bool? nullable_context = GetNullabilityContext(member);
         IEnumerable<CustomAttributeData> custom_attributes = member.CustomAttributes;
         List<string> attributes;
-        Type? container = member.DeclaringType;
         string modifiers;
         string signature;
 
         switch (member)
         {
             case FieldInfo field:
-                (custom_attributes, string field_type) = ProcessNullabilityInfo(custom_attributes, field.FieldType);
+                (custom_attributes, string field_type) = ProcessNullabilityInfo(custom_attributes, field.FieldType, nullable_context);
                 attributes = GetAttributes(custom_attributes);
                 modifiers = GetModifiers(field.Attributes);
                 signature = GenerateSignature(field);

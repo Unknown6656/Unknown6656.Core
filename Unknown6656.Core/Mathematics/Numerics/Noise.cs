@@ -5,10 +5,44 @@ using Unknown6656.Mathematics.LinearAlgebra;
 
 using Random = Unknown6656.Mathematics.Numerics.Random;
 
-namespace Unknown6656.Mathematics;
+namespace Unknown6656.Mathematics.Numerics;
 
+
+public abstract class Noise
+{
+    public abstract Random RandomNumberGenerator { get; }
+
+    /// <inheritdoc cref="GetValue(Scalar)"/>
+    public Scalar this[Scalar x] => GetValue(x);
+
+    /// <inheritdoc cref="GetValue(Vector2)"/>
+    public Scalar this[Vector2 xy] => GetValue(xy);
+
+    /// <inheritdoc cref="GetValue(Scalar, Scalar)"/>
+    public Scalar this[Scalar x, Scalar y] => GetValue(x, y);
+
+    /// <inheritdoc cref="GetValue(Vector3)"/>
+    public Scalar this[Vector3 xyz] => GetValue(xyz);
+
+    /// <inheritdoc cref="GetValue(Scalar, Scalar, Scalar)"/>
+    public Scalar this[Scalar x, Scalar y, Scalar z] => GetValue(x, y, z);
+
+
+    public abstract void Reseed();
+
+    public Scalar GetValue(Scalar x) => GetValue(x, 0, 0);
+
+    public Scalar GetValue(Vector2 xy) => GetValue(xy.X, xy.Y, 0);
+
+    public Scalar GetValue(Scalar x, Scalar y) => GetValue(x, y, 0);
+
+    public Scalar GetValue(Vector3 xyz) => GetValue(xyz.X, xyz.Y, xyz.Z);
+
+    public abstract Scalar GetValue(Scalar x, Scalar y, Scalar z);
+}
 
 public sealed class PerlinNoise
+    : Noise
 {
     public const int PERMUTATION_SIZE = 256;
 
@@ -16,15 +50,7 @@ public sealed class PerlinNoise
     private int[] _permutation;
 
 
-    public Scalar this[Scalar x] => GetValue1D(x);
-
-    public Scalar this[Vector2 xy] => GetValue2D(xy);
-
-    public Scalar this[Scalar x, Scalar y] => GetValue2D(x, y);
-
-    public Scalar this[Vector3 xyz] => GetValue3D(xyz);
-
-    public Scalar this[Scalar x, Scalar y, Scalar z] => GetValue3D(x, y, z);
+    public override Random RandomNumberGenerator => Settings.RandomNumberGenerator;
 
     public PerlinNoiseSettings Settings { get; }
 
@@ -41,16 +67,15 @@ public sealed class PerlinNoise
         _gradients = CalculateGradients();
     }
 
-    public void Reseed() => _permutation = CalculatePermutation();
+    public override void Reseed() => _permutation = CalculatePermutation();
 
     private int[] CalculatePermutation()
     {
         int[] perm = Enumerable.Range(0, PERMUTATION_SIZE).ToArray();
-        Random rng = Settings.RandomNumberGenerator;
 
         for (int i = 0; i < perm.Length; ++i)
         {
-            int source = rng.NextInt(perm.Length);
+            int source = RandomNumberGenerator.NextInt(perm.Length);
             int t = perm[i];
 
             perm[i] = perm[source];
@@ -63,7 +88,7 @@ public sealed class PerlinNoise
     private Vector3[] CalculateGradients()
     {
         Vector3[] arr = new Vector3[PERMUTATION_SIZE];
-        Random rng = Settings.RandomNumberGenerator;
+        Random rng = RandomNumberGenerator;
 
         for (int i = 0; i < arr.Length; i++)
         {
@@ -79,15 +104,7 @@ public sealed class PerlinNoise
         return arr;
     }
 
-    public Scalar GetValue1D(Scalar x) => GetValue3D(x, 0, 0);
-
-    public Scalar GetValue2D(Vector2 xy) => GetValue3D(xy.X, xy.Y, 0);
-
-    public Scalar GetValue2D(Scalar x, Scalar y) => GetValue3D(x, y, 0);
-
-    public Scalar GetValue3D(Vector3 xyz) => GetValue3D(xyz.X, xyz.Y, xyz.Z);
-
-    public Scalar GetValue3D(Scalar x, Scalar y, Scalar z)
+    public override Scalar GetValue(Scalar x, Scalar y, Scalar z)
     {
         static Scalar Drop(Scalar t)
         {
@@ -164,7 +181,7 @@ public sealed class PerlinNoise
 
                 for (int k = 0; k < depth; ++k)
                 {
-                    Scalar noise = GetValue3D(i * freq / width, j * freq / height, k * freq / depth);
+                    Scalar noise = GetValue(i * freq / width, j * freq / height, k * freq / depth);
 
                     noise = data[i, j, k] += noise * amp;
                     min = min.Min(noise);

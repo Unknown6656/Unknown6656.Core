@@ -61,6 +61,7 @@ public abstract class SignatureProvider
         EventInfo e => e.CustomAttributes,
         MethodBase m => m.CustomAttributes,
         PropertyInfo p => p.CustomAttributes,
+        ParameterInfo p => p.CustomAttributes,
         _ => Enumerable.Empty<CustomAttributeData>(),
     }, return_params);
 
@@ -391,49 +392,44 @@ public class CSharpSignatureProvider
         where name.Replace(Type.Delimiter, TYPE_DELIMITER).Contains(typename, StringComparison.InvariantCultureIgnoreCase)
         select attribute;
 
-    protected (List<CustomAttributeData> attributes, string type_name) ProcessNullabilityInfo(IEnumerable<CustomAttributeData> attributes, Type type)
+    protected (List<CustomAttributeData> attributes, string type_name) ProcessNullabilityInfo(IEnumerable<CustomAttributeData> attributes, Type type, bool? nullable_context)
     {
-        List<CustomAttributeData> attrs = new();
+        List<CustomAttributeData> attrs = new(attributes);
         string? name = null;
 
-        foreach (CustomAttributeData attribute in attributes)
-            if (attribute.AttributeType is Type tattr && (tattr.FullName ?? tattr.AssemblyQualifiedName ?? tattr.Name)
-                .Replace(Type.Delimiter, TYPE_DELIMITER)
-                .Contains(TYPE_NULLABLE_ATTRIBUTE, StringComparison.InvariantCultureIgnoreCase))
+        foreach (CustomAttributeData attribute in FilterByName(attrs, TYPE_NULLABLE_ATTRIBUTE))
+        {
+            List<byte> args = new();
+
+            foreach (CustomAttributeTypedArgument arg in attribute.ConstructorArguments)
+                if (arg.ArgumentType == typeof(byte))
+                    args.Add((byte)arg.Value!);
+                else if (arg.ArgumentType == typeof(byte[]))
+                    foreach (CustomAttributeTypedArgument elem in arg.Value as IEnumerable<CustomAttributeTypedArgument> ?? Enumerable.Empty<CustomAttributeTypedArgument>())
+                        args.Add((byte)elem.Value!);
+                else
+                    throw new NotImplementedException();
+
+            if (args.Count > 0 && args.Any(b => b is 2))
             {
-                List<byte> args = new();
+                int processed = 0;
+                bool[] nullability = args.ToArray(b => b is 2);
 
-                foreach (CustomAttributeTypedArgument arg in attribute.ConstructorArguments)
-                    if (arg.ArgumentType == typeof(byte))
-                        args.Add((byte)arg.Value!);
-                    else if (arg.ArgumentType == typeof(byte[]))
-                        foreach (CustomAttributeTypedArgument elem in arg.Value as IEnumerable<CustomAttributeTypedArgument>)
-                            args.Add((byte)elem.Value!);
-                    else
-                        throw new NotImplementedException();
-
-                if (args.Count > 0 && args.Any(b => b is 2))
-                {
-                    int processed = 0;
-                    bool[] nullability = args.ToArray(b => b is 2);
-
-                    name = GetTypeName(type, new(nullability, new(ref processed)));
-                }
-#if DEBUG
-                attrs.Add(attribute);
-#endif
+                name = GetTypeName(type, new(nullability, new(ref processed)));
             }
-            else
-                attrs.Add(attribute);
+#if !DEBUG
+            attrs.Remove(attribute);
+#endif
+        }
 
         return (attrs, name ?? GetTypeName(type));
     }
 
-    protected override string GetParameter(ParameterInfo parameter, bool extension_parameter = false)
+    protected override string GetParameter(ParameterInfo parameter, bool extension_parameter = false, bool? nullable_context = null)
     {
         List<CustomAttributeData> attributes = parameter.CustomAttributes.ToList();
 
-        (attributes, string p_type) = ProcessNullabilityInfo(attributes, parameter.ParameterType);
+        (attributes, string p_type) = ProcessNullabilityInfo(attributes, parameter.ParameterType, nullable_context);
 
         List<string>? p_attrs = GetAttributes(attributes);
         string p_name = parameter.Name ?? "_";

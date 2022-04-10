@@ -106,6 +106,9 @@ public abstract class Clustering<Item>
     private protected abstract int[] AssignCluster(double[,] data);
 }
 
+// TODO : mean shift algorithm
+// TODO : DBSCAN algorithm
+
 public class KMeansClustering<Item>
     : Clustering<Item>
 {
@@ -177,8 +180,7 @@ public class KMeansClustering<Item>
         if (sizes.Contains(0))
             return false;
 
-        for (int k = 0; k < K * dim; ++k)
-            means[k / dim, k % dim] = 0;
+        Parallel.For(0, K * dim, i => means[i / dim, i % dim] = 0);
 
         for (int i = 0; i < count; ++i)
         {
@@ -188,9 +190,7 @@ public class KMeansClustering<Item>
                 means[cluster, j] += data[i, j]; // accumulate sum
         }
 
-        for (int k = 0; k < K; ++k)
-            for (int j = 0; j < dim; ++j)
-                means[k, j] /= sizes[k]; // danger of div by 0
+        Parallel.For(0, K * dim, i => means[i / dim, i % dim] /= sizes[i / dim]); // danger of div by 0
 
         return true;
     }
@@ -205,7 +205,7 @@ public class KMeansClustering<Item>
 
         for (int i = 0; i < count; ++i)
         {
-            for (int k = 0; k < K; ++k)
+            Parallel.For(0, K, k =>
             {
                 double sum = 0;
 
@@ -213,7 +213,7 @@ public class KMeansClustering<Item>
                     sum += (data[i, j] - means[k, j]) * (data[i, j] - means[k, j]);
 
                 distances[k] = Math.Sqrt(sum);
-            }
+            });
 
             if (distances.MinIndex() is int @new && @new != updated[i])
             {

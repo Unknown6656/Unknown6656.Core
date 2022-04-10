@@ -99,8 +99,10 @@ public static unsafe class Program
         var img = ((Bitmap)Image.FromFile("img4.png")).ToARGB32();
         var sw = Stopwatch.StartNew();
 
+        var pal = ColorPalette.FromImage(img, 20);
+
         img.ApplyEffect(
-            new RadialGradient(null, null, RGBAColor.Blue, RGBAColor.Red, RGBAColor.Lime)
+            new ReduceColorSpace(pal)
         ).Save($"conv.png");
 
         sw.Stop();

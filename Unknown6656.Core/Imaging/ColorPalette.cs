@@ -1278,10 +1278,7 @@ public class ColorPalette
 
     public static unsafe ColorPalette FromImage(Bitmap bitmap, Clustering<RGBAColor> clustering)
     {
-        IEnumerable<RGBAColor> colors = Enumerable.Empty<RGBAColor>();
-
-        bitmap.LockRGBAPixels((ptr, w, h) => colors = Enumerable.Range(0, w * h).Select(i => ptr[i]));
-
+        IEnumerable<RGBAColor> colors = FromImage(bitmap).Colors;
         IEnumerable<Cluster<RGBAColor>> clusters = clustering.Process(colors);
 
         return new(clusters.Select(c => c.GetCenterItem()));

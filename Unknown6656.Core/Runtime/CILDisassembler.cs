@@ -78,249 +78,254 @@ public static class CILDisassembler
 
     private static string ResolveToken(int token) => $"<0x{token:x8}>"; // TODO
 
+    private static string ResolveTarget(int target) => $"<0x{target:x8}>"; // TODO
+
+    private static string ResolveString(int index) => $"<0x{index:x8}:\"\">"; // TODO
+
     private static unsafe (int adv, string instruction)? Process(byte* ptr)
     {
         T get<T>(int offset = 1) where T : unmanaged => *(T*)(ptr + 1);
 
-        switch (*ptr)
+        return *ptr switch
         {
-            case 0x00: return (1, "nop");
-            case 0x01: return (1, "break");
-            case 0x02: return (1, "ldarg.0");
-            case 0x03: return (1, "ldarg.1");
-            case 0x04: return (1, "ldarg.2");
-            case 0x05: return (1, "ldarg.3");
-            case 0x06: return (1, "ldloc.0");
-            case 0x07: return (1, "ldloc.1");
-            case 0x08: return (1, "ldloc.2");
-            case 0x09: return (1, "ldloc.3");
-            case 0x0a: return (1, "stloc.0");
-            case 0x0b: return (1, "stloc.1");
-            case 0x0c: return (1, "stloc.2");
-            case 0x0d: return (1, "stloc.3");
-            case 0x0e: return (2, $"ldarg.s {ptr[1]}");
-            case 0x0f: return (2, $"ldarga.s {ptr[1]}");
-            case 0x10: return (2, $"starg.s {ptr[1]}");
-            case 0x11: return (2, $"ldloc.s {ptr[1]}");
-            case 0x12: return (2, $"ldloca.s {ptr[1]}");
-            case 0x13: return (2, $"stloc.s {ptr[1]}");
-            case 0x14: return (1, "ldnull");
-            case 0x15: return (1, "ldc.i4.m1");
-            case 0x16: return (1, "ldc.i4.0");
-            case 0x17: return (1, "ldc.i4.1");
-            case 0x18: return (1, "ldc.i4.2");
-            case 0x19: return (1, "ldc.i4.3");
-            case 0x1a: return (1, "ldc.i4.4");
-            case 0x1b: return (1, "ldc.i4.5");
-            case 0x1c: return (1, "ldc.i4.6");
-            case 0x1d: return (1, "ldc.i4.7");
-            case 0x1e: return (1, "ldc.i4.8");
-            case 0x1f: return (1, "ldc.i4.s");
-            case 0x20: return (5, $"ldc.i4 0x{get<int>():x8}");
-            case 0x21: return (9, $"ldc.i8 0x{get<long>():x16}");
-            case 0x22: return (5, $"ldc.r4 {get<float>()}");
-            case 0x23: return (9, $"ldc.r8 {get<double>()}");
-            case 0x25: return (1, "dup");
-            case 0x26: return (1, "pop");
-            case 0x27: return (5, $"jmp {ResolveToken(get<int>())}");
-            case 0x28: return (5, $"call {ResolveToken(get<int>())}");
-            case 0x29: return (5, $"calli {ResolveToken(get<int>())}");
-            case 0x2a: return (1, "ret");
-            case 0x2b: return (2, $"br.s L{ptr[1]:x4}");
-            case 0x2c: return (2, $"brfalse.s L{ptr[1]:x4}");
-            case 0x2d: return (2, $"brtrue.s L{ptr[1]:x4}");
-            case 0x2e: return (2, $"beq.s L{ptr[1]:x4}");
-            case 0x2f: return (2, $"bge.s L{ptr[1]:x4}");
+            0x00 => (1, "nop"),
+            0x01 => (1, "break"),
+            0x02 => (1, "ldarg.0"),
+            0x03 => (1, "ldarg.1"),
+            0x04 => (1, "ldarg.2"),
+            0x05 => (1, "ldarg.3"),
+            0x06 => (1, "ldloc.0"),
+            0x07 => (1, "ldloc.1"),
+            0x08 => (1, "ldloc.2"),
+            0x09 => (1, "ldloc.3"),
+            0x0a => (1, "stloc.0"),
+            0x0b => (1, "stloc.1"),
+            0x0c => (1, "stloc.2"),
+            0x0d => (1, "stloc.3"),
+            0x0e => (2, $"ldarg.s {ptr[1]}"),
+            0x0f => (2, $"ldarga.s {ptr[1]}"),
+            0x10 => (2, $"starg.s {ptr[1]}"),
+            0x11 => (2, $"ldloc.s {ptr[1]}"),
+            0x12 => (2, $"ldloca.s {ptr[1]}"),
+            0x13 => (2, $"stloc.s {ptr[1]}"),
+            0x14 => (1, "ldnull"),
+            0x15 => (1, "ldc.i4.m1"),
+            0x16 => (1, "ldc.i4.0"),
+            0x17 => (1, "ldc.i4.1"),
+            0x18 => (1, "ldc.i4.2"),
+            0x19 => (1, "ldc.i4.3"),
+            0x1a => (1, "ldc.i4.4"),
+            0x1b => (1, "ldc.i4.5"),
+            0x1c => (1, "ldc.i4.6"),
+            0x1d => (1, "ldc.i4.7"),
+            0x1e => (1, "ldc.i4.8"),
+            0x1f => (1, "ldc.i4.s"),
+            0x20 => (5, $"ldc.i4 0x{get<int>():x8}"),
+            0x21 => (9, $"ldc.i8 0x{get<long>():x16}"),
+            0x22 => (5, $"ldc.r4 {get<float>()}"),
+            0x23 => (9, $"ldc.r8 {get<double>()}"),
+            0x25 => (1, "dup"),
+            0x26 => (1, "pop"),
+            0x27 => (5, $"jmp {ResolveToken(get<int>())}"),
+            0x28 => (5, $"call {ResolveToken(get<int>())}"),
+            0x29 => (5, $"calli {ResolveToken(get<int>())}"),
+            0x2a => (1, "ret"),
+            0x2b => (2, $"br.s {ResolveTarget(ptr[1])}"),
+            0x2c => (2, $"brfalse.s {ResolveTarget(ptr[1])}"),
+            0x2d => (2, $"brtrue.s {ResolveTarget(ptr[1])}"),
+            0x2e => (2, $"beq.s {ResolveTarget(ptr[1])}"),
+            0x2f => (2, $"bge.s {ResolveTarget(ptr[1])}"),
+            0x30 => (2, $"bgt.s {ResolveTarget(ptr[1])}"),
+            0x31 => (2, $"ble.s {ResolveTarget(ptr[1])}"),
+            0x32 => (2, $"blt.s {ResolveTarget(ptr[1])}"),
+            0x33 => (2, $"bne.un.s {ResolveTarget(ptr[1])}"),
+            0x34 => (2, $"bge.un.s {ResolveTarget(ptr[1])}"),
+            0x35 => (2, $"bgt.un.s {ResolveTarget(ptr[1])}"),
+            0x36 => (2, $"ble.un.s {ResolveTarget(ptr[1])}"),
+            0x37 => (2, $"blt.un.s {ResolveTarget(ptr[1])}"),
+            0x38 => (5, $"br {ResolveTarget(get<int>())}"),
+            0x39 => (5, $"brfalse {ResolveTarget(get<int>())}"),
+            0x3a => (5, $"brtrue {ResolveTarget(get<int>())}"),
+            0x3b => (5, $"beq {ResolveTarget(get<int>())}"),
+            0x3c => (5, $"bge {ResolveTarget(get<int>())}"),
+            0x3d => (5, $"bgt {ResolveTarget(get<int>())}"),
+            0x3e => (5, $"ble {ResolveTarget(get<int>())}"),
+            0x3f => (5, $"blt {ResolveTarget(get<int>())}"),
+            0x40 => (5, $"beq.un {ResolveTarget(get<int>())}"),
+            0x41 => (5, $"bge.un {ResolveTarget(get<int>())}"),
+            0x42 => (5, $"bgt.un {ResolveTarget(get<int>())}"),
+            0x43 => (5, $"ble.un {ResolveTarget(get<int>())}"),
+            0x44 => (5, $"blt.un {ResolveTarget(get<int>())}"),
+
+            0x45 => (1, "switch"), /// TODO ///
+
+            0x46 => (1, "ldind.i1"),
+            0x47 => (1, "ldind.u1"),
+            0x48 => (1, "ldind.i2"),
+            0x49 => (1, "ldind.u2"),
+            0x4a => (1, "ldind.i4"),
+            0x4b => (1, "ldind.u4"),
+            0x4c => (1, "ldind.i8"),
+            0x4d => (1, "ldind.i"),
+            0x4e => (1, "ldind.r4"),
+            0x4f => (1, "ldind.r8"),
+            0x50 => (1, "ldind.ref"),
+            0x51 => (1, "stind.r4"),
+            0x52 => (1, "stind.i1"),
+            0x53 => (1, "stind.i2"),
+            0x54 => (1, "stind.i4"),
+            0x55 => (1, "stind.i8"),
+            0x56 => (1, "stind.r4"),
+            0x57 => (1, "stind.r8"),
+            0x58 => (1, "add"),
+            0x59 => (1, "sub"),
+            0x5a => (1, "mul"),
+            0x5b => (1, "div"),
+            0x5c => (1, "div.un"),
+            0x5d => (1, "rem"),
+            0x5e => (1, "rem.un"),
+            0x5f => (1, "and"),
+            0x60 => (1, "or"),
+            0x61 => (1, "xor"),
+            0x62 => (1, "shl"),
+            0x63 => (1, "shr"),
+            0x64 => (1, "shr.un"),
+            0x65 => (1, "neg"),
+            0x66 => (1, "not"),
+            0x67 => (1, "conv.i1"),
+            0x68 => (1, "conv.i2"),
+            0x69 => (1, "conv.i4"),
+            0x6a => (1, "conv.i8"),
+            0x6b => (1, "conv.r4"),
+            0x6c => (1, "conv.r8"),
+            0x6d => (1, "conv.u4"),
+            0x6e => (1, "conv.u8"),
+            0x6f => (5, $"callvirt {ResolveToken(get<int>())}"),
+            0x70 => (5, $"cpobj {ResolveToken(get<int>())}"),
+            0x71 => (5, $"ldobj {ResolveToken(get<int>())}"),
+            0x72 => (5, $"ldstr {ResolveString(get<int>())}"),
+            0x73 => (5, $"newobj {ResolveToken(get<int>())}"),
+            0x74 => (5, $"castclass {ResolveToken(get<int>())}"),
+            0x75 => (5, $"isinst {ResolveToken(get<int>())}"),
+            0x76 => (1, "conv.r.un"),
+            0x79 => (5, $"unbox {ResolveToken(get<int>())}"),
+            0x7a => (1, "throw"),
+            0x7b => (5, $"ldfld {ResolveToken(get<int>())}"),
+            0x7c => (5, $"ldflda {ResolveToken(get<int>())}"),
+            0x7d => (5, $"stfld {ResolveToken(get<int>())}"),
+            0x7e => (5, $"ldsfld {ResolveToken(get<int>())}"),
+            0x7f => (5, $"ldsflda {ResolveToken(get<int>())}"),
+            0x80 => (5, $"stsfld {ResolveToken(get<int>())}"),
+            0x81 => (5, $"stobj {ResolveToken(get<int>())}"),
+            0x82 => (1, "conv.ovf.i1.un"),
+            0x83 => (1, "conv.ovf.i2.un"),
+            0x84 => (1, "conv.ovf.i4.un"),
+            0x85 => (1, "conv.ovf.i8.un"),
+            0x86 => (1, "conv.ovf.u1.un"),
+            0x87 => (1, "conv.ovf.u2.un"),
+            0x88 => (1, "conv.ovf.u4.un"),
+            0x89 => (1, "conv.ovf.u8.un"),
+            0x8a => (1, "conv.ovf.i.un"),
+            0x8b => (1, "conv.ovf.u.un"),
+            0x8c => (5, $"box {ResolveToken(get<int>())}"),
+            0x8d => (5, $"newarr {ResolveToken(get<int>())}"),
+            0x8e => (1, "ldlen"),
+            0x8f => (5, $"ldelema {ResolveToken(get<int>())}"),
+            0x90 => (1, "ldelem.i1"),
+            0x91 => (1, "ldelem.u1"),
+            0x92 => (1, "ldelem.i2"),
+            0x93 => (1, "ldelem.u2"),
+            0x94 => (1, "ldelem.i4"),
+            0x95 => (1, "ldelem.u4"),
+            0x96 => (1, "ldelem.i8"),
+            0x97 => (1, "ldelem.i"),
+            0x98 => (1, "ldelem.r4"),
+            0x99 => (1, "ldelem.r8"),
+            0x9a => (1, "ldelem.ref"),
+            0x9b => (1, "stelem.i"),
+            0x9c => (1, "stelem.i1"),
+            0x9d => (1, "stelem.i2"),
+            0x9e => (1, "stelem.i4"),
+            0x9f => (1, "stelem.i8"),
+            0xa0 => (1, "stelem.r4"),
+            0xa1 => (1, "stelem.r8"),
+            0xa2 => (1, "stelem.ref"),
+            0xa3 => (5, $"ldelem {ResolveToken(get<int>())}"),
+            0xa4 => (5, $"stelem {ResolveToken(get<int>())}"),
+            0xa5 => (5, $"unbox.any {ResolveToken(get<int>())}"),
+            0xb3 => (1, "conv.ovf.i1"),
+            0xb4 => (1, "conv.ovf.u1"),
+            0xb5 => (1, "conv.ovf.i2"),
+            0xb6 => (1, "conv.ovf.u2"),
+            0xb7 => (1, "conv.ovf.i4"),
+            0xb8 => (1, "conv.ovf.u4"),
+            0xb9 => (1, "conv.ovf.i8"),
+            0xba => (1, "conv.ovf.u8"),
+            0xc2 => (5, $"refanyval {ResolveToken(get<int>())}"),
+            0xc3 => (1, "ckfinite"),
+            0xc6 => (5, $"mkrefany {ResolveToken(get<int>())}"),
+            0xd0 => (5, $"ldtoken {ResolveToken(get<int>())}"),
+            0xd1 => (1, "conv.u2"),
+            0xd2 => (1, "conv.u1"),
+            0xd3 => (1, "conv.i"),
+            0xd4 => (1, "conv.ovf.i"),
+            0xd5 => (1, "conv.ovf.u"),
+            0xd6 => (1, "add.ovf"),
+            0xd7 => (1, "add.ovf.un"),
+            0xd8 => (1, "mul.ovf"),
+            0xd9 => (1, "mul.ovf.un"),
+            0xda => (1, "sub.ovf"),
+            0xdb => (1, "sub.ovf.un"),
+            0xdc => (1, "endfinally"),
+            0xdd => (5, $"leave {ResolveTarget(get<int>())}"),
+            0xde => (2, $"leave.s {ResolveTarget(ptr[1])}"),
+            0xdf => (1, "stind.i"),
+            0xe0 => (1, "conv.u"),
+            0xfe when ptr[1] is 0x00 => (1, "arglist"),
+            0xfe when ptr[1] is 0x01 => (1, "ceq"),
+            0xfe when ptr[1] is 0x02 => (1, "cgt"),
+            0xfe when ptr[1] is 0x03 => (1, "cgt.un"),
+            0xfe when ptr[1] is 0x04 => (1, "clt"),
+            0xfe when ptr[1] is 0x05 => (1, "clt.un"),
+            0xfe when ptr[1] is 0x06 => (5, $"ldftn {ResolveToken(get<int>())}"),
+            0xfe when ptr[1] is 0x07 => (5, $"ldvirtftn {ResolveToken(get<int>())}"),
+            0xfe when ptr[1] is 0x09 => (3, $"ldarg {get<ushort>()}"),
+            0xfe when ptr[1] is 0x0a => (3, $"ldarga {get<ushort>()}"),
+            0xfe when ptr[1] is 0x0b => (3, $"starg {get<ushort>()}"),
+            0xfe when ptr[1] is 0x0c => (3, $"ldloc {get<ushort>()}"),
+            0xfe when ptr[1] is 0x0d => (3, $"ldloca {get<ushort>()}"),
+            0xfe when ptr[1] is 0x0e => (5, $"stloc {ResolveToken(get<int>())}"),
+            0xfe when ptr[1] is 0x0f => (1, "localloc"),
+            0xfe when ptr[1] is 0x11 => (1, "endfilter"),
+            0xfe when ptr[1] is 0x12 => (2, $"unaligned. {ptr[1]}"),
+            0xfe when ptr[1] is 0x13 => (1, "volatile."),
+            0xfe when ptr[1] is 0x14 => (1, "tail."),
+            0xfe when ptr[1] is 0x15 => (5, $"initobj {ResolveToken(get<int>())}"),
+            0xfe when ptr[1] is 0x16 => (5, $"constrained. {ResolveToken(get<int>())}"),
+            0xfe when ptr[1] is 0x17 => (1, "cpblk"),
+            0xfe when ptr[1] is 0x18 => (1, "initblk"),
+            0xfe when ptr[1] is 0x19 => (2, $"no.{((ptr[1] & 1) != 0 ? " typecheck" : "") +
+                                                  ((ptr[1] & 2) != 0 ? " rangecheck" : "") +
+                                                  ((ptr[1] & 4) != 0 ? " nullcheck" : "")}"),
+            0xfe when ptr[1] is 0x1a => return (1, "rethrow"),
+            0xfe when ptr[1] is 0x1c => return (5, $"sizeof {ResolveToken(get<int>())}"),
+            0xfe when ptr[1] is 0x1d => return (1, "refanytype"),
+            0xfe when ptr[1] is 0x1e => return (1, "readonly."),
 
 
-            case 0x30: return (1, "bgt.s");
-            case 0x31: return (1, "ble.s");
-            case 0x32: return (1, "blt.s");
-            case 0x33: return (1, "bne.un.s");
-            case 0x34: return (1, "bge.un.s");
-            case 0x35: return (1, "bgt.un.s");
-            case 0x36: return (1, "ble.un.s");
-            case 0x37: return (1, "blt.un.s");
-            case 0x38: return (1, "br");
-            case 0x39: return (1, "brfalse");
-            case 0x3a: return (1, "brtrue");
-            case 0x3b: return (1, "beq");
-            case 0x3c: return (1, "bge");
-            case 0x3d: return (1, "bgt");
-            case 0x3e: return (1, "ble");
-            case 0x3f: return (1, "blt");
-            case 0x40: return (1, "beq.un");
-            case 0x41: return (1, "bge.un");
-            case 0x42: return (1, "bgt.un");
-            case 0x43: return (1, "ble.un");
-            case 0x44: return (1, "blt.un");
-            case 0x45: return (1, "switch");
-            case 0x46: return (1, "ldind.i1");
-            case 0x47: return (1, "ldind.u1");
-            case 0x48: return (1, "ldind.i2");
-            case 0x49: return (1, "ldind.u2");
-            case 0x4a: return (1, "ldind.i4");
-            case 0x4b: return (1, "ldind.u4");
-            case 0x4c: return (1, "ldind.i8");
-            case 0x4d: return (1, "ldind.i");
-            case 0x4e: return (1, "ldind.r4");
-            case 0x4f: return (1, "ldind.r8");
-            case 0x50: return (1, "ldind.ref");
-            case 0x51: return (1, "stind.r4");
-            case 0x52: return (1, "stind.i1");
-            case 0x53: return (1, "stind.i2");
-            case 0x54: return (1, "stind.i4");
-            case 0x55: return (1, "stind.i8");
-            case 0x56: return (1, "stind.r4");
-            case 0x57: return (1, "stind.r8");
-            case 0x58: return (1, "add");
-            case 0x59: return (1, "sub");
-            case 0x5a: return (1, "mul");
-            case 0x5b: return (1, "div");
-            case 0x5c: return (1, "div.un");
-            case 0x5d: return (1, "rem");
-            case 0x5e: return (1, "rem.un");
-            case 0x5f: return (1, "and");
-            case 0x60: return (1, "or");
-            case 0x61: return (1, "xor");
-            case 0x62: return (1, "shl");
-            case 0x63: return (1, "shr");
-            case 0x64: return (1, "shr.un");
-            case 0x65: return (1, "neg");
-            case 0x66: return (1, "not");
-            case 0x67: return (1, "conv.i1");
-            case 0x68: return (1, "conv.i2");
-            case 0x69: return (1, "conv.i4");
-            case 0x6a: return (1, "conv.i8");
-            case 0x6b: return (1, "conv.r4");
-            case 0x6c: return (1, "conv.r8");
-            case 0x6d: return (1, "conv.u4");
-            case 0x6e: return (1, "conv.u8");
-            case 0x6f: return (1, "callvirt");
-            case 0x70: return (1, "cpobj");
-            case 0x71: return (1, "ldobj");
-            case 0x72: return (1, "ldstr");
-            case 0x73: return (1, "newobj");
-            case 0x74: return (1, "castclass");
-            case 0x75: return (1, "isinst");
-            case 0x76: return (1, "conv.r.un");
-            case 0x79: return (1, "unbox");
-            case 0x7a: return (1, "throw");
-            case 0x7b: return (1, "ldfld");
-            case 0x7c: return (1, "ldflda");
-            case 0x7d: return (1, "stfld");
-            case 0x7e: return (1, "ldsfld");
-            case 0x7f: return (1, "ldsflda");
-            case 0x80: return (1, "stsfld");
-            case 0x81: return (1, "stobj");
-            case 0x82: return (1, "conv.ovf.i1.un");
-            case 0x83: return (1, "conv.ovf.i2.un");
-            case 0x84: return (1, "conv.ovf.i4.un");
-            case 0x85: return (1, "conv.ovf.i8.un");
-            case 0x86: return (1, "conv.ovf.u1.un");
-            case 0x87: return (1, "conv.ovf.u2.un");
-            case 0x88: return (1, "conv.ovf.u4.un");
-            case 0x89: return (1, "conv.ovf.u8.un");
-            case 0x8a: return (1, "conv.ovf.i.un");
-            case 0x8b: return (1, "conv.ovf.u.un");
-            case 0x8c: return (1, "box");
-            case 0x8d: return (1, "newarr");
-            case 0x8e: return (1, "ldlen");
-            case 0x8f: return (1, "ldelema");
-            case 0x90: return (1, "ldelem.i1");
-            case 0x91: return (1, "ldelem.u1");
-            case 0x92: return (1, "ldelem.i2");
-            case 0x93: return (1, "ldelem.u2");
-            case 0x94: return (1, "ldelem.i4");
-            case 0x95: return (1, "ldelem.u4");
-            case 0x96: return (1, "ldelem.i8");
-            case 0x97: return (1, "ldelem.i");
-            case 0x98: return (1, "ldelem.r4");
-            case 0x99: return (1, "ldelem.r8");
-            case 0x9a: return (1, "ldelem.ref");
-            case 0x9b: return (1, "stelem.i");
-            case 0x9c: return (1, "stelem.i1");
-            case 0x9d: return (1, "stelem.i2");
-            case 0x9e: return (1, "stelem.i4");
-            case 0x9f: return (1, "stelem.i8");
-            case 0xa0: return (1, "stelem.r4");
-            case 0xa1: return (1, "stelem.r8");
-            case 0xa2: return (1, "stelem.ref");
-            case 0xa3: return (1, "ldelem");
-            case 0xa4: return (1, "stelem");
-            case 0xa5: return (1, "unbox.any");
-            case 0xb3: return (1, "conv.ovf.i1");
-            case 0xb4: return (1, "conv.ovf.u1");
-            case 0xb5: return (1, "conv.ovf.i2");
-            case 0xb6: return (1, "conv.ovf.u2");
-            case 0xb7: return (1, "conv.ovf.i4");
-            case 0xb8: return (1, "conv.ovf.u4");
-            case 0xb9: return (1, "conv.ovf.i8");
-            case 0xba: return (1, "conv.ovf.u8");
-            case 0xc2: return (1, "refanyval");
-            case 0xc3: return (1, "ckfinite");
-            case 0xc6: return (1, "mkrefany");
-            case 0xd0: return (1, "ldtoken");
-            case 0xd1: return (1, "conv.u2");
-            case 0xd2: return (1, "conv.u1");
-            case 0xd3: return (1, "conv.i");
-            case 0xd4: return (1, "conv.ovf.i");
-            case 0xd5: return (1, "conv.ovf.u");
-            case 0xd6: return (1, "add.ovf");
-            case 0xd7: return (1, "add.ovf.un");
-            case 0xd8: return (1, "mul.ovf");
-            case 0xd9: return (1, "mul.ovf.un");
-            case 0xda: return (1, "sub.ovf");
-            case 0xdb: return (1, "sub.ovf.un");
-            case 0xdc: return (1, "endfinally");
-            case 0xdd: return (1, "leave");
-            case 0xde: return (1, "leave.s");
-            case 0xdf: return (1, "stind.i");
-            case 0xe0: return (1, "conv.u");
-
-            case 0xfe when ptr[1] is 0x00: return (1, "arglist");
-            case 0xfe when ptr[1] is 0x01: return (1, "ceq");
-            case 0xfe when ptr[1] is 0x02: return (1, "cgt");
-            case 0xfe when ptr[1] is 0x03: return (1, "cgt.un");
-            case 0xfe when ptr[1] is 0x04: return (1, "clt");
-            case 0xfe when ptr[1] is 0x05: return (1, "clt.un");
-            case 0xfe when ptr[1] is 0x06: return (1, "ldftn");
-            case 0xfe when ptr[1] is 0x07: return (1, "ldvirtftn");
-            case 0xfe when ptr[1] is 0x09: return (1, "ldarg");
-            case 0xfe when ptr[1] is 0x0a: return (1, "ldarga");
-            case 0xfe when ptr[1] is 0x0b: return (1, "starg");
-            case 0xfe when ptr[1] is 0x0c: return (1, "ldloc");
-            case 0xfe when ptr[1] is 0x0d: return (1, "ldloca");
-            case 0xfe when ptr[1] is 0x0e: return (1, "stloc");
-            case 0xfe when ptr[1] is 0x0f: return (1, "localloc");
-            case 0xfe when ptr[1] is 0x11: return (1, "endfilter");
-            case 0xfe when ptr[1] is 0x12: return (1, "unaligned.");
-            case 0xfe when ptr[1] is 0x13: return (1, "volatile.");
-            case 0xfe when ptr[1] is 0x14: return (1, "tail.");
-            case 0xfe when ptr[1] is 0x15: return (1, "initobj");
-            case 0xfe when ptr[1] is 0x16: return (1, "constrained.");
-            case 0xfe when ptr[1] is 0x17: return (1, "cpblk");
-            case 0xfe when ptr[1] is 0x18: return (1, "initblk")
-            case 0xfe when ptr[1] is 0x19: return (1, "no.");
-            case 0xfe when ptr[1] is 0x1a: return (1, "rethrow");
-            case 0xfe when ptr[1] is 0x1c: return (1, "sizeof");
-            case 0xfe when ptr[1] is 0x1d: return (1, "refanytype");
-            case 0xfe when ptr[1] is 0x1e: return (1, "readonly.");
-
-
-            case 0x24:
-            case 0x77:
-            case 0x78:
-            case >= 0xa6 and <= 0xb2:
-            case >= 0xbb and <= 0xc1:
-            case 0xc4:
-            case 0xc5:
-            case >= 0xc7 and <= 0xcf:
-            case >= 0xe1 and <= 0xef:
-            case >= 0xf0 and <= 0xfd:
-            case 0xfе:
-            case 0xff:
-                return (1, $"<undefined opcode 0x{*ptr:x2}>");
+            0x24 or
+            0x77 or
+            0x78 or
+            (>= 0xa6 and <= 0xb2) or
+            (>= 0xbb and <= 0xc1) or
+            0xc4 or
+            0xc5 or
+            (>= 0xc7 and <= 0xcf) or
+            (>= 0xe1 and <= 0xef) or
+            (>= 0xf0 and <= 0xfd) or
+            0xfe or
+            0xff or
+            _ => (1, $"<undefined opcode 0x{*ptr:x2}>"),
         }
     }
 }

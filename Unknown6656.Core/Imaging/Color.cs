@@ -7,9 +7,9 @@ using System;
 
 using Unknown6656.Physics.Optics;
 using Unknown6656.Mathematics.LinearAlgebra;
+using Unknown6656.Mathematics.Numerics;
 using Unknown6656.Mathematics;
 using Unknown6656.Generics;
-using Unknown6656.Mathematics.Numerics;
 
 namespace Unknown6656.Imaging;
 

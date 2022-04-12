@@ -65,8 +65,6 @@ public class ColorPalette<@this, Color>
 
     public bool Contains(Color color) => Colors.Contains(color);
 
-
-
     public @this Intersect(ColorPalette<@this, Color> second) => new ColorPalette<@this, Color>(Colors.Intersect(second.Colors));
 
     public @this Except(ColorPalette<@this, Color> second) => new ColorPalette<@this, Color>(Colors.Except(second.Colors));

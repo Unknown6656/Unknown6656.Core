@@ -1,11 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Drawing.Imaging;
 using System.Drawing;
 using System.Linq;
+using System.IO;
 using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Numerics;
+using Unknown6656.IO;
 
 using Random = Unknown6656.Mathematics.Numerics.Random;
 
@@ -697,5 +700,33 @@ public sealed class Sepia
             .272, .534, .131
         ), strength))
     {
+    }
+}
+
+public sealed class JPEGCompressionEffect
+    : PartialBitmapEffect
+{
+    public Scalar CompressionLevel { get; }
+
+
+    public JPEGCompressionEffect(Scalar compression_level) => CompressionLevel = compression_level;
+
+    private protected override Bitmap Process(Bitmap bmp, Rectangle region)
+    {
+        using MemoryStream ms = new();
+        int level = (int)Math.Round((1 - CompressionLevel.Clamp()) * 100);
+
+        bmp.SaveAsJPEG(ms, level);
+
+        Bitmap result = new(bmp.Width, bmp.Height, PixelFormat.Format32bppArgb);
+
+        using Bitmap compressed = DataStream.FromStream(ms).ToBitmap();
+        using Graphics g = Graphics.FromImage(result);
+
+        g.DrawImageUnscaled(bmp, 0, 0);
+        g.DrawImageUnscaledAndClipped(compressed, region);
+        g.Flush();
+
+        return result;
     }
 }

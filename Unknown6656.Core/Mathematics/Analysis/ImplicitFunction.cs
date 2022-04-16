@@ -129,14 +129,33 @@ public class ImplicitScalarFunction
 
 public partial class ImplicitScalarFunction2D
 {
-    public static ImplicitScalarFunction2D Circle(Scalar radius) => new(xy => xy.Length, ComparisonOperator.EqualTo, _ => radius);
+    public static ImplicitScalarFunction2D Circle(Scalar radius, bool fill = false) => Circle(Vector2.Zero, radius, fill);
 
-    public static ImplicitScalarFunction2D Circle(Vector2 center, Scalar radius) => new(xy => xy.DistanceTo(center), ComparisonOperator.EqualTo, _ => radius);
+    public static ImplicitScalarFunction2D Circle(Vector2 center, Scalar radius, bool fill = false) =>
+        new(xy => xy.DistanceTo(center), fill ? ComparisonOperator.SmallerOrEqualTo : ComparisonOperator.EqualTo, _ => radius);
+
+    public static ImplicitScalarFunction2D Ellipse(Vector2 center, Vector2 radii, bool fill = false) =>
+        new(xy => (((xy.X - center.X) / radii.X) ^ 2)
+                + (((xy.Y - center.Y) / radii.Y) ^ 2),
+            fill ? ComparisonOperator.SmallerOrEqualTo : ComparisonOperator.EqualTo,
+            _ => Scalar.One
+        );
 }
 
 public partial class ImplicitScalarFunction3D
 {
-    // TODO
+    public static ImplicitScalarFunction3D Sphere(Scalar radius, bool fill = false) => Sphere(Vector3.Zero, radius, fill);
+
+    public static ImplicitScalarFunction3D Sphere(Vector3 center, Scalar radius, bool fill = false) =>
+        new(xyz => xyz.DistanceTo(center), fill ? ComparisonOperator.SmallerOrEqualTo : ComparisonOperator.EqualTo, _ => radius);
+
+    public static ImplicitScalarFunction3D Ellipsoid(Vector3 center, Vector3 radii, bool fill = false) =>
+        new(xyz => (((xyz.X - center.X) / radii.X) ^ 2)
+                + (((xyz.Y - center.Y) / radii.Y) ^ 2)
+                + (((xyz.Z - center.Z) / radii.Z) ^ 2),
+            fill ? ComparisonOperator.SmallerOrEqualTo : ComparisonOperator.EqualTo,
+            _ => Scalar.One
+        );
 }
 
 public enum ComparisonOperator

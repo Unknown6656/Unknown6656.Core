@@ -602,7 +602,7 @@ public class ILSignatureProvider
     private const char CLASS_DELIMITER = '/';
 
 
-    public string GetCallsiteSignature(MemberInfo member)
+    public string GetCallsiteSignature(MemberInfo? member)
     {
         switch (member)
         {

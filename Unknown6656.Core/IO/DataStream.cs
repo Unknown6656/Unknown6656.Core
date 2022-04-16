@@ -98,6 +98,7 @@ public unsafe class DataStream
     private static readonly Regex SSH_PROTOCOL_REGEX = new(@"^(sftp|ssh|s?scp):\/\/(?<uname>[^:]+)(:(?<passw>[^@]+))?@(?<host>[^:\/]+|\[[0-9a-f\:]+\])(:(?<port>[0-9]{1,6}))?(\/|\\)(?<path>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly Regex BASE64_REGEX = new(@"^.\s*data:\s*[^\w\/\-\+]+\s*;(\s*base64\s*,)?(?<data>(?:[a-z0-9+/]{4})*(?:[a-z0-9+/]{2}==|[a-z0-9+/]{3}=)?)$", RegexOptions.Compiled | RegexOptions.Compiled);
     private static readonly FieldInfo _MEMORYSTREAM_ORIGIN;
+    private static readonly FieldInfo _MEMORYSTREAM_BUFFER;
 
 
     public static DataStream Empty { get; } = new(Array.Empty<byte>());
@@ -119,7 +120,7 @@ public unsafe class DataStream
 
     private int MS_Origin => (int)(_MEMORYSTREAM_ORIGIN.GetValue(this) ?? throw new InvalidOperationException());
 
-    public Span<byte> Data => new(base.GetBuffer(), MS_Origin, (int)Length);
+    public Span<byte> Data => new(GetBuffer(), MS_Origin, (int)Length);
 
     public DataStream this[Range range] => Slice(range);
 
@@ -132,8 +133,10 @@ public unsafe class DataStream
 
     static DataStream()
     {
-        _MEMORYSTREAM_ORIGIN = typeof(MemoryStream).GetField("_origin", BindingFlags.Instance | BindingFlags.NonPublic) ??
-            throw new InvalidProgramException($"The internal layout of the type '{typeof(MemoryStream)}' seems to have changed. Please contact https://github.com/unknown6656/!");
+        InvalidProgramException ex = new($"The internal layout of the type '{typeof(MemoryStream)}' seems to have changed. Please contact https://github.com/unknown6656/!");
+
+        _MEMORYSTREAM_ORIGIN = typeof(MemoryStream).GetField("_origin", BindingFlags.Instance | BindingFlags.NonPublic) ?? throw ex;
+        _MEMORYSTREAM_BUFFER = typeof(MemoryStream).GetField("_buffer", BindingFlags.Instance | BindingFlags.NonPublic) ?? throw ex;
     }
 
     public DataStream()
@@ -155,6 +158,8 @@ public unsafe class DataStream
 
     #endregion
     #region INSTANCE METHODS
+
+    public override byte[] GetBuffer() => (byte[])(_MEMORYSTREAM_BUFFER.GetValue(this) ?? throw new InvalidOperationException());
 
     public T ReadAt<T>(long index)
         where T : unmanaged

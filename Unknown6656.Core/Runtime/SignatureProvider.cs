@@ -46,7 +46,9 @@ public abstract class SignatureProvider
     public SignatureOptions Options { get; init; } = SignatureOptions.Default;
 
 
-    protected abstract string GetTypeName(Type? type, NullabilityInformation? nullability = null);
+    public string GetTypeName(Type? type) => GetTypeName(type, null);
+
+    public abstract string GetTypeName(Type? type, NullabilityInformation? nullability = null);
 
     protected abstract string GetValueRepresentation(object? value, Type type);
 
@@ -156,7 +158,7 @@ public class CSharpSignatureProvider
         return visibility + modifiers;
     }
 
-    protected static string GetLiteral(char character) => character switch
+    internal protected static string GetLiteral(char character) => character switch
     {
         '\"' => @"\""",
         '\\' => @"\\",
@@ -183,9 +185,7 @@ public class CSharpSignatureProvider
         return name;
     }
 
-    protected string GetTypeName(Type? type) => GetTypeName(type, null);
-
-    protected override string GetTypeName(Type? type, NullabilityInformation? nullability = null)
+    public override string GetTypeName(Type? type, NullabilityInformation? nullability = null)
     {
         string? ns = type?.DeclaringType is Type parent ? GetTypeName(parent) : (type?.Namespace);
 
@@ -593,4 +593,123 @@ public record SignatureOptions
     public bool Compact { get; init; } = false;
     public bool AppendSemicolon { get; init; } = false;
     public bool FullyQualifiedTypeNames { get; init; } = true;
+}
+
+public class ILSignatureProvider
+    : SignatureProvider
+{
+    private const char TYPE_DELIMITER = '.';
+    private const char CLASS_DELIMITER = '/';
+
+
+    public string GetCallsiteSignature(MemberInfo member)
+    {
+        switch (member)
+        {
+            case FieldInfo field:
+                return $"{GetTypeName(field.FieldType)} {GetTypeName(field.DeclaringType)}::{field.Name}";
+            case MethodBase method:
+                {
+                    Type rettype = (method as MethodInfo)?.ReturnType ?? typeof(void);
+
+                    return $"{(method.IsStatic ? "" : "instance ")}{GetTypeName(rettype)} {GetTypeName(method.DeclaringType)}::{method.Name}({method.GetParameters()
+                                                                                                                                                    .Select(p => p.ParameterType)
+                                                                                                                                                    .StringJoin(", ")})";
+                }
+            case EventInfo @event:
+                throw new NotImplementedException();
+            case PropertyInfo property:
+                throw new NotImplementedException();
+            case Type type:
+                return GetTypeName(type);
+            default:
+                throw new NotImplementedException();
+        }
+    }
+
+    public override string GetTypeName(Type? type, NullabilityInformation? nullability = null)
+    {
+        string prefix;
+
+        if (type is null)
+            return "<error-type>";
+        else if (type.IsGenericParameter)
+            prefix = "";
+        else if (type.DeclaringType is Type parent)
+            prefix = GetTypeName(parent) + CLASS_DELIMITER;
+        else
+        {
+            AssemblyName asmname = type.Assembly.GetName();
+
+            prefix = $"[{asmname.Name}]";
+
+            if (type.Namespace is string ns)
+                prefix += ns.Replace(Type.Delimiter, TYPE_DELIMITER) + TYPE_DELIMITER;
+        }
+
+        if (type == typeof(bool))
+            return "bool";
+        else if (type == typeof(void))
+            return "void";
+        else if (type == typeof(byte))
+            return "uint8";
+        else if (type == typeof(sbyte))
+            return "int8";
+        else if (type == typeof(short))
+            return "int16";
+        else if (type == typeof(ushort))
+            return "uint16";
+        else if (type == typeof(char))
+            return "char";
+        else if (type == typeof(int))
+            return "int32";
+        else if (type == typeof(uint))
+            return "uint32";
+        else if (type == typeof(nint))
+            return "native int";
+        else if (type == typeof(nuint))
+            return "native uint";
+        else if (type == typeof(long))
+            return "int64";
+        else if (type == typeof(ulong))
+            return "uint64";
+        else if (type == typeof(float))
+            return "float32";
+        else if (type == typeof(double))
+            return "float64";
+        else if (type == typeof(string))
+            return "string";
+        else if (type == typeof(object))
+            return "object";
+        else if (type == typeof(TypedReference))
+            return "typedref";
+        else if (type.IsPointer)
+            return GetTypeName(type.GetElementType()) + '*';
+        else if (type.IsByRef)
+            return GetTypeName(type.GetElementType()) + '&';
+        else if (type.IsArray)
+            return $"{GetTypeName(type.GetElementType())}[{Enumerable.Repeat("0...", type.GetArrayRank()).StringJoin(", ")}]";
+        else
+        {
+            if (type.IsValueType)
+                prefix = "valuetype " + prefix;
+            else if (type.IsClass)
+                prefix = "class " + prefix;
+
+            string name = prefix + type.Name;
+
+            if (type.IsGenericType)
+                name += type.GenericTypeArguments.Select(GetTypeName).StringJoin(", ");
+
+            return name;
+        }
+    }
+
+    public override string GenerateSignature(MemberInfo member) => throw new NotImplementedException();
+
+    protected override string GetAttribute(CustomAttributeData attribute, bool return_params = false) => throw new NotImplementedException();
+
+    protected override string GetParameter(ParameterInfo parameter, bool extension_parameter = false, bool? nullable_context = null) => throw new NotImplementedException();
+
+    protected override string GetValueRepresentation(object? value, Type type) => throw new NotImplementedException();
 }

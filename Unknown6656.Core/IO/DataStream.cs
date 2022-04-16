@@ -98,7 +98,6 @@ public unsafe class DataStream
     private static readonly Regex SSH_PROTOCOL_REGEX = new(@"^(sftp|ssh|s?scp):\/\/(?<uname>[^:]+)(:(?<passw>[^@]+))?@(?<host>[^:\/]+|\[[0-9a-f\:]+\])(:(?<port>[0-9]{1,6}))?(\/|\\)(?<path>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly Regex BASE64_REGEX = new(@"^.\s*data:\s*[^\w\/\-\+]+\s*;(\s*base64\s*,)?(?<data>(?:[a-z0-9+/]{4})*(?:[a-z0-9+/]{2}==|[a-z0-9+/]{3}=)?)$", RegexOptions.Compiled | RegexOptions.Compiled);
     private static readonly FieldInfo _MEMORYSTREAM_ORIGIN;
-    private static readonly FieldInfo _MEMORYSTREAM_LENGTH;
 
 
     public static DataStream Empty { get; } = new(Array.Empty<byte>());
@@ -118,9 +117,9 @@ public unsafe class DataStream
     #endregion
     #region INSTANCE PROPERTIES
 
-    private int MS_Origin => (int)(_MEMORYSTREAM_ORIGIN.GetValue((MemoryStream)this) ?? throw new InvalidOperationException());
+    private int MS_Origin => (int)(_MEMORYSTREAM_ORIGIN.GetValue(this) ?? throw new InvalidOperationException());
 
-    public Span<byte> Data => base.GetBuffer().AsSpan(MS_Origin, Length);
+    public Span<byte> Data => new(base.GetBuffer(), MS_Origin, (int)Length);
 
     public DataStream this[Range range] => Slice(range);
 
@@ -163,9 +162,9 @@ public unsafe class DataStream
         byte[] bytes = new byte[sizeof(T)];
         long pos = Position;
 
-        _ms.Seek(index, SeekOrigin.Begin);
-        _ms.Read(bytes, 0, bytes.Length);
-        _ms.Seek(pos, SeekOrigin.Begin);
+        Seek(index, SeekOrigin.Begin);
+        Read(bytes, 0, bytes.Length);
+        Seek(pos, SeekOrigin.Begin);
 
         fixed (byte* ptr = bytes)
             return *(T*)ptr;
@@ -196,12 +195,14 @@ public unsafe class DataStream
 
         long pos = Position;
 
-        _ms.Seek(index, SeekOrigin.Begin);
-        _ms.Write(bytes, 0, bytes.Length);
-        _ms.Seek(pos, SeekOrigin.Begin);
+        Seek(index, SeekOrigin.Begin);
+        Write(bytes, 0, bytes.Length);
+        Seek(pos, SeekOrigin.Begin);
+
+        return this;
     }
 
-    public bool GetBit(long index) => (Data[index / 8] & (1 << (int)(index % 8))) != 0;
+    public bool GetBit(long index) => (Data[(int)(index / 8)] & (1 << (int)(index % 8))) != 0;
 
     public DataStream GetBit(long index, out bool bit)
     {
@@ -215,9 +216,9 @@ public unsafe class DataStream
         byte mask = (byte)(1 << (int)(index % 8));
 
         if (new_value)
-            Data[index / 8] |= mask;
+            Data[(int)(index / 8)] |= mask;
         else
-            Data[index / 8] &= (byte)~mask;
+            Data[(int)(index / 8)] &= (byte)~mask;
 
         return this;
     }
@@ -232,7 +233,7 @@ public unsafe class DataStream
     public bool FlipBit(long index)
     {
         byte mask = (byte)(1 << (int)(index % 8));
-        ref byte data = ref Data[index / 8];
+        ref byte data = ref Data[(int)(index / 8)];
 
         data ^= mask;
 
@@ -248,7 +249,7 @@ public unsafe class DataStream
 
     public void Transform(Func<byte, byte> transformer_func, bool parallel = true)
     {
-        byte[] buffer = Data;
+        byte[] buffer = ToBytes();
 
         if (parallel)
             Parallel.For(0, buffer.LongLength, i => buffer[i] = transformer_func(buffer[i]));
@@ -259,7 +260,7 @@ public unsafe class DataStream
 
     public void Transform(Func<byte, long, byte> transformer_func, bool parallel = true)
     {
-        byte[] buffer = Data;
+        byte[] buffer = ToBytes();
 
         if (parallel)
             Parallel.For(0, buffer.LongLength, i => buffer[i] = transformer_func(buffer[i], i));
@@ -316,7 +317,7 @@ public unsafe class DataStream
 
     public DataStream Reverse() => ToBytes().Reverse().ToArray();
 
-    public IEnumerator<byte> GetEnumerator() => ((IEnumerable<byte>)Data).GetEnumerator();
+    public IEnumerator<byte> GetEnumerator() => ((IEnumerable<byte>)ToBytes()).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -358,7 +359,7 @@ public unsafe class DataStream
         {
             IsBodyHtml = body_as_html,
         };
-        email.Attachments.Add(new Attachment(ToStream(), attachment_type));
+        email.Attachments.Add(new Attachment(this, attachment_type));
 
         client.Send(email);
     }
@@ -417,7 +418,7 @@ public unsafe class DataStream
         return r;
     }
 
-    public string ToHexString(bool uppercase = true, bool spacing = false) => string.Join(spacing ? " " : "", Data.Select(b => b.ToString(uppercase ? "X2" : "x2")));
+    public string ToHexString(bool uppercase = true, bool spacing = false) => string.Join(spacing ? " " : "", ToBytes().Select(b => b.ToString(uppercase ? "X2" : "x2")));
 
     public string HexDumpString(int width) => ConsoleExtensions.HexDumpToString(Data, width);
 
@@ -428,7 +429,7 @@ public unsafe class DataStream
         else if (@base == 64)
             return ToBase64();
         else if (@base == 2)
-            Data.Select(b => Convert.ToString(b, 2).PadLeft(8, '0')).StringJoin("");
+            ToBytes().Select(b => Convert.ToString(b, 2).PadLeft(8, '0')).StringJoin("");
         else
             ; // TODO : make use of bitstreams?
 
@@ -466,12 +467,7 @@ public unsafe class DataStream
     public void ToFile(FileInfo file, FileMode mode, FileAccess access = FileAccess.Write, FileShare share = FileShare.Read) =>
         ToFile(file.FullName, mode, access, share);
 
-    public Bitmap ToBitmap()
-    {
-        using MemoryStream ms = ToStream();
-
-        return (Bitmap)Image.FromStream(ms);
-    }
+    public Bitmap ToBitmap() => (Bitmap)Image.FromStream(this);
 
     public Bitmap ToRGBAEncodedBitmap()
     {
@@ -613,7 +609,7 @@ public unsafe class DataStream
 
     public UnsafeFunctionPointer ToFunctionPointer()
     {
-        byte[] bytes = Data;
+        byte[] bytes = ToBytes();
         void* buffer;
 
 #pragma warning disable CA1416 // Validate platform compatibility
@@ -655,20 +651,20 @@ public unsafe class DataStream
 
     public string DisassembleASMBytes() => ASMDisassembler.Disassemble(ToBytes()).StringJoinLines();
 
-    [Obsolete("See https://aka.ms/binaryformatter", true)]
-    public object ToSerializable()
-    {
-        BinaryFormatter fmt = new();
-        using MemoryStream ms = new();
-
-        ToStream(ms);
-        ms.Seek(0, SeekOrigin.Begin);
-
-        return fmt.Deserialize(ms);
-    }
-
-    [Obsolete("See https://aka.ms/binaryformatter", true)]
-    public T ToSerializable<T>() => (T)ToSerializable();
+    // [Obsolete("See https://aka.ms/binaryformatter", true)]
+    // public object ToSerializable()
+    // {
+    //     BinaryFormatter fmt = new();
+    //     using MemoryStream ms = new();
+    //
+    //     ToStream(ms);
+    //     ms.Seek(0, SeekOrigin.Begin);
+    //
+    //     return fmt.Deserialize(ms);
+    // }
+    //
+    // [Obsolete("See https://aka.ms/binaryformatter", true)]
+    // public T ToSerializable<T>() => (T)ToSerializable();
 
     public object? ToObject() => LINQ.TryDo(() =>
     {
@@ -691,15 +687,15 @@ public unsafe class DataStream
 
     public static DataStream Concat(IEnumerable<DataStream?>? sources)
     {
-        MemoryStream s = new();
+        DataStream s = new();
 
         foreach (DataStream? source in sources ?? Array.Empty<DataStream>())
-            if (source is { })
-                s.Write(source.Data, 0, source.ByteCount);
+            if (source?.ToBytes() is byte[] data)
+                s.Write(data, 0, data.Length);
 
         s.Seek(0, SeekOrigin.Begin);
 
-        return FromStream(s);
+        return s;
     }
 
     #endregion
@@ -745,7 +741,7 @@ public unsafe class DataStream
 
     public static DataStream FromArrayOfSources(IEnumerable<DataStream> sources) => FromArrayOfSources(sources.ToArray());
 
-    public static DataStream FromArrayOfSources(params DataStream[] sources) => FromJaggedArray(sources.ToArray(s => s.Data));
+    public static DataStream FromArrayOfSources(params DataStream[] sources) => FromJaggedArray(sources.ToArray(s => s.ToArray()));
 
     public static DataStream FromJaggedArray<T>(T[][] array)
         where T : unmanaged

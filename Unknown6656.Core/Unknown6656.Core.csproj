@@ -70,6 +70,10 @@
         <None Include="unknown6656-logo-1024.png" Pack="true" PackagePath="" />
     </ItemGroup>
     <ItemGroup>
+        <None Update="Mathematics\Analysis\ImplicitFunctions.tt">
+          <Generator>TextTemplatingFileGenerator</Generator>
+          <LastGenOutput>ImplicitFunctions.cs</LastGenOutput>
+        </None>
         <None Update="Optimization\LinearEquationSolvers.tt">
             <Generator>TextTemplatingFileGenerator</Generator>
             <LastGenOutput>LinearEquationSolvers.cs</LastGenOutput>
@@ -120,6 +124,11 @@
           <DesignTime>True</DesignTime>
           <AutoGen>True</AutoGen>
           <DependentUpon>ColorMemberGenerator.tt</DependentUpon>
+        </Compile>
+        <Compile Update="Mathematics\Analysis\ImplicitFunctions.cs">
+          <DesignTime>True</DesignTime>
+          <AutoGen>True</AutoGen>
+          <DependentUpon>ImplicitFunctions.tt</DependentUpon>
         </Compile>
         <Compile Update="Optimization\LinearEquationSolvers.cs">
             <DesignTime>True</DesignTime>

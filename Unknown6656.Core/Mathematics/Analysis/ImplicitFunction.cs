@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
+using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
 
@@ -32,13 +29,13 @@ public abstract class GeneralizedImplicitFunction<Codomain>
     public GeneralizedImplicitFunction<Codomain> Intersect(params GeneralizedImplicitFunction<Codomain>[] others) => new Delegated((x, ε) =>
         others.Aggregate(Evaluate(x, ε), (r, f) => r && f.Evaluate(x, ε)));
 
-    public static implicit operator GeneralizedImplicitFunction<Codomain> !(GeneralizedImplicitFunction<Codomain> function) => function.Negate();
+    public static GeneralizedImplicitFunction<Codomain> operator !(GeneralizedImplicitFunction<Codomain> function) => function.Negate();
 
-    public static implicit operator GeneralizedImplicitFunction<Codomain> &(GeneralizedImplicitFunction<Codomain> first, GeneralizedImplicitFunction<Codomain> second) => first.Intersect(second);
+    public static GeneralizedImplicitFunction<Codomain> operator &(GeneralizedImplicitFunction<Codomain> first, GeneralizedImplicitFunction<Codomain> second) => first.Intersect(second);
 
-    public static implicit operator GeneralizedImplicitFunction<Codomain> ^(GeneralizedImplicitFunction<Codomain> first, GeneralizedImplicitFunction<Codomain> second) => first.SymmetricDifference(second);
+    public static GeneralizedImplicitFunction<Codomain> operator ^(GeneralizedImplicitFunction<Codomain> first, GeneralizedImplicitFunction<Codomain> second) => first.SymmetricDifference(second);
 
-    public static implicit operator GeneralizedImplicitFunction<Codomain> |(GeneralizedImplicitFunction<Codomain> first, GeneralizedImplicitFunction<Codomain> second) => first.Union(second);
+    public static GeneralizedImplicitFunction<Codomain> operator |(GeneralizedImplicitFunction<Codomain> first, GeneralizedImplicitFunction<Codomain> second) => first.Union(second);
 
     protected class Delegated
         : GeneralizedImplicitFunction<Codomain>
@@ -87,6 +84,16 @@ public abstract class ImplicitFunction<@this, Codomain, Function>
             _ => throw new InvalidOperationException($"Invalid value '{ComparisonOperator}' for the property '{nameof(ComparisonOperator)}'"),
         };
     }
+
+    public override string ToString() => $"{Left} {ComparisonOperator switch
+    {
+        ComparisonOperator.SmallerThan => '<',
+        ComparisonOperator.SmallerOrEqualTo => '≤',
+        ComparisonOperator.EqualTo => '=',
+        ComparisonOperator.GreaterOrEqualTo => '≥',
+        ComparisonOperator.GreaterThan => '>',
+        _ => '?',
+    }} {Right}";
 }
 
 public class ImplicitFunction<Codomain>
@@ -98,7 +105,38 @@ public class ImplicitFunction<Codomain>
     {
     }
 
+    public ImplicitFunction(Func<Codomain, Scalar> left, ComparisonOperator comparison, Func<Codomain, Scalar> right)
+        : base(new(left), comparison, new(right))
+    {
+    }
+
     public ImplicitFunction<Codomain> Create(Function<Codomain, Scalar> left, ComparisonOperator comparison, Function<Codomain, Scalar> right) => new(left, comparison, right);
+}
+
+public class ImplicitScalarFunction
+    : ImplicitFunction<Scalar>
+{
+    public ImplicitScalarFunction(ScalarFunction left, ComparisonOperator comparison, ScalarFunction right)
+        : base((Function<Scalar, Scalar>)left, comparison, right)
+    {
+    }
+
+    public ImplicitScalarFunction(Func<Scalar, Scalar> left, ComparisonOperator comparison, Func<Scalar, Scalar> right)
+        : base(left, comparison, right)
+    {
+    }
+}
+
+public partial class ImplicitScalarFunction2D
+{
+    public static ImplicitScalarFunction2D Circle(Scalar radius) => new(xy => xy.Length, ComparisonOperator.EqualTo, _ => radius);
+
+    public static ImplicitScalarFunction2D Circle(Vector2 center, Scalar radius) => new(xy => xy.DistanceTo(center), ComparisonOperator.EqualTo, _ => radius);
+}
+
+public partial class ImplicitScalarFunction3D
+{
+    // TODO
 }
 
 public enum ComparisonOperator

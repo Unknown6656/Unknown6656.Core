@@ -161,7 +161,7 @@ public static class StringExtensions
 
     public static string ToCSharpEscaped(this string @string, bool include_quotes = false)
     {
-        string esc = new(@string.ToArray(CSharpSignatureProvider.GetLiteral));
+        string esc = @string.Select(CSharpSignatureProvider.GetLiteral).StringConcat();
 
         return include_quotes ? $"\"{esc}\"" : esc;
     }

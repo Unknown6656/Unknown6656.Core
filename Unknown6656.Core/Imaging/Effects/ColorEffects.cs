@@ -706,15 +706,16 @@ public sealed class Sepia
 public sealed class JPEGCompressionEffect
     : PartialBitmapEffect
 {
-    public Scalar CompressionLevel { get; }
+    public Scalar CompressionAmount { get; }
 
 
-    public JPEGCompressionEffect(Scalar compression_level) => CompressionLevel = compression_level;
+    public JPEGCompressionEffect(Scalar amount) =>
+        CompressionAmount = amount.Clamp(); // 1 - ((4 * amount.Clamp() + 1).MultiplicativeInverse - .2) / .8;
 
     private protected override Bitmap Process(Bitmap bmp, Rectangle region)
     {
         using MemoryStream ms = new();
-        int level = (int)Math.Round((1 - CompressionLevel.Clamp()) * 100);
+        int level = (int)Math.Round((1 - CompressionAmount) * 100);
 
         bmp.SaveAsJPEG(ms, level);
 

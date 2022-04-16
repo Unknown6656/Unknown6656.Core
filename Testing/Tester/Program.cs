@@ -67,10 +67,7 @@ public static unsafe class Program
         Console.OutputEncoding = Encoding.UTF8;
 
 
-
-        var il = ILDisassembler.Disassemble(typeof(Program).GetMember(nameof(calc))[0] as MethodInfo);
-        Console.WriteLine(il);
-
+        Main_implicit_plotter_ui();
         return;
         var prov = new CSharpSignatureProvider();
 
@@ -79,11 +76,6 @@ public static unsafe class Program
 
         //Main_PSO();
     }
-    public static int calc(int i, int b, int c)
-    {
-        return c << new int[i].GetHashCode() ^ b;
-    }
-
 
     //class pso_problem : PSOProblem<Scalar>
     //{
@@ -323,8 +315,8 @@ public static unsafe class Program
                 double time = index / total;
                 using Graphics g = Graphics.FromImage(frame);
 
-                new ComplexFunctionPlotter<ComplexFunction>(
-                    new ComplexFunction(c =>
+                new ComplexFunctionPlotter(
+                    new(c =>
                     {
                         return (c * c - time) * ((c - (2, 1 - 2 * time)) ^ 2) / (c * c + (2 * time, 2 * time)) + time;
                     })
@@ -396,10 +388,32 @@ public static unsafe class Program
 
     }
 
+    public static void Main_implicit_plotter_ui()
+    {
+        using var plotter = new FunctionPlotterControl<ImplicitCartesianFunctionPlotter>()
+        {
+            Dock = winforms.DockStyle.Fill,
+            Plotter = new(
+                ImplicitScalarFunction2D.EllipticCurve(2, 3)
+            )
+            {
+                CursorVisible = true,
+            },
+        };
+        using var form = new winforms.Form()
+        {
+            Width = 800,
+            Height = 600,
+            BackColor = Color.Teal,
+        };
+        form.Controls.Add(plotter);
+        form.ShowDialog();
+    }
+
     public static void Main_complex_plotter_bmp()
     {
-        new ComplexFunctionPlotter<ComplexFunction>(
-            new ComplexFunction(c =>
+        new ComplexFunctionPlotter(
+            new(c =>
             {
                 var z = c;
 
@@ -444,7 +458,7 @@ public static unsafe class Program
                 int _ when i < 600 => ((600 - i) / 20d, 10d),
                 _ => (0d, (800 - i) / 20d)
             };
-            new ComplexFunctionPlotter<ComplexFunction>(
+            new ComplexFunctionPlotter(
                 new(x => x.Acos().Multiply(c).Cos() + x.Asin().Multiply(s).Sin())
             )
             {
@@ -467,7 +481,7 @@ public static unsafe class Program
         int i = 0;
 
         for (double f = -2; f <= 2; f += 5e-3)
-            new ComplexFunctionPlotter<ComplexFunction>(
+            new ComplexFunctionPlotter(
                 new(c => c.ApplyRecursively(z => z.Power(f) + c, 5))
             )
             {
@@ -522,7 +536,7 @@ public static unsafe class Program
 
     public static void Main_BMP_plot_transformation_function()
     {
-        new Transformation2DPlotter<Function<Vector2>>(
+        new Transformation2DPlotter(
             // (Polynomial.Parse(".1x^2-5"), RGBAColor.Green),
             // (Polynomial.Parse(".01x³-.2x²+3"), RGBAColor.Firebrick)
             new(v => new Matrix2(1, 0, 0, -1).Multiply(v).Normalized - v.Normalized)

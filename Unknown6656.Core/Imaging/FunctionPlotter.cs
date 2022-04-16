@@ -140,9 +140,8 @@ public abstract class FunctionPlotterPOI
     public bool PointsOfInterestVisible { set; get; } = false;
 }
 
-public abstract class FunctionPlotter<Func, Value>
+public abstract class FunctionPlotter<Value>
     : FunctionPlotterPOI
-    where Func : FieldFunction<Value>
     where Value : unmanaged, IField<Value>, IComparable<Value>
 {
     #region PROPERTIES / FIELDS
@@ -482,7 +481,7 @@ public interface IMultiFunctionPlotter
 }
 
 public abstract class MultiFunctionPlotter<Func, Value>
-    : FunctionPlotter<Func, Value>
+    : FunctionPlotter<Value>
     , IMultiFunctionPlotter
     where Func : FieldFunction<Value>
     where Value : unmanaged, IField<Value>, IComparable<Value>
@@ -529,8 +528,6 @@ public abstract class MultiFunctionPlotter<Func, Value>
     // TODO
 }
 
-// TODO : implicit cartesian/polar plotter
-
 internal interface IPolarPlotter
     : IMultiFunctionPlotter
 {
@@ -540,6 +537,58 @@ internal interface ICartesianPlotter
     : IMultiFunctionPlotter
 {
 }
+
+public class ImplicitCartesianFunctionPlotter
+    : FunctionPlotter<Complex>
+{
+    public GeneralizedImplicitFunction<Vector2> Function { get; }
+
+
+    public ImplicitCartesianFunctionPlotter(GeneralizedImplicitFunction<Vector2> function) => Function = function;
+
+    protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO : implement
+
+    protected override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Complex value)> poi)
+    {
+        poi = new();
+
+        if (Function is ImplicitFunction<Vector2> implicit_function)
+            PlotGraph(g, w, h, x, y, s, implicit_function);
+        else
+        {
+            // TODO : plot every dot
+        }
+    }
+
+    ColorMap map = new()
+    protected void PlotGraph(Graphics g, int w, int h, float x, float y, float s, ImplicitFunction<Vector2> implicit_function)
+    {
+        Vector2 viewport = new Vector2(w, h) / s;
+        Vector2 min = new Vector2(-x, -y) / s;
+        Vector2 max = viewport + min;
+
+        const int cells = 20;
+        Vector2 step = (max - min) / cells;
+
+
+        for (int iy = 0; iy <= cells; ++iy)
+            for (int ix = 0; ix <= cells; ++ix)
+            {
+                var coord = min + step.ComponentwiseMultiply(ix, iy);
+                var val = implicit_function.EvaluateSignedDifference(coord, 1e-6);
+
+                var col = 
+
+                var xx = (float)w / cells * ix;
+                var yy = (float)h / cells * iy;
+                g.DrawEllipse()
+            }
+
+        // TODO : marching squares
+    }
+}
+
+// TODO : implicit cartesian/polar plotter
 
 public class CartesianFunctionPlotter<Func>
     : MultiFunctionPlotter<Func, Scalar>
@@ -686,9 +735,8 @@ public class PolarFunctionPlotter<Func>
     }
 }
 
-public class ComplexFunctionPlotter<Func>
-    : FunctionPlotter<Func, Complex>
-    where Func : FieldFunction<Complex>
+public class ComplexFunctionPlotter
+    : FunctionPlotter<Complex>
 {
     public ComplexColorStyle Style { set; get; } = ComplexColorStyle.Wrapped;
     public bool PhaseLinesVisible { set; get; } = false;
@@ -696,10 +744,10 @@ public class ComplexFunctionPlotter<Func>
     public int PhaseLineSteps { set; get; } = POLAR_DIVISIONS * 4;
     public Scalar PhaseLineTolerance { set; get; } = 1e-2;
     public bool UseInterpolation { set; get; } = false;
-    public Func Function { get; }
+    public FieldFunction<Complex> Function { get; }
 
 
-    public ComplexFunctionPlotter(Func function) => Function = function;
+    public ComplexFunctionPlotter(FieldFunction<Complex> function) => Function = function;
 
     protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor)
     {
@@ -775,14 +823,13 @@ public class ComplexFunctionPlotter<Func>
     }
 }
 
-public class Transformation2DPlotter<Func>
-    : ComplexFunctionPlotter<ComplexFunction>
-    where Func : Function<Vector2>
+public class Transformation2DPlotter
+    : ComplexFunctionPlotter
 {
-    public new Func Function { get; }
+    public new Function<Vector2> Function { get; }
 
 
-    public Transformation2DPlotter(Func function)
+    public Transformation2DPlotter(Function<Vector2> function)
         : base(new ComplexFunction(c => function[c])) => Function = function;
 }
 

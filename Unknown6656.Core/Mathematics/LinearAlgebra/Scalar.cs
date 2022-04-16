@@ -362,7 +362,17 @@ public unsafe readonly /* ref */ partial struct Scalar
     public readonly Scalar Multiply(Scalar second) => Multiply(in second);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Multiply(in Scalar second) => new(Determinant * second.Determinant);
+    public readonly Scalar Multiply(in Scalar second)
+    {
+        if (IsZero || second.IsZero)
+            return Zero;
+        else if (IsOne)
+            return second;
+        else if (second.IsOne)
+            return this;
+        else
+            return new(Determinant * second.Determinant);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar Multiply(params Scalar[] others) => others.Aggregate(this, Multiply);
@@ -371,7 +381,7 @@ public unsafe readonly /* ref */ partial struct Scalar
     public readonly Scalar Divide(Scalar second) => Divide(in second);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Divide(in Scalar second) => new(Determinant / second.Determinant);
+    public readonly Scalar Divide(in Scalar second) => second.IsOne ? this : new(Determinant / second.Determinant);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Scalar Factor, Scalar Remainder) DivideModulus(in Scalar second) => (Divide(in second), Modulus(in second));
@@ -383,7 +393,16 @@ public unsafe readonly /* ref */ partial struct Scalar
     public readonly Scalar Modulus(in Scalar second) => new(Determinant % second.Determinant);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Scalar Power(int e) => Power(new Scalar((__scalar)e));
+    public readonly Scalar Power(int e) => e switch {
+        0 => One,
+        1 => this,
+        2 => Multiply(in this),
+        3 => Power(2).Multiply(in this),
+        4 => Power(2).Power(2),
+        -1 => MultiplicativeInverse,
+        < 0 => Power(-e).MultiplicativeInverse,
+        _ => Power(new Scalar((__scalar)e)),
+    };
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar Power(Scalar e) => new(Math.Pow(Determinant, e.Determinant));

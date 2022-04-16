@@ -7,6 +7,7 @@ using System.Linq;
 using System;
 
 using Unknown6656.Generics;
+using Unknown6656.Runtime;
 
 namespace Unknown6656.Common;
 
@@ -83,6 +84,8 @@ public static class StringExtensions
 
     public static string Remove(this string input, string search) => input.Replace(search, string.Empty);
 
+    public static StringBuilder AppendLines<T>(this StringBuilder sb, IEnumerable<T?> items) => items.Aggregate(sb, (sb, t) => sb.AppendLine(t?.ToString()));
+
     public static string GetCommonSuffix(params string[] words)
     {
         string suffix = words[0];
@@ -148,6 +151,20 @@ public static class StringExtensions
     public static string ToSubScript(this string input) => input.Select(ToSubScript).StringConcat();
 
     public static string ToSuperScript(this string input) => input.Select(ToSuperScript).StringConcat();
+
+    public static string ToCSharpEscaped(this char @char, bool include_quotes = false)
+    {
+        string esc = CSharpSignatureProvider.GetLiteral(@char);
+
+        return include_quotes ? $"'{esc}'" : esc;
+    }
+
+    public static string ToCSharpEscaped(this string @string, bool include_quotes = false)
+    {
+        string esc = new(@string.ToArray(CSharpSignatureProvider.GetLiteral));
+
+        return include_quotes ? $"\"{esc}\"" : esc;
+    }
 
     /* TODO : implement text conversions
      *  input:  abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789 +-/.:(),;=*

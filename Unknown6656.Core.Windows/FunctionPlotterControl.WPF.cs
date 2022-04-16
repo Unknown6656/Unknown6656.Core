@@ -252,7 +252,7 @@ namespace Unknown6656.Controls.WPF
                 BitmapImage image = new();
 
                 image.BeginInit();
-                image.StreamSource = DataStream.FromBitmap(bitmap, System.Drawing.Imaging.ImageFormat.Bmp).ToStream();
+                image.StreamSource = DataStream.FromBitmap(bitmap, System.Drawing.Imaging.ImageFormat.Bmp);
                 image.EndInit();
 
                 context.DrawImage(image, new(0, 0, bitmap.Width, bitmap.Height));

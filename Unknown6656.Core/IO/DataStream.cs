@@ -28,6 +28,8 @@ using Unknown6656.Generics;
 using Unknown6656.Imaging;
 using Unknown6656.Common;
 using Unknown6656.Runtime;
+using System.Reflection;
+using System.Net.NetworkInformation;
 
 namespace Unknown6656.IO;
 
@@ -85,12 +87,18 @@ public unsafe interface INative<@this>
 /// <summary>
 /// A class containing serialization/deserialization functions.
 /// </summary>
-public unsafe record DataStream(byte[] Data)
-    : IEnumerable<byte>
+public unsafe class DataStream
+    : MemoryStream
+    , IDisposable
+    , IEnumerable<byte>
 {
+    #region STATIC FIELDS / PROPERTIES
+
     private static readonly Regex FTP_PROTOCOL_REGEX = new(@"^(?<protocol>ftps?):\/\/(?<uname>[^:]+)(:(?<passw>[^@]+))?@(?<url>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly Regex SSH_PROTOCOL_REGEX = new(@"^(sftp|ssh|s?scp):\/\/(?<uname>[^:]+)(:(?<passw>[^@]+))?@(?<host>[^:\/]+|\[[0-9a-f\:]+\])(:(?<port>[0-9]{1,6}))?(\/|\\)(?<path>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly Regex BASE64_REGEX = new(@"^.\s*data:\s*[^\w\/\-\+]+\s*;(\s*base64\s*,)?(?<data>(?:[a-z0-9+/]{4})*(?:[a-z0-9+/]{2}==|[a-z0-9+/]{3}=)?)$", RegexOptions.Compiled | RegexOptions.Compiled);
+    private static readonly FieldInfo _MEMORYSTREAM_ORIGIN;
+    private static readonly FieldInfo _MEMORYSTREAM_LENGTH;
 
 
     public static DataStream Empty { get; } = new(Array.Empty<byte>());
@@ -107,6 +115,12 @@ public unsafe record DataStream(byte[] Data)
 
     public static Encoding DefaultDataStreamEncoding = Encoding.Default; // BytewiseEncoding.Instance;
 
+    #endregion
+    #region INSTANCE PROPERTIES
+
+    private int MS_Origin => (int)(_MEMORYSTREAM_ORIGIN.GetValue((MemoryStream)this) ?? throw new InvalidOperationException());
+
+    public Span<byte> Data => base.GetBuffer().AsSpan(MS_Origin, Length);
 
     public DataStream this[Range range] => Slice(range);
 
@@ -114,19 +128,89 @@ public unsafe record DataStream(byte[] Data)
 
     public ref byte this[Index index] => ref Data[index];
 
-    public int ByteCount => Data.Length;
+    #endregion
+    #region .CTOR / .DTOR
 
+    static DataStream()
+    {
+        _MEMORYSTREAM_ORIGIN = typeof(MemoryStream).GetField("_origin", BindingFlags.Instance | BindingFlags.NonPublic) ??
+            throw new InvalidProgramException($"The internal layout of the type '{typeof(MemoryStream)}' seems to have changed. Please contact https://github.com/unknown6656/!");
+    }
 
-    public bool GetBit(ulong index) => (Data[index / 8] & (1 << (int)(index % 8))) != 0;
+    public DataStream()
+        : this(Array.Empty<byte>())
+    {
+    }
 
-    public DataStream GetBit(ulong index, out bool bit)
+    public DataStream(Stream ms!!) : this(Array.Empty<byte>()) => ms.CopyTo(this);
+
+    public DataStream(IEnumerable<byte>? data)
+        : this(data as byte[] ?? data?.ToArray())
+    {
+    }
+
+    public DataStream(params byte[]? data)
+        : base(data ?? Array.Empty<byte>())
+    {
+    }
+
+    #endregion
+    #region INSTANCE METHODS
+
+    public T ReadAt<T>(long index)
+        where T : unmanaged
+    {
+        byte[] bytes = new byte[sizeof(T)];
+        long pos = Position;
+
+        _ms.Seek(index, SeekOrigin.Begin);
+        _ms.Read(bytes, 0, bytes.Length);
+        _ms.Seek(pos, SeekOrigin.Begin);
+
+        fixed (byte* ptr = bytes)
+            return *(T*)ptr;
+    }
+
+    public T ReadAt<T>(Index index) where T : unmanaged => ReadAt<T>((long)index.GetOffset((int)Length));
+
+    public DataStream ReadAt<T>(long index, out T value)
+        where T : unmanaged
+    {
+        value = ReadAt<T>(index);
+
+        return this;
+    }
+
+    public DataStream ReadAt<T>(Index index, out T value) where T : unmanaged => ReadAt((long)index.GetOffset((int)Length), out value);
+
+    public DataStream WriteAt<T>(Index index, T value) where T : unmanaged => WriteAt((long)index.GetOffset((int)Length), value);
+
+    public DataStream WriteAt<T>(long index, T value)
+        where T : unmanaged
+    {
+        byte[] bytes = new byte[sizeof(T)];
+        byte* ptr = (byte*)&value;
+
+        for (int i = 0; i < bytes.Length; ++i)
+            bytes[i] = ptr[i];
+
+        long pos = Position;
+
+        _ms.Seek(index, SeekOrigin.Begin);
+        _ms.Write(bytes, 0, bytes.Length);
+        _ms.Seek(pos, SeekOrigin.Begin);
+    }
+
+    public bool GetBit(long index) => (Data[index / 8] & (1 << (int)(index % 8))) != 0;
+
+    public DataStream GetBit(long index, out bool bit)
     {
         bit = GetBit(index);
 
         return this;
     }
 
-    public DataStream SetBit(ulong index, bool new_value)
+    public DataStream SetBit(long index, bool new_value)
     {
         byte mask = (byte)(1 << (int)(index % 8));
 
@@ -138,14 +222,14 @@ public unsafe record DataStream(byte[] Data)
         return this;
     }
 
-    public DataStream SetBit(ulong index, bool new_value, out bool old_value)
+    public DataStream SetBit(long index, bool new_value, out bool old_value)
     {
         old_value = GetBit(index);
 
         return SetBit(index, new_value);
     }
 
-    public bool FlipBit(ulong index)
+    public bool FlipBit(long index)
     {
         byte mask = (byte)(1 << (int)(index % 8));
         ref byte data = ref Data[index / 8];
@@ -155,7 +239,7 @@ public unsafe record DataStream(byte[] Data)
         return (data & mask) != 0;
     }
 
-    public DataStream FlipBit(ulong index, out bool new_value)
+    public DataStream FlipBit(long index, out bool new_value)
     {
         new_value = FlipBit(index);
 
@@ -164,57 +248,61 @@ public unsafe record DataStream(byte[] Data)
 
     public void Transform(Func<byte, byte> transformer_func, bool parallel = true)
     {
+        byte[] buffer = Data;
+
         if (parallel)
-            Parallel.For(0, Data.LongLength, i => Data[i] = transformer_func(Data[i]));
+            Parallel.For(0, buffer.LongLength, i => buffer[i] = transformer_func(buffer[i]));
         else
-            for (long i = 0; i < Data.LongLength; ++i)
-                Data[i] = transformer_func(Data[i]);
+            for (long i = 0; i < buffer.LongLength; ++i)
+                buffer[i] = transformer_func(buffer[i]);
     }
 
     public void Transform(Func<byte, long, byte> transformer_func, bool parallel = true)
     {
+        byte[] buffer = Data;
+
         if (parallel)
-            Parallel.For(0, Data.LongLength, i => Data[i] = transformer_func(Data[i], i));
+            Parallel.For(0, buffer.LongLength, i => buffer[i] = transformer_func(buffer[i], i));
         else
-            for (long i = 0; i < Data.LongLength; ++i)
-                Data[i] = transformer_func(Data[i], i);
+            for (long i = 0; i < buffer.LongLength; ++i)
+                buffer[i] = transformer_func(buffer[i], i);
     }
 
     public DataStream ChangeEncoding(Encoding from, Encoding to) => FromString(ToString(from), to);
 
-    public DataStream Compress(CompressionFunction algorithm) => Data.Compress(algorithm);
+    public DataStream Compress(CompressionFunction algorithm) => ToBytes().Compress(algorithm);
 
-    public DataStream Uncompress(CompressionFunction algorithm) => Data.Uncompress(algorithm);
+    public DataStream Uncompress(CompressionFunction algorithm) => ToBytes().Uncompress(algorithm);
 
-    public DataStream Encrypt(BinaryCipher algorithm, byte[] key) => Data.Encrypt(algorithm, key);
+    public DataStream Encrypt(BinaryCipher algorithm, byte[] key) => ToBytes().Encrypt(algorithm, key);
 
-    public DataStream Decrypt(BinaryCipher algorithm, byte[] key) => Data.Decrypt(algorithm, key);
+    public DataStream Decrypt(BinaryCipher algorithm, byte[] key) => ToBytes().Decrypt(algorithm, key);
 
     public DataStream Hex() => FromString(ToHexString());
 
     public DataStream UnHex() => FromHex(ToString());
 
-    public DataStream Hash<T>(T hash_function) where T : HashFunction<T> => hash_function.Hash(Data);
+    public DataStream Hash<T>(T hash_function) where T : HashFunction<T> => hash_function.Hash(ToBytes());
 
     public DataStream Hash<T>() where T : HashFunction<T>, new() => Hash(new T());
 
     public DataStream HexDump()
     {
-        ConsoleExtensions.HexDump(Data);
+        ConsoleExtensions.HexDump(ToBytes());
 
         return this;
     }
 
     public DataStream HexDump(TextWriter writer)
     {
-        ConsoleExtensions.HexDump(Data, writer);
+        ConsoleExtensions.HexDump(ToBytes(), writer);
 
         return this;
     }
 
     public DataStream Slice(Index start, Index end) => Slice(start..end);
 
-    public DataStream Slice(Range range) => FromBytes(Data[range]);
+    public DataStream Slice(Range range) => FromBytes(ToBytes()[range]);
 
     public DataStream Concat(params DataStream[] others) => Concat(others.Prepend(this));
 
@@ -222,15 +310,18 @@ public unsafe record DataStream(byte[] Data)
 
     public DataStream Prepend(DataStream first) => DataStream.Concat(new[] { first, this });
 
-    public DataStream Where(Func<byte, bool> predicate) => Data.Where(predicate).ToArray();
+    public DataStream Where(Func<byte, bool> predicate) => ToBytes().ToArrayWhere(predicate);
 
-    public DataStream Select(Func<byte, byte> function) => Data.ToArray(function);
+    public DataStream Select(Func<byte, byte> function) => ToBytes().ToArray(function);
 
-    public DataStream Reverse() => Data.Reverse().ToArray();
+    public DataStream Reverse() => ToBytes().Reverse().ToArray();
 
     public IEnumerator<byte> GetEnumerator() => ((IEnumerable<byte>)Data).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    #endregion
+    #region DESERIALIZATION
 
     public override string ToString() => ToString(DefaultDataStreamEncoding);
 
@@ -349,11 +440,7 @@ public unsafe record DataStream(byte[] Data)
 
     public string ToDataURI(string mime = "application/octet-stream") => $"data:{mime};base64,{ToBase64()}";
 
-    public void ToStream(Stream stream) => ToStream().CopyTo(stream);
-
-    public MemoryStream ToStream() => new(Data);
-
-    public BinaryReader ToBinaryReader() => new(ToStream());
+    public BinaryReader ToBinaryReader() => new(this);
 
     public void ToBinaryWriter(BinaryWriter writer) => writer.Write(Data);
 
@@ -417,7 +504,7 @@ public unsafe record DataStream(byte[] Data)
             dst[i] = Data[i];
     }
 
-    public byte[] ToBytes() => Data;
+    public byte[] ToBytes() => Data.ToArray();
 
     public T ToUnmanaged<T>()
         where T : unmanaged
@@ -432,7 +519,7 @@ public unsafe record DataStream(byte[] Data)
     public T[] ToArray<T>()
         where T : unmanaged
     {
-        byte[] arr = Data;
+        byte[] arr = ToBytes();
 
         fixed (byte* ptr = arr)
         {
@@ -522,7 +609,7 @@ public unsafe record DataStream(byte[] Data)
     public Field[,] ToCompressedMatrix<Field>() where Field : unmanaged, IField<Field> => ToCompressedStorageFormat<Field>().ToMatrix();
 
     public CompressedStorageFormat<Field> ToCompressedStorageFormat<Field>()
-        where Field : unmanaged, IField<Field> => Mathematics.LinearAlgebra.CompressedStorageFormat<Field>.FromBytes(Data);
+        where Field : unmanaged, IField<Field> => CompressedStorageFormat<Field>.FromBytes(ToBytes());
 
     public UnsafeFunctionPointer ToFunctionPointer()
     {
@@ -564,6 +651,10 @@ public unsafe record DataStream(byte[] Data)
 
     public object? ToJSON(Type type, Encoding enc, JsonSerializerOptions? options = null) => JsonSerializer.Deserialize(ToString(enc), type, options ?? DefaultJSONOptions);
 
+    public string DisassembleILBytes(Module module_context) => ILDisassembler.Disassemble(ToBytes(), module_context).StringJoinLines();
+
+    public string DisassembleASMBytes() => ASMDisassembler.Disassemble(ToBytes()).StringJoinLines();
+
     [Obsolete("See https://aka.ms/binaryformatter", true)]
     public object ToSerializable()
     {
@@ -595,6 +686,8 @@ public unsafe record DataStream(byte[] Data)
         return System.Type.GetTypeFromCLSID(clsid) ?? System.Type.GetType(name);
     }
 
+    #endregion
+    #region STATIC METHODS
 
     public static DataStream Concat(IEnumerable<DataStream?>? sources)
     {
@@ -608,6 +701,9 @@ public unsafe record DataStream(byte[] Data)
 
         return FromStream(s);
     }
+
+    #endregion
+    #region SERIALIZATION
 
     public static DataStream FromUnmanaged<T>(T data) where T : unmanaged => FromPointer(&data);
 
@@ -977,15 +1073,16 @@ public unsafe record DataStream(byte[] Data)
         return FromPointer(&__start + offset, size);
     }
 
+    #endregion
+    #region OPERATORS
+
     public static DataStream operator +(DataStream first, DataStream second) => first.Concat(second);
 
-    public static implicit operator byte[](DataStream data) => data.Data;
+    public static implicit operator byte[](DataStream data) => data.ToBytes();
 
     public static implicit operator DataStream(byte[] bytes) => new(bytes);
 
-    public static implicit operator MemoryStream(DataStream data) => data.ToStream();
-
-    public static implicit operator DataStream(Stream stream) => FromStream(stream);
+    #endregion
 }
 
 public unsafe sealed partial class UnsafeFunctionPointer

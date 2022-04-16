@@ -82,7 +82,7 @@ public abstract class ImplicitFunction<@this, Codomain, Function>
         };
     }
 
-    internal Scalar EvaluateSignedDifference(Codomain value, Scalar tolerance)
+    public Scalar EvaluateSignedDifference(Codomain value, Scalar tolerance)
     {
         Scalar diff = Left.Evaluate(value) - Right.Evaluate(value);
 

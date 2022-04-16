@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
+using System;
 
 using Unknown6656.Generics;
 using Unknown6656.Common;
@@ -21,7 +19,7 @@ public static class ILDisassembler
 
     public static string Disassemble(MethodBody method!!, Module module)
     {
-        byte[]? signature = module.ResolveSignature(method.LocalSignatureMetadataToken);
+        byte[]? signature = LINQ.TryDo(() => module.ResolveSignature(method.LocalSignatureMetadataToken), null);
         IList<LocalVariableInfo> variables = method.LocalVariables;
         IList<ExceptionHandlingClause> handlers = method.ExceptionHandlingClauses;
         StringBuilder il = new();
@@ -63,8 +61,9 @@ public static class ILDisassembler
                     {
                         if (Process(ptr, module, processed) is (int adv, string instr))
                         {
+                            lines.Add($"IL_{processed:x4}: {instr}");
+                            ++processed;
                             ptr += adv;
-                            lines.Add($"IL_{processed:x8}: {instr}");
                         }
                         else
                             break;
@@ -83,7 +82,7 @@ public static class ILDisassembler
     private static unsafe (int adv, string instruction)? Process(byte* ptr, Module module, int line)
     {
         T get<T>(int offset = 1) where T : unmanaged => *(T*)(ptr + 1);
-        string resolve_target(int target) => $"IL_{target + line:x8}";
+        string resolve_target(int target) => $"IL_{target + line:x4}";
         string resolve_type(int token) => _ilsigprov.GetTypeName(module.ResolveType(token));
         string resolve_field(int token) => _ilsigprov.GetCallsiteSignature(module.ResolveField(token));
         string resolve_method(int token) => _ilsigprov.GetCallsiteSignature(module.ResolveMethod(token));

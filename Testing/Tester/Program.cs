@@ -28,6 +28,7 @@ using Unknown6656.IO;
 using Random = Unknown6656.Mathematics.Numerics.Random;
 using winforms = System.Windows.Forms;
 using System.Threading.Tasks;
+using System.Runtime.ExceptionServices;
 
 namespace Testing;
 
@@ -65,14 +66,24 @@ public static unsafe class Program
     {
         Console.OutputEncoding = Encoding.UTF8;
 
+
+
+        var il = ILDisassembler.Disassemble(typeof(Program).GetMember(nameof(calc))[0] as MethodInfo);
+        Console.WriteLine(il);
+
+        return;
         var prov = new CSharpSignatureProvider();
 
         typeof(test).GetMembers().Append(typeof(test)).Do(m => Console.WriteLine(prov.GenerateSignature(m) + "\n"));
         return;
 
-        Main_BMP_effects_3();
         //Main_PSO();
     }
+    public static int calc(int i, int b, int c)
+    {
+        return c << new int[i].GetHashCode() ^ b;
+    }
+
 
     //class pso_problem : PSOProblem<Scalar>
     //{
@@ -99,11 +110,11 @@ public static unsafe class Program
         var img = ((Bitmap)Image.FromFile("img4.png")).ToARGB32();
         var sw = Stopwatch.StartNew();
 
-        var pal = ColorPalette.FromImage(img, 20);
 
-        img.ApplyEffect(
-            new ReduceColorSpace(pal)
-        ).Save($"conv.png");
+        for (int i = 0; i <= 50; ++i)
+            img.ApplyEffect(
+                new JPEGCompressionEffect(i / 50d)
+            ).Save($"compr-{i:d2}.png");
 
         sw.Stop();
         Console.WriteLine($"effects: {sw.ElapsedMilliseconds:F2} ms");
@@ -578,6 +589,7 @@ public static unsafe class Program
 
             OrderedDitheringAlgorithm.Ordered_2x8,
             OrderedDitheringAlgorithm.Ordered_8x2,
+            OrderedDitheringAlgorithm.WavyHatchet_16,
         })
         {
             Console.WriteLine(alg);

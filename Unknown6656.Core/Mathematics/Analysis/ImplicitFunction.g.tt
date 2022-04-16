@@ -18,7 +18,6 @@ using Unknown6656.Mathematics.LinearAlgebra;
 
 namespace Unknown6656.Mathematics.Analysis;
 
-
 <#
     int maxdim = 4;
 
@@ -37,8 +36,10 @@ namespace Unknown6656.Mathematics.Analysis;
         string typename = $"ImplicitScalarFunction{dim}D";
         string vecname = "Vector" + dim;
         string argdef = string.Join(", ", r(0, dim).Select(i => $"Scalar x{i}"));
+        string vargs = string.Join(", ", r(0, dim).Select(i => $"v[{i}]"));
         string args = string.Join(", ", r(0, dim).Select(i => $"x{i}"));
 #>
+
 public partial class <#=typename#>
     : ImplicitFunction<<#=vecname#>>
 {
@@ -54,6 +55,11 @@ public partial class <#=typename#>
 
     public <#=typename#>(Func<<#=vecname#>, Scalar> left, ComparisonOperator comparison, Func<<#=vecname#>, Scalar> right)
         : base(left, comparison, right)
+    {
+    }
+
+    public <#=typename#>(Func<<#=string.Join(", ", r(0, dim + 1).Select(_ => "Scalar"))#>> left, ComparisonOperator comparison, Func<<#=string.Join(", ", r(0, dim + 1).Select(_ => "Scalar"))#>> right)
+        : base(v => left(<#=vargs#>), comparison, v => right(<#=vargs#>))
     {
     }
 

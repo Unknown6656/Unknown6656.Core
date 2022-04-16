@@ -69,20 +69,29 @@ public abstract class ImplicitFunction<@this, Codomain, Function>
 
     public override bool Evaluate(Codomain value, Scalar tolerance)
     {
-        Scalar left = Left.Evaluate(value);
-        Scalar right = Left.Evaluate(value);
-        bool eq = left.Is(right, tolerance);
-        int cmp = left.CompareTo(right);
+        Scalar diff = EvaluateSignedDifference(value, tolerance);
 
         return ComparisonOperator switch
         {
-            ComparisonOperator.EqualTo => eq,
-            ComparisonOperator.SmallerOrEqualTo => eq || cmp <= 0,
-            ComparisonOperator.GreaterOrEqualTo => eq || cmp >= 0,
-            ComparisonOperator.SmallerThan => cmp < 0,
-            ComparisonOperator.GreaterThan => cmp > 0,
+            ComparisonOperator.EqualTo => diff == Scalar.Zero,
+            ComparisonOperator.SmallerOrEqualTo => diff <= Scalar.Zero,
+            ComparisonOperator.GreaterOrEqualTo => diff >= Scalar.Zero,
+            ComparisonOperator.SmallerThan => diff < Scalar.Zero,
+            ComparisonOperator.GreaterThan => diff > Scalar.Zero,
             _ => throw new InvalidOperationException($"Invalid value '{ComparisonOperator}' for the property '{nameof(ComparisonOperator)}'"),
         };
+    }
+
+    internal Scalar EvaluateSignedDifference(Codomain value, Scalar tolerance)
+    {
+        Scalar diff = Left.Evaluate(value) - Right.Evaluate(value);
+
+        if (diff <= tolerance && diff >= -tolerance)
+            return Scalar.Zero;
+        else if (diff < -tolerance)
+            return diff + tolerance;
+        else
+            return diff - tolerance;
     }
 
     public override string ToString() => $"{Left} {ComparisonOperator switch
@@ -140,6 +149,14 @@ public partial class ImplicitScalarFunction2D
             fill ? ComparisonOperator.SmallerOrEqualTo : ComparisonOperator.EqualTo,
             _ => Scalar.One
         );
+
+    public static ImplicitScalarFunction2D EllipticCurve(Scalar a, Scalar b) =>
+        new(xy => xy.Y ^ 2, ComparisonOperator.EqualTo, xy => (xy.X ^ 3) + a * xy.X + b);
+
+    public static ImplicitScalarFunction2D Cartesian(Function<Scalar, Scalar> function, ComparisonOperator comparison = ComparisonOperator.EqualTo) =>
+        new(xy => function.Evaluate(xy.X), comparison, xy => xy.Y);
+
+    public static implicit operator ImplicitScalarFunction2D(Function<Scalar, Scalar> function) => Cartesian(function);
 }
 
 public partial class ImplicitScalarFunction3D

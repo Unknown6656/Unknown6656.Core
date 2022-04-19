@@ -2,6 +2,8 @@
 using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
+using System.Net.Http.Headers;
+using System.Collections.Generic;
 
 namespace Unknown6656.Mathematics.Analysis;
 
@@ -36,6 +38,7 @@ public abstract class GeneralizedImplicitFunction<Codomain>
     public static GeneralizedImplicitFunction<Codomain> operator ^(GeneralizedImplicitFunction<Codomain> first, GeneralizedImplicitFunction<Codomain> second) => first.SymmetricDifference(second);
 
     public static GeneralizedImplicitFunction<Codomain> operator |(GeneralizedImplicitFunction<Codomain> first, GeneralizedImplicitFunction<Codomain> second) => first.Union(second);
+
 
     protected class Delegated
         : GeneralizedImplicitFunction<Codomain>
@@ -138,6 +141,10 @@ public class ImplicitScalarFunction
 
 public partial class ImplicitScalarFunction2D
 {
+    public ImplicitScalarFunction2D Transpose() => new(v => Left.Evaluate(new(v.Y, v.X)), ComparisonOperator, v => Right.Evaluate(new(v.Y, v.X)));
+
+    public static ImplicitScalarFunction2D Heart() => new((x, y) => x * x + (y - (x * x).Power(1 / 3f)).Power(2) - 1);
+
     public static ImplicitScalarFunction2D Circle(Scalar radius, bool fill = false) => Circle(Vector2.Zero, radius, fill);
 
     public static ImplicitScalarFunction2D Circle(Vector2 center, Scalar radius, bool fill = false) =>
@@ -153,8 +160,20 @@ public partial class ImplicitScalarFunction2D
     public static ImplicitScalarFunction2D EllipticCurve(Scalar a, Scalar b) =>
         new(xy => xy.Y ^ 2, ComparisonOperator.EqualTo, xy => (xy.X ^ 3) + a * xy.X + b);
 
+    public static ImplicitScalarFunction2D CassiniOval(Scalar a, Scalar b) =>
+        new(xy => xy.SquaredNorm.Power(2) - 2 * b * b * xy.SquaredNorm - a.Power(4) + b.Power(4), ComparisonOperator.EqualTo, _ => Scalar.Zero);
+
+    //public static ImplicitScalarFunction2D BlobbyMolecules(IEnumerable<(Vector2 Center, Scalar Radius)> balls, Scalar threshold) => ;
+
+    //public static ImplicitScalarFunction2D SoftBodies(IEnumerable<(Vector2 Center, Scalar Radius)> balls, Scalar threshold) => ;
+
+    //public static ImplicitScalarFunction2D Metaballs(IEnumerable<(Vector2 Center, Scalar Radius)> balls, Scalar threshold) => ;
+
     public static ImplicitScalarFunction2D Cartesian(Function<Scalar, Scalar> function, ComparisonOperator comparison = ComparisonOperator.EqualTo) =>
         new(xy => function.Evaluate(xy.X), comparison, xy => xy.Y);
+
+    public static ImplicitScalarFunction2D CartesianInverse(Function<Scalar, Scalar> function, ComparisonOperator comparison = ComparisonOperator.EqualTo) =>
+        new(xy => function.Evaluate(xy.Y), comparison, xy => xy.X);
 
     public static implicit operator ImplicitScalarFunction2D(Function<Scalar, Scalar> function) => Cartesian(function);
 }

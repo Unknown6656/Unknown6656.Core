@@ -48,6 +48,22 @@ public partial class <#=typename#>
     public bool this[<#=argdef#>, Scalar tolerance] => Evaluate(<#=args#>, tolerance);
 
 
+
+    public <#=typename#>(Function<<#=vecname#>, Scalar> function)
+        : this(function, ComparisonOperator.EqualTo, new(_ => Scalar.Zero))
+    {
+    }
+
+    public <#=typename#>(Func<<#=vecname#>, Scalar> function)
+        : this(new Function<<#=vecname#>, Scalar>(function))
+    {
+    }
+
+    public <#=typename#>(Func<<#=string.Join(", ", r(0, dim + 1).Select(_ => "Scalar"))#>> function)
+        : this(v => function(<#=vargs#>))
+    {
+    }
+
     public <#=typename#>(Function<<#=vecname#>, Scalar> left, ComparisonOperator comparison, Function<<#=vecname#>, Scalar> right)
         : base(left, comparison, right)
     {
@@ -66,6 +82,48 @@ public partial class <#=typename#>
     public virtual bool Evaluate(<#=argdef#>) => Evaluate(<#=args#>, Scalar.ComputationalEpsilon);
 
     public virtual bool Evaluate(<#=argdef#>, Scalar tolerance) => base.Evaluate(new(<#=args#>), tolerance);
+
+    public <#=typename#> Negate() => new(v => Left.Evaluate(-v), ComparisonOperator, v => Right.Evaluate(-v));
+
+    public <#=typename#> Shift(<#=vecname#> offset) => new(v => Left.Evaluate(v - offset), ComparisonOperator, v => Right.Evaluate(v - offset));
+
+    public <#=typename#> Scale(Scalar factor) => new(v => Left.Evaluate(v / factor), ComparisonOperator, v => Right.Evaluate(v - factor));
+
+    public static <#=typename#> LinearInterpolate(<#=typename#> first, <#=typename#> second, Scalar factor)
+    {
+        ComparisonOperator op = ComparisonOperator.EqualTo;
+
+        if (first.ComparisonOperator == second.ComparisonOperator)
+            op = first.ComparisonOperator;
+        else if (first.ComparisonOperator <= ComparisonOperator.EqualTo && second.ComparisonOperator <= ComparisonOperator.EqualTo)
+            op = (ComparisonOperator)Math.Min((int)first.ComparisonOperator, (int)second.ComparisonOperator);
+        else if (first.ComparisonOperator >= ComparisonOperator.EqualTo && second.ComparisonOperator >= ComparisonOperator.EqualTo)
+            op = (ComparisonOperator)Math.Max((int)first.ComparisonOperator, (int)second.ComparisonOperator);
+
+        factor = factor.Clamp();
+
+        return new(
+            xy => first.Left.Evaluate(xy) * (1 - factor) + second.Left.Evaluate(xy) * factor,
+            op,
+            xy => first.Right.Evaluate(xy) * (1 - factor) + second.Right.Evaluate(xy) * factor
+        );
+    }
+
+    public static <#=typename#> operator +(<#=typename#> function) => function;
+
+    public static <#=typename#> operator -(<#=typename#> function) => function.Negate();
+
+    public static <#=typename#> operator +(<#=vecname#> offset, <#=typename#> function) => function.Shift(offset);
+
+    public static <#=typename#> operator +(<#=typename#> function, <#=vecname#> offset) => function.Shift(offset);
+
+    public static <#=typename#> operator -(<#=typename#> function, <#=vecname#> offset) => function.Shift(-offset);
+
+    public static <#=typename#> operator *(Scalar scale, <#=typename#> function) => function.Scale(scale);
+
+    public static <#=typename#> operator *(<#=typename#> function, Scalar scale) => function.Scale(scale);
+
+    public static <#=typename#> operator /(<#=typename#> function, Scalar scale) => function.Scale(scale.MultiplicativeInverse);
 }
 <#
     }

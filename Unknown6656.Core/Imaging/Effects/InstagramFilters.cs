@@ -19,6 +19,7 @@ public abstract class InstagramFilter
 {
     public static _1977Filter _1977 { get; } = new();
     public static AdenFilter Aden { get; } = new();
+    public static AmaroFilter Amaro { get; } = new();
     public static AshbyFilter Ashby { get; } = new();
     public static BrannanFilter Brannan { get; } = new();
     public static BrooklynFilter Brooklyn { get; } = new();
@@ -27,11 +28,10 @@ public abstract class InstagramFilter
     public static CharmesFilter Charmes { get; } = new();
     public static DogpatchFilter Dogpatch { get; } = new();
     public static GinzaFilter Ginza { get; } = new();
-    //public static HefeFilter Hefe { get; } = new();
+    public static HefeFilter Hefe { get; } = new();
     public static HelenaFilter Helena { get; } = new();
     public static LudwigFilter Ludwig { get; } = new();
-    //public static PoprocketFilter Poprocket { get; } = new();
-    //public static SierraFilter Sierra { get; } = new();
+    public static SierraFilter Sierra { get; } = new();
     public static SutroFilter Sutro { get; } = new();
     public static VesperFilter Vesper { get; } = new();
     public static EarlybirdFilter Earlybird { get; } = new();
@@ -41,16 +41,17 @@ public abstract class InstagramFilter
     public static JunoFilter Juno { get; } = new();
     public static KelvinFilter Kelvin { get; } = new();
     public static LarkFilter Lark { get; } = new();
-    //public static LofiFilter Lofi { get; } = new();
+    public static LofiFilter Lofi { get; } = new();
     public static MavenFilter Maven { get; } = new();
-    //public static MayfairFilter Mayfair { get; } = new();
+    public static MayfairFilter Mayfair { get; } = new();
     public static MoonFilter Moon { get; } = new();
-    //public static PerpetuaFilter Perpetua { get; } = new();
-    //public static ReyesFilter Reyes { get; } = new();
+    public static PoprocketFilter Poprocket { get; } = new();
+    public static PerpetuaFilter Perpetua { get; } = new();
+    public static ReyesFilter Reyes { get; } = new();
     //public static RiseFilter Rise { get; } = new();
     public static SlumberFilter Slumber { get; } = new();
     public static StinsonFilter Stinson { get; } = new();
-    //public static ToasterFilter Toaster { get; } = new();
+    public static ToasterFilter Toaster { get; } = new();
     //public static ValenciaFilter Valencia { get; } = new();
     //public static WaldenFilter Walden { get; } = new();
     //public static WillowFilter Willow { get; } = new();
@@ -119,6 +120,19 @@ public sealed class AdenFilter
         new Contrast(.9),
         new Saturation(.85),
         new Brightness(1.2),
+    };
+}
+
+public sealed class AmaroFilter
+    : InstagramFilter
+{
+    protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
+    {
+        new ConstantColor(0x337D6918u) { Blending = BlendMode.Overlay },
+        new Sepia(.35),
+        new Contrast(1.1),
+        new Brightness(1.2),
+        new Saturation(1.3),
     };
 }
 
@@ -268,6 +282,23 @@ public sealed class GinzaFilter
     };
 }
 
+public sealed class HefeFilter
+    : InstagramFilter
+{
+    protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
+    {
+        new RadialGradient(null, null,
+            0x00000000u,
+            0x40000000u
+        ) { Blending = BlendMode.Multiply },
+        new Sepia(.4),
+        new Contrast(1.5),
+        new Brightness(1.2),
+        new Saturation(1.4),
+        new Hue(-10),
+    };
+}
+
 public sealed class HelenaFilter
     : InstagramFilter
 {
@@ -329,6 +360,27 @@ public sealed class LarkFilter
     };
 }
 
+public sealed class LofiFilter
+    : InstagramFilter
+{
+    protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
+    {
+        FromDelegate((bmp, region) =>
+        {
+            BitmapMask mask = BitmapMask.Radial(bmp.Width, bmp.Height, new()
+            {
+                EndIntensity = .7,
+                StartIntensity = 0
+            });
+            using Bitmap darkened = bmp.ApplyEffect(new ConstantColor(0xff222222u) { Blending = BlendMode.Multiply }, region);
+
+            return mask.Composite(darkened, bmp);
+        }),
+        new Saturation(1.1),
+        new Contrast(1.5),
+    };
+}
+
 public sealed class LudwigFilter
     : InstagramFilter
 {
@@ -352,6 +404,26 @@ public sealed class MavenFilter
         new Brightness(.95),
         new Contrast(.95),
         new Saturation(1.5),
+    };
+}
+
+public sealed class MayfairFilter
+    : InstagramFilter
+{
+    protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
+    {
+        FromDelegate((bmp, region) =>
+        {
+            BitmapMask mask1 = BitmapMask.Radial(bmp.Width, bmp.Height, new() { Radius = .3 });
+            BitmapMask mask2 = BitmapMask.Radial(bmp.Width, bmp.Height, new() { Radius = .6 });
+            using Bitmap img1 = bmp.ApplyEffect(new ConstantColor(0xccffffffu) { Blending = BlendMode.Overlay }, region);
+            using Bitmap img2 = bmp.ApplyEffect(new ConstantColor(0x99ffc8c8u) { Blending = BlendMode.Overlay }, region);
+            using Bitmap img3 = bmp.ApplyEffect(new ConstantColor(0xff111111u) { Blending = BlendMode.Overlay }, region);
+
+            return bmp.Blend(mask2.Composite(mask1.Composite(img1, img2), img3), BlendMode.Normal, .4);
+        }),
+        new Contrast(1.1),
+        new Saturation(1.1),
     };
 }
 
@@ -400,6 +472,61 @@ public sealed class LegacyNashvilleFilter
         new Brightness(.9),
         new Hue(-.261799),
         new ConstantColor(0x47804e0f) { Blending = BlendMode.Screen },
+    };
+}
+
+public sealed class PerpetuaFilter
+    : InstagramFilter
+{
+    protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
+    {
+        FromDelegate((bmp, region) => bmp.ApplyEffect(new RadialGradient(null, null,
+            0xFF005B9Au,
+            0xFFE6C13Du
+        ) { Blending = BlendMode.SoftLight }, region, .5))
+    };
+}
+
+public sealed class PoprocketFilter
+    : InstagramFilter
+{
+    protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
+    {
+        new RadialGradient(null, null,
+            0xBFCE2746u,
+            0xFF000000u
+        ) { Blending = BlendMode.Screen },
+        new Sepia(.15),
+        new Contrast(1.2),
+    };
+}
+
+public sealed class ReyesFilter
+    : InstagramFilter
+{
+    protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
+    {
+        FromDelegate((bmp, region) => bmp.ApplyEffect(new ConstantColor(0xFFEFCDADu) { Blending = BlendMode.SoftLight }, region, .5)),
+        new Sepia(.22),
+        new Brightness(1.1),
+        new Contrast(.85),
+        new Saturation(.75),
+    };
+}
+
+public sealed class SierraFilter
+    : InstagramFilter
+{
+    protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
+    {
+        new RadialGradient(null, null,
+            0x7F804E0Fu,
+            0xA5000000u
+        ) { Blending = BlendMode.Screen },
+        new Sepia(.25),
+        new Contrast(1.5),
+        new Brightness(.9),
+        new Hue(-15),
     };
 }
 
@@ -457,6 +584,20 @@ public sealed class SutroFilter
         new Brightness(.9),
         new Saturation(1.4),
         new Hue(-10),
+    };
+}
+
+public sealed class ToasterFilter
+    : InstagramFilter
+{
+    protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
+    {
+        new RadialGradient(null, null,
+            0xFF804E0Fu,
+            0xFF38003Bu
+        ) { Blending = BlendMode.Screen },
+        new Contrast(1.5),
+        new Brightness(.9),
     };
 }
 

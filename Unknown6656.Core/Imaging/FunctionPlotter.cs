@@ -540,11 +540,45 @@ internal interface ICartesianPlotter
 
 public class ImplicitCartesianFunctionPlotter
     : FunctionPlotter<Complex>
+    , IMultiFunctionPlotter
 {
-    public GeneralizedImplicitFunction<Vector2> Function { get; }
+    private int? _selidx = null;
 
 
-    public ImplicitCartesianFunctionPlotter(GeneralizedImplicitFunction<Vector2> function) => Function = function;
+    public (ImplicitFunction<Vector2> Function, RGBAColor Color)[] Functions { get; }
+
+    public ImplicitFunction<Vector2>? SelectedFunction => SelectedFunctionIndex is int index ? Functions[index].Function : null;
+
+    object? IMultiFunctionPlotter.SelectedFunction => SelectedFunction;
+
+    (object Function, RGBAColor Color)[] IMultiFunctionPlotter.Functions => Functions.ToArray(f => (f.Function as object, f.Color));
+
+    public Scalar SelectedFunctionThickness { set; get; } = 3;
+
+    public Scalar FunctionThickness { set; get; } = Scalar.Two;
+
+    public int? SelectedFunctionIndex
+    {
+        set => _selidx = value is int i ? i >= 0 && i < Functions.Length ? (int?)i : throw new ArgumentOutOfRangeException(nameof(value), $"The function index must be a positive and smaller than {Functions.Length}.") : null;
+        get => _selidx;
+    }
+
+    public Scalar FunctionEvaluationTolerance { set; get; } = 1e-6;
+
+    public int MarchingSquaresPixelStride { set; get; } = 7;
+
+
+    public ImplicitCartesianFunctionPlotter(ImplicitFunction<Vector2> function)
+        : this(function, RGBAColor.Red)
+    {
+    }
+
+    public ImplicitCartesianFunctionPlotter(ImplicitFunction<Vector2> function, RGBAColor color)
+        : this((function, color))
+    {
+    }
+
+    public ImplicitCartesianFunctionPlotter(params (ImplicitFunction<Vector2> Function, RGBAColor Color)[] functions) => Functions = functions;
 
     protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO : implement
 
@@ -552,43 +586,91 @@ public class ImplicitCartesianFunctionPlotter
     {
         poi = new();
 
-        if (Function is ImplicitFunction<Vector2> implicit_function)
-            PlotGraph(g, w, h, x, y, s, implicit_function);
-        else
+        for (int idx = 0; idx < Functions.Length; ++idx)
         {
-            // TODO : plot every dot
+            (ImplicitFunction<Vector2> f, RGBAColor c) = Functions[idx];
+            using Pen pen = new(c, idx == SelectedFunctionIndex ? SelectedFunctionThickness : FunctionThickness);
+
+            PlotGraph(g, w, h, x, y, s, f, pen);
         }
     }
 
-    ColorMap map = new()
-    protected void PlotGraph(Graphics g, int w, int h, float x, float y, float s, ImplicitFunction<Vector2> implicit_function)
+    private void PlotGraph(Graphics g, int w, int h, float x, float y, float s, ImplicitFunction<Vector2> func, Pen pen)
     {
-        Vector2 viewport = new Vector2(w, h) / s;
-        Vector2 min = new Vector2(-x, -y) / s;
-        Vector2 max = viewport + min;
+        int CELLS_Y = Math.Max(2, Math.Min(w, h) / Math.Max(2, MarchingSquaresPixelStride));
+        int CELLS_X = CELLS_Y * w / h;
 
-        const int cells = 20;
-        Vector2 step = (max - min) / cells;
+        Vector2 funcspace_min = new Vector2(-x, -y).Divide(s);
+        Vector2 funcspace_max = new Vector2(w, h).Divide(s).Add(funcspace_min);
+        Vector2 funcspace_step = funcspace_max.Subtract(funcspace_min).ComponentwiseDivide(CELLS_X - 1, CELLS_Y - 1);
+        Vector2 screenspace_step = new Vector2(w, h).ComponentwiseDivide(CELLS_X - 1, CELLS_Y - 1);
 
+        (
+            Vector2 screenspace_curr_coord,
+            Vector2 screenspace_next_coord,
+            float corner,
+            float? x_intersection,
+            float? y_intersection
+        )[,] corners = new (Vector2, Vector2, float, float?, float?)[CELLS_X, CELLS_Y];
 
-        for (int iy = 0; iy <= cells; ++iy)
-            for (int ix = 0; ix <= cells; ++ix)
+        Parallel.For(0, CELLS_X * CELLS_Y, i =>
+        {
+            int index_y = i / CELLS_X;
+            int index_x = i % CELLS_X;
+            Vector2 funcspace_coord = funcspace_step.ComponentwiseMultiply(index_x, index_y).Add(funcspace_min);
+            funcspace_coord = new(funcspace_coord.X, -funcspace_coord.Y);
+
+            corners[index_x, index_y] = (
+                screenspace_step.ComponentwiseMultiply(index_x, index_y),
+                screenspace_step.ComponentwiseMultiply(index_x + 1, index_y + 1),
+                func.EvaluateSignedDifference(funcspace_coord, FunctionEvaluationTolerance),
+                null,
+                null
+            );
+        });
+
+        Parallel.For(0, CELLS_X * CELLS_Y, i =>
+        {
+            int index_y = i / CELLS_X;
+            int index_x = i % CELLS_X;
+
+            (Vector2 screenspace_curr_coord, Vector2 screenspace_next_coord, float corner_tl, _, _) = corners[index_x, index_y];
+
+            float corner_tr = index_x == CELLS_X - 1 ? float.NaN : corners[index_x + 1, index_y].corner; // top right
+            float corner_bl = index_y == CELLS_Y - 1 ? float.NaN : corners[index_x, index_y + 1].corner; // bottom left
+
+            corners[index_x, index_y] = (
+                screenspace_curr_coord,
+                screenspace_next_coord,
+                corner_tl,
+                corner_tl / (corner_tl - corner_tr) is float t and >= 0 and <= 1 && float.IsFinite(t) ? t * screenspace_next_coord.X + (1 - t) * screenspace_curr_coord.X : null,
+                corner_tl / (corner_tl - corner_bl) is float l and >= 0 and <= 1 && float.IsFinite(l) ? l * screenspace_next_coord.Y + (1 - l) * screenspace_curr_coord.Y : null
+            );
+        });
+
+        for (int iy = 0; iy < CELLS_Y - 1; ++iy)
+            for (int ix = 0; ix < CELLS_X - 1; ++ix)
             {
-                var coord = min + step.ComponentwiseMultiply(ix, iy);
-                var val = implicit_function.EvaluateSignedDifference(coord, 1e-6);
+                (Vector2 screenspace_coord, Vector2 screenspace_next, _, float? ptx, float? pty) = corners[ix, iy];
+                List<PointF> points = new(4);
 
-                var col = 
+                if (ptx.HasValue)
+                    points.Add(new(ptx.Value, screenspace_coord.Y));
+                if (pty.HasValue)
+                    points.Add(new(screenspace_coord.X, pty.Value));
+                if (corners[ix, iy + 1].x_intersection is float px)
+                    points.Add(new(px, screenspace_next.Y));
+                if (corners[ix + 1, iy].y_intersection is float py)
+                    points.Add(new(screenspace_next.X, py));
 
-                var xx = (float)w / cells * ix;
-                var yy = (float)h / cells * iy;
-                g.DrawEllipse()
+                if (points.Count > 1)
+                    g.DrawLine(pen, points[0], points[1]);
+
+                if (points.Count > 3)
+                    g.DrawLine(pen, points[2], points[3]);
             }
-
-        // TODO : marching squares
     }
 }
-
-// TODO : implicit cartesian/polar plotter
 
 public class CartesianFunctionPlotter<Func>
     : MultiFunctionPlotter<Func, Scalar>

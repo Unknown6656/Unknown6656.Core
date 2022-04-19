@@ -654,7 +654,9 @@ public unsafe class DataStream
 
     public string DisassembleILBytes(Module module_context) => ILDisassembler.Disassemble(ToBytes(), module_context).StringJoinLines();
 
-    public string DisassembleASMBytes() => ASMDisassembler.Disassemble(ToBytes()).StringJoinLines();
+    public string DisassembleARMBytes() => ARMDisassembler.Disassemble(ToBytes()).StringJoinLines();
+
+    public string DisassembleX86Bytes() => X86Disassembler.Disassemble(ToBytes()).StringJoinLines();
 
     // [Obsolete("See https://aka.ms/binaryformatter", true)]
     // public object ToSerializable()

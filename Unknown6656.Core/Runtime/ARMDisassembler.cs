@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Unknown6656.Runtime;
 
 
-public class ASMDisassembler
+public static class ARMDisassembler
 {
     public static unsafe List<string> Disassemble(byte[]? bytes)
     {

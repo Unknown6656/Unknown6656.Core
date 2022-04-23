@@ -84,6 +84,28 @@ public static class StringExtensions
 
     public static string Remove(this string input, string search) => input.Replace(search, string.Empty);
 
+    public static string TrimEnd(this string input, string trim_str, StringComparison comparison = StringComparison.CurrentCulture, int maxcount = 1)
+    {
+        while (maxcount --> 0)
+            if (input.EndsWith(trim_str, comparison))
+                input = input[..^trim_str.Length];
+            else
+                break;
+
+        return input;
+    }
+
+    public static string TrimStart(this string input, string trim_str, StringComparison comparison = StringComparison.CurrentCulture, int maxcount = 1)
+    {
+        while (maxcount --> 0)
+            if (input.StartsWith(trim_str, comparison))
+                input = input[trim_str.Length..];
+            else
+                break;
+
+        return input;
+    }
+
     public static StringBuilder AppendLines<T>(this StringBuilder sb, IEnumerable<T?> items) => items.Aggregate(sb, (sb, t) => sb.AppendLine(t?.ToString()));
 
     public static string GetCommonSuffix(params string[] words)

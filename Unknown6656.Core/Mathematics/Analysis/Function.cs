@@ -116,7 +116,10 @@ public class Function<Domain, Codomain>
 
     public override Codomain? Evaluate(Domain x) => _func(x);
 
-    public override Function<Domain, Codomain> Negate() => new(x => -_func(x));
+    public Function<Domain, T> Then<T>(Function<Codomain, T> second)
+        where T : IGroup<T> => new(x => second.Evaluate(Evaluate(x)));
+
+    public override Function<Domain, Codomain> Negate() => new(x => _func(x).Negate());
 
     public override Function<Domain, Codomain> Add(in Function<Domain, Codomain> second)
     {

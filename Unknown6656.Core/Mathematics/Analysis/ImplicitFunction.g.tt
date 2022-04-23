@@ -35,6 +35,7 @@ namespace Unknown6656.Mathematics.Analysis;
     {
         string typename = $"ImplicitScalarFunction{dim}D";
         string vecname = "Vector" + dim;
+        string fname = "Func<" + string.Join(", ", r(0, dim + 1).Select(_ => "Scalar")) + ">";
         string argdef = string.Join(", ", r(0, dim).Select(i => $"Scalar x{i}"));
         string vargs = string.Join(", ", r(0, dim).Select(i => $"v[{i}]"));
         string args = string.Join(", ", r(0, dim).Select(i => $"x{i}"));
@@ -48,9 +49,13 @@ public partial class <#=typename#>
     public bool this[<#=argdef#>, Scalar tolerance] => Evaluate(<#=args#>, tolerance);
 
 
+    public <#=typename#>(ImplicitFunction<<#=vecname#>> function)
+        : this(function.ExplicitFunction, function.ComparisonOperator)
+    {
+    }
 
     public <#=typename#>(Function<<#=vecname#>, Scalar> function)
-        : this(function, ComparisonOperator.EqualTo, new(_ => Scalar.Zero))
+        : this(function, ComparisonOperator.EqualTo)
     {
     }
 
@@ -59,23 +64,53 @@ public partial class <#=typename#>
     {
     }
 
-    public <#=typename#>(Func<<#=string.Join(", ", r(0, dim + 1).Select(_ => "Scalar"))#>> function)
-        : this(v => function(<#=vargs#>))
+    public <#=typename#>(Function<<#=vecname#>, Scalar> function, ComparisonOperator comparison)
+        : base(function, comparison)
+    {
+    }
+
+    public <#=typename#>(Func<<#=vecname#>, Scalar> function, ComparisonOperator comparison)
+        : this(new Function<<#=vecname#>, Scalar>(function), comparison)
+    {
+    }
+
+    public <#=typename#>(Function<<#=vecname#>, Scalar> function, ComparisonOperator comparison, Scalar value)
+        : this(function.Subtract(value), comparison)
+    {
+    }
+
+    public <#=typename#>(Func<<#=vecname#>, Scalar> function, ComparisonOperator comparison, Scalar value)
+        : this(new Function<<#=vecname#>, Scalar>(function), comparison, value)
     {
     }
 
     public <#=typename#>(Function<<#=vecname#>, Scalar> left, ComparisonOperator comparison, Function<<#=vecname#>, Scalar> right)
-        : base(left, comparison, right)
+        : this(left.Subtract(right), comparison)
     {
     }
 
     public <#=typename#>(Func<<#=vecname#>, Scalar> left, ComparisonOperator comparison, Func<<#=vecname#>, Scalar> right)
-        : base(left, comparison, right)
+        : this(new Function<<#=vecname#>, Scalar>(left), comparison, new Function<<#=vecname#>, Scalar>(right))
     {
     }
 
-    public <#=typename#>(Func<<#=string.Join(", ", r(0, dim + 1).Select(_ => "Scalar"))#>> left, ComparisonOperator comparison, Func<<#=string.Join(", ", r(0, dim + 1).Select(_ => "Scalar"))#>> right)
-        : base(v => left(<#=vargs#>), comparison, v => right(<#=vargs#>))
+    public <#=typename#>(<#=fname#> function)
+        : this(v => function(<#=vargs#>))
+    {
+    }
+
+    public <#=typename#>(<#=fname#> function, ComparisonOperator comparison)
+        : this(v => function(<#=vargs#>), comparison)
+    {
+    }
+
+    public <#=typename#>(<#=fname#> function, ComparisonOperator comparison, Scalar value)
+        : this(v => function(<#=vargs#>), comparison, value)
+    {
+    }
+
+    public <#=typename#>(<#=fname#> left, ComparisonOperator comparison, <#=fname#> right)
+        : this(v => left(<#=vargs#>), comparison, v => right(<#=vargs#>))
     {
     }
 
@@ -83,31 +118,11 @@ public partial class <#=typename#>
 
     public virtual bool Evaluate(<#=argdef#>, Scalar tolerance) => base.Evaluate(new(<#=args#>), tolerance);
 
-    public <#=typename#> Negate() => new(v => Left.Evaluate(-v), ComparisonOperator, v => Right.Evaluate(-v));
+    public <#=typename#> Negate() => new(v => ExplicitFunction.Evaluate(-v), ComparisonOperator);
 
-    public <#=typename#> Shift(<#=vecname#> offset) => new(v => Left.Evaluate(v - offset), ComparisonOperator, v => Right.Evaluate(v - offset));
+    public <#=typename#> Shift(<#=vecname#> offset) => new(v => ExplicitFunction.Evaluate(v - offset), ComparisonOperator);
 
-    public <#=typename#> Scale(Scalar factor) => new(v => Left.Evaluate(v / factor), ComparisonOperator, v => Right.Evaluate(v - factor));
-
-    public static <#=typename#> LinearInterpolate(<#=typename#> first, <#=typename#> second, Scalar factor)
-    {
-        ComparisonOperator op = ComparisonOperator.EqualTo;
-
-        if (first.ComparisonOperator == second.ComparisonOperator)
-            op = first.ComparisonOperator;
-        else if (first.ComparisonOperator <= ComparisonOperator.EqualTo && second.ComparisonOperator <= ComparisonOperator.EqualTo)
-            op = (ComparisonOperator)Math.Min((int)first.ComparisonOperator, (int)second.ComparisonOperator);
-        else if (first.ComparisonOperator >= ComparisonOperator.EqualTo && second.ComparisonOperator >= ComparisonOperator.EqualTo)
-            op = (ComparisonOperator)Math.Max((int)first.ComparisonOperator, (int)second.ComparisonOperator);
-
-        factor = factor.Clamp();
-
-        return new(
-            xy => first.Left.Evaluate(xy) * (1 - factor) + second.Left.Evaluate(xy) * factor,
-            op,
-            xy => first.Right.Evaluate(xy) * (1 - factor) + second.Right.Evaluate(xy) * factor
-        );
-    }
+    public <#=typename#> Scale(Scalar factor) => new(v => ExplicitFunction.Evaluate(v / factor), ComparisonOperator);
 
     public static <#=typename#> operator +(<#=typename#> function) => function;
 

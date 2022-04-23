@@ -390,24 +390,72 @@ public static unsafe class Program
 
     public static void Main_implicit_plotter_ui()
     {
-        using var plotter = new FunctionPlotterControl<ImplicitCartesianFunctionPlotter>()
+        var f1 = ImplicitScalarFunction2D.Heart().Scale(3).Shift((0, -1));
+        var f2 = ImplicitScalarFunction2D.ArbitraryPolygon(
+            (-3, 2),
+            (0, 3.5),
+            (3, 2),
+            (-3, -2),
+            (0, -3.5),
+            (3, -2)
+        );
+        f2 = ImplicitScalarFunction2D.Cartesian(new(x => x.MultiplicativeInverse));
+        var cm = ColorMap.Jet + ColorMap.Jet.Reverse();
+
+        int count = 20;
+        for (int i = 0; i <= count; ++i)
         {
-            Dock = winforms.DockStyle.Fill,
-            Plotter = new(
-                ImplicitScalarFunction2D.EllipticCurve(2, 3)
+            var p0 = i / (float)count;
+            var p1 = AnimationFunction.Smoothstep[p0];
+            var p2 = AnimationFunction.Smootherstep[p0];
+            var p3 = AnimationFunction.Sin_01[p0];
+
+
+            new ImplicitFunctionPlotter(
+                ImplicitScalarFunction2D.LinearInterpolate(f1, f2, p3)
+
+                //(ImplicitScalarFunction2D.LinearInterpolate(f1, f2, p0), RGBAColor.Red),
+                //(ImplicitScalarFunction2D.LinearInterpolate(f1, f2, p1), RGBAColor.Purple),
+                //(ImplicitScalarFunction2D.LinearInterpolate(f1, f2, p2), RGBAColor.Orange),
+                //(ImplicitScalarFunction2D.LinearInterpolate(f1, f2, p3), RGBAColor.Blue)
             )
             {
-                CursorVisible = true,
-            },
-        };
-        using var form = new winforms.Form()
-        {
-            Width = 800,
-            Height = 600,
-            BackColor = Color.Teal,
-        };
-        form.Controls.Add(plotter);
-        form.ShowDialog();
+                //ColorMap = cm,
+                //DisplayOverlayFunction = true,
+
+                MarchingSquaresPixelStride = 3,
+                Scale = 4,
+                // FunctionThickness = 3,
+                AxisType = AxisType.Cartesian,
+                AxisVisible = true,
+                GridVisible = false,
+                CursorVisible = false,
+                //OptionalComment = ($"{2 + b:F4} * x * cos(x + sin(2y) + {a:F4} * y^2) - y^3 + {c:F4} / x - sin(10x)", RGBAColor.Firebrick),
+            }
+            .Plot(1920, 1080)
+            .Save($"anim/frame-{i:D4}.png");
+
+            //return;
+        }
+
+        //using var plotter = new FunctionPlotterControl<ImplicitCartesianFunctionPlotter>()
+        //{
+        //    Dock = winforms.DockStyle.Fill,
+        //    Plotter = new(
+        //        new ImplicitScalarFunction2D((x, y) => y * (y + x + x * x).Cos() - x.Power(3))
+        //    )
+        //    {
+        //        CursorVisible = true,
+        //    },
+        //};
+        //using var form = new winforms.Form()
+        //{
+        //    Width = 800,
+        //    Height = 600,
+        //    BackColor = Color.Teal,
+        //};
+        //form.Controls.Add(plotter);
+        //form.ShowDialog();
     }
 
     public static void Main_complex_plotter_bmp()

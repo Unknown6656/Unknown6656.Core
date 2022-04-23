@@ -28,7 +28,7 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Unknown6656.DiscriminatedUnions" Version="1.1.1" />
-        <PackageReference Include="Unknown6656.Generics" Version="0.9.7" />
+        <PackageReference Include="Unknown6656.Generics" Version="0.9.8" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\Unknown6656.Core.Windows\Unknown6656.Core.Windows.csproj" />

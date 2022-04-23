@@ -6,6 +6,7 @@ using System;
 using Unknown6656.Physics.Optics;
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Generics;
+using Unknown6656.Mathematics;
 
 namespace Unknown6656.Imaging;
 
@@ -23,7 +24,7 @@ public abstract class ColorMap
 
     public static DiscreteColorMap BlackbodyHeat { get; } = new(Enumerable.Range(0, 1000).Select(i => RGBAColor.FromBlackbodyRadiation(11 * i)));
 
-    public static ContinuousColorMap HueMap { get; } = new(s => RGBAColor.FromHSL(s / Scalar.Tau, 1, 1));
+    public static ContinuousColorMap HueMap { get; } = new(s => RGBAColor.FromHSL(s * Scalar.Tau, 1, 1));
 
     public static ContinuousColorMap VisibleSpectrum { get; } = new(s => new Wavelength(Wavelength.HighestVisibleWavelength.InNanometers - (s.Clamp() * (Wavelength.HighestVisibleWavelength - Wavelength.LowestVisibleWavelength).InNanometers)).ToColor());
 
@@ -968,6 +969,8 @@ public abstract class ColorMap
 
     public RGBAColor Interpolate(Scalar c, Scalar min, Scalar max) => Interpolate((c - min) / (max - min));
 
+    public virtual ColorMap Reverse() => new ContinuousColorMap(x => Interpolate(1 - x));
+
     public static DiscreteColorMap Bicolor(RGBAColor c0, RGBAColor c1) => Uniform(c0, c1);
 
     public static DiscreteColorMap Tricolor(RGBAColor c0, RGBAColor c05, RGBAColor c1) => Uniform(c0, c05, c1);
@@ -1023,13 +1026,16 @@ public class DiscreteColorMap
 
     public DiscreteColorMap(IEnumerable<(Scalar X, RGBAColor Color)> colors)
     {
-        _colors = colors.OrderBy(c => c.X)
-                        .Where(c => c.X >= 0 && c.X <= 1)
-                        .ToArray();
+        Scalar min = InterfaceExtensions.Min(colors, c => c.X);
+        Scalar sc = (InterfaceExtensions.Max(colors, c => c.X) - min).MultiplicativeInverse;
+
+        _colors = colors.OrderBy(c => c.X).ToArray(c => ((c.X - min) * sc, c.Color));
 
         if (_colors.Length == 0)
             throw new ArgumentException("The color map must contain at least one color in the interval [0..1].", nameof(colors));
     }
+
+    public override DiscreteColorMap Reverse() => new(_colors.Select(c => (1 - c.X, c.Color)));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override RGBAColor Interpolate(Scalar c)
@@ -1073,6 +1079,16 @@ public class DiscreteColorMap
 
     public ColorPalette ToColorPalette() => new(_colors.Select(LINQ.snd));
 
+    public static DiscreteColorMap Concat(params DiscreteColorMap[] maps) => new(from t in maps.WithIndex()
+                                                                                 let map = t.Item
+                                                                                 let i = t.Index
+                                                                                 from c in map._colors
+                                                                                 select (c.X + i, c.Color));
+
+    public static DiscreteColorMap Merge(params DiscreteColorMap[] maps) => new(maps.SelectMany(map => map._colors));
+
+
+    public static DiscreteColorMap operator+(DiscreteColorMap first, DiscreteColorMap second) => Concat(first, second);
 
     public static implicit operator DiscreteColorMap(RGBAColor[] colors) => Uniform(colors);
 

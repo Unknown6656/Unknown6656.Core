@@ -466,7 +466,7 @@ public abstract class FunctionPlotter<Value>
 
     protected abstract (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor);
 
-    protected abstract void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Value value)> poi);
+    internal protected abstract void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Value value)> poi);
 
     #endregion
 }
@@ -538,7 +538,7 @@ internal interface ICartesianPlotter
 {
 }
 
-public class ImplicitCartesianFunctionPlotter
+public class ImplicitFunctionPlotter
     : FunctionPlotter<Complex>
     , IMultiFunctionPlotter
 {
@@ -563,26 +563,28 @@ public class ImplicitCartesianFunctionPlotter
         get => _selidx;
     }
 
+    public Scalar FillOpacity { set; get; } = .5;
+
     public Scalar FunctionEvaluationTolerance { set; get; } = 1e-6;
 
-    public int MarchingSquaresPixelStride { set; get; } = 7;
+    public int MarchingSquaresPixelStride { set; get; } = 4;
 
 
-    public ImplicitCartesianFunctionPlotter(ImplicitFunction<Vector2> function)
+    public ImplicitFunctionPlotter(ImplicitFunction<Vector2> function)
         : this(function, RGBAColor.Red)
     {
     }
 
-    public ImplicitCartesianFunctionPlotter(ImplicitFunction<Vector2> function, RGBAColor color)
+    public ImplicitFunctionPlotter(ImplicitFunction<Vector2> function, RGBAColor color)
         : this((function, color))
     {
     }
 
-    public ImplicitCartesianFunctionPlotter(params (ImplicitFunction<Vector2> Function, RGBAColor Color)[] functions) => Functions = functions;
+    public ImplicitFunctionPlotter(params (ImplicitFunction<Vector2> Function, RGBAColor Color)[] functions) => Functions = functions;
 
     protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO : implement
 
-    protected override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Complex value)> poi)
+    internal protected override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Complex value)> poi)
     {
         poi = new();
 
@@ -590,12 +592,13 @@ public class ImplicitCartesianFunctionPlotter
         {
             (ImplicitFunction<Vector2> f, RGBAColor c) = Functions[idx];
             using Pen pen = new(c, idx == SelectedFunctionIndex ? SelectedFunctionThickness : FunctionThickness);
+            using Brush fill = new SolidBrush(new RGBAColor(c, FillOpacity));
 
-            PlotGraph(g, w, h, x, y, s, f, pen);
+            PlotGraph(g, w, h, x, y, s, f, pen, fill);
         }
     }
 
-    private void PlotGraph(Graphics g, int w, int h, float x, float y, float s, ImplicitFunction<Vector2> func, Pen pen)
+    private void PlotGraph(Graphics g, int w, int h, float x, float y, float s, ImplicitFunction<Vector2> func, Pen pen, Brush fill)
     {
         int CELLS_Y = Math.Max(2, Math.Min(w, h) / Math.Max(2, MarchingSquaresPixelStride));
         int CELLS_X = CELLS_Y * w / h;
@@ -663,12 +666,130 @@ public class ImplicitCartesianFunctionPlotter
                 if (corners[ix + 1, iy].y_intersection is float py)
                     points.Add(new(screenspace_next.X, py));
 
+                // TODO : fill
+
                 if (points.Count > 1)
                     g.DrawLine(pen, points[0], points[1]);
 
                 if (points.Count > 3)
                     g.DrawLine(pen, points[2], points[3]);
             }
+    }
+}
+
+public class ImplicitFunctionSignedDistancePlotter
+    : FunctionPlotter<Complex>
+{
+    private readonly ImplicitFunctionPlotter _overlay;
+
+
+    public ImplicitFunction<Vector2> Function { get; }
+
+    public int SamplingPixelStride { set; get; } = 7;
+
+    public Scalar FunctionEvaluationTolerance { set; get; } = 1e-6;
+
+    public ColorMap ColorMap { get; set; } = ColorMap.Jet;
+
+    public RGBAColor OverlayColor
+    {
+        get => _overlay.Functions[0].Color;
+        set => _overlay.Functions[0] = (Function, value);
+    }
+
+    public Scalar OverlayThickness { get => _overlay.FunctionThickness; set => _overlay.FunctionThickness = value; }
+
+    public bool DisplayOverlayFunction { get; set; } = false;
+
+    public Scalar MinimumValueClipping { get; set; } = -100;
+
+    public Scalar MaximumValueClipping { get; set; } = 100;
+
+
+    public ImplicitFunctionSignedDistancePlotter(ImplicitFunction<Vector2> function)
+    {
+        Function = function;
+        _overlay = new(function);
+        OverlayColor = RGBAColor.Red;
+        OverlayThickness = 3;
+    }
+
+    protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO : implement
+
+    internal protected override unsafe void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Complex value)> poi)
+    {
+        poi = new();
+
+        int CELLS_Y = h / SamplingPixelStride;
+        int CELLS_X = w / SamplingPixelStride;
+
+        Vector2 funcspace_min = new Vector2(-x, -y).Divide(s);
+        Vector2 funcspace_max = new Vector2(w, h).Divide(s).Add(funcspace_min);
+        Vector2 funcspace_step = funcspace_max.Subtract(funcspace_min).ComponentwiseDivide(CELLS_X - 1, CELLS_Y - 1);
+        Vector2 screenspace_step = new Vector2(w, h).ComponentwiseDivide(CELLS_X - 1, CELLS_Y - 1);
+
+        (RGBAColor color, float value)[,] corners = new (RGBAColor, float)[CELLS_X, CELLS_Y];
+        float max = MinimumValueClipping;
+        float min = MaximumValueClipping;
+
+        Parallel.For(0, CELLS_X * CELLS_Y, i =>
+        {
+            int index_y = i / CELLS_X;
+            int index_x = i % CELLS_X;
+            Vector2 funcspace_coord = funcspace_step.ComponentwiseMultiply(index_x, index_y).Add(funcspace_min);
+            funcspace_coord = new(funcspace_coord.X, -funcspace_coord.Y);
+
+            corners[index_x, index_y] = (default, Function.EvaluateSignedDifference(funcspace_coord, FunctionEvaluationTolerance));
+        });
+
+        for (int iy = 0; iy < CELLS_Y; ++iy)
+            for (int ix = 0; ix < CELLS_X; ++ix)
+            {
+                max = Math.Max(corners[ix, iy].value, max);
+                min = Math.Min(corners[ix, iy].value, min);
+            }
+
+        Parallel.For(0, CELLS_X * CELLS_Y, i =>
+        {
+            int index_y = i / CELLS_X;
+            int index_x = i % CELLS_X;
+            float value = corners[index_x, index_y].value;
+
+            corners[index_x, index_y] = (ColorMap.Interpolate(value, min, max), value);
+        });
+
+        using Bitmap bmp = new(w, h, PixelFormat.Format32bppArgb);
+
+        bmp.LockRGBAPixels((ptr, _, _) => Parallel.For(0, w * h, idx =>
+        {
+            float x = idx % w;
+            float y = idx / w;
+            int curr_cx = (int)(x / w * (CELLS_X - 1));
+            int curr_cy = (int)(y / h * (CELLS_Y - 1));
+            int next_cx = (int)((x + 1) / w * (CELLS_X - 1));
+            int next_cy = (int)((y + 1) / h * (CELLS_Y - 1));
+
+            RGBAColor tl = corners[curr_cx, curr_cy].color;
+            RGBAColor tr = corners[next_cx, curr_cy].color;
+            RGBAColor bl = corners[curr_cx, next_cy].color;
+            RGBAColor br = corners[next_cx, next_cy].color;
+
+            float px = (x / w) % 1;
+            float py = (y / h) % 1;
+
+            ptr[idx] = RGBAColor.LinearInterpolate(
+                RGBAColor.LinearInterpolate(tl, tr, px),
+                RGBAColor.LinearInterpolate(bl, br, px),
+                py
+            );
+        }));
+        g.DrawImageUnscaled(bmp, 0, 0);
+
+        if (GridVisible)
+            PlotGrid(g, w, h, x, y, s);
+
+        if (DisplayOverlayFunction)
+            _overlay.PlotGraph(g, w, h, x, y, s, out poi);
     }
 }
 
@@ -708,7 +829,7 @@ public class CartesianFunctionPlotter<Func>
         return null;
     }
 
-    protected override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Scalar value)> poi)
+    internal protected override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Scalar value)> poi)
     {
         poi = new List<(Vector2, Scalar)>();
 
@@ -785,7 +906,7 @@ public class PolarFunctionPlotter<Func>
         return null;
     }
 
-    protected override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Scalar value)> poi)
+    internal protected override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Scalar value)> poi)
     {
         poi = new List<(Vector2, Scalar)>();
 
@@ -852,7 +973,7 @@ public class ComplexFunctionPlotter
         return (cursor, CursorColor, $"re = {c.Real}\nim = {c.Imaginary}i\n θ = {c.Argument}\n r = {c.Length}", dir);
     }
 
-    protected override unsafe void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Complex value)> poi)
+    internal protected override unsafe void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Complex value)> poi)
     {
         ConcurrentBag<(Vector2, Complex)> bag = new();
         Func<Complex, RGBAColor> color = Style == ComplexColorStyle.Wrapped ? (Func<Complex, RGBAColor>)RGBAColor.FromComplexWrapped : RGBAColor.FromComplexSmooth;

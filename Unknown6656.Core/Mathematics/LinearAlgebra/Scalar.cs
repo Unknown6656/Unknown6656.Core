@@ -841,6 +841,12 @@ public unsafe readonly /* ref */ partial struct Scalar
     public static bool Is(Scalar s1, Scalar s2, Scalar? error = null) => s1.Is(s2, error ?? ComputationalEpsilon);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar LogSumExp(params Scalar[] values) => LogSumExp(values as IEnumerable<Scalar>);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Scalar LogSumExp(IEnumerable<Scalar> values) => values.Select(Exp).Sum().Log();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar Random() => Numerics.Random.XorShift.NextScalar();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -118,6 +118,17 @@ public partial class <#=typename#>
 
     public virtual bool Evaluate(<#=argdef#>, Scalar tolerance) => base.Evaluate(new(<#=args#>), tolerance);
 
+    public static <#=typename#> StretchBlend(<#=typename#> first, <#=typename#> second, Scalar blend_factor)
+    {
+        blend_factor = blend_factor.Clamp();
+
+        return new(xy =>
+            (1 - xy.Length.Multiply(blend_factor)).Max(Scalar.Zero).Multiply(first.ExplicitFunction.Evaluate(xy)) +
+            xy.Length.Multiply(blend_factor).Min(Scalar.One).Multiply(second.ExplicitFunction.Evaluate(xy)),
+            Combine(first.ComparisonOperator, second.ComparisonOperator)
+        );
+    }
+
     public <#=typename#> Negate() => new(v => ExplicitFunction.Evaluate(-v), ComparisonOperator);
 
     public <#=typename#> Shift(<#=vecname#> offset) => new(v => ExplicitFunction.Evaluate(v - offset), ComparisonOperator);

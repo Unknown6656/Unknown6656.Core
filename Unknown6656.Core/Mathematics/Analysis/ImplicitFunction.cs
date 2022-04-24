@@ -178,11 +178,11 @@ public class ImplicitFunction<Domain>
         Combine(ComparisonOperator, second.ComparisonOperator)
     );
 
-    public static ImplicitFunction<Domain> LinearInterpolate(ImplicitFunction<Domain> first, ImplicitFunction<Domain> second, Scalar factor)
+    public static ImplicitFunction<Domain> LinearInterpolate(ImplicitFunction<Domain> first, ImplicitFunction<Domain> second, Scalar blend_factor)
     {
-        factor = factor.Clamp();
+        blend_factor = blend_factor.Clamp();
 
-        return first.CombineWith(second, (x, y) => x.Multiply(factor).Add(y.Multiply(1 - factor)));
+        return first.CombineWith(second, (x, y) => x.Multiply(1 - blend_factor).Add(y.Multiply(blend_factor)));
     }
 
     public static ImplicitFunction<Domain> Combine(ImplicitFunction<Domain> first, ImplicitFunction<Domain> second, Func<Scalar, Scalar, Scalar> combinator) =>
@@ -201,6 +201,16 @@ public class ImplicitFunction<Domain>
     public static ImplicitFunction<Domain> Divide(ImplicitFunction<Domain> first, ImplicitFunction<Domain> second) => Combine(first, second, Scalar.Divide);
 
     public static ImplicitFunction<Domain> Modulus(ImplicitFunction<Domain> first, ImplicitFunction<Domain> second) => Combine(first, second, Scalar.Modulus);
+
+    public static ImplicitFunction<Domain> Union(ImplicitFunction<Domain> first, ImplicitFunction<Domain> second) => Min(first, second);
+
+    public static ImplicitFunction<Domain> Intersect(ImplicitFunction<Domain> first, ImplicitFunction<Domain> second) => Max(first, second);
+
+    public static ImplicitFunction<Domain> Except(ImplicitFunction<Domain> first, ImplicitFunction<Domain> second) => Combine(first, second, (f, s) => f.Max(-s));
+
+    public static ImplicitFunction<Domain> operator &(ImplicitFunction<Domain> first, ImplicitFunction<Domain> second) => Intersect(first, second);
+
+    public static ImplicitFunction<Domain> operator |(ImplicitFunction<Domain> first, ImplicitFunction<Domain> second) => Union(first, second);
 
     public static ImplicitFunction<Domain> operator +(ImplicitFunction<Domain> first, ImplicitFunction<Domain> second) => Add(first, second);
 
@@ -261,6 +271,8 @@ public partial class ImplicitScalarFunction2D
 
     public static ImplicitScalarFunction2D RoundHeart() => new((x, y) => (x * x + y * y - 1).Power(3) - x * x * y * y * y);
 
+    public static ImplicitScalarFunction2D LambertW0() => new((x, y) => (x / y).Log().Subtract(y));
+
     public static ImplicitScalarFunction2D Circle(Scalar radius, bool fill = false) => Circle(Vector2.Zero, radius, fill);
 
     public static ImplicitScalarFunction2D Circle(Vector2 center, Scalar radius, bool fill = false) =>
@@ -318,7 +330,8 @@ public partial class ImplicitScalarFunction2D
     {
         Vector2 dir = end - start;
 
-        return new(xy => dir.X * (xy.Y - start.Y) - dir.Y * (xy.X - start.X));
+        return new((x, y) => (dir.X * (start.Y - y) - dir.Y * (start.X - x)) / dir.Length);
+        //return new(xy => dir.X * (xy.Y - start.Y) - dir.Y * (xy.X - start.X));
     }
 
     // TODO
@@ -327,14 +340,12 @@ public partial class ImplicitScalarFunction2D
         Vector2 dir = end - start;
         Vector2 mid = (end + start) * .5;
 
-        return new(xy =>
+        return new(Multiply(InfiniteLine(start, end), new ImplicitScalarFunction2D(xy =>
         {
-            Scalar side = dir.X * (xy.Y - start.Y) - dir.Y * (xy.X - start.X);
-
-            return side * (mid.DistanceTo(xy) * 2 - dir.Length).Min(Scalar.Zero);
+            return (mid.DistanceTo(xy) * 2 - dir.Length).Min(Scalar.Zero);
 
             //  (xy.DistanceTo(start) + xy.DistanceTo(end) - dir.Length);
-        });
+        })));
     }
 
     public static ImplicitScalarFunction2D RegularPolygon(int sides, Scalar radius) =>
@@ -410,18 +421,21 @@ public partial class ImplicitScalarFunction2D
             throw new ArgumentException("The polygon must have at least three points.", nameof(points));
     }
 
-    public static ImplicitScalarFunction2D SoftmaxConvexPolygon(params Vector2[] points)
-    {
-        if (points is { Length: int l and > 2 })
-        {
-            var edges = points.Select((p, i) => InfiniteLine(p, points[(i + 1) % l])).Aggregate(Multiply);
+    //public static ImplicitScalarFunction2D SoftmaxConvexPolygon(params Vector2[] points)
+    //{
+    //    if (points is { Length: int l and > 1 })
+    //    {
+    //        ImplicitFunction<Vector2>? func = null;
 
+    //        foreach (var line in points.Select((p, i) => InfiniteLine(p, points[(i + 1) % l])))
+    //            func = func is null ? line : Max(func, line);
 
+    //        if (func is { })
+    //            return new(func);
+    //    }
 
-        }
-        else
-            throw new ArgumentException("The polygon must have at least three points.", nameof(points));
-    }
+    //    throw new ArgumentException("The polygon must have at least three points.", nameof(points));
+    //}
 
     public static ImplicitScalarFunction2D CassiniOval(Scalar a, Scalar b) =>
         new(xy => xy.SquaredNorm.Power(2) - 2 * b * b * xy.SquaredNorm - a.Power(4) + b.Power(4));

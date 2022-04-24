@@ -178,9 +178,29 @@ public static class ARMDisassembler
                 }
                 else if (matches(*ptr, MASK_MULTIPLY, MATCH_MULTIPLY))
                 {
-                    string instr = (*ptr & MASK_BIT_AW) != 0 ? "MULA" : "MUL";
+                    string rn = REGISTER_PREFIX + ((*ptr & MASK_Rn_CRn) >> RSHIFT_Rn_CRn);
+                    string rd = REGISTER_PREFIX + ((*ptr & MASK_Rd_CRd) >> RSHIFT_Rd_CRd);
+                    string rs = REGISTER_PREFIX + ((*ptr & MASK_Rs_CP_Rotate) >> RSHIFT_Rs_CP_Rotate);
+                    string rm = REGISTER_PREFIX + (*ptr & MASK_Rm_CRm);
 
+                    instructions.Add((*ptr & MASK_BIT_AW) != 0 ? $"MUL{cond} {rd}, {rm}, {rs}" : $"MULA{cond} {rd}, {rm}, {rs}, {rn}");
                 }
+                else if (matches(*ptr, MASK_MULTIPLY_LONG, MATCH_MULTIPLY_LONG))
+                {
+                    string rd_hi = REGISTER_PREFIX + (*ptr & MASK_Rn_CRn) >> RSHIFT_Rn_CRn;
+                    string rd_lo = REGISTER_PREFIX + (*ptr & MASK_Rd_CRd) >> RSHIFT_Rd_CRd;
+                    string rs = REGISTER_PREFIX + ((*ptr & MASK_Rs_CP_Rotate) >> RSHIFT_Rs_CP_Rotate);
+                    string rm = REGISTER_PREFIX + (*ptr & MASK_Rm_CRm);
+                    string accumulate = (*ptr & MASK_BIT_AW) == 0 ? "L" : "AL";
+                    char unsigned = (*ptr & MASK_BIT_UBSN) == 0 ? 'S' : 'U';
+
+                    instructions.Add($"{unsigned}MUL{accumulate}{cond} {rd_lo}, {rd_hi}, {rm}, {rs}");
+                }
+
+                // 23: u
+                // 22: ubsn
+                // 21:
+                // 20:
 
                 // TODO
 

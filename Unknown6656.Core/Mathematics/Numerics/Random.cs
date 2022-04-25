@@ -1,11 +1,13 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Collections.Generic;
+using System.Linq;
 using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Cryptography;
 using Unknown6656.Mathematics.Analysis;
+using Unknown6656.Generics;
 using Unknown6656.Common;
 
 using netrandom = System.Random;
@@ -67,14 +69,49 @@ public abstract unsafe class Random
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool NextBool(Scalar true_probability) => NextDouble() >= true_probability;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public sbyte[] NextSBytes(int count) => Enumerable.Range(0, count).ToArray(_ => NextSByte());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public char[] NextChars(int count) => Enumerable.Range(0, count).ToArray(_ => NextChar());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public short[] NextShorts(int count) => Enumerable.Range(0, count).ToArray(_ => NextShort());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ushort[] NextUShorts(int count) => Enumerable.Range(0, count).ToArray(_ => NextUShort());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public float[] NextFloats(int count) => Enumerable.Range(0, count).ToArray(_ => NextFloat());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public double[] NextDoubles(int count) => Enumerable.Range(0, count).ToArray(_ => NextDouble());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public decimal[] NextDecimals(int count) => Enumerable.Range(0, count).ToArray(_ => NextDecimal());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Scalar[] NextScalars(int count) => Enumerable.Range(0, count).ToArray(_ => NextScalar());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool[] NextBools(int count) => Enumerable.Range(0, count).ToArray(_ => NextBool());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool[] NextBools(int count, Scalar true_probability) => Enumerable.Range(0, count).ToArray(_ => NextBool(true_probability));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ref T Choose<T>(ref T left, ref T right) => ref Choose(ref left, ref right, .5);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ref T Choose<T>(ref T left, ref T right, Scalar right_probability) => ref NextBool(right_probability) ? ref right : ref left;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public float NextGaussian(float mean, float deviation) => (float)NextGaussian((double)mean, deviation);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public decimal NextGaussian(decimal mean, decimal deviation) => (decimal)NextGaussian((double)mean, (double)deviation);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Scalar NextGaussian(Scalar mean, Scalar deviation) => NextGaussian(mean.Determinant, deviation.Determinant);
 
     public double NextGaussian(double mean, double deviation)
@@ -84,6 +121,45 @@ public abstract unsafe class Random
 
         return mean + deviation * Math.Sqrt(-2 * Math.Log(u1)) * Math.Sin(Math.Tau * u2);
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public float[] NextGaussians(int count, float mean, float deviation) => Enumerable.Range(0, count).ToArray(_ => NextGaussian(mean, deviation));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public decimal[] NextGaussians(int count, decimal mean, decimal deviation) => Enumerable.Range(0, count).ToArray(_ => NextGaussian(mean, deviation));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Scalar[] NextGaussians(int count, Scalar mean, Scalar deviation) => Enumerable.Range(0, count).ToArray(_ => NextGaussian(mean, deviation));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public double[] NextGaussians(int count, double mean, double deviation) => Enumerable.Range(0, count).ToArray(_ => NextGaussian(mean, deviation));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Scalar[] NextScalars(int count, Scalar max) => Enumerable.Range(0, count).ToArray(_ => NextScalar(max));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Scalar[] NextScalars(int count, Scalar min, Scalar max) => Enumerable.Range(0, count).ToArray(_ => NextScalar(min, max));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Complex[] NextComplexes(int count, Scalar length) => Enumerable.Range(0, count).ToArray(_ => NextComplex(length));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Complex[] NextComplexes(int count) => Enumerable.Range(0, count).ToArray(_ => NextComplex());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int[] NextInts(int count) => Enumerable.Range(0, count).ToArray(_ => NextInt());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public uint[] NextUInts(int count) => Enumerable.Range(0, count).ToArray(_ => NextUInt());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public long[] NextLongs(int count) => Enumerable.Range(0, count).ToArray(_ => NextLong());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ulong[] NextULongs(int count) => Enumerable.Range(0, count).ToArray(_ => NextULong());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public UInt128[] NextUInt128s(int count) => Enumerable.Range(0, count).ToArray(_ => NextUInt128());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Scalar NextScalar(Scalar max) => NextScalar() * max;
@@ -178,6 +254,8 @@ public abstract unsafe class Random
         return res;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public T[] Next<T>(int count) where T : unmanaged => Enumerable.Range(0, count).ToArray(_ => Next<T>());
 
     public static implicit operator Random(netrandom random) => new BuiltinRandom._(random);
 }

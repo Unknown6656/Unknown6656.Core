@@ -27,9 +27,6 @@ public static class LINQExtensions
     public static unsafe T BinaryCast<T>(this byte[] source) where T : unmanaged => DataStream.FromBytes(source).ToUnmanaged<T>();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static unsafe U BinaryCast<T, U>(this T value) where T : unmanaged where U : unmanaged => *(U*)&value;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> collection) => collection.Shuffle(new XorShift());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

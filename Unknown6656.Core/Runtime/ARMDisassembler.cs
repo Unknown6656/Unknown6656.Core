@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Unknown6656.Generics;
+
 namespace Unknown6656.Runtime;
 
 
@@ -22,6 +24,8 @@ public static unsafe class ARMDisassembler
     internal const uint MASK_BIT_SL = 0b_00000000_00010000_00000000_00000000;
     internal const uint MASK_OPCODE = 0b_00000001_11100000_00000000_00000000;
     internal const int RSHIFT_OPCODE = 21;
+    internal const uint MASK_CPOP = 0b_00000000_11110000_00000000_00000000;
+    internal const int RSHIFT_CPOP = 21;
     internal const uint MASK_RMSHIFT = 0b_00000000_00000000_00001111_11110000;
     internal const int RSHIFT_RMSHIFT = 4;
     internal const uint MASK_IMM = 0b_00000000_00000000_00000000_11111111;
@@ -31,7 +35,12 @@ public static unsafe class ARMDisassembler
     internal const int RSHIFT_Rd_CRd = 12;
     internal const uint MASK_Rs_CP_Rotate = 0b_00000000_00000000_00001111_00000000;
     internal const int RSHIFT_Rs_CP_Rotate = 8;
-    internal const uint MASK_CP = 0b_00000000_00000000_00000000_11110000;
+    internal const uint MASK_SH = 0b_00000000_00000000_00000000_01100000;
+    internal const int RSHIFT_SH = 5;
+    internal const uint MASK_CP = 0b_00000000_00000000_00000000_11100000;
+    internal const int RSHIFT_CP = 5;
+    internal const uint MASK_CPN = 0b_00000000_00000000_00001111_00000000;
+    internal const int RSHIFT_CPN = 8;
     internal const uint MASK_Rm_CRm = 0b_00000000_00000000_00000000_00001111;
     internal const uint MASK_SDT_OFFSET = 0b_00000000_00000000_11111111_11111111;
     internal const uint MASK_BDT_REGISTER = 0b_00000000_00000000_11111111_11111111;
@@ -55,8 +64,8 @@ public static unsafe class ARMDisassembler
     internal const uint MATCH_SINGLE_DATA_TRANSFER = 0b_00000100_00000000_00000000_00000000;
     internal const uint MASK_HWORD_DATA_TRANSFER_IMMEDIATE = 0b__00001110_01000000_00000000_10010000;
     internal const uint MATCH_HWORD_DATA_TRANSFER_IMMEDIATE = 0b_00000000_01000000_00000000_10010000;
-    internal const uint MASK_HWORD_DATA_TRANSFER_REGISTER = 0b__00001110_01000000_00001111_10010000;
-    internal const uint MATCH_HWORD_DATA_TRANSFER_REGISTER = 0b_00000000_00000000_00000000_10010000;
+    internal const uint MASK_HWORD_DATA_TRANSFER_REGISTER = 0b___00001110_01000000_00001111_10010000;
+    internal const uint MATCH_HWORD_DATA_TRANSFER_REGISTER = 0b__00000000_00000000_00000000_10010000;
     internal const uint MASK_BRANCH_EXCHANGE = 0b__00001111_11111111_11111111_11110000;
     internal const uint MATCH_BRANCH_EXCHANGE = 0b_00000001_00101111_11111111_00010000;
     internal const uint MASK_SINGLE_DATA_SWAP = 0b__00001111_10110000_00001111_11110000;
@@ -75,6 +84,7 @@ public static unsafe class ARMDisassembler
     internal const uint MATCH_PSR_MSR2 = 0b_00000001_00101000_11110000_00000000;
 
     internal const string REGISTER_PREFIX = "R";
+    internal const string COPROCESSOR_REGISTER_PREFIX = "c";
 
 
     public static List<string> Disassemble(byte[] bytes)
@@ -209,15 +219,107 @@ public static unsafe class ARMDisassembler
                     if (preindexed && writeback && offs != 0)
                         instr += " !";
                 }
+                else if (matches(*ptr, MASK_HWORD_DATA_TRANSFER_REGISTER, MATCH_HWORD_DATA_TRANSFER_REGISTER)
+                     || matches(*ptr, MASK_HWORD_DATA_TRANSFER_IMMEDIATE, MATCH_HWORD_DATA_TRANSFER_IMMEDIATE))
+                {
+                    bool immediate = matches(*ptr, MASK_HWORD_DATA_TRANSFER_IMMEDIATE, MATCH_HWORD_DATA_TRANSFER_IMMEDIATE);
+                    bool preindexed = get_bit(ptr, ARMInstructionBit.PreIndexing);
+                    bool up = get_bit(ptr, ARMInstructionBit.Up);
+                    bool writeback = get_bit(ptr, ARMInstructionBit.WriteBack);
+                    uint offset = (*ptr & MASK_Rm_CRm) | ((*ptr & MASK_Rs_CP_Rotate) >> 4);
+                    string instr = get_bit(ptr, ARMInstructionBit.Load) ? "LDR" : "STR";
 
+                    instr += $"{suffix}{((*ptr & MASK_SH) >> RSHIFT_SH) switch
+                    {
+                        00 => "",
+                        01 => "H",
+                        10 => "SB",
+                        11 => "SH",
+                    }} {rd}, [{rn}";
 
+                    if (preindexed)
+                    {
+                        if (immediate & offset == 0)
+                            instr += "]";
+                        else if (immediate)
+                            instr += $", {offset}]";
+                        else
+                            instr += $", {(up ? '+' : '-')}{rm}]";
 
+                        if (writeback)
+                            instr += " !";
+                    }
+                    else if (immediate)
+                        instr += $"], {offset}";
+                    else
+                        instr += $"], {(up ? '+' : '-')}{rm}]";
+
+                    instructions.Add(instr);
+                }
+                else if (matches(*ptr, MASK_DATA_BLOCK_TRANSFER, MATCH_DATA_BLOCK_TRANSFER))
+                {
+                    bool preindexed = get_bit(ptr, ARMInstructionBit.PreIndexing);
+                    bool up = get_bit(ptr, ARMInstructionBit.Up);
+                    bool writeback = get_bit(ptr, ARMInstructionBit.WriteBack);
+                    bool psr = get_bit(ptr, ARMInstructionBit.PSR);
+                    bool load = get_bit(ptr, ARMInstructionBit.Load);
+                    string instr = load ? "LDM" : "STM";
+                    string mode = (load, preindexed, up) switch
+                    {
+                        (true, true, true) => "IB",
+                        (true, false, true) => "IA",
+                        (true, true, false) => "DB",
+                        (true, false, false) => "DA",
+                        (false, true, true) => "IB",
+                        (false, false, true) => "IA",
+                        (false, true, false) => "DB",
+                        (false, false, false) => "DA",
+                    };
+
+                    string registers = Enumerable.Range(0, 16)
+                                                 .Where(i => (*ptr & (1 << i)) != 0)
+                                                 .Select(i => get_register(i, false))
+                                                 .StringJoin(", ");
+
+                    instr += $"{suffix}{mode} {rn}{(writeback ? "!" : "")}, {{{registers}}}{(psr ? "^" : "")}";
+
+                    if (instr.StartsWith("ldm sp!, ", StringComparison.CurrentCultureIgnoreCase))
+                        instr = "POP " + instr[9..];
+                    else if (instr.StartsWith("stmdb sp!, ", StringComparison.CurrentCultureIgnoreCase))
+                        instr = "PUSH " + instr[11..];
+
+                    instructions.Add(instr);
+                }
+                else if (matches(*ptr, MASK_SINGLE_DATA_SWAP, MATCH_SINGLE_DATA_SWAP))
+                    instructions.Add($"SWP{suffix}{(get_bit(ptr, ARMInstructionBit.Byte) ? "B" : "")} {rd}, {rm}, [{rn}]");
+                else if (matches(*ptr, MASK_INTERRUPT, MATCH_INTERRUPT))
+                    instructions.Add($"SWI{suffix} ; 0x{*ptr:x8}");
+                else if (matches(*ptr, MASK_COPROC_DATA_OPERATION, MATCH_COPROC_DATA_OPERATION))
+                {
+                    uint cop = (*ptr & MASK_CPOP) >> RSHIFT_CPOP;
+                    uint cp = (*ptr & MASK_CP) >> RSHIFT_CP;
+                    uint cpn = (*ptr & MASK_CPN) >> RSHIFT_CPN;
+
+                    rn = get_register(ptr, ARMRegisterType.Cn);
+                    rd = get_register(ptr, ARMRegisterType.Cd);
+                    rm = get_register(ptr, ARMRegisterType.Cm);
+
+                    instructions.Add($"CDP{suffix} p{cpn}, {cop}, {rd}, {rn}, {rm}, {cp}");
+                }
+                else if (matches(*ptr, MASK_COPROC_DATA_TRANSFER, MATCH_COPROC_DATA_TRANSFER))
+                {
+
+                }
+                else if (matches(*ptr, MASK_, MATCH_))
+                {
+
+                }
                 else
                     instructions.Add($"; undefined/unknown instruction: 0x{*ptr:x8}");
             }
-        }
 
-        throw new NotImplementedException(); // TODO
+            ++ptr;
+        }
 
         return instructions;
     }
@@ -236,17 +338,30 @@ public static unsafe class ARMDisassembler
         return operand2;
     }
 
+    private static string get_register(uint index, bool coproc) =>
+        coproc ? COPROCESSOR_REGISTER_PREFIX + index : index switch
+        {
+            <= 12 => REGISTER_PREFIX + index,
+            13 => "SP",
+            14 => "LR",
+            15 => "PC",
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
+        };
+
     private static string get_register(uint* ptr, ARMRegisterType register)
     {
         (uint mask, int shift) = register switch
         {
-            ARMRegisterType.Rd => (MASK_Rd_CRd, RSHIFT_Rd_CRd),
-            ARMRegisterType.Rn => (MASK_Rn_CRn, RSHIFT_Rn_CRn),
-            ARMRegisterType.Rs => (MASK_Rs_CP_Rotate, RSHIFT_Rs_CP_Rotate),
-            ARMRegisterType.Rm => (MASK_Rm_CRm, 0),
+            ARMRegisterType.Rd or ARMRegisterType.Cd => (MASK_Rd_CRd, RSHIFT_Rd_CRd),
+            ARMRegisterType.Rn or ARMRegisterType.Cn => (MASK_Rn_CRn, RSHIFT_Rn_CRn),
+            ARMRegisterType.Rs or ARMRegisterType.Cs => (MASK_Rs_CP_Rotate, RSHIFT_Rs_CP_Rotate),
+            ARMRegisterType.Rm or ARMRegisterType.Cm => (MASK_Rm_CRm, 0),
         };
 
-        return REGISTER_PREFIX + ((*ptr & mask) >> shift);
+        return get_register((*ptr & mask) >> shift, register is ARMRegisterType.Cd
+                                                             or ARMRegisterType.Cn
+                                                             or ARMRegisterType.Cs
+                                                             or ARMRegisterType.Cm);
     }
 
     private static bool get_bit(uint* ptr, ARMInstructionBit bit) => (*ptr & (uint)bit) != 0;
@@ -311,6 +426,10 @@ public enum ARMRegisterType
     Rn,
     Rs,
     Rm,
+    Cd,
+    Cn,
+    Cs,
+    Cm,
 }
 
 public enum ARMInstructionBit

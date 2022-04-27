@@ -177,14 +177,14 @@ public static unsafe class ARMDisassembler
                     instructions.Add(instr);
                 }
                 else if (matches(*ptr, MASK_MULTIPLY, MATCH_MULTIPLY))
-                    instructions.Add(get_bit(ptr, ARMInstructionBit.Accumulate) ? $"MUL{cond} {rd}, {rm}, {rs}"
-                                                                                : $"MULA{cond} {rd}, {rm}, {rs}, {rn}");
+                    instructions.Add(get_bit(ptr, ARMInstructionBit.Accumulate) ? $"MUL{suffix} {rd}, {rm}, {rs}"
+                                                                                : $"MULA{suffix} {rd}, {rm}, {rs}, {rn}");
                 else if (matches(*ptr, MASK_MULTIPLY_LONG, MATCH_MULTIPLY_LONG))
                 {
                     string accumulate = get_bit(ptr, ARMInstructionBit.Accumulate) ? "L" : "AL";
                     char unsigned = get_bit(ptr, ARMInstructionBit.MultiplyUnsigned) ? 'S' : 'U';
 
-                    instructions.Add($"{unsigned}MUL{accumulate}{cond} {rd}, {rn}, {rm}, {rs}");
+                    instructions.Add($"{unsigned}MUL{accumulate}{suffix} {rd}, {rn}, {rm}, {rs}");
                 }
                 else if (matches(*ptr, MASK_SINGLE_DATA_TRANSFER, MATCH_SINGLE_DATA_TRANSFER))
                 {
@@ -193,7 +193,7 @@ public static unsafe class ARMDisassembler
                     bool preindexed = get_bit(ptr, ARMInstructionBit.PreIndexing);
                     bool writeback = get_bit(ptr, ARMInstructionBit.WriteBack);
                     string instr = get_bit(ptr, ARMInstructionBit.Load) ? "LDR" : "STR";
-                    var offs = *ptr & MASK_SDT_OFFSET;
+                    uint offs = *ptr & MASK_SDT_OFFSET;
 
                     instr += suffix;
 
@@ -217,7 +217,7 @@ public static unsafe class ARMDisassembler
                         instr += ']';
 
                     if (preindexed && writeback && offs != 0)
-                        instr += " !";
+                        instr += '!';
                 }
                 else if (matches(*ptr, MASK_HWORD_DATA_TRANSFER_REGISTER, MATCH_HWORD_DATA_TRANSFER_REGISTER)
                      || matches(*ptr, MASK_HWORD_DATA_TRANSFER_IMMEDIATE, MATCH_HWORD_DATA_TRANSFER_IMMEDIATE))
@@ -240,14 +240,14 @@ public static unsafe class ARMDisassembler
                     if (preindexed)
                     {
                         if (immediate & offset == 0)
-                            instr += "]";
+                            instr += ']';
                         else if (immediate)
                             instr += $", {offset}]";
                         else
                             instr += $", {(up ? '+' : '-')}{rm}]";
 
                         if (writeback)
-                            instr += " !";
+                            instr += '!';
                     }
                     else if (immediate)
                         instr += $"], {offset}";
@@ -264,21 +264,16 @@ public static unsafe class ARMDisassembler
                     bool psr = get_bit(ptr, ARMInstructionBit.PSR);
                     bool load = get_bit(ptr, ARMInstructionBit.Load);
                     string instr = load ? "LDM" : "STM";
-                    string mode = (load, preindexed, up) switch
+                    string mode = (preindexed, up) switch
                     {
-                        (true, true, true) => "IB",
-                        (true, false, true) => "IA",
-                        (true, true, false) => "DB",
-                        (true, false, false) => "DA",
-                        (false, true, true) => "IB",
-                        (false, false, true) => "IA",
-                        (false, true, false) => "DB",
-                        (false, false, false) => "DA",
+                        (true, true) => "IB",
+                        (false, true) => "IA",
+                        (true, false) => "DB",
+                        (false, false) => "DA",
                     };
-
                     string registers = Enumerable.Range(0, 16)
                                                  .Where(i => (*ptr & (1 << i)) != 0)
-                                                 .Select(i => get_register(i, false))
+                                                 .Select(i => get_register((uint)i, false))
                                                  .StringJoin(", ");
 
                     instr += $"{suffix}{mode} {rn}{(writeback ? "!" : "")}, {{{registers}}}{(psr ? "^" : "")}";
@@ -308,11 +303,43 @@ public static unsafe class ARMDisassembler
                 }
                 else if (matches(*ptr, MASK_COPROC_DATA_TRANSFER, MATCH_COPROC_DATA_TRANSFER))
                 {
+                    bool up = get_bit(ptr, ARMInstructionBit.Up);
+                    uint cpn = (*ptr & MASK_CPN) >> RSHIFT_CPN;
+                    int offs = (int)(*ptr & MASK_IMM) * (up ? 1 : -1);
+                    string instr = get_bit(ptr, ARMInstructionBit.Load) ? "LDC" : "STC";
 
+                    instr += suffix;
+
+                    if (get_bit(ptr, ARMInstructionBit.TransferLength))
+                        instr += 'L';
+
+                    instr += $" p{cpn} {get_register(ptr, ARMRegisterType.Cd)}, [{rn}";
+
+                    if (get_bit(ptr, ARMInstructionBit.PreIndexing))
+                    {
+                        if (offs != 0)
+                            instr += $", {offs}";
+
+                        instr += ']';
+
+                        if (get_bit(ptr, ARMInstructionBit.WriteBack))
+                            instr += '!';
+                    }
+                    else
+                        instr += $"], {offs}";
+
+                    instructions.Add(instr);
                 }
-                else if (matches(*ptr, MASK_, MATCH_))
+                else if (matches(*ptr, MASK_COPROC_REGISTER_TRANSFER, MATCH_COPROC_REGISTER_TRANSFER))
                 {
+                    string instr = get_bit(ptr, ARMInstructionBit.Load) ? "MRC" : "MCR";
+                    uint cpn = (*ptr & MASK_CPN) >> RSHIFT_CPN;
+                    uint cp = (*ptr & MASK_CP) >> RSHIFT_CP;
+                    uint cpop = (*ptr & MASK_CPOP) >> RSHIFT_CPOP;
+                    string cn = get_register(ptr, ARMRegisterType.Cn);
+                    string cm = get_register(ptr, ARMRegisterType.Cm);
 
+                    instructions.Add($"{instr}{suffix} p{cpn}, {cpop}, {rd}, {cn}, {cm}, {cp}");
                 }
                 else
                     instructions.Add($"; undefined/unknown instruction: 0x{*ptr:x8}");
@@ -447,6 +474,7 @@ public enum ARMInstructionBit
     Load = ARMDisassembler.MASK_BIT_SL,
     WriteBack = ARMDisassembler.MASK_BIT_AW,
     Byte = ARMDisassembler.MASK_BIT_UBSN,
+    TransferLength = ARMDisassembler.MASK_BIT_UBSN,
 }
 
 // MASK_BIT_I =     0000'0010 0000'0000 0000'0000 0000'0000;

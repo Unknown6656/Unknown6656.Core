@@ -9,7 +9,14 @@ using Unknown6656.Generics;
 namespace Unknown6656.Runtime;
 
 
-public static unsafe class ARMDisassembler
+// TODOs:
+// - allow specification of endianness
+// - BKPT
+// - BX
+
+
+public unsafe class ARMDisassembler
+    : Disassembler
 {
     // see https://iitd-plos.github.io/col718/ref/arm-instructionset.pdf
     //     http://cs107e.github.io/readings/armisa.pdf
@@ -82,27 +89,21 @@ public static unsafe class ARMDisassembler
     internal const uint MATCH_PSR_MSR = 0b_00000001_00101001_11110000_00000000;
     internal const uint MASK_PSR_MSR2 = 0b__00001101_10111111_11110000_00000000;
     internal const uint MATCH_PSR_MSR2 = 0b_00000001_00101000_11110000_00000000;
-
     internal const string REGISTER_PREFIX = "R";
     internal const string COPROCESSOR_REGISTER_PREFIX = "c";
 
 
-    public static List<string> Disassemble(byte[] bytes)
-    {
-        if ((bytes.Length % sizeof(uint)) != 0)
-            throw new ArgumentException($"The number of bytes must be divisable by {sizeof(uint)}.", nameof(bytes));
-        else
-            fixed (byte* ptr = bytes)
-                return Disassemble((uint*)ptr, bytes.Length / sizeof(uint));
-    }
+    public override unsafe List<string> DisassembleIntoLines(byte* ptr, int length, __empty _) =>
+        (length % sizeof(uint)) != 0 ? throw new ArgumentException($"The number of bytes must be divisable by {sizeof(uint)}.", nameof(length))
+                                     : Disassemble((uint*) ptr, length / sizeof(uint));
 
-    public static List<string> Disassemble(uint[] instructions)
+    public List<string> Disassemble(uint[] instructions)
     {
         fixed (uint* ptr = instructions)
             return Disassemble(ptr, instructions.Length);
     }
 
-    public static List<string> Disassemble(uint* ptr, int count)
+    public List<string> Disassemble(uint* ptr, int count)
     {
         List<string> instructions = new();
 
@@ -295,9 +296,9 @@ public static unsafe class ARMDisassembler
                     uint cp = (*ptr & MASK_CP) >> RSHIFT_CP;
                     uint cpn = (*ptr & MASK_CPN) >> RSHIFT_CPN;
 
-                    rn = get_register(ptr, ARMRegisterType.Cn);
-                    rd = get_register(ptr, ARMRegisterType.Cd);
-                    rm = get_register(ptr, ARMRegisterType.Cm);
+                    rn = get_register(ptr, ARMRegisterType.CRn);
+                    rd = get_register(ptr, ARMRegisterType.CRd);
+                    rm = get_register(ptr, ARMRegisterType.CRm);
 
                     instructions.Add($"CDP{suffix} p{cpn}, {cop}, {rd}, {rn}, {rm}, {cp}");
                 }
@@ -313,7 +314,7 @@ public static unsafe class ARMDisassembler
                     if (get_bit(ptr, ARMInstructionBit.TransferLength))
                         instr += 'L';
 
-                    instr += $" p{cpn} {get_register(ptr, ARMRegisterType.Cd)}, [{rn}";
+                    instr += $" p{cpn} {get_register(ptr, ARMRegisterType.CRd)}, [{rn}";
 
                     if (get_bit(ptr, ARMInstructionBit.PreIndexing))
                     {
@@ -336,8 +337,8 @@ public static unsafe class ARMDisassembler
                     uint cpn = (*ptr & MASK_CPN) >> RSHIFT_CPN;
                     uint cp = (*ptr & MASK_CP) >> RSHIFT_CP;
                     uint cpop = (*ptr & MASK_CPOP) >> RSHIFT_CPOP;
-                    string cn = get_register(ptr, ARMRegisterType.Cn);
-                    string cm = get_register(ptr, ARMRegisterType.Cm);
+                    string cn = get_register(ptr, ARMRegisterType.CRn);
+                    string cm = get_register(ptr, ARMRegisterType.CRm);
 
                     instructions.Add($"{instr}{suffix} p{cpn}, {cpop}, {rd}, {cn}, {cm}, {cp}");
                 }
@@ -368,7 +369,9 @@ public static unsafe class ARMDisassembler
     private static string get_register(uint index, bool coproc) =>
         coproc ? COPROCESSOR_REGISTER_PREFIX + index : index switch
         {
-            <= 12 => REGISTER_PREFIX + index,
+            <= 10 => REGISTER_PREFIX + index,
+            11 => "FP",
+            12 => "IP",
             13 => "SP",
             14 => "LR",
             15 => "PC",
@@ -379,16 +382,16 @@ public static unsafe class ARMDisassembler
     {
         (uint mask, int shift) = register switch
         {
-            ARMRegisterType.Rd or ARMRegisterType.Cd => (MASK_Rd_CRd, RSHIFT_Rd_CRd),
-            ARMRegisterType.Rn or ARMRegisterType.Cn => (MASK_Rn_CRn, RSHIFT_Rn_CRn),
-            ARMRegisterType.Rs or ARMRegisterType.Cs => (MASK_Rs_CP_Rotate, RSHIFT_Rs_CP_Rotate),
-            ARMRegisterType.Rm or ARMRegisterType.Cm => (MASK_Rm_CRm, 0),
+            ARMRegisterType.Rd or ARMRegisterType.CRd => (MASK_Rd_CRd, RSHIFT_Rd_CRd),
+            ARMRegisterType.Rn or ARMRegisterType.CRn => (MASK_Rn_CRn, RSHIFT_Rn_CRn),
+            ARMRegisterType.Rs or ARMRegisterType.CRs => (MASK_Rs_CP_Rotate, RSHIFT_Rs_CP_Rotate),
+            ARMRegisterType.Rm or ARMRegisterType.CRm => (MASK_Rm_CRm, 0),
         };
 
-        return get_register((*ptr & mask) >> shift, register is ARMRegisterType.Cd
-                                                             or ARMRegisterType.Cn
-                                                             or ARMRegisterType.Cs
-                                                             or ARMRegisterType.Cm);
+        return get_register((*ptr & mask) >> shift, register is ARMRegisterType.CRd
+                                                             or ARMRegisterType.CRn
+                                                             or ARMRegisterType.CRs
+                                                             or ARMRegisterType.CRm);
     }
 
     private static bool get_bit(uint* ptr, ARMInstructionBit bit) => (*ptr & (uint)bit) != 0;
@@ -453,10 +456,10 @@ public enum ARMRegisterType
     Rn,
     Rs,
     Rm,
-    Cd,
-    Cn,
-    Cs,
-    Cm,
+    CRd,
+    CRn,
+    CRs,
+    CRm,
 }
 
 public enum ARMInstructionBit

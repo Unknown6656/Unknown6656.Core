@@ -7,15 +7,10 @@ using System.Threading.Tasks;
 namespace Unknown6656.Runtime;
 
 
-public static class X86Disassembler
+public unsafe class X86Disassembler
+    : Disassembler
 {
-    public static unsafe List<string> Disassemble(byte[]? bytes)
-    {
-        fixed (byte* ptr = bytes)
-            return Disassemble(ptr, bytes.Length);
-    }
-
-    public static unsafe List<string> Disassemble(void* ptr, int count)
+    public override unsafe List<string> DisassembleIntoLines(byte* ptr, int length, __empty config)
     {
         List<string> instructions = new();
 

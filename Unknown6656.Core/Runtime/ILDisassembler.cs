@@ -9,15 +9,47 @@ using Unknown6656.Common;
 namespace Unknown6656.Runtime;
 
 
-public static class ILDisassembler
+public abstract unsafe class Disassembler<Config>
+{
+    public string Disassemble(byte[] bytes, Config config) => DisassembleIntoLines(bytes, config).StringJoinLines();
+
+    public string Disassemble(byte* ptr, int length, Config config) => DisassembleIntoLines(ptr, length, config).StringJoinLines();
+
+    public List<string> DisassembleIntoLines(byte[] bytes, Config config)
+    {
+        fixed (byte* ptr = bytes)
+            return DisassembleIntoLines(ptr, bytes.Length, config);
+    }
+
+    public abstract List<string> DisassembleIntoLines(byte* ptr, int length, Config config);
+}
+
+public abstract unsafe class Disassembler
+    : Disassembler<__empty>
+{
+    public string Disassemble(byte[] bytes) => DisassembleIntoLines(bytes).StringJoinLines();
+
+    public string Disassemble(byte* ptr, int length) => DisassembleIntoLines(ptr, length).StringJoinLines();
+
+    public List<string> DisassembleIntoLines(byte[] bytes)
+    {
+        fixed (byte* ptr = bytes)
+            return DisassembleIntoLines(ptr, bytes.Length);
+    }
+
+    public List<string> DisassembleIntoLines(byte* ptr, int length) => DisassembleIntoLines(ptr, length, default);
+}
+
+public unsafe class ILDisassembler
+    : Disassembler<Module>
 {
     private static readonly ILSignatureProvider _ilsigprov = new();
 
 
-    public static string Disassemble(MethodInfo method) =>
+    public string Disassemble(MethodInfo method) =>
         method.GetMethodBody() is { } body ? Disassemble(body, method.Module) : throw new ArgumentException("The given method does not define a method body.", nameof(method));
 
-    public static string Disassemble(MethodBody method!!, Module module)
+    public string Disassemble(MethodBody method!!, Module module)
     {
         byte[]? signature = LINQ.TryDo(() => module.ResolveSignature(method.LocalSignatureMetadataToken), null);
         IList<LocalVariableInfo> variables = method.LocalVariables;
@@ -45,35 +77,30 @@ public static class ILDisassembler
         return il.ToString();
     }
 
-    public static unsafe List<string> Disassemble(byte[]? bytes, Module module)
+    public override List<string> DisassembleIntoLines(byte* start, int length, Module module)
     {
         List<string> lines = new();
+        byte* ptr = start;
+        byte* end = start + length;
+        int processed = 0;
 
-        if (bytes is { })
-            fixed (byte* start = bytes)
+        while (ptr < end)
+            try
             {
-                byte* ptr = start;
-                byte* end = start + bytes.Length;
-                int processed = 0;
+                if (Process(ptr, module, processed) is (int adv, string instr))
+                {
+                    lines.Add($"IL_{processed:x4}: {instr}");
+                    ++processed;
+                    ptr += adv;
+                }
+                else
+                    break;
+            }
+            catch
+            {
+                lines.Add("<error while processing bytes>");
 
-                while (ptr < end)
-                    try
-                    {
-                        if (Process(ptr, module, processed) is (int adv, string instr))
-                        {
-                            lines.Add($"IL_{processed:x4}: {instr}");
-                            ++processed;
-                            ptr += adv;
-                        }
-                        else
-                            break;
-                    }
-                    catch
-                    {
-                        lines.Add("<error while processing bytes>");
-
-                        break;
-                    }
+                break;
             }
 
         return lines;

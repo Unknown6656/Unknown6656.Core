@@ -652,11 +652,18 @@ public unsafe class DataStream
 
     public object? ToJSON(Type type, Encoding enc, JsonSerializerOptions? options = null) => JsonSerializer.Deserialize(ToString(enc), type, options ?? DefaultJSONOptions);
 
-    public string DisassembleILBytes(Module module_context) => ILDisassembler.Disassemble(ToBytes(), module_context).StringJoinLines();
+    public string Disassemble(Disassembler disassembler) => disassembler.Disassemble(ToBytes());
 
-    public string DisassembleARMBytes() => ARMDisassembler.Disassemble(ToBytes()).StringJoinLines();
+    public string Disassemble<Disassembler, Config>(Disassembler disassembler, Config config)
+        where Disassembler : Disassembler<Config> => disassembler.Disassemble(ToBytes(), config);
 
-    public string DisassembleX86Bytes() => X86Disassembler.Disassemble(ToBytes()).StringJoinLines();
+    public string Disassemble<Disassembler, Config>(Config config) where Disassembler : Disassembler<Config>, new() => Disassemble(new Disassembler(), config);
+
+    public string DisassembleIL(Module module_context) => Disassemble<ILDisassembler, Module>(module_context);
+
+    public string DisassembleARM() => Disassemble(new ARMDisassembler());
+
+    public string DisassembleX86() => Disassemble(new X86Disassembler());
 
     // [Obsolete("See https://aka.ms/binaryformatter", true)]
     // public object ToSerializable()

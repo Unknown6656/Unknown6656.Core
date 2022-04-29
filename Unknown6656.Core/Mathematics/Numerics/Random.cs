@@ -2,6 +2,7 @@
 using System.Security.Cryptography;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
@@ -9,6 +10,7 @@ using Unknown6656.Mathematics.Cryptography;
 using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Generics;
 using Unknown6656.Common;
+using Unknown6656.IO;
 
 using netrandom = System.Random;
 
@@ -258,6 +260,9 @@ public abstract unsafe class Random
     public T[] Next<T>(int count) where T : unmanaged => Enumerable.Range(0, count).ToArray(_ => Next<T>());
 
     public static implicit operator Random(netrandom random) => new BuiltinRandom._(random);
+
+    public static implicit operator Stream(Random random) => ByteGeneratorStream.FromRandom(random);
+
 }
 
 public sealed class XorShift

@@ -67,12 +67,13 @@ public static unsafe class Program
         Console.OutputEncoding = Encoding.UTF8;
 
 
-        Main_implicit_plotter_ui();
+
+        Main_QOIF();
+
         return;
         var prov = new CSharpSignatureProvider();
 
         typeof(test).GetMembers().Append(typeof(test)).Do(m => Console.WriteLine(prov.GenerateSignature(m) + "\n"));
-        return;
 
         //Main_PSO();
     }
@@ -95,6 +96,23 @@ public static unsafe class Program
     //    var o = s.Solve();
     //    var v = o.OptimalValue;
     //}
+
+    public static void Main_QOIF()
+    {
+        var file = "img3.png";
+        var inp = DataStream.FromQOIFBitmap((Bitmap)Image.FromFile(file));
+        var dat = inp.Data;
+        var rng = new XorShift();
+
+        for (int i = 50; i < dat.Length; ++i)
+            if (rng.NextBool(.00000000001))
+                dat[i] = rng.NextByte();
+
+        inp.Seek(0, SeekOrigin.Begin);
+        inp//.HexDump()
+           .ToQOIFBitmap()
+           .Save(file + "-corrupted-qoi.png");
+    }
 
     public static void Main_BMP_effects_3()
     {
@@ -390,40 +408,54 @@ public static unsafe class Program
 
     public static void Main_implicit_plotter_ui()
     {
-        var f1 = ImplicitScalarFunction2D.Heart().Scale(3).Shift((0, -1));
-        var f2 = ImplicitScalarFunction2D.ArbitraryPolygon(
-            (-3, 2),
-            (0, 3.5),
-            (3, 2),
-            (-3, -2),
-            (0, -3.5),
-            (3, -2)
-        );
-        f2 = ImplicitScalarFunction2D.Cartesian(new(x => x.MultiplicativeInverse));
+        var f1 = ImplicitScalarFunction2D.Cartesian(new(Scalar.Cos))
+               * ImplicitScalarFunction2D.Cartesian(new(x => .95 - .5 * x * x))
+               * ImplicitScalarFunction2D.Cartesian(new(x => .5 * (x + Scalar.Pi).Power(2) - .95))
+               * ImplicitScalarFunction2D.Cartesian(new(x => .5 * (x - Scalar.Pi).Power(2) - .95));
+        var f2 = ImplicitScalarFunction2D.Rectangle((0, 0), 5, 3)
+               * ImplicitScalarFunction2D.Cartesian(new(x => x % 1));
+        var f3 = ImplicitScalarFunction2D.RoundHeart().Scale(2).Shift((0, -1))
+               * ImplicitScalarFunction2D.Heart().Shift((-5, -2))
+               * ImplicitScalarFunction2D.Heart().Shift((5, -2))
+               * ImplicitScalarFunction2D.Heart().Shift((-4, 2))
+               * ImplicitScalarFunction2D.Heart().Shift((4, 2));
         var cm = ColorMap.Jet + ColorMap.Jet.Reverse();
 
-        int count = 20;
+        f1 = ImplicitScalarFunction2D.RoundHeart().Scale(2).Shift((0, -1))
+               * ImplicitScalarFunction2D.Heart().Shift((-5, -2));
+        f2 = ImplicitScalarFunction2D.LambertW0();
+        f3 = ImplicitScalarFunction2D.Cartesian(ScalarFunction.Sine);
+
+        int count = 40;
         for (int i = 0; i <= count; ++i)
         {
             var p0 = i / (float)count;
+
+
+            ImplicitScalarFunction2D f(Scalar p) => new(p <= .5 ? ImplicitScalarFunction2D.LinearInterpolate(f1, f2, p * 2)
+                                                                : ImplicitScalarFunction2D.LinearInterpolate(f2, f3, p * 2 - 1));
+
+
+
+
+
             var p1 = AnimationFunction.Smoothstep[p0];
             var p2 = AnimationFunction.Smootherstep[p0];
             var p3 = AnimationFunction.Sin_01[p0];
 
 
             new ImplicitFunctionPlotter(
-                ImplicitScalarFunction2D.LinearInterpolate(f1, f2, p3)
-
-                //(ImplicitScalarFunction2D.LinearInterpolate(f1, f2, p0), RGBAColor.Red),
-                //(ImplicitScalarFunction2D.LinearInterpolate(f1, f2, p1), RGBAColor.Purple),
-                //(ImplicitScalarFunction2D.LinearInterpolate(f1, f2, p2), RGBAColor.Orange),
-                //(ImplicitScalarFunction2D.LinearInterpolate(f1, f2, p3), RGBAColor.Blue)
+                //ImplicitScalarFunction2D.StretchBlend(f1, new(f2), p3)
+                (f(p0), RGBAColor.Red),
+                (f(p1), RGBAColor.Purple),
+                (f(p2), RGBAColor.Orange),
+                (f(p3), RGBAColor.Blue)
             )
             {
                 //ColorMap = cm,
                 //DisplayOverlayFunction = true,
 
-                MarchingSquaresPixelStride = 3,
+                //MarchingSquaresPixelStride = 3,
                 Scale = 4,
                 // FunctionThickness = 3,
                 AxisType = AxisType.Cartesian,

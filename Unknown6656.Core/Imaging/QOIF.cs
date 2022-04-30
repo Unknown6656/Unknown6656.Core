@@ -1,10 +1,14 @@
-﻿using System.Collections.Generic;
+﻿#define DEBUG_LOG
+
+using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.Drawing;
 using System.IO;
 using System;
 
 using Unknown6656.IO;
+using System.Diagnostics;
+using System.Drawing.Drawing2D;
 
 namespace Unknown6656.Imaging;
 
@@ -25,9 +29,12 @@ public static class QOIF
 
     public static Bitmap LoadQOIFImage(FileInfo path) => LoadQOIFImage(DataStream.FromFile(path));
 
-    public static Bitmap LoadQOIFImage(Stream stream)
+    public static Bitmap LoadQOIFImage(Stream stream, bool seek_beginning = false)
     {
-        using BinaryReader rd = new(stream);
+        if (seek_beginning && stream.CanSeek)
+            stream.Seek(0, SeekOrigin.Begin);
+
+        BinaryReader rd = new(stream);
         QOIFHeader header = rd.ReadNative<QOIFHeader>();
 
         return _funcs.TryGetValue(header.Version, out QOIFImplementation? impl) ? impl.Load(header, rd) : throw _version_not_implemented;
@@ -48,7 +55,7 @@ public static class QOIF
 
     public static void SaveQOIFImage(this Bitmap bitmap, Stream stream, QOIFVersion format_version)
     {
-        using BinaryWriter wr = new(stream);
+        BinaryWriter wr = new(stream);
 
         if (_funcs.TryGetValue(format_version, out QOIFImplementation? impl))
             impl.Save(bitmap, wr);
@@ -87,12 +94,7 @@ internal sealed unsafe class QOIF_V1
 
     public override Bitmap Load(QOIFHeader header, BinaryReader rd)
     {
-        Bitmap bitmap = new(header.Width, header.Height, header.Channels switch
-        {
-            QOIFChannels.RGB => PixelFormat.Format24bppRgb,
-            QOIFChannels.RGBA => PixelFormat.Format32bppArgb,
-            _ => throw new NotImplementedException(),
-        });
+        Bitmap bitmap = new(header.Width, header.Height, PixelFormat.Format32bppArgb);
         RGBAColor[] indexed = new RGBAColor[64];
         RGBAColor previous = RGBAColor.Black;
         int end_match = 0;
@@ -102,8 +104,8 @@ internal sealed unsafe class QOIF_V1
             int index = 0;
             void set_pixel(RGBAColor color)
             {
-                ptr[index++] = previous = color;
                 indexed[GetIndex(color)] = color;
+                ptr[index++] = previous = color;
             }
 
             while (index < w * h && end_match < END.Length && rd.ReadByte() is byte @byte)
@@ -129,6 +131,8 @@ internal sealed unsafe class QOIF_V1
 
                         if (@byte == END[end_match])
                             ++end_match;
+                        else
+                            end_match = 0;
                     }
                     else if (op is TAG_OP_DIFF)
                     {
@@ -155,10 +159,15 @@ internal sealed unsafe class QOIF_V1
                         set_pixel(curr);
                     }
                     else if (op is TAG_OP_RUN)
-                        while (data-- > 0 && index < w * h)
+                        for (int i = 0, c = data + 1; i < c && index < w * h; ++i)
                             set_pixel(previous);
                 }
         });
+
+        if (header.Channels is QOIFChannels.RGB)
+            return bitmap.ToRGB24();
+        else if (header.Channels is QOIFChannels.RGBA)
+            throw new NotImplementedException();
 
         return bitmap;
     }
@@ -185,24 +194,27 @@ internal sealed unsafe class QOIF_V1
         RGBAColor previous = RGBAColor.Black;
         int rept = 0;
 
-        bitmap.LockRGBAPixels((ptr, w, h) =>
+        bitmap.ToARGB32().LockRGBAPixels((ptr, w, h) =>
         {
             for (int i = 0; i < w * h; ++i)
-                if (ptr[i] == previous && rept < 62)
+            {
+                RGBAColor current = ptr[i];
+
+                if (current == previous && rept < 62)
                     ++rept;
                 else
                 {
                     if (rept > 0)
-                        wr.Write((byte)(TAG_OP_RUN | (rept & ~MASK_TAG2)));
+                        wr.Write((byte)(TAG_OP_RUN | ((rept - 1) & ~MASK_TAG2)));
 
-                    if (ptr[i] == previous)
+                    if (current == previous)
                         rept = 1;
                     else
                     {
                         rept = 0;
 
                         for (int idx = 0; idx < indexed.Length; ++idx)
-                            if (indexed[idx] == ptr[i])
+                            if (indexed[idx] == current)
                             {
                                 wr.Write((byte)(TAG_OP_INDEX | (idx & ~MASK_TAG2)));
 
@@ -211,9 +223,9 @@ internal sealed unsafe class QOIF_V1
 
                         if (ptr[i].A == previous.A)
                         {
-                            int dr = ptr[i].R - previous.R + 2;
-                            int dg = ptr[i].G - previous.G + 2;
-                            int db = ptr[i].B - previous.B + 2;
+                            int dr = current.R - previous.R + 2;
+                            int dg = current.G - previous.G + 2;
+                            int db = current.B - previous.B + 2;
 
                             if (dr is >= 0 and <= 3 && dg is >= 0 and <= 3 && db is >= 0 and <= 3)
                             {
@@ -235,18 +247,19 @@ internal sealed unsafe class QOIF_V1
                             }
                         }
 
-                        wr.Write(TAG_OP_RGB);
-                        wr.Write(ptr[i].R);
-                        wr.Write(ptr[i].G);
-                        wr.Write(ptr[i].B);
+                        wr.Write(current.A != previous.A ? TAG_OP_RGBA : TAG_OP_RGB);
+                        wr.Write(current.R);
+                        wr.Write(current.G);
+                        wr.Write(current.B);
 
-                        if (ptr[i].A != previous.A)
-                            wr.Write(ptr[i].A);
-                    }
+                        if (current.A != previous.A)
+                            wr.Write(current.A);
 update:
-                    previous = ptr[i];
-                    indexed[GetIndex(ptr[i])] = ptr[i];
+                        previous = current;
+                        indexed[GetIndex(current)] = current;
+                    }
                 }
+            }
         });
 
         wr.Write(END);

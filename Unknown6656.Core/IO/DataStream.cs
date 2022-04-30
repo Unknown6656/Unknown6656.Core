@@ -1,4 +1,4 @@
-using System.Runtime.Serialization.Formatters.Binary;
+﻿using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Text.Json.Serialization;
@@ -677,6 +677,8 @@ public unsafe class DataStream
     public void ToFile(FileInfo file, FileMode mode, FileAccess access = FileAccess.Write, FileShare share = FileShare.Read) =>
         ToFile(file.FullName, mode, access, share);
 
+    public Bitmap ToQOIFBitmap() => QOIF.LoadQOIFImage(this);
+
     public Bitmap ToBitmap() => (Bitmap)Image.FromStream(this);
 
     public Bitmap ToRGBAEncodedBitmap()
@@ -1050,6 +1052,15 @@ public unsafe class DataStream
     }
 
     public static DataStream FromBitmapAsRGBAEncoded(Bitmap bitmap) => FromArray(bitmap.ToPixelArray());
+
+    public static DataStream FromQOIFBitmap(Bitmap bitmap, QOIFVersion format_version = QOIFVersion.Original)
+    {
+        DataStream ds = new();
+
+        QOIF.SaveQOIFImage(bitmap, ds, format_version);
+
+        return ds;
+    }
 
     public static DataStream FromBitmap(Bitmap bitmap) => FromBitmap(bitmap, ImageFormat.Png);
 

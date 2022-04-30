@@ -718,7 +718,7 @@ public sealed class JPEGCompressionEffect
         int level = (int)Math.Round((1 - CompressionAmount) * 100);
 
         if (level is 100)
-            return bmp;
+            return (Bitmap)bmp.Clone();
 
         bmp.SaveAsJPEG(ms, level);
 
@@ -751,9 +751,10 @@ public sealed class QOIFCorruptedEffect
     private protected override Bitmap Process(Bitmap bmp, Rectangle region)
     {
         if (CorruptionCounts is 0)
-            return bmp;
+            return (Bitmap)bmp.Clone();
 
-        DataStream stream = DataStream.FromQOIFBitmap(bmp.CropTo(region), FormatVersion);
+        using Bitmap cropped = bmp.CropTo(region);
+        DataStream stream = DataStream.FromQOIFBitmap(cropped, FormatVersion);
         Span<byte> dat = stream.Data;
         int corruptions = CorruptionCounts;
 

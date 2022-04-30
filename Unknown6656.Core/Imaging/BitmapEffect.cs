@@ -45,12 +45,22 @@ public abstract unsafe class PartialBitmapEffect
         using Bitmap fx = ApplyTo(bmp, region);
         Bitmap res = new(bmp.Width, bmp.Height);
         BitmapLocker l_src = bmp;
-        BitmapLocker l_fx = fx;
         BitmapLocker l_dst = res;
 
-        l_src.LockRGBAPixels((ps, ws, hs) => l_fx.LockRGBAPixels((px, wx, hx) => l_dst.LockRGBAPixels((pd, wd, hd) =>
-            Parallel.For(0, ws * hs, i => pd[i] = RGBAColor.LinearInterpolate(ps[i], px[i], intensity))
-        )));
+        l_src.LockRGBAPixels((ps, ws, hs) =>
+        l_dst.LockRGBAPixels((pd, wd, hd) =>
+        {
+            if (bmp == fx)
+                Parallel.For(0, ws * hs, i => pd[i] = ps[i]);
+            else
+            {
+                BitmapLocker l_fx = fx;
+
+                l_fx.LockRGBAPixels((px, wx, hx) =>
+                    Parallel.For(0, ws * hs, i => pd[i] = RGBAColor.LinearInterpolate(ps[i], px[i], intensity))
+                );
+            }
+        }));
 
         return res;
     }

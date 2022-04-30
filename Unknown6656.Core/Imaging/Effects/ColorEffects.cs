@@ -717,6 +717,9 @@ public sealed class JPEGCompressionEffect
         using MemoryStream ms = new();
         int level = (int)Math.Round((1 - CompressionAmount) * 100);
 
+        if (level is 100)
+            return bmp;
+
         bmp.SaveAsJPEG(ms, level);
 
         Bitmap result = new(bmp.Width, bmp.Height, PixelFormat.Format32bppArgb);
@@ -726,6 +729,43 @@ public sealed class JPEGCompressionEffect
 
         g.DrawImageUnscaled(bmp, 0, 0);
         g.DrawImageUnscaledAndClipped(compressed, region);
+        g.Flush();
+
+        return result;
+    }
+}
+
+public sealed class QOIFCorruptedEffect
+    : PartialBitmapEffect
+{
+    private readonly Random _random = Random.XorShift;
+
+    public int CorruptionCounts { get; }
+
+    public QOIFVersion FormatVersion { get; set; } = QOIFVersion.Original;
+
+
+    public QOIFCorruptedEffect(int corruption_counts) =>
+        CorruptionCounts = Math.Max(0, corruption_counts);
+
+    private protected override Bitmap Process(Bitmap bmp, Rectangle region)
+    {
+        if (CorruptionCounts is 0)
+            return bmp;
+
+        DataStream stream = DataStream.FromQOIFBitmap(bmp.CropTo(region), FormatVersion);
+        Span<byte> dat = stream.Data;
+        int corruptions = CorruptionCounts;
+
+        while (corruptions --> 0)
+            dat[_random.NextInt(50, dat.Length - 10)] = _random.NextByte();
+
+        Bitmap result = new(bmp.Width, bmp.Height, PixelFormat.Format32bppArgb);
+        using Bitmap corrupted = stream.SeekBeginning().ToQOIFBitmap();
+        using Graphics g = Graphics.FromImage(result);
+
+        g.DrawImageUnscaled(bmp, 0, 0);
+        g.DrawImageUnscaledAndClipped(corrupted, region);
         g.Flush();
 
         return result;

@@ -37,7 +37,17 @@ public static unsafe class BitmapExtensions
         Bitmap res = new(bmp.Width, bmp.Height, PixelFormat.Format32bppArgb);
 
         using (Graphics g = Graphics.FromImage(res))
-            g.DrawImage(bmp, 0, 0, bmp.Width, bmp.Height);
+            g.DrawImageUnscaled(bmp, 0, 0, bmp.Width, bmp.Height);
+
+        return res;
+    }
+
+    public static Bitmap ToRGB24(this Bitmap bmp)
+    {
+        Bitmap res = new(bmp.Width, bmp.Height, PixelFormat.Format24bppRgb);
+
+        using (Graphics g = Graphics.FromImage(res))
+            g.DrawImageUnscaled(bmp, 0, 0, bmp.Width, bmp.Height);
 
         return res;
     }

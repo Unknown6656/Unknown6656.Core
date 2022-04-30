@@ -177,9 +177,9 @@ public unsafe class DataStream
         byte[] bytes = new byte[sizeof(T)];
         long pos = Position;
 
-        Seek(index, SeekOrigin.Begin);
+        SeekBeginning(index);
         Read(bytes, 0, bytes.Length);
-        Seek(pos, SeekOrigin.Begin);
+        SeekBeginning(pos);
 
         fixed (byte* ptr = bytes)
             return *(T*)ptr;
@@ -210,14 +210,21 @@ public unsafe class DataStream
 
         long pos = Position;
 
-        Seek(index, SeekOrigin.Begin);
+        SeekBeginning(index);
         Write(bytes, 0, bytes.Length);
-        Seek(pos, SeekOrigin.Begin);
+        SeekBeginning(pos);
 
         return this;
     }
 
     public bool GetBit(long index) => (Data[(int)(index / 8)] & (1 << (int)(index % 8))) != 0;
+
+    public DataStream SeekBeginning(long index = 0)
+    {
+        Seek(index, SeekOrigin.Begin);
+
+        return this;
+    }
 
     public DataStream GetBit(long index, out bool bit)
     {
@@ -914,9 +921,7 @@ public unsafe class DataStream
             if (source?.ToBytes() is byte[] data)
                 s.Write(data, 0, data.Length);
 
-        s.Seek(0, SeekOrigin.Begin);
-
-        return s;
+        return s.SeekBeginning();
     }
 
     #endregion
@@ -1069,22 +1074,16 @@ public unsafe class DataStream
         using MemoryStream ms = new();
 
         bitmap.Save(ms, format);
-        ms.Seek(0, SeekOrigin.Begin);
 
         return FromStream(ms);
     }
 
     public static DataStream FromStream(Stream stream, bool seek_beginning = true)
     {
-        using MemoryStream ms = new();
-
         if (seek_beginning && stream.CanSeek)
             stream.Seek(0, SeekOrigin.Begin);
 
-        stream.CopyTo(ms);
-        ms.Seek(0, SeekOrigin.Begin);
-
-        return FromBytes(ms.ToArray());
+        return new DataStream(stream).SeekBeginning();
     }
 
     public static DataStream FromString(object? obj) => FromString(obj, DefaultDataStreamEncoding);
@@ -1153,9 +1152,8 @@ public unsafe class DataStream
 
         fs.Close();
         fs.Dispose();
-        data.Seek(0, SeekOrigin.Begin);
 
-        return data;
+        return data.SeekBeginning();
     }
 
     public static DataStream FromFile(Uri path) => FromFile(Path.GetFileName(path.LocalPath));
@@ -1238,7 +1236,6 @@ public unsafe class DataStream
                 sftp.Connect();
                 sftp.DownloadFile(rpath, ms);
                 sftp.Disconnect();
-                ms.Seek(0, SeekOrigin.Begin);
 
                 return FromStream(ms);
             }

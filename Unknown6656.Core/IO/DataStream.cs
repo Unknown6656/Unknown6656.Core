@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Collections;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Drawing.Imaging;
 using System.Globalization;
@@ -23,19 +24,26 @@ using Renci.SshNet;
 
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Cryptography;
+using Unknown6656.Mathematics.Numerics;
 using Unknown6656.Controls.Console;
 using Unknown6656.Generics;
 using Unknown6656.Imaging;
 using Unknown6656.Common;
 using Unknown6656.Runtime;
-using System.Reflection;
-using System.Net.NetworkInformation;
 
 namespace Unknown6656.IO;
 
 // TODO : obj file format
 // TODO : YAML file format
 // TODO : memory mapped files
+// DATA:
+//   - bitmap
+//   - qr code
+//   - dictionary
+//   - anonymous obj
+// REPR:
+//   - json
+//   - xml
 
 
 /// <summary>
@@ -325,6 +333,201 @@ public unsafe class DataStream
     public IEnumerator<byte> GetEnumerator() => ((IEnumerable<byte>)ToBytes()).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    #endregion
+    #region READ / WRITE
+
+    public char ReadChar() => ReadUnmanaged<char>();
+
+    public string ReadUTF16String() => new(ReadCollection<char>());
+
+    public bool ReadBoolean() => ReadUnmanaged<bool>();
+
+    public sbyte ReadSByte() => ReadUnmanaged<sbyte>();
+
+    public short ReadShort() => ReadUnmanaged<short>();
+
+    public ushort ReadUShort() => ReadUnmanaged<ushort>();
+
+    public int ReadInt() => ReadUnmanaged<int>();
+
+    public uint ReadUInt() => ReadUnmanaged<uint>();
+
+    public nint ReadNInt() => ReadUnmanaged<nint>();
+
+    public nuint ReadNUInt() => ReadUnmanaged<nuint>();
+
+    public long ReadLong() => ReadUnmanaged<long>();
+
+    public ulong ReadULong() => ReadUnmanaged<ulong>();
+
+    public float ReadFloat() => ReadUnmanaged<float>();
+
+    public double ReadDouble() => ReadUnmanaged<double>();
+
+    public decimal ReadDecimal() => ReadUnmanaged<decimal>();
+
+    public UInt128 ReadUInt128() => ReadUnmanaged<UInt128>();
+
+    public DateTime ReadDateTime() => ReadUnmanaged<DateTime>();
+
+    public DateTimeOffset ReadDateTimeOffset() => ReadUnmanaged<DateTimeOffset>();
+
+    public TimeSpan ReadTimeSpan() => ReadUnmanaged<TimeSpan>();
+
+    public Guid ReadGuid() => ReadUnmanaged<Guid>();
+
+    public void Write(byte u8) => WriteUnmanaged(u8);
+
+    public void Write(bool @bool) => WriteUnmanaged(@bool);
+
+    public void Write(sbyte i8) => WriteUnmanaged(i8);
+
+    public void Write(short i16) => WriteUnmanaged(i16);
+
+    public void Write(ushort u16) => WriteUnmanaged(u16);
+
+    public void Write(int i32) => WriteUnmanaged(i32);
+
+    public void Write(uint u32) => WriteUnmanaged(u32);
+
+    public void Write(nint n32) => WriteUnmanaged(n32);
+
+    public void Write(nuint nu32) => WriteUnmanaged(nu32);
+
+    public void Write(long i64) => WriteUnmanaged(i64);
+
+    public void Write(ulong u64) => WriteUnmanaged(u64);
+
+    public void Write(float f32) => WriteUnmanaged(f32);
+
+    public void Write(double f64) => WriteUnmanaged(f64);
+
+    public void Write(decimal f128) => WriteUnmanaged(f128);
+
+    public void Write(UInt128 u128) => WriteUnmanaged(u128);
+
+    public void Write(DateTime dt) => WriteUnmanaged(dt);
+
+    public void Write(DateTimeOffset dto) => WriteUnmanaged(dto);
+
+    public void Write(TimeSpan sp) => WriteUnmanaged(sp);
+
+    public void Write(Guid guid) => WriteUnmanaged(guid);
+
+    public void WriteChar(char @char) => WriteUnmanaged(@char);
+
+    public void WriteUTF16String(string @string) => WriteCollection(@string);
+
+    public void WriteNullable(string? data)
+    {
+        if (data is { })
+        {
+            Write(true);
+            WriteUTF16String(data);
+        }
+        else
+            Write(false);
+    }
+
+    public string? ReadNullable() => ReadBoolean() ? ReadUTF16String() : null;
+
+    public void WriteNullable<T>(T? data)
+        where T : unmanaged
+    {
+        Write(data.HasValue);
+
+        if (data.HasValue)
+            WriteUnmanaged(data.Value);
+    }
+
+    public T? ReadNullable<T>() where T : unmanaged => ReadBoolean() ? ReadUnmanaged<T>() : null;
+
+    public unsafe void WriteUnmanaged<T>(T data)
+        where T : unmanaged
+    {
+        byte* ptr = (byte*)&data;
+        ReadOnlySpan<byte> rspan = new(ptr, sizeof(T));
+
+        Write(rspan);
+    }
+
+    public unsafe T ReadUnmanaged<T>()
+        where T : unmanaged
+    {
+        Span<byte> span = new byte[sizeof(T)];
+
+        Read(span);
+
+        fixed (byte* ptr = span)
+            return *(T*)ptr;
+    }
+
+    public unsafe void WriteCollection<T>(IEnumerable<T> data)
+        where T : unmanaged
+    {
+        T[] array = data as T[] ?? data.ToArray();
+
+        Write(array.Length);
+
+        foreach (T item in array)
+            WriteUnmanaged(item);
+    }
+
+    public unsafe void WriteCollection<T>(IEnumerable<IEnumerable<T>> data)
+        where T : unmanaged
+    {
+        IEnumerable<T>[] array = data as IEnumerable<T>[] ?? data.ToArray();
+
+        Write(array.Length);
+
+        foreach (IEnumerable<T> collecion in array)
+            WriteCollection(collecion);
+    }
+
+    public unsafe void WriteCollection<T>(IEnumerable<IEnumerable<IEnumerable<T>>> data)
+        where T : unmanaged
+    {
+        IEnumerable<IEnumerable<T>>[] array = data as IEnumerable<IEnumerable<T>>[] ?? data.ToArray();
+
+        Write(array.Length);
+
+        foreach (IEnumerable<IEnumerable<T>> collecion in array)
+            WriteCollection(collecion);
+    }
+
+    public unsafe T[] ReadCollection<T>()
+        where T : unmanaged
+    {
+        T[] array = new T[ReadInt()];
+
+        for (int i = 0; i < array.Length; ++i)
+            array[i] = ReadUnmanaged<T>();
+
+        return array;
+    }
+
+    public unsafe T[][] ReadJaggedCollection2D<T>()
+        where T : unmanaged
+    {
+        T[][] array = new T[ReadInt()][];
+
+        for (int i = 0; i < array.Length; ++i)
+            array[i] = ReadCollection<T>();
+
+        return array;
+    }
+
+    public unsafe T[][][] ReadJaggedCollection3D<T>()
+        where T : unmanaged
+    {
+        T[][][] array = new T[ReadInt()][][];
+
+        for (int i = 0; i < array.Length; ++i)
+            array[i] = ReadJaggedCollection2D<T>();
+
+        return array;
+    }
 
     #endregion
     #region DESERIALIZATION
@@ -1152,14 +1355,3 @@ public unsafe sealed partial class UnsafeFunctionPointer
 
     public static UnsafeFunctionPointer FromBuffer(IEnumerable<byte> bytes) => FromBuffer(new Span<byte>(bytes.ToArray()));
 }
-
-
-// DATA:
-//   - array
-//   - bitmap
-//   - qr code
-//   - dictionary
-//   - anonymous obj
-// REPR:
-//   - json
-//   - xml

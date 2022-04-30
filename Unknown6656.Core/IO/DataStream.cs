@@ -653,7 +653,7 @@ public unsafe class DataStream
 
     public BinaryReader ToBinaryReader() => new(this);
 
-    public void ToBinaryWriter(BinaryWriter writer) => writer.Write(Data);
+    public void CopyToBinaryWriter(BinaryWriter writer) => writer.Write(Data);
 
     public void ToFile(string path) => ToFile(path, FileMode.Create);
 
@@ -1153,6 +1153,7 @@ public unsafe class DataStream
 
         fs.Close();
         fs.Dispose();
+        data.Seek(0, SeekOrigin.Begin);
 
         return data;
     }

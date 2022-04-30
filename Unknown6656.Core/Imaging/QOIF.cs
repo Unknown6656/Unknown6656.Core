@@ -8,6 +8,8 @@ using Unknown6656.IO;
 
 namespace Unknown6656.Imaging;
 
+#pragma warning disable CA1416 // Validate platform compatibility
+
 
 public static class QOIF
 {
@@ -70,7 +72,15 @@ internal sealed unsafe class QOIF_V1
     private const byte TAG_OP_DIFF = 0b_0100_0000;
     private const byte TAG_OP_LUMA = 0b_1000_0000;
     private const byte TAG_OP_RUN = 0b_1100_0000;
-    private const byte TAG_MASK2 = 0b_1100_0000;
+    private const byte MASK_TAG2 = 0b_1100_0000;
+    private const byte MASK_DIFF_R = 0b_0011_0000;
+    private const byte MASK_DIFF_G = 0b_0000_1100;
+    private const byte MASK_DIFF_B = 0b_0000_0011;
+    private const int SHIFT_DIFF_R = 4;
+    private const int SHIFT_DIFF_G = 2;
+    private const byte MASK_LUMA_RG = 0b_1111_0000;
+    private const byte MASK_LUMA_BG = 0b_0000_1111;
+    private const int SHIFT_LUMA_RG = 4;
 
     private static readonly byte[] END = { 0, 0, 0, 0, 0, 0, 0, 1 };
 
@@ -90,11 +100,14 @@ internal sealed unsafe class QOIF_V1
         bitmap.LockRGBAPixels((ptr, w, h) =>
         {
             int index = 0;
+            void set_pixel(RGBAColor color)
+            {
+                ptr[index++] = previous = color;
+                indexed[GetIndex(color)] = color;
+            }
 
             while (index < w * h && end_match < END.Length && rd.ReadByte() is byte @byte)
-                if (@byte == END[end_match])
-                    ++end_match;
-                else if (@byte is TAG_OP_RGB or TAG_OP_RGBA)
+                if (@byte is TAG_OP_RGB or TAG_OP_RGBA)
                 {
                     previous.R = rd.ReadByte();
                     previous.G = rd.ReadByte();
@@ -103,25 +116,51 @@ internal sealed unsafe class QOIF_V1
                     if (@byte is TAG_OP_RGBA)
                         previous.A = rd.ReadByte();
 
-                    ptr[index++] = previous;
+                    set_pixel(previous);
                 }
                 else
                 {
-                    int op = @byte & TAG_MASK2;
+                    int op = @byte & MASK_TAG2;
+                    byte data = (byte)(@byte & ~MASK_TAG2);
 
                     if (op is TAG_OP_INDEX)
-                        ;
-                    else if (op is TAG_OP_DIFF)
-                        ;
-                    else if (op is TAG_OP_LUMA)
-                        ;
-                    else if (op is TAG_OP_RUN)
-                        ;
-                    else
-                // TODO
+                    {
+                        set_pixel(indexed[data]);
 
-            }
+                        if (@byte == END[end_match])
+                            ++end_match;
+                    }
+                    else if (op is TAG_OP_DIFF)
+                    {
+                        previous.R = (byte)(previous.R + ((@byte & MASK_DIFF_R) >> SHIFT_DIFF_R) - 2);
+                        previous.G = (byte)(previous.G + ((@byte & MASK_DIFF_G) >> SHIFT_DIFF_G) - 2);
+                        previous.B = (byte)(previous.B + (@byte & MASK_DIFF_B) - 2);
+
+                        set_pixel(previous);
+                    }
+                    else if (op is TAG_OP_LUMA)
+                    {
+                        @byte = rd.ReadByte();
+
+                        int dg = data - 32;
+                        int drg = ((@byte & MASK_LUMA_RG) >> SHIFT_LUMA_RG) - 8;
+                        int dbg = (@byte & MASK_LUMA_BG) - 8;
+
+                        RGBAColor curr = previous;
+
+                        curr.G = (byte)(previous.G + dg);
+                        curr.R = (byte)(previous.R + dg + drg);
+                        curr.B = (byte)(previous.B + dg + dbg);
+
+                        set_pixel(curr);
+                    }
+                    else if (op is TAG_OP_RUN)
+                        while (data-- > 0 && index < w * h)
+                            set_pixel(previous);
+                }
         });
+
+        return bitmap;
     }
 
     public override void Save(Bitmap bitmap, BinaryWriter wr)
@@ -144,17 +183,79 @@ internal sealed unsafe class QOIF_V1
 
         RGBAColor[] indexed = new RGBAColor[64];
         RGBAColor previous = RGBAColor.Black;
+        int rept = 0;
 
-        for (int i = 0, c = bitmap.Width * bitmap.Height; i < c; ++i)
+        bitmap.LockRGBAPixels((ptr, w, h) =>
         {
+            for (int i = 0; i < w * h; ++i)
+                if (ptr[i] == previous && rept < 62)
+                    ++rept;
+                else
+                {
+                    if (rept > 0)
+                        wr.Write((byte)(TAG_OP_RUN | (rept & ~MASK_TAG2)));
 
-        }
+                    if (ptr[i] == previous)
+                        rept = 1;
+                    else
+                    {
+                        rept = 0;
+
+                        for (int idx = 0; idx < indexed.Length; ++idx)
+                            if (indexed[idx] == ptr[i])
+                            {
+                                wr.Write((byte)(TAG_OP_INDEX | (idx & ~MASK_TAG2)));
+
+                                goto update;
+                            }
+
+                        if (ptr[i].A == previous.A)
+                        {
+                            int dr = ptr[i].R - previous.R + 2;
+                            int dg = ptr[i].G - previous.G + 2;
+                            int db = ptr[i].B - previous.B + 2;
+
+                            if (dr is >= 0 and <= 3 && dg is >= 0 and <= 3 && db is >= 0 and <= 3)
+                            {
+                                wr.Write((byte)(TAG_OP_DIFF | (dr << SHIFT_DIFF_R) | (dg << SHIFT_DIFF_G) | db));
+
+                                goto update;
+                            }
+
+                            dr -= dg - 8;
+                            db -= dg - 8;
+                            dg += 30;
+
+                            if (dg is >= 0 and <= 63 && dr is >= 0 and <= 15 && db is >= 0 and <= 15)
+                            {
+                                wr.Write((byte)(TAG_OP_LUMA | dg));
+                                wr.Write((byte)((dr << SHIFT_LUMA_RG) | db));
+
+                                goto update;
+                            }
+                        }
+
+                        wr.Write(TAG_OP_RGB);
+                        wr.Write(ptr[i].R);
+                        wr.Write(ptr[i].G);
+                        wr.Write(ptr[i].B);
+
+                        if (ptr[i].A != previous.A)
+                            wr.Write(ptr[i].A);
+                    }
+update:
+                    previous = ptr[i];
+                    indexed[GetIndex(ptr[i])] = ptr[i];
+                }
+        });
+
+        wr.Write(END);
     }
 
     private static int GetIndex(RGBAColor color) => (color.R * 3 + color.G * 5 + color.B * 7 + color.A * 11) & 0x3F;
 }
 
-// TODO : add new protocol versions
+// TODO : add future protocol versions
 
 internal unsafe struct QOIFHeader
 {
@@ -170,6 +271,8 @@ public enum QOIFVersion
 {
     Original = 0x514f4946u, // magic = "QOIF"
     V2 = 0x514f4932u, // magic = "QOI2"
+
+    // TODO : add future protocol versions
 }
 
 internal enum QOIFChannels
@@ -182,6 +285,6 @@ internal enum QOIFChannels
 internal enum QOIFColorSpace
     : byte
 {
-    0 = sRGB_LinearAlpha,
-    1 = AllLinear,
+    sRGB_LinearAlpha = 0,
+    AllLinear = 1,
 }

@@ -1,4 +1,4 @@
-﻿using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Text.Json.Serialization;
@@ -160,8 +160,10 @@ public unsafe class DataStream
     }
 
     public DataStream(params byte[]? data)
-        : base(data ?? Array.Empty<byte>())
+        : base(data?.Length ?? 0)
     {
+        if (data?.Length is int and > 0)
+            base.Write(data, 0, data.Length);
     }
 
     #endregion

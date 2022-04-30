@@ -166,7 +166,7 @@ internal sealed unsafe class QOIF_V1
 
         if (header.Channels is QOIFChannels.RGB)
             return bitmap.ToRGB24();
-        else if (header.Channels is QOIFChannels.RGBA)
+        else if (header.Channels is not QOIFChannels.RGBA)
             throw new NotImplementedException();
 
         return bitmap;

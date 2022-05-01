@@ -1117,7 +1117,7 @@ additional_colors.AddRange(new[] {
 });
 
 foreach ((string hex, string name) in additional_colors)
-    if (colors.All(t => t.Item1 != hex && t.Item2 != name))
+    if (colors.All(t => !t.Item1.Equals(hex, StringComparison.InvariantCultureIgnoreCase) && !t.Item2.Equals(name, StringComparison.InvariantCultureIgnoreCase)))
         colors.Add((hex, name));
 
 

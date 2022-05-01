@@ -748,7 +748,7 @@ public sealed class QOIFCorruptedEffect
     public QOIFCorruptedEffect(int corruption_counts) =>
         CorruptionCounts = Math.Max(0, corruption_counts);
 
-    private protected override Bitmap Process(Bitmap bmp, Rectangle region)
+    private protected override unsafe Bitmap Process(Bitmap bmp, Rectangle region)
     {
         if (CorruptionCounts is 0)
             return (Bitmap)bmp.Clone();
@@ -759,7 +759,7 @@ public sealed class QOIFCorruptedEffect
         int corruptions = CorruptionCounts;
 
         while (corruptions --> 0)
-            dat[_random.NextInt(50, dat.Length - 10)] = _random.NextByte();
+            dat[_random.NextInt(sizeof(QOIFHeader), dat.Length - 8)] = _random.NextByte();
 
         Bitmap result = new(bmp.Width, bmp.Height, PixelFormat.Format32bppArgb);
         using Bitmap corrupted = stream.SeekBeginning().ToQOIFBitmap();

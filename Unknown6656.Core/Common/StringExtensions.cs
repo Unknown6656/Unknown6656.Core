@@ -82,6 +82,8 @@ public static class StringExtensions
     public static string Replace(this string input, IEnumerable<(string from, string to)> replacements) =>
         replacements.Aggregate(input, (str, repl) => str.Replace(repl.from, repl.to));
 
+    public static string Remove(this string input, params char[] chars) => new(input.Where(c => !chars.Contains(c)).ToArray());
+
     public static string Remove(this string input, string search) => input.Replace(search, string.Empty);
 
     public static string TrimEnd(this string input, string trim_str, StringComparison comparison = StringComparison.CurrentCulture, int maxcount = 1)

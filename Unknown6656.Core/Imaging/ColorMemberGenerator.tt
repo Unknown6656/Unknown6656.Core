@@ -169,7 +169,7 @@ custom_colors.AddRange(new[] {
     ("FF7E4071", "XKCD_Bruise"),
     ("FFFF69AF", "XKCD_BubbleGumPink"),
     ("FFFF6CB5", "XKCD_Bubblegum"),
-    ("FFFE83CC", "XKCD_BubblegumPink"),
+    ("FFFE83CC", "XKCD_LightBubblegumPink"),
     ("FFFEF69E", "XKCD_Buff"),
     ("FF610023", "XKCD_Burgundy"),
     ("FFC04E01", "XKCD_BurntOrange"),
@@ -1529,6 +1529,85 @@ var members = new string[]
 
         return dist is 0 ? $A.CompareTo(other.$A) : dist;
     }",
+    @"public static $type Parse(string str) => TryParse(str, out $type color) ? color : throw new ArgumentException($""The given string '{str}' cannot be parsed as a {typeof($type)}."", nameof(str));",
+    @"public static bool TryParse(string str, out $type color)
+    {
+        static string normalize(string input) => input.ToLowerInvariant().Remove('-', '_', ' ', '\r', '\n', '\v', '\t', '\0', '\b', '\a');
+
+        color = default;
+        str = normalize(str);
+
+        if (str.Match(RGBAColor.REGEX_HEX, out Match? match) && uint.TryParse(match.Groups[""hex""].Value, NumberStyles.HexNumber, null, out uint hex))
+        {
+            color = new(hex);
+
+            return true;
+        }
+        if (str.Match(RGBAColor.REGEX_CSS, out match))
+        {
+            static double parse(string value)
+            {
+                if (value.Length is 0)
+                    return 0;
+                else if (value[^1] == '%' && double.TryParse(value[..^1], out double d))
+                    return d * .01;
+                else if (double.TryParse(value, out d))
+                {
+                    if (value.Contains('.') && Math.Abs(d) <= 1)
+                        d /= 255;
+
+                    return d;
+                }
+                else
+                    return 0;
+            }
+            string mode = match.Groups[""mode""].Value;
+            double x = parse(match.Groups[""x""].Value);
+            double y = parse(match.Groups[""y""].Value);
+            double z = parse(match.Groups[""z""].Value);
+            double w = parse(match.Groups[""w""].Value);
+
+            if (mode is ""rgb"")
+                color = new(x, y, z);
+            else if (mode is ""rgba"")
+                color = new(x, y, z, w);
+            else if (mode is ""hsv"")
+                color = FromHSV(x, y, z);
+            else if (mode is ""hsva"")
+                color = FromHSV(x, y, z, w);
+            else if (mode is ""hsl"")
+                color = FromHSL(x, y, z);
+            else if (mode is ""hsla"")
+                color = FromHSL(x, y, z, w);
+            else if (mode is ""hcl"")
+                color = FromHCL(x, y, z);
+            else if (mode is ""hcla"")
+                color = FromHCL(x, y, z, w);
+            else if (mode is ""hcy"")
+                color = FromHCY(x, y, z);
+            else if (mode is ""hcya"")
+                color = FromHCY(x, y, z, w);
+
+            // TODO: xyz
+            // TODO: yiq
+            // TODO: yuv
+            // TODO: ycbcr / ybr
+            // TODO: cmyk
+
+            else
+                return false;
+
+            return true;
+        }
+        else if (IColor.KnownColorNames.FirstOrDefault(kvp => normalize(kvp.Value) == str) is { Key: uint hex2, Value: { } })
+        {
+            color = new(hex2);
+
+            return true;
+        }
+        else
+            return false;
+    }",
     @"public readonly double DistanceTo($type other, ColorEqualityMetric metric) => metric switch
     {
         ColorEqualityMetric.RGBAChannels => Math.Abs($R - other.$R)
@@ -1958,7 +2037,9 @@ var types = new (string name, Func<string, string> proc)[]
 
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System;
 
@@ -1967,6 +2048,7 @@ using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Mathematics;
 using Unknown6656.Generics;
+using Unknown6656.Common;
 
 namespace Unknown6656.Imaging;
 

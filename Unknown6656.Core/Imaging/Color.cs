@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -285,7 +286,6 @@ public partial struct HDRColor
 
     public readonly HDRColor Complement => new(1 - R, 1 - G, 1 - B, A);
 
-
     public readonly uint ToARGB32() => ARGB32.ARGBu;
 
     public readonly override string ToString() => $"(R:{Math.Round(R, 6)}, G:{Math.Round(G, 6)}, B:{Math.Round(B, 6)}, α:{Math.Round(A, 6)})";
@@ -312,6 +312,8 @@ public unsafe partial struct RGBAColor
     : IColor<RGBAColor, byte>
     , IComparable<RGBAColor>
 {
+    internal static readonly Regex REGEX_HEX = new(@"^#(?<hex>[\da-f]{3,8})$", RegexOptions.Compiled);
+    internal static readonly Regex REGEX_CSS = new(@"^(?<mode>(rgb|hs[lv]|hc[ly])a?)\s*\(\s*(?<x>(-\s*)?[\d\.]+(\s*%)?)\s*,\s*(?<y>(-\s*)?[\d\.]+(\s*%)?)\s*,\s*(?<z>(-\s*)?[\d\.]+(\s*%)?)\s*(,\s*(?<w>(-\s*)?[\d\.]+(\s*%)?)\s*)?\)$", RegexOptions.Compiled);
     internal static readonly Scalar SRGB_GAMMA_CORRECTION_FACTOR = 2.2;
 
     #region PROPERTIES AND FIELDS

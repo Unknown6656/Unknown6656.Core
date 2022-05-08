@@ -14,10 +14,10 @@ var colors = typeof(Color).GetProperties(BindingFlags.Static | BindingFlags.Publ
 
     return (hex: argb.ToString("x8"), name: p.Name);
 }).ToList();
-var additional_colors = new List<(string, string)>();
+var dup_colors = new List<(string hex, string name, string[] aliases)>();
+var custom_colors = new List<(string hex, string name)>();
 
-
-additional_colors.AddRange(new[] {
+custom_colors.AddRange(new[] {
     (2000, 15, 4020, "FF9BB7D4"),
     (2001, 17, 203, "FFC74375"),
     (2002, 19, 166, "FFBF1932"),
@@ -44,7 +44,7 @@ additional_colors.AddRange(new[] {
     (t.Item4, "Pantone" + t.Item1),
     (t.Item4, $"Pantone_{t.Item2}_{t.Item3}"),
 }));
-additional_colors.AddRange(new[] {
+custom_colors.AddRange(new[] {
     ("FF92A8D1", "Pantone_15_3919"),
     ("FFF5DF4D", "Pantone_13_0647"),
     ("FF8FFE09", "XKCD_AcidGreen"),
@@ -1114,12 +1114,19 @@ additional_colors.AddRange(new[] {
     ("FFFCE883", "Crayon_Yellow"),
     ("FFC5E384", "Crayon_YellowGreen"),
     ("FFFFAE42", "Crayon_YellowOrange"),
+    ("FF704214", "Sepia"),
 });
 
-foreach ((string hex, string name) in additional_colors)
-    if (colors.All(t => !t.Item1.Equals(hex, StringComparison.InvariantCultureIgnoreCase) && !t.Item2.Equals(name, StringComparison.InvariantCultureIgnoreCase)))
-        colors.Add((hex, name));
+foreach ((string hex, string name) in custom_colors)
+{
+    var duplicates = colors.Where(t => t.hex.Equals(hex, StringComparison.InvariantCultureIgnoreCase)).Select(t => t.name).ToArray();
 
+    if (duplicates.Length == 0)
+        colors.Add((hex, name));
+    else
+        // && !t.Item2.Equals(name, StringComparison.InvariantCultureIgnoreCase)
+        dup_colors.Add((hex, name, duplicates));
+}
 
 var members = new string[]
 {
@@ -2014,12 +2021,29 @@ public unsafe partial struct <#=name#>
 #>
 
     /// <summary>
-    /// Represents the HTML color '<#=color.name#>' (#<#=color.hex#>) with the following color values for each channel:
+    /// Represents the (HTML) color '<#=color.name#>' (#<#=color.hex#>) with the following color values for each channel:
     /// <list type="bullet">
     ///     <item><c>A: 0x<#=color.hex.Substring(0, 2)#> - <#=a.ToString()#></c></item>
     ///     <item><c>R: 0x<#=color.hex.Substring(2, 2)#> - <#=r.ToString()#></c></item>
     ///     <item><c>G: 0x<#=color.hex.Substring(4, 2)#> - <#=g.ToString()#></c></item>
     ///     <item><c>B: 0x<#=color.hex.Substring(6, 2)#> - <#=b.ToString()#></c></item>
+    /// </list>
+    /// </summary>
+    public static RGBAColor <#=color.name#> { get; } = 0x<#=color.hex#>;
+<#
+    }
+
+    foreach (var color in dup_colors)
+    {
+#>
+
+    /// <summary>
+    /// Represents the color '<#=color.name#>' (#<#=color.hex#>). This color is an alias for the following colors:
+    /// <list type="bullet">
+<#
+        foreach (var dup in color.aliases)
+            WriteLine($"    ///     <item><see cref=\"{dup}\"/></item>");
+#>
     /// </list>
     /// </summary>
     public static RGBAColor <#=color.name#> { get; } = 0x<#=color.hex#>;

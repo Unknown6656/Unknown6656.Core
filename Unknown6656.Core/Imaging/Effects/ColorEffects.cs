@@ -284,6 +284,59 @@ public sealed class PerlinNoiseEffect
     }
 }
 
+public sealed class Duotone
+    : Multitone
+{
+    public Duotone(RGBAColor tint)
+        : this(RGBAColor.Black, tint)
+    {
+    }
+
+    public Duotone(RGBAColor black, RGBAColor tint)
+        : base(black, Enumerable.Empty<RGBAColor>(), tint)
+    {
+    }
+}
+
+public sealed class Tritone
+    : Multitone
+{
+    public Tritone(RGBAColor tint)
+        : this(RGBAColor.Black, tint, RGBAColor.White)
+    {
+    }
+
+    public Tritone(RGBAColor black, RGBAColor tint, RGBAColor white)
+        : base(black, new[] { tint }, white)
+    {
+    }
+}
+
+public class Multitone
+    : ColorEffect
+{
+    private readonly DiscreteColorMap _map;
+    public RGBAColor Black { get; }
+    public RGBAColor[] Tones { get; }
+    public RGBAColor White { get; }
+
+
+    public Multitone(params RGBAColor[] tones)
+        : this(RGBAColor.Black, tones, RGBAColor.White)
+    {
+    }
+
+    public Multitone(RGBAColor black, IEnumerable<RGBAColor>? tones, RGBAColor white)
+    {
+        Tones = tones as RGBAColor[] ?? tones?.ToArray() ?? Array.Empty<RGBAColor>();
+        Black = black;
+        White = white;
+        _map = ColorMap.Uniform(Tones.Prepend(black).Append(white).ToArray());
+    }
+
+    private protected sealed override RGBAColor ProcessColor(RGBAColor input) => _map[input.Average];
+}
+
 /// <summary>
 /// Represents a grayscale bitmap color effect.
 /// </summary>

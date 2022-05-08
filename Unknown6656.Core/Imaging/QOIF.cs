@@ -259,6 +259,12 @@ internal sealed unsafe class QOIF_V1
 #if DEBUG_LOG
                 void write_to_log(string log) => sb.AppendLine($"I={i,6} X={i % w,5} Y={i / w,5} P={previous,12} C={current,12} (CH={cache_index,2}) {log}");
 #endif
+                void update()
+                {
+                    previous = current;
+                    indexed[GetIndex(current)] = current;
+                }
+
                 if (current == previous && rept < 62)
                     ++rept;
                 else
@@ -267,7 +273,7 @@ internal sealed unsafe class QOIF_V1
                     {
                         wr.Write((byte)(TAG_OP_RUN | ((rept - 1) & ~MASK_TAG2)));
 #if DEBUG_LOG
-                        sb.AppendLine($"I={i,6} X={i % w,5} Y={i / w,5} = {current,15} -> RUN {rept}");
+                        write_to_log($"RUN {rept}");
 #endif
                     }
 
@@ -282,9 +288,11 @@ internal sealed unsafe class QOIF_V1
                             {
                                 wr.Write((byte)(TAG_OP_INDEX | (idx & ~MASK_TAG2)));
 #if DEBUG_LOG
-                                sb.AppendLine($"I={i,6} X={i % w,5} Y={i / w,5} = {current,15} -> INDEXED  I={idx}");
+                                write_to_log($"INDEXED  I={idx}");
 #endif
-                                goto update;
+                                update();
+
+                                continue;
                             }
 
                         if (ptr[i].A == previous.A)
@@ -292,18 +300,22 @@ internal sealed unsafe class QOIF_V1
                             {
                                 wr.Write((byte)(TAG_OP_DIFF | dr << SHIFT_DIFF_R | dg << SHIFT_DIFF_G | db));
 #if DEBUG_LOG
-                                sb.AppendLine($"I={i,6} X={i % w,5} Y={i / w,5} = {current,15} -> 2BITDIFF {previous} {TAG_OP_DIFF | dr << SHIFT_DIFF_R | dg << SHIFT_DIFF_G | db:x2} ({dr} {dg} {db})");
+                                write_to_log($"2BITDIFF {previous} {TAG_OP_DIFF | dr << SHIFT_DIFF_R | dg << SHIFT_DIFF_G | db:x2} ({dr} {dg} {db})");
 #endif
-                                goto update;
+                                update();
+
+                                continue;
                             }
                             else if (TryLumaDistance(previous, current, 6, 4, out dr, out dg, out db))
                             {
                                 wr.Write((byte)(TAG_OP_LUMA | dg));
                                 wr.Write((byte)(dr << SHIFT_LUMA_RG | db));
 #if DEBUG_LOG
-                                sb.AppendLine($"I={i,6} X={i % w,5} Y={i / w,5} = {current,15} -> LUMADIFF {previous} {TAG_OP_LUMA | dg:x2}{dr << SHIFT_LUMA_RG | db:x2} ({dg} {dr} {db})");
+                                write_to_log($"LUMADIFF {previous} {TAG_OP_LUMA | dg:x2}{dr << SHIFT_LUMA_RG | db:x2} ({dg} {dr} {db})");
 #endif
-                                goto update;
+                                update();
+
+                                continue;
                             }
 
                         wr.Write(current.A != previous.A ? TAG_OP_RGBA : TAG_OP_RGB);
@@ -314,11 +326,9 @@ internal sealed unsafe class QOIF_V1
                         if (current.A != previous.A)
                             wr.Write(current.A);
 #if DEBUG_LOG
-                        sb.AppendLine($"I={i,6} X={i % w,5} Y={i / w,5} = {current,15} -> EXPLICIT");
+                        write_to_log("EXPLICIT");
 #endif
-update:
-                        previous = current;
-                        indexed[GetIndex(current)] = current;
+                        update();
                     }
                 }
             }
@@ -702,14 +712,31 @@ internal sealed unsafe class QOIF_V2
             palette = palette.OrderBy(k => buckets[k].first).ToArray();
             buckets.Clear();
 
-            for (int i = 0; i < w * h; ++i)
+            for (int index = 0; index < w * h; ++index)
             {
-                RGBAColor current = ptr[i];
+                RGBAColor current = ptr[index];
                 int pal_idx = palette.IndexOf(current);
+#if DEBUG_LOG
+                void update(string log)
+#else
+                void update()
+#endif
+                {
+                    int cache = GetIndex(current);
+#if DEBUG_LOG
+                    sb.AppendLine($"I={index,6} X={index % w,5} Y={index / w,5} PP={pprevious,12} P={previous,12} C={current,12} (CH={GetIndex(current),2}) {log}");
+#endif
+                    indexed[cache] = current;
 
+                    if (current != previous)
+                    {
+                        pprevious = previous;
+                        previous = current;
+                    }
+                }
                 int? get_run_length(RGBAColor refcol)
                 {
-                    int j = i;
+                    int j = index;
                     int len = 0;
 
                     while (len < 9 && j < w * h && ptr[j] == refcol)
@@ -726,18 +753,18 @@ internal sealed unsafe class QOIF_V2
                 {
                     wr.Write((byte)(TAG_RUN_PPREV | rlen_pprev));
 
-                    i += rlen_pprev + 1;
+                    index += rlen_pprev + 1;
 #if DEBUG_LOG
-                    sb.AppendLine($"I={i,6} X={i % w,5} Y={i / w,5} -> {pprevious,15} RUN PP {TAG_RUN_PPREV | rlen_pprev:x2} R={rlen_pprev + 2}");
+                    update($"RUN PP {TAG_RUN_PPREV | rlen_pprev:x2} R={rlen_pprev + 2}");
 #endif
                 }
                 else if (get_run_length(previous) is int rlen_prev)
                 {
                     wr.Write((byte)(TAG_RUN_PREV | rlen_prev));
 
-                    i += rlen_prev + 1;
+                    index += rlen_prev + 1;
 #if DEBUG_LOG
-                    sb.AppendLine($"I={i,6} X={i % w,5} Y={i / w,5} -> {previous,15} RUN {TAG_RUN_PPREV | rlen_prev:x2} R={rlen_prev + 2}");
+                    update($"RUN {TAG_RUN_PPREV | rlen_prev:x2} R={rlen_prev + 2}");
 #endif
                 }
                 else if (pal_idx >= 0)
@@ -751,34 +778,34 @@ internal sealed unsafe class QOIF_V2
                         wr.Write(current.B);
                         wr.Write(current.A);
 #if DEBUG_LOG
-                        sb.AppendLine($"I={i,6} X={i % w,5} Y={i / w,5} -> {current,15} EXPLICIT + PALETTE {pal_idx}");
+                        update($"EXPLICIT + PALETTE {pal_idx}");
 #endif
                     }
                     else
                     {
                         wr.Write((byte)(TAG_PAL_INDEX | pal_idx));
 #if DEBUG_LOG
-                        sb.AppendLine($"I={i,6} X={i % w,5} Y={i / w,5} -> {current,15} PALETTE {pal_idx}");
+                        update($"PALETTE {pal_idx}");
 #endif
                     }
                 else if (indexed.IndexOf(current) is int cache_idx and >= 0)
                 {
                     wr.Write((byte)(TAG_INDEXED64 | cache_idx));
 #if DEBUG_LOG
-                    sb.AppendLine($"I={i,6} X={i % w,5} Y={i / w,5} -> {current,15} INDEXED {cache_idx}");
+                    update($"INDEXED {cache_idx}");
 #endif
                 }
                 else if (QOIF_V1.Try2BitDistance(previous, current, out dr, out dg, out db))
                 {
                     wr.Write((byte)(TAG_2BIT_DIFF | dr << 4 | dg << 2 | db));
 #if DEBUG_LOG
-                    sb.AppendLine($"I={i,6} X={i % w,5} Y={i / w,5} -> {current,15} 2BITDIFF {TAG_2BIT_DIFF | dr << 4 | dg << 2 | db:x2} ({dr} {dg} {db})");
+                    update($"2BITDIFF {TAG_2BIT_DIFF | dr << 4 | dg << 2 | db:x2} ({dr} {dg} {db})");
 #endif
                 }
                 else
                 {
-                    int x = i % w;
-                    int y = i / w;
+                    int x = index % w;
+                    int y = index / w;
                     bool matched = false;
 
                     if (y > 0)
@@ -790,14 +817,14 @@ internal sealed unsafe class QOIF_V2
                         {
                             wr.Write(TAG_REPT_TOP);
 #if DEBUG_LOG
-                            sb.AppendLine($"I={i,6} X={i % w,5} Y={i / w,5} -> {current,15} TOP");
+                            update("TOP");
 #endif
                         }
                         else if (current == topleft)
                         {
                             wr.Write(TAG_REPT_TOPLEFT);
 #if DEBUG_LOG
-                            sb.AppendLine($"I={i,6} X={i % w,5} Y={i / w,5} -> {current,15} TOPLEFT");
+                            update("TOPLEFT");
 #endif
                         }
                         else
@@ -817,7 +844,7 @@ internal sealed unsafe class QOIF_V2
                             {
                                 wr.Write((byte)(TAG_AVG | (tl ? BIT_AVG_TOPLEFT : 0) | (pp ? BIT_AVG_PPREVIOUS : 0)));
 #if DEBUG_LOG
-                                sb.AppendLine($"I={i,6} X={i % w,5} Y={i / w,5} -> {current,15} AVG (pp={pp} tl={tl})");
+                                update($"AVG (pp={pp} tl={tl})");
 #endif
                             }
                             else if (matched = QOIF_V1.TryLumaDistance(top, current, 4, 3, out dr, out dg, out db))
@@ -825,7 +852,7 @@ internal sealed unsafe class QOIF_V2
                                 wr.Write((byte)(TAG_LUMA_TOP_DIFF | dg >> 2));
                                 wr.Write((byte)(dg << 6 | dr << 3 | db));
 #if DEBUG_LOG
-                                sb.AppendLine($"I={i,6} X={i % w,5} Y={i / w,5} -> {current,15} LUMA TOP ({dg} {dr} {db})");
+                                update($"LUMA TOP ({dg} {dr} {db})");
 #endif
                             }
                         }
@@ -837,7 +864,7 @@ internal sealed unsafe class QOIF_V2
                             wr.Write((byte)(TAG_LUMA_DIFF | dg));
                             wr.Write((byte)(dr << 4 | db));
 #if DEBUG_LOG
-                            sb.AppendLine($"I={i,6} X={i % w,5} Y={i / w,5} -> {current,15} LUMADIFF ({dg} {dr} {db})");
+                            update($"LUMADIFF ({dg} {dr} {db})");
 #endif
                         }
                         else if (Try2ChannelDifference(current, previous, out int c1, out int c2) is QOIFv2_2CHDIFF diff2ch)
@@ -846,7 +873,7 @@ internal sealed unsafe class QOIF_V2
                             wr.Write((byte)(TAG_2CHN_DIFF | (int)diff2ch << 2 | c1 >> 3));
                             wr.Write((byte)(c1 << 5 | c2));
 #if DEBUG_LOG
-                            sb.AppendLine($"I={i,6} X={i % w,5} Y={i / w,5} -> {current,15} 2CHNDIFF ({diff2ch} {c1} {c2})");
+                            update($"2CHNDIFF ({diff2ch} {c1} {c2})");
 #endif
                         }
                         else if (Try1ChannelDifference(current, previous, out int c0) is QOIFv2_1CHDIFF diff1ch)
@@ -855,7 +882,7 @@ internal sealed unsafe class QOIF_V2
                             wr.Write(TAG_1CHN_DIFF);
                             wr.Write((byte)((int)diff1ch << 6 | c0));
 #if DEBUG_LOG
-                            sb.AppendLine($"I={i,6} X={i % w,5} Y={i / w,5} -> {current,15} 1CHNDIFF ({diff1ch} {c0})");
+                            update($"1CHNDIFF ({diff1ch} {c0})");
 #endif
                         }
 
@@ -869,18 +896,13 @@ internal sealed unsafe class QOIF_V2
                         if (current.A != previous.A)
                             wr.Write(current.A);
 #if DEBUG_LOG
-                        sb.AppendLine($"I={i,6} X={i % w,5} Y={i / w,5} -> {current,15} EXPLICIT");
+                        update("EXPLICIT");
 #endif
                     }
                 }
-
-                indexed[GetIndex(current)] = current;
-
-                if (current != previous)
-                {
-                    pprevious = previous;
-                    previous = current;
-                }
+#if !DEBUG_LOG
+                update();
+#endif
             }
         });
 #if DEBUG_LOG

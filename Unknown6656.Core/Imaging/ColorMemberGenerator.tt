@@ -1315,12 +1315,14 @@ var members = new string[]
 
         return Enumerable.Range(-count / 2, count).Select(i => copy.Rotate(i * φ_step)).ToArray();
     }",
-    @"public readonly $type CorrectGamma(Scalar gamma) => new $type(
-        Math.Pow($R, 1 / gamma),
-        Math.Pow($G, 1 / gamma),
-        Math.Pow($B, 1 / gamma),
+    @"public readonly $type CorrectGamma(Scalar gamma) => new(
+        Math.Pow($R, gamma.MultiplicativeInverse),
+        Math.Pow($G, gamma.MultiplicativeInverse),
+        Math.Pow($B, gamma.MultiplicativeInverse),
         $A
     );",
+    @"public readonly $type FromSRGB() => CorrectGamma(SRGB_GAMMA_CORRECTION_FACTOR);",
+    @"public readonly $type ToSRGB() => CorrectGamma(SRGB_GAMMA_CORRECTION_FACTOR.MultiplicativeInverse);",
     @"public readonly Scalar EucledianRGBDistanceTo($type other) => ((Vector3)this).DistanceTo(other);",
     @"public readonly Scalar EucledianRGBADistanceTo($type other) => ((Vector4)this).DistanceTo(other);",
     @"public readonly Scalar CIALAB94DistanceTo(IColor other)
@@ -1602,6 +1604,12 @@ var members = new string[]
     @"public static $type FromComplexSmooth(Complex c) => FromComplexSmooth(c, 1);",
     @"public static $type FromComplexSmooth(Complex c, double α) => FromComplexSmooth(c, α, .95);",
     @"public static $type FromComplexSmooth(Complex c, double α, Scalar white_shift) => FromHSL(c.Argument, 1, 1 - white_shift.Clamp().Power(c.Length), α);",
+    @"public readonly $type ToSRGB($type c) => c.ToSRGB();",
+    @"public readonly $type ToSRGB(double R, double G, double B) => ToSRGB(R, G, B, 1);",
+    @"public readonly $type ToSRGB(double R, double G, double B, double α) => ToSRGB(FromRGB(R, G, B, α));",
+    @"public readonly $type FromSRGB($type c) => c.FromSRGB();",
+    @"public readonly $type FromSRGB(double sR, double sG, double sB) => FromSRGB(sR, sG, sB, 1);",
+    @"public readonly $type FromSRGB(double sR, double sG, double sB, double α) => FromSRGB(FromRGB(sR, sG, sB, α));",
     @"public static $type FromRGB(double R, double G, double B) => FromRGB(R, G, B, 1);",
     @"public static $type FromRGB(double R, double G, double B, double α) => new $type(R, G, B, α);",
     @"public static $type FromHSL(double H, double S, double L) => FromHSL(H, S, L, 1);",

@@ -312,6 +312,8 @@ public unsafe partial struct RGBAColor
     : IColor<RGBAColor, byte>
     , IComparable<RGBAColor>
 {
+    internal static readonly Scalar SRGB_GAMMA_CORRECTION_FACTOR = 2.2;
+
     #region PROPERTIES AND FIELDS
 
     private static readonly XorShift _random = new();

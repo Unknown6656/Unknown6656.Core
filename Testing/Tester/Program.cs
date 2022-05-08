@@ -29,6 +29,7 @@ using Random = Unknown6656.Mathematics.Numerics.Random;
 using winforms = System.Windows.Forms;
 using System.Threading.Tasks;
 using System.Runtime.ExceptionServices;
+using System.Windows.Forms.Design;
 
 namespace Testing;
 
@@ -67,7 +68,6 @@ public static unsafe class Program
         Console.OutputEncoding = Encoding.UTF8;
 
 
-
         Main_QOIF();
 
         return;
@@ -99,19 +99,13 @@ public static unsafe class Program
 
     public static void Main_QOIF()
     {
-        var file = "img3.png";
-        var inp = DataStream.FromQOIFBitmap((Bitmap)Image.FromFile(file));
-        var dat = inp.Data;
-        var rng = new XorShift();
+        var file = "img7.png";
+        var img = ((Bitmap)Image.FromFile(file)).ToARGB32();
 
-        for (int i = 50; i < dat.Length; ++i)
-            if (rng.NextBool(.00000000001))
-                dat[i] = rng.NextByte();
-
-        inp.Seek(0, SeekOrigin.Begin);
-        inp//.HexDump()
-           .ToQOIFBitmap()
-           .Save(file + "-corrupted-qoi.png");
+        //img.SaveQOIFImage(file + ".qoi", QOIFVersion.Original);
+        //DataStream.FromFile(file + ".qoi").ToQOIFBitmap().Save(file + "-qoi-v1.png");
+        img.SaveQOIFImage(file + ".qoi2", QOIFVersion.V2);
+        DataStream.FromFile(file + ".qoi2")/*.HexDump()*/.ToQOIFBitmap().Save(file + "-qoi-v2.png");
     }
 
     public static void Main_BMP_effects_3()
@@ -645,7 +639,7 @@ public static unsafe class Program
     public static void Main_BMP_dithering()
     {
         var reg = (.., ..); // (960.., ..);
-        var img = ((Bitmap)Image.FromFile("img3.png")).ToARGB32();
+        var img = ((Bitmap)Image.FromFile("img4.png")).ToARGB32();
         var pal = ColorPalette.PrimaryAndComplementaryColors;
 
         foreach (var alg in new[] {

@@ -560,7 +560,7 @@ public class GammaCorrect
 
     public GammaCorrect(Scalar gamma) => Gamma = gamma;
 
-    private protected sealed override RGBAColor ProcessColor(RGBAColor input) => input.CorrectGamma(gamma);
+    private protected sealed override RGBAColor ProcessColor(RGBAColor input) => input.CorrectGamma(Gamma);
 }
 
 public sealed class RGBtoSRGB

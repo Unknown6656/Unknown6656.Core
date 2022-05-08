@@ -1328,8 +1328,8 @@ var members = new string[]
         Math.Pow($B, gamma.MultiplicativeInverse),
         $A
     );",
-    @"public readonly $type FromSRGB() => CorrectGamma(SRGB_GAMMA_CORRECTION_FACTOR);",
-    @"public readonly $type ToSRGB() => CorrectGamma(SRGB_GAMMA_CORRECTION_FACTOR.MultiplicativeInverse);",
+    @"public readonly $type FromSRGB() => CorrectGamma(RGBAColor.SRGB_GAMMA_CORRECTION_FACTOR);",
+    @"public readonly $type ToSRGB() => CorrectGamma(RGBAColor.SRGB_GAMMA_CORRECTION_FACTOR.MultiplicativeInverse);",
     @"public readonly Scalar EucledianRGBDistanceTo($type other) => ((Vector3)this).DistanceTo(other);",
     @"public readonly Scalar EucledianRGBADistanceTo($type other) => ((Vector4)this).DistanceTo(other);",
     @"public readonly Scalar CIALAB94DistanceTo(IColor other)

@@ -499,6 +499,35 @@ public sealed class SimpleGlow
      */
 }
 
+public class GammaCorrect
+    : ColorEffect
+{
+    public Scalar Gamma { get; }
+
+
+    public GammaCorrect(Scalar gamma) => Gamma = gamma;
+
+    private protected sealed override RGBAColor ProcessColor(RGBAColor input) => input.CorrectGamma(gamma);
+}
+
+public sealed class RGBtoSRGB
+    : GammaCorrect
+{
+    public RGBtoSRGB()
+        : base(RGBAColor.SRGB_GAMMA_CORRECTION_FACTOR)
+    {
+    }
+}
+
+public sealed class SRGBtoRGB
+    : GammaCorrect
+{
+    public SRGBtoRGB()
+        : base(RGBAColor.SRGB_GAMMA_CORRECTION_FACTOR.MultiplicativeInverse)
+    {
+    }
+}
+
 public sealed class RGBtoHSL
     : ColorEffect
 {

@@ -295,7 +295,7 @@ public abstract class ColorEffect
     public static Delegated FromDelegate(Func<RGBAColor, RGBAColor> @delegate) => FromDelegate(@delegate);
 
 
-    public class Delegated
+    public new class Delegated
         : ColorEffect
     {
         public Func<RGBAColor, RGBAColor> Delegate { get; }

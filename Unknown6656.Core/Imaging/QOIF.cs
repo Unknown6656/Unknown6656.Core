@@ -1,4 +1,4 @@
-﻿#define DEBUG_LOG
+﻿// #define DEBUG_LOG
 
 using System.Collections.Generic;
 using System.Drawing.Imaging;
@@ -10,12 +10,6 @@ using System;
 
 using Unknown6656.Generics;
 using Unknown6656.IO;
-
-using System.Diagnostics;
-using System.Threading.Tasks;
-using Unknown6656.Mathematics;
-using System.Runtime.Serialization;
-using System.ComponentModel;
 
 namespace Unknown6656.Imaging;
 
@@ -427,7 +421,10 @@ internal sealed unsafe class QOIF_V2
     {
         Bitmap bitmap = new(header.Width, header.Height, PixelFormat.Format32bppArgb);
 #if DEBUG_LOG
-        StringBuilder sb = new StringBuilder().AppendLine(header.ToString()).AppendLine("DECODING");
+        StringBuilder sb = new StringBuilder()
+                         .AppendLine(header.ToString())
+                         .AppendLine($"DECODING {DateTime.Now}")
+                         .AppendLine(" INDEX X-POS Y-POS   P.PREVIOUS     PREVIOUS      CURRENT CACHE ACTION");
 #endif
         bitmap.LockRGBAPixels((ptr, w, h) =>
         {
@@ -447,13 +444,13 @@ internal sealed unsafe class QOIF_V2
                 {
                     int cache = GetIndex(color);
 #if DEBUG_LOG
-                    sb.AppendLine($"I={index - 1,6} X={(index - 1) % w,5} Y={(index - 1) / w,5} PP={pprevious,12} P={previous,12} C={color,12} (CH={cache,2}) {log}");
+                    sb.AppendLine($"{index,6} {index % w,5} {index / w,5} {pprevious,12} {previous,12} {color,12} {cache,5} {log}");
 #endif
-                    indexed[cache] = color;
                     ptr[index++] = color;
 
                     if (previous != color)
                     {
+                        indexed[cache] = color;
                         pprevious = previous;
                         previous = color;
                     }
@@ -594,7 +591,7 @@ internal sealed unsafe class QOIF_V2
                     else if ((@byte & MASK_2CHN_DIFF) == TAG_2CHN_DIFF)
                     {
                         QOIFv2_2CHDIFF diff2ch = (QOIFv2_2CHDIFF)((@byte >> 2) & 7);
-                        int ch1 = (@byte & 3) << 6;
+                        int ch1 = (@byte & 3) << 3;
                         int ch2;
 
                         @byte = rd.ReadByte();
@@ -614,7 +611,7 @@ internal sealed unsafe class QOIF_V2
                         };
                         RGBAColor color = new((byte)(previous.R + dr), (byte)(previous.G + dg), (byte)(previous.B + db), (byte)(previous.A + da));
 #if DEBUG_LOG
-                        set_pixel(color, $"2CHNDIFF ({dr} {dg} {db} {da})");
+                        set_pixel(color, $"2CHNDIFF ({diff2ch} {dr} {dg} {db} {da})");
 #else
                         set_pixel(color);
 #endif
@@ -682,7 +679,10 @@ internal sealed unsafe class QOIF_V2
 
         QOIFHeader header = new(bitmap.Width, bitmap.Height, QOIFVersion.V2, channels, QOIFColorSpace.AllLinear);
 #if DEBUG_LOG
-        StringBuilder sb = new StringBuilder().AppendLine(header.ToString()).AppendLine("ENCODING");
+        StringBuilder sb = new StringBuilder()
+                         .AppendLine(header.ToString())
+                         .AppendLine($"ENCODING {DateTime.Now}")
+                         .AppendLine(" INDEX X-POS Y-POS   P.PREVIOUS     PREVIOUS      CURRENT CACHE ACTION");
 #endif
         wr.WriteNative(header);
         bitmap.LockRGBAPixels((ptr, w, h) =>
@@ -709,7 +709,7 @@ internal sealed unsafe class QOIF_V2
 
             Array.Resize(ref palette, 16);
 
-            palette = palette.OrderBy(k => buckets[k].first).ToArray();
+            palette = palette.OrderBy(k => buckets.TryGetValue(k, out var t) ? t.first : short.MaxValue).ToArray();
             buckets.Clear();
 
             for (int index = 0; index < w * h; ++index)
@@ -724,12 +724,11 @@ internal sealed unsafe class QOIF_V2
                 {
                     int cache = GetIndex(current);
 #if DEBUG_LOG
-                    sb.AppendLine($"I={index,6} X={index % w,5} Y={index / w,5} PP={pprevious,12} P={previous,12} C={current,12} (CH={GetIndex(current),2}) {log}");
+                    sb.AppendLine($"{index,6} {index % w,5} {index / w,5} {pprevious,12} {previous,12} {current,12} {cache,5} {log}");
 #endif
-                    indexed[cache] = current;
-
                     if (current != previous)
                     {
+                        indexed[cache] = current;
                         pprevious = previous;
                         previous = current;
                     }
@@ -813,14 +812,14 @@ internal sealed unsafe class QOIF_V2
                         RGBAColor top = ptr[(y - 1) * w + x];
                         RGBAColor topleft = x > 0 ? ptr[(y - 1) * w + x - 1] : top;
 
-                        if (current == top)
+                        if (matched = (current == top))
                         {
                             wr.Write(TAG_REPT_TOP);
 #if DEBUG_LOG
                             update("TOP");
 #endif
                         }
-                        else if (current == topleft)
+                        else if (matched = (current == topleft))
                         {
                             wr.Write(TAG_REPT_TOPLEFT);
 #if DEBUG_LOG
@@ -972,7 +971,7 @@ internal sealed unsafe class QOIF_V2
         return diff;
     }
 
-    internal static int GetIndex(uint c) => (int)(((c & 0x3f3f3f3ful) * 0xc141c2cul - ((c & 0x200000ul) << 5)) >> 26) & 0b111111;
+    internal static int GetIndex(RGBAColor color) => QOIF_V1.GetIndex(color); // (int)((uint)HashCode.Combine(color.A, color.R, color.G, color.B) % 64);
 }
 
 // TODO : add future protocol versions

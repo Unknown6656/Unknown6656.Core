@@ -24,6 +24,26 @@ public static partial class MathExtensions
     public const decimal M_PI = 3.14159265358979323846m;
 
 
+    public static T BinaryToGray<T>(this T num)
+        where T : IBitwiseOperators<T, T, T>
+                , IShiftOperators<T, T> => num ^ (num >> 1);
+
+    public static T GrayToBinary<T>(this T num)
+        where T : IBitwiseOperators<T, T, T>
+                , IShiftOperators<T, T>
+                , IEqualityOperators<T, T>
+    {
+        T mask = num;
+
+        while (mask != default)
+        {
+            mask >>= 1;
+            num ^= mask;
+        }
+
+        return num;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int[] GetOffsets(this Range range, int length, int offset = 0)
     {
@@ -38,16 +58,18 @@ public static partial class MathExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsPowerOf2(this int l) => ((l - 1) & l) == 0;
+    public static bool IsPowerOf2<T>(this T l)
+        where T : struct
+                , IBitwiseOperators<T, T, T>
+                , IEqualityOperators<T, T>
+                , IDecrementOperators<T>
+    {
+        T c = l;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsPowerOf2(this uint l) => ((l - 1) & l) == 0;
+        --c;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsPowerOf2(this long l) => ((l - 1) & l) == 0;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsPowerOf2(this ulong l) => ((l - 1) & l) == 0;
+        return (c & l) == default;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsZero(this double v) => Abs(v) <= 2 * double.Epsilon;

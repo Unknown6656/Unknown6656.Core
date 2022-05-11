@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Runtime.Versioning;
+using System.Threading.Tasks;
 using System.Drawing.Imaging;
 using System.Drawing;
 using System.Linq;
@@ -14,12 +15,12 @@ using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Statistics;
 using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Mathematics.Numerics;
+using Unknown6656.Imaging.Plotting;
 using Unknown6656.Imaging.Effects;
 using Unknown6656.Generics;
 using Unknown6656.Runtime;
 using Unknown6656.Common;
 using Unknown6656.IO;
-using System.Threading.Tasks;
 
 namespace Unknown6656.Imaging;
 

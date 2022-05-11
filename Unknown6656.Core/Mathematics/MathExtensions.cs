@@ -75,12 +75,6 @@ public static partial class MathExtensions
     public static bool IsZero(this double v) => Abs(v) <= 2 * double.Epsilon;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static double Clamp(this double x) => x.Clamp(0, 1);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static double Clamp(this double x, double low, double high) => x < low ? low : x > high ? high : x;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool Is(this double x, double y) => Scalar.Is(x, y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -93,34 +87,26 @@ public static partial class MathExtensions
     public static bool Are(this IEnumerable<float> xs, IEnumerable<float> ys) => xs.Are(ys, Scalar.EqualityComparer);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float Constrain(this float scalar, float min, float max) => scalar <= min ? min : scalar >= max ? max : scalar;
+    public static double Clamp(this double x) => x.Clamp(0, 1);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static double Constrain(this double scalar, double min, double max) => scalar <= min ? min : scalar >= max ? max : scalar;
+    public static T Clamp<T>(this T scalar, T min, T max) where T : IComparisonOperators<T, T> => scalar <= min ? min : scalar >= max ? max : scalar;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static decimal Constrain(this decimal scalar, decimal min, decimal max) => scalar <= min ? min : scalar >= max ? max : scalar;
+    public static T Map<T>(this T scalar, (T lower, T upper) from, (T lower, T upper) to)
+        where T : IDivisionOperators<T, T, T>
+                , ISubtractionOperators<T, T, T>
+                , IMultiplyOperators<T, T, T>
+                , IAdditionOperators<T, T, T> => (scalar - from.lower) / (from.upper - from.lower) * (to.upper - to.lower) + to.lower;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float Map(this float scalar, (float lower, float upper) from, (float lower, float upper) to) =>
-        (scalar - from.lower) / (from.upper - from.lower) * (to.upper - to.lower) + to.lower;
+    public static T ClampMap<T>(this T scalar, (T lower, T upper) from, (T lower, T upper) to)
+        where T : IDivisionOperators<T, T, T>
+                , ISubtractionOperators<T, T, T>
+                , IMultiplyOperators<T, T, T>
+                , IAdditionOperators<T, T, T>
+                , IComparisonOperators<T, T> => scalar.Clamp(from.lower, from.upper).Map(from, to);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static double Map(this double scalar, (double lower, double upper) from, (double lower, double upper) to) =>
-        (scalar - from.lower) / (from.upper - from.lower) * (to.upper - to.lower) + to.lower;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static decimal Map(this decimal scalar, (decimal lower, decimal upper) from, (decimal lower, decimal upper) to) =>
-        (scalar - from.lower) / (from.upper - from.lower) * (to.upper - to.lower) + to.lower;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float ConstrainMap(this float scalar, (float lower, float upper) from, (float lower, float upper) to) => scalar.Constrain(from.lower, from.upper).Map(from, to);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static double ConstrainMap(this double scalar, (double lower, double upper) from, (double lower, double upper) to) => scalar.Constrain(from.lower, from.upper).Map(from, to);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static decimal ConstrainMap(this decimal scalar, (decimal lower, decimal upper) from, (decimal lower, decimal upper) to) => scalar.Constrain(from.lower, from.upper).Map(from, to);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float Product(this IEnumerable<float> scalars) => scalars.Aggregate(1f, (s1, s2) => s1 * s2);

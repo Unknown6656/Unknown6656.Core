@@ -47,9 +47,12 @@ public partial class ScalarFunction
     public static ScalarFunction InverseHyperbolicCosecant { get; } = new(c => c.Acsch());
 
     public static ScalarFunction UnitParabola { get; } = new(c => c * c);
+    public static ScalarFunction UnitTent { get; } = new(c => c.Min(1 - c));
 
     public static ScalarFunction Gamma { get; } = new(c => ComplexFunction.Gamma[c].Real);
     public static ScalarFunction Stirling { get; } = new(c => ComplexFunction.Stirling[c].Real);
+
+    public static ScalarFunction Tent(Scalar height, Scalar skew) => new(c => height * (c / skew).Min((1 - c) / (1 - skew)));
 }
 
 /// <completionlist cref="ComplexFunction"/>

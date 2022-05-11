@@ -99,13 +99,16 @@ public static unsafe class Program
 
     public static void Main_QOIF()
     {
-        var file = "img7.png";
+        var file = "img2.png";
         var img = ((Bitmap)Image.FromFile(file)).ToARGB32();
+
+        img.ApplyEffect(new QOIFCorruptedEffect(0) { FormatVersion = QOIFVersion.V2 })
+           .Save("conv.png");
 
         //img.SaveQOIFImage(file + ".qoi", QOIFVersion.Original);
         //DataStream.FromFile(file + ".qoi").ToQOIFBitmap().Save(file + "-qoi-v1.png");
-        img.SaveQOIFImage(file + ".qoi2", QOIFVersion.V2);
-        DataStream.FromFile(file + ".qoi2")/*.HexDump()*/.ToQOIFBitmap().Save(file + "-qoi-v2.png");
+        //img.SaveQOIFImage(file + ".qoi2", QOIFVersion.V2);
+        //DataStream.FromFile(file + ".qoi2")/*.HexDump()*/.ToQOIFBitmap().Save(file + "-qoi-v2.png");
     }
 
     public static void Main_BMP_effects_3()

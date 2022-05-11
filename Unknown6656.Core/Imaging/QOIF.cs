@@ -580,7 +580,7 @@ internal sealed unsafe class QOIF_V2
                         dg = dg << 2 | dr >> 6;
                         dr = (dr >> 3) & 7;
 
-                        RGBAColor top = ptr[(y - 1) * w + x];
+                        RGBAColor top = y > 0 ? ptr[(y - 1) * w + x] : RGBAColor.Black;
                         RGBAColor color = QOIF_V1.ComputeFromLuma(top, 4, 3, dr, dg, db);
 #if DEBUG_LOG
                         set_pixel(color, $"LUMA TOP ({dg} {dr} {db})");
@@ -620,8 +620,8 @@ internal sealed unsafe class QOIF_V2
                     {
                         bool pp = (@byte & BIT_AVG_PPREVIOUS) != 0;
                         bool tl = (@byte & BIT_AVG_TOPLEFT) != 0;
-                        RGBAColor top = ptr[(y - 1) * w + x];
-                        RGBAColor topleft = x > 0 ? ptr[(y - 1) * w + x - 1] : top;
+                        RGBAColor top = y > 0 ? ptr[(y - 1) * w + x] : RGBAColor.Black;
+                        RGBAColor topleft = x > 0 && y > 0 ? ptr[(y - 1) * w + x - 1] : top;
                         RGBAColor color = (pp, tl) switch
                         {
                             (false, false) => Average(previous, top),
@@ -671,11 +671,15 @@ internal sealed unsafe class QOIF_V2
     public override void Save(Bitmap bitmap, BinaryWriter wr)
     {
         QOIFChannels channels = QOIFChannels.RGBA;
+        ColorPalette palette = bitmap.Palette;
 
         if (bitmap.PixelFormat is PixelFormat.Format24bppRgb)
             channels = QOIFChannels.RGB;
         else if (bitmap.PixelFormat is not PixelFormat.Format32bppArgb)
             bitmap = bitmap.ToARGB32();
+
+        if (palette.Count < 16)
+            palette += GetPalette(bitmap, 16 - palette.Count);
 
         QOIFHeader header = new(bitmap.Width, bitmap.Height, QOIFVersion.V2, channels, QOIFColorSpace.AllLinear);
 #if DEBUG_LOG
@@ -687,35 +691,24 @@ internal sealed unsafe class QOIF_V2
         wr.WriteNative(header);
         bitmap.LockRGBAPixels((ptr, w, h) =>
         {
-            Dictionary<RGBAColor, (int count, int first)> buckets = new();
-
-            for (int i = 0; i < w * h; ++i)
-                buckets[ptr[i]] = buckets.TryGetValue(ptr[i], out (int count, int first) entry) ? (entry.count + 1, entry.first) : (1, i);
-
+            RGBAColor[] palette_colors = palette.Colors.ToArray();
             int palette_set_idx = 0;
-            RGBAColor[] palette = buckets.OrderByDescending(k => k.Value.count).Select(k => k.Key).ToArray();
-            //RGBAColor[] palette = (from i in Enumerable.Range(0, w * h)
-            //                       let col = ptr[i]
-            //                       group col by col into g
-            //                       orderby g.Count() descending
-            //                       select g.Key).ToArray();
             RGBAColor[] indexed = new RGBAColor[64];
             RGBAColor pprevious = RGBAColor.Black;
             RGBAColor previous = RGBAColor.Black;
 
-            if (palette.Length > 16)
-                for (int i = 0; i < indexed.Length && i + 16 < palette.Length; ++i)
-                    indexed[i] = palette[i + 16];
+            if (palette_colors.Length > 16)
+            {
+                for (int i = 0; i < indexed.Length && i + 16 < palette_colors.Length; ++i)
+                    indexed[i] = palette_colors[i + 16];
 
-            Array.Resize(ref palette, 16);
-
-            palette = palette.OrderBy(k => buckets.TryGetValue(k, out var t) ? t.first : short.MaxValue).ToArray();
-            buckets.Clear();
+                Array.Resize(ref palette_colors, 16);
+            }
 
             for (int index = 0; index < w * h; ++index)
             {
                 RGBAColor current = ptr[index];
-                int pal_idx = palette.IndexOf(current);
+                int pal_idx = palette_colors.IndexOf(current);
 #if DEBUG_LOG
                 void update(string log)
 #else
@@ -907,6 +900,14 @@ internal sealed unsafe class QOIF_V2
 #if DEBUG_LOG
         DataStream.FromStringBuilder(sb).ToFile("qoi-v2-encoder-debug.log");
 #endif
+    }
+
+    private static ColorPalette GetPalette(Bitmap bmp, int count)
+    {
+        int size = (int)Math.Sqrt(count + 1) + 1;
+        Bitmap resized = new(bmp, size, size);
+
+        return new(resized.ToColorPalette().Colors.Take(count));
     }
 
     internal static RGBAColor Average(params RGBAColor[] colors)

@@ -13,7 +13,7 @@ using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Mathematics;
 using Unknown6656.Generics;
 
-namespace Unknown6656.Imaging;
+namespace Unknown6656.Imaging.Plotting;
 
 
 public abstract class FunctionPlotter
@@ -163,7 +163,7 @@ public abstract class FunctionPlotter<Value>
         g.Clear(BackgroundColor);
 
         float scale = Scale.Max(1e-5) * DefaultGridSpacing.Max(1);
-        PointF center = new((width / 2f) - CenterPoint.X * scale, (height / 2f) + CenterPoint.Y * scale);
+        PointF center = new(width / 2f - CenterPoint.X * scale, height / 2f + CenterPoint.Y * scale);
 
         PlotGraph(g, width, height, center.X, center.Y, scale, out List<(Vector2 pos, Value desc)> poi);
 
@@ -419,10 +419,8 @@ public abstract class FunctionPlotter<Value>
                     else if (this is { AxisType: AxisType.Cartesian } and ICartesianPlotter)
                         g.DrawLine(thin, mouse_x, mouse_y, mouse_x, Math.Abs(y - mouse_y) > Math.Abs(cy - mouse_y) ? cy : y);
                     else if (this is { AxisType: AxisType.Polar } and IPolarPlotter)
-                    {
                         if (new Vector2(x - mouse_x, y - mouse_y).Length > new Vector2(x - cx, y - cy).Length)
                             g.DrawLine(thin, cx, cy, mouse_x, mouse_y);
-                    }
                     else if (this is { AxisType: AxisType.Cartesian } and IPolarPlotter)
                         if (new Vector2(x - mouse_x, y - mouse_y).Length > new Vector2(x - cx, y - cy).Length)
                             g.DrawLine(thin, x, y, mouse_x, mouse_y);
@@ -774,8 +772,8 @@ public class ImplicitFunctionSignedDistancePlotter
             RGBAColor bl = corners[curr_cx, next_cy].color;
             RGBAColor br = corners[next_cx, next_cy].color;
 
-            float px = (x / w) % 1;
-            float py = (y / h) % 1;
+            float px = x / w % 1;
+            float py = y / h % 1;
 
             ptr[idx] = RGBAColor.LinearInterpolate(
                 RGBAColor.LinearInterpolate(tl, tr, px),
@@ -976,7 +974,7 @@ public class ComplexFunctionPlotter
     internal protected override unsafe void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Complex value)> poi)
     {
         ConcurrentBag<(Vector2, Complex)> bag = new();
-        Func<Complex, RGBAColor> color = Style == ComplexColorStyle.Wrapped ? (Func<Complex, RGBAColor>)RGBAColor.FromComplexWrapped : RGBAColor.FromComplexSmooth;
+        Func<Complex, RGBAColor> color = Style == ComplexColorStyle.Wrapped ? RGBAColor.FromComplexWrapped : RGBAColor.FromComplexSmooth;
         Scalar phasediv = Scalar.Tau / Math.Max(PhaseLineSteps, 0);
         Vector3 plotter(int u, int v)
         {
@@ -988,7 +986,7 @@ public class ComplexFunctionPlotter
 
             if (PhaseLinesVisible && PhaseLineSteps > 0)
             {
-                Scalar r = ((res.Argument + PhaseLineTolerance + Scalar.Tau) % Scalar.Tau) % phasediv;
+                Scalar r = (res.Argument + PhaseLineTolerance + Scalar.Tau) % Scalar.Tau % phasediv;
 
                 if (r <= 2 * PhaseLineTolerance)
                 {
@@ -998,7 +996,7 @@ public class ComplexFunctionPlotter
                 }
             }
 
-            if (PointsOfInterestVisible && (len.Abs() < PointsOfInterestTolerance /*|| len.Abs().Inverse > PointsOfInterestTolerance*/))
+            if (PointsOfInterestVisible && len.Abs() < PointsOfInterestTolerance /*|| len.Abs().Inverse > PointsOfInterestTolerance*/)
                 bag.Add(((u, v), (re, -im)));
 
             return col;
@@ -1020,9 +1018,57 @@ public class ComplexFunctionPlotter
                 ptr[i] = plotter(u, v);
         }));
 
-        g.DrawImage(plot, 0, 0);
+        g.DrawImageUnscaled(plot, 0, 0);
 
         poi = bag.ToList();
+    }
+}
+
+public class Heatmap2DPlotter
+    : FunctionPlotter<Complex>
+{
+    public ColorMap ColorMap { get; set; } = ColorMap.Jet;
+    public Scalar MinValue { get; set; } = short.MinValue;
+    public Scalar MaxValue { get; set; } = short.MaxValue;
+    public bool UseInterpolation { set; get; } = false;
+    public Function<Vector2, Scalar> Function { get; }
+
+
+    public Heatmap2DPlotter(Function<Vector2, Scalar> function) => Function = function;
+
+    public Heatmap2DPlotter(Function<Complex, Scalar> function) => Function = new(v => function.Evaluate(v));
+
+    protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor)
+    {
+        return null; // TODO
+    }
+
+    internal protected override unsafe void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Complex value)> poi)
+    {
+        Vector3 plotter(int u, int v)
+        {
+            float re = (u - x) / s;
+            float im = (v - y) / s;
+            Scalar value = Function[new(re, -im)];
+
+            return ColorMap[value, MinValue, MaxValue];
+        }
+        bool intp = UseInterpolation;
+        using Bitmap plot = new(w, h, PixelFormat.Format32bppArgb);
+        new BitmapLocker(plot).LockRGBAPixels((ptr, _w, _h) => Parallel.For(0, _w * _h, i =>
+        {
+            int u = i % _w;
+            int v = i / _w;
+
+            ptr[i] = intp ? (plotter(u, v) +
+                             plotter(u + 1, v) +
+                             plotter(u, v + 1) +
+                             plotter(u + 1, v + 1)) / 4
+                          : plotter(u, v);
+        }));
+
+        g.DrawImageUnscaled(plot, 0, 0);
+        poi = new();
     }
 }
 

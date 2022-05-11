@@ -10,7 +10,7 @@ using Unknown6656.Imaging.Effects;
 using Unknown6656.Generics;
 using Unknown6656.Runtime;
 
-namespace Unknown6656.Imaging
+namespace Unknown6656.Imaging.Plotting
 {
     public sealed class ShapeDrawingSettings
     {

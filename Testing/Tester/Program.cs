@@ -17,6 +17,7 @@ using Unknown6656.Mathematics.Numerics;
 using Unknown6656.Mathematics.Geometry;
 using Unknown6656.Controls.WinForms;
 using Unknown6656.Controls.Console;
+using Unknown6656.Imaging.Plotting;
 using Unknown6656.Imaging.Effects;
 using Unknown6656.Imaging.Video;
 using Unknown6656.Imaging;
@@ -67,8 +68,7 @@ public static unsafe class Program
     {
         Console.OutputEncoding = Encoding.UTF8;
 
-
-        Main_QOIF();
+        Main_heatmap_plotter_ui();
 
         return;
         var prov = new CSharpSignatureProvider();
@@ -352,6 +352,26 @@ public static unsafe class Program
                 Parallelized = true,
             }
         );
+    }
+
+    public static void Main_heatmap_plotter_ui()
+    {
+        using var plotter = new FunctionPlotterControl<Heatmap2DPlotter>()
+        {
+            Dock = winforms.DockStyle.Fill,
+            Plotter = new(new Function<Vector2, Scalar>(v => v.AngleTo((-1, 2))))
+            {
+                CursorVisible = true,
+            },
+        };
+        using var form = new winforms.Form()
+        {
+            Width = 800,
+            Height = 600,
+            BackColor = Color.Teal,
+        };
+        form.Controls.Add(plotter);
+        form.ShowDialog();
     }
 
     public static void Main_complex_plotter_ui()

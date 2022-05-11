@@ -4,8 +4,8 @@ using System.Linq;
 using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
+using Unknown6656.Imaging.Plotting;
 using Unknown6656.Generics;
-using Unknown6656.Imaging;
 
 namespace Unknown6656.Mathematics.Geometry;
 

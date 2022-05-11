@@ -3,6 +3,7 @@ using System.Windows.Input;
 
 using Unknown6656.Controls.WPF;
 using Unknown6656.Imaging;
+using Unknown6656.Imaging.Plotting;
 using Unknown6656.Mathematics.Analysis;
 
 namespace Tester

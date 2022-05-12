@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Diagnostics.CodeAnalysis;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Linq;
 using System;
 
@@ -463,6 +464,29 @@ public static partial class MathExtensions
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bint? Phi(this bint a) => a.PrimeFactorization().ToArray() is { Length: 2 } l ? (bint?)((l[0] - 1) * (l[1] - 1)) : null;
+
+    public static void InterlockedMinMax(ref double min, ref double max, double value)
+    {
+        double init;
+
+        do
+        {
+            init = min;
+
+            if (init <= value)
+                break;
+        }
+        while (Interlocked.CompareExchange(ref min, value, init) != init);
+
+        do
+        {
+            init = max;
+
+            if (init >= value)
+                return;
+        }
+        while (Interlocked.CompareExchange(ref max, value, init) != init);
+    }
 
     #region ERF(X) / ERFC(X)
 

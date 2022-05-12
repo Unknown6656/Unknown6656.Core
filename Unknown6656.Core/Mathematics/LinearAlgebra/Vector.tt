@@ -923,7 +923,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     public static bool IsLinearDependant(in <#=typename#> v1, in <#=typename#> v2, out Scalar? factor) => v1.IsLinearDependant(v2, out factor);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static <#=typename#> GetRandomCartesianUnitVector<T>(T generator) where T : Numerics.Random => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(_ => "generator.NextScalar()"))#>).Normalized;
+    public static <#=typename#> GetRandomCartesianUnitVector<T>(T generator) where T : Numerics.Random => new <#=typename#>(<#=string.Join(", ", r(0, dim).Select(_ => "generator.NextScalar() * 2 - 1"))#>).Normalized;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> GetRandomCartesianUnitVector() => GetRandomCartesianUnitVector(new XorShift());

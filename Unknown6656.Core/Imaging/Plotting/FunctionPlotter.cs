@@ -14,6 +14,7 @@ using Unknown6656.Mathematics;
 using Unknown6656.Generics;
 using System.Threading;
 using System.Diagnostics;
+using System.Xml;
 
 namespace Unknown6656.Imaging.Plotting;
 
@@ -124,6 +125,14 @@ public abstract class FunctionPlotter
 
         return bmp;
     }
+
+
+    protected enum PlottingOrder
+    {
+        Graph_Grid_Axes,
+        Grid_Graph_Axes,
+        Grid_Axes_Graph,
+    }
 }
 
 public abstract class FunctionPlotterPOI
@@ -151,8 +160,12 @@ public abstract class FunctionPlotter<Value>
     internal const float MARKING_SIZE = 3;
     internal const int POLAR_DIVISIONS = 8;
 
+    protected PlottingOrder Order { get; }
+
     #endregion
     #region INSTANCE METHODS
+
+    protected FunctionPlotter(PlottingOrder order) => Order = order;
 
     public override void Plot(Graphics g, int width, int height)
     {
@@ -166,14 +179,24 @@ public abstract class FunctionPlotter<Value>
 
         float scale = Scale.Max(1e-5) * DefaultGridSpacing.Max(1);
         PointF center = new(width / 2f - CenterPoint.X * scale, height / 2f + CenterPoint.Y * scale);
+        List<(Vector2 pos, Value desc)> poi = new();
 
-        PlotGraph(g, width, height, center.X, center.Y, scale, out List<(Vector2 pos, Value desc)> poi);
+        void plot_graph() => PlotGraph(g, width, height, center.X, center.Y, scale, out poi);
+
+        if (Order is PlottingOrder.Graph_Grid_Axes)
+            plot_graph();
 
         if (GridVisible)
             PlotGrid(g, width, height, center.X, center.Y, scale);
 
+        if (Order is PlottingOrder.Grid_Graph_Axes)
+            plot_graph();
+
         if (AxisVisible)
             PlotAxis(g, width, height, center.X, center.Y, scale);
+
+        if (Order is PlottingOrder.Grid_Axes_Graph)
+            plot_graph();
 
         if (PointsOfInterestVisible)
             PlotPOIs(g, width, height, center.X, center.Y, scale, poi);
@@ -517,6 +540,7 @@ public abstract class MultiFunctionPlotter<Func, Value>
         : this((function, color)) => SelectedFunctionIndex = 0;
 
     public MultiFunctionPlotter(params (Func Function, RGBAColor Color)[] functions)
+        : base(PlottingOrder.Grid_Graph_Axes)
     {
         Functions = functions;
         SelectedFunctionIndex = null;
@@ -579,8 +603,9 @@ public class ImplicitFunctionPlotter
         : this((function, color))
     {
     }
-
-    public ImplicitFunctionPlotter(params (ImplicitFunction<Vector2> Function, RGBAColor Color)[] functions) => Functions = functions;
+    
+    public ImplicitFunctionPlotter(params (ImplicitFunction<Vector2> Function, RGBAColor Color)[] functions)
+        : base(PlottingOrder.Grid_Graph_Axes) => Functions = functions;
 
     protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO : implement
 
@@ -707,6 +732,7 @@ public class ImplicitFunctionSignedDistancePlotter
 
 
     public ImplicitFunctionSignedDistancePlotter(ImplicitFunction<Vector2> function)
+        : base(PlottingOrder.Grid_Graph_Axes)
     {
         Function = function;
         _overlay = new(function);
@@ -950,7 +976,8 @@ public class ComplexFunctionPlotter
     public FieldFunction<Complex> Function { get; }
 
 
-    public ComplexFunctionPlotter(FieldFunction<Complex> function) => Function = function;
+    public ComplexFunctionPlotter(FieldFunction<Complex> function)
+        : base(PlottingOrder.Graph_Grid_Axes) => Function = function;
 
     protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor)
     {
@@ -1026,6 +1053,43 @@ public class ComplexFunctionPlotter
     }
 }
 
+public class PointCloud2DPlotter
+    : FunctionPlotter<Complex>
+{
+    public IEnumerable<Vector2> Points { get; }
+    public Union<RGBAColor, Func<Vector2, RGBAColor>> PointColor { get; set; } = RGBAColor.Red;
+    public Scalar PointSize { get; set; } = 8;
+
+
+    public PointCloud2DPlotter(IEnumerable<Vector2> points)
+        : base(PlottingOrder.Grid_Axes_Graph) => Points = points;
+
+    protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor)
+    {
+        return null; // TODO
+    }
+
+    protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Complex value)> poi)
+    {
+        poi = new();
+
+        foreach (Vector2 point in Points)
+        {
+            float px = x + point.X * s;
+            float py = y - point.Y * s;
+
+            if (px > -PointSize && px < w + PointSize && py > -PointSize && py < h + PointSize)
+            {
+                RGBAColor color = PointColor.Match(LINQ.id, f => f(point));
+                using SolidBrush brush = new(color);
+
+                g.FillEllipse(brush, px - PointSize * .5f, py - PointSize * .5f, PointSize, PointSize);
+                poi.Add((new(px, py), new(point.X, point.Y)));
+            }
+        }
+    }
+}
+
 public class Heatmap2DPlotter
     : FunctionPlotter<Complex>
 {
@@ -1039,9 +1103,13 @@ public class Heatmap2DPlotter
     private double[]? _cache = null;
 
 
-    public Heatmap2DPlotter(Function<Vector2, Scalar> function) => Function = function;
+    public Heatmap2DPlotter(Function<Vector2, Scalar> function)
+        : base(PlottingOrder.Graph_Grid_Axes) => Function = function;
 
-    public Heatmap2DPlotter(Function<Complex, Scalar> function) => Function = new(v => function.Evaluate(v));
+    public Heatmap2DPlotter(Function<Complex, Scalar> function)
+        : this(new Function<Vector2, Scalar>(v => function.Evaluate(v)))
+    {
+    }
 
     protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor)
     {
@@ -1071,7 +1139,7 @@ public class Heatmap2DPlotter
                         : get_value(u, v);
         }
 
-        Debugger.Break();
+        Debugger.Break(); // TODO : improve performance
 
         using Bitmap plot = new(w, h, PixelFormat.Format32bppArgb);
         new BitmapLocker(plot).LockRGBAPixels((ptr, _, _) =>

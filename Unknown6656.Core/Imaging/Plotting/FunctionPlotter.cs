@@ -12,6 +12,8 @@ using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Mathematics;
 using Unknown6656.Generics;
+using System.Threading;
+using System.Diagnostics;
 
 namespace Unknown6656.Imaging.Plotting;
 
@@ -1030,8 +1032,11 @@ public class Heatmap2DPlotter
     public ColorMap ColorMap { get; set; } = ColorMap.Jet;
     public Scalar MinValue { get; set; } = short.MinValue;
     public Scalar MaxValue { get; set; } = short.MaxValue;
+    public bool DynamicMinMaxValue { get; set; } = true;
     public bool UseInterpolation { set; get; } = false;
     public Function<Vector2, Scalar> Function { get; }
+
+    private double[]? _cache = null;
 
 
     public Heatmap2DPlotter(Function<Vector2, Scalar> function) => Function = function;
@@ -1045,27 +1050,57 @@ public class Heatmap2DPlotter
 
     internal protected override unsafe void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Complex value)> poi)
     {
-        Vector3 plotter(int u, int v)
+        bool intp = UseInterpolation;
+
+        double get_value(int u, int v)
         {
             float re = (u - x) / s;
             float im = (v - y) / s;
-            Scalar value = Function[new(re, -im)];
 
-            return ColorMap[value, MinValue, MaxValue];
+            return Function[new(re, -im)];
         }
-        bool intp = UseInterpolation;
-        using Bitmap plot = new(w, h, PixelFormat.Format32bppArgb);
-        new BitmapLocker(plot).LockRGBAPixels((ptr, _w, _h) => Parallel.For(0, _w * _h, i =>
+        double get_intp_value(int index)
         {
-            int u = i % _w;
-            int v = i / _w;
+            int u = index % w;
+            int v = index / w;
 
-            ptr[i] = intp ? (plotter(u, v) +
-                             plotter(u + 1, v) +
-                             plotter(u, v + 1) +
-                             plotter(u + 1, v + 1)) / 4
-                          : plotter(u, v);
-        }));
+            return intp ? (get_value(u, v) +
+                           get_value(u + 1, v) +
+                           get_value(u, v + 1) +
+                           get_value(u + 1, v + 1)) / 4
+                        : get_value(u, v);
+        }
+
+        Debugger.Break();
+
+        using Bitmap plot = new(w, h, PixelFormat.Format32bppArgb);
+        new BitmapLocker(plot).LockRGBAPixels((ptr, _, _) =>
+        {
+            _cache ??= new double[w * h];
+
+            if (_cache.Length != w * h)
+                Array.Resize(ref _cache, w * h);
+
+            double min = MinValue;
+            double max = MaxValue;
+
+            if (DynamicMinMaxValue)
+            {
+                Parallel.For(0, w * h, i => _cache[i] = get_intp_value(i));
+
+                (min, max) = (max, min);
+
+                for (int i = 0; i < w * h; ++i)
+                {
+                    min = Math.Min(min, _cache[i]);
+                    max = Math.Max(max, _cache[i]);
+                }
+
+                Parallel.For(0, w * h, i => ptr[i] = ColorMap[_cache[i], min, max]);
+            }
+            else
+                Parallel.For(0, w * h, i => ptr[i] = ColorMap[get_intp_value(i), min, max]);
+        });
 
         g.DrawImageUnscaled(plot, 0, 0);
         poi = new();

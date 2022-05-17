@@ -1202,10 +1202,8 @@ public class Trajectory2DPlotter
                     α *= 1 - DecayFactor;
                 }
 
-                if (px > -PointSize && px < w + PointSize &&
-                    py > -PointSize && py < h + PointSize &&
-                    lx > -PointSize && lx < w + PointSize &&
-                    ly > -PointSize && ly < h + PointSize)
+                if ((px > -PointSize && px < w + PointSize && py > -PointSize && py < h + PointSize) ||
+                    (lx > -PointSize && lx < w + PointSize && ly > -PointSize && ly < h + PointSize))
                     g.DrawLine(pen, px, py, lx, ly);
 
                 last = point;

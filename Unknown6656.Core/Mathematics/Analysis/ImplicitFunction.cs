@@ -322,6 +322,8 @@ public partial class ImplicitScalarFunction2D
     public static ImplicitScalarFunction2D EllipticCurve(Scalar a, Scalar b) =>
         new(xy => xy.Y ^ 2, ComparisonOperator.EqualTo, xy => (xy.X ^ 3) + a * xy.X + b);
 
+    public static ImplicitScalarFunction2D WeierstrassEllipticCurve() => EllipticCurve(Scalar.Zero, Scalar.Two);
+
     public static ImplicitScalarFunction2D ConicalSurface(Scalar radius, Scalar conic_constant) =>
         new((x, y) => x * x / radius / radius * (x * x / y / y - 2 * radius / y + 1 + conic_constant));
 

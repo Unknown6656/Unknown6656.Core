@@ -69,6 +69,25 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     , IComparable
     , IDisplayable
     , ICloneable
+#if GENERIC_MATH
+    , IIncrementOperators<<#=typename#>>
+    , IModulusOperators<<#=typename#>, Scalar, <#=typename#>>
+    , IMultiplyOperators<<#=typename#>, <#=typename#>, <#=typename#>>
+    , IMultiplyOperators<Scalar, <#=typename#>, <#=typename#>>
+    , IMultiplyOperators<<#=typename#>, Scalar, <#=typename#>>
+    , IDivisionOperators<<#=typename#>, Scalar, <#=typename#>>
+    , IMultiplyOperators<<#=vecname#>, <#=typename#>, <#=vecname#>>
+    , IMultiplyOperators<<#=typename#>, <#=vecname#>, <#=vecname#>>
+    , IDecrementOperators<<#=typename#>>
+    , IAdditionOperators<<#=typename#>, <#=typename#>, <#=typename#>>
+    , ISubtractionOperators<<#=typename#>, <#=typename#>, <#=typename#>>
+    , IUnaryPlusOperators<<#=typename#>, <#=typename#>>
+    , IUnaryNegationOperators<<#=typename#>, <#=typename#>>
+    , IAdditiveIdentity<<#=typename#>, <#=typename#>>
+    , IMultiplicativeIdentity<<#=typename#>, <#=typename#>>
+    , IComparisonOperators<<#=typename#>, <#=typename#>>
+    , IEqualityOperators<<#=typename#>, <#=typename#>>
+#endif
 {
     #region PRIVATE FIELDS
 
@@ -1951,6 +1970,12 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     public static <#=typename#> Cos(<#=typename#> matrix) => matrix.Cos();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> CracovianProduct(in <#=typename#> first, in <#=typename#> second) => second.Transposed.Multiply(in second);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> HadamardProduct(in <#=typename#> first, in <#=typename#> second) => first.ComponentwiseMultiply(in second);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar DistanceBetween(<#=typename#> first, <#=typename#> second, MatrixNorm norm) => first.DistanceTo(second, norm);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -2138,6 +2163,9 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> operator ^(in <#=typename#> m, int c) => m.Power(c);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> operator ^(in <#=typename#> m1, in <#=typename#> m2) => CracovianProduct(in m1, in m2);
 
     /// <summary>
     /// Solves the linear equation system Ax=b with the provided matrix A and vector b.

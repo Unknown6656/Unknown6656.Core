@@ -373,8 +373,7 @@ public abstract class Plotter<POIValue>
         if (float.IsFinite(cursorx) && float.IsFinite(cursory))
             try
             {
-                float cx = x + cursorx * s;
-                float cy = y - cursory * s;
+                (float cx, float cy) = ToScreenSpace(new(cursorx, cursory), x, y, s);
                 float sz = 2 * MARKING_SIZE;
 
                 if (deriv is (Scalar α, RGBAColor col))
@@ -432,8 +431,7 @@ public abstract class Plotter<POIValue>
                 g.DrawLine(pen, cx - sz, cy, cx + sz, cy);
 
                 {
-                    float mouse_x = x + CursorPosition.X * s;
-                    float mouse_y = y - CursorPosition.Y * s;
+                    (float mouse_x, float mouse_y) = ToScreenSpace(CursorPosition, x, y, s);
 
                     if (this is { AxisType: AxisType.Polar, IsPolarPlotter: false })
                         g.DrawLines(thin, new[] { mouse_y, cy, y }.OrderBy(LINQ.id).ToArray(y => new PointF(mouse_x, y)));
@@ -449,7 +447,7 @@ public abstract class Plotter<POIValue>
                             g.DrawLine(thin, x, y, cx, cy);
                 }
 
-                if (!(this is { AxisType: AxisType.Cartesian } and ICartesianPlotter { SelectedFunction: { } }))
+                if (!(this is { AxisType: AxisType.Cartesian, IsPolarPlotter: false }))
                     g.DrawString(str, font, brush, cx, cy);
             }
             catch (Exception ex)
@@ -488,7 +486,11 @@ public abstract class Plotter<POIValue>
 
     protected abstract (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor);
 
-    internal protected abstract void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, POIValue value)> poi);
+    protected internal abstract void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, POIValue value)> poi);
+
+    protected Vector2 ToScreenSpace(Vector2 vector, float x, float y, float s) => new(x + vector.X * s, y - vector.Y * s);
+
+    protected Vector2 ToFuncSpace(Vector2 vector, float x, float y, float s) => new((vector.X - x) / s, (y - vector.Y) / s);
 
     #endregion
 }
@@ -513,7 +515,7 @@ public abstract class MultiPlotter<PlotterItem, POIValue>
 
     public (PlotterItem Item, RGBAColor Color)[] PlottableItems => _items;
 
-    public PlotterItem? SelectedItem => SelectedIndex is int index ? PlottableItems[index].Item : null;
+    public PlotterItem? SelectedItem => SelectedIndex is int index ? PlottableItems[index].Item : default;
 
     (object Item, RGBAColor Color)[] IMultiPlotter.PlottableItems => PlottableItems.ToArray(t => (t.Item as object, t.Color));
 
@@ -522,6 +524,8 @@ public abstract class MultiPlotter<PlotterItem, POIValue>
     public Scalar SelectedItemThickness { set; get; } = 3;
 
     public Scalar RegularItemThickness { set; get; } = Scalar.Two;
+
+    public Scalar FillOpacity { set; get; } = .5;
 
     public int? SelectedIndex
     {
@@ -561,6 +565,24 @@ public abstract class MultiPlotter<PlotterItem, POIValue>
     // public bool RemoveItem(PlotterItem item)
     // public void RemoveItem(int index)
     // TODO
+
+    protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, POIValue value)> poi)
+    {
+        poi = new();
+
+        for (int idx = 0; idx < PlottableItems.Length; ++idx)
+        {
+            (PlotterItem item, RGBAColor color) = PlottableItems[idx];
+            using Pen pen = new(color, idx == SelectedIndex ? SelectedItemThickness : RegularItemThickness);
+            using Brush fill = new SolidBrush(new RGBAColor(color, FillOpacity));
+
+            PlotGraph(g, w, h, x, y, s, item, pen, fill, out List<(Vector2 pos, POIValue value)> items);
+
+            poi.AddRange(items);
+        }
+    }
+
+    protected internal abstract void PlotGraph(Graphics g, int w, int h, float x, float y, float s, PlotterItem item, Pen pen, Brush fill, out List<(Vector2 pos, POIValue value)> poi);
 }
 
 public abstract class MultiFunctionPlotter<Func, Value>
@@ -603,7 +625,6 @@ public class ImplicitFunctionPlotter
 {
     protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
     protected override bool IsPolarPlotter { get; } = true;
-    public Scalar FillOpacity { set; get; } = .5;
     public Scalar FunctionEvaluationTolerance { set; get; } = 1e-6;
     public int MarchingSquaresPixelStride { set; get; } = 4;
 
@@ -630,21 +651,7 @@ public class ImplicitFunctionPlotter
 
     protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO : implement
 
-    internal protected override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Vector2 value)> poi)
-    {
-        poi = new();
-
-        for (int idx = 0; idx < Functions.Length; ++idx)
-        {
-            (ImplicitFunction<Vector2> f, RGBAColor c) = Functions[idx];
-            using Pen pen = new(c, idx == SelectedFunctionIndex ? SelectedFunctionThickness : FunctionThickness);
-            using Brush fill = new SolidBrush(new RGBAColor(c, FillOpacity));
-
-            PlotGraph(g, w, h, x, y, s, f, pen, fill);
-        }
-    }
-
-    private void PlotGraph(Graphics g, int w, int h, float x, float y, float s, ImplicitFunction<Vector2> func, Pen pen, Brush fill)
+    protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, ImplicitFunction<Vector2> func, Pen pen, Brush fill, out List<(Vector2 pos, Vector2 value)> poi)
     {
         int CELLS_Y = Math.Max(2, Math.Min(w, h) / Math.Max(2, MarchingSquaresPixelStride));
         int CELLS_X = CELLS_Y * w / h;
@@ -720,11 +727,13 @@ public class ImplicitFunctionPlotter
                 if (points.Count > 3)
                     g.DrawLine(pen, points[2], points[3]);
             }
+
+        poi = new(); // TODO
     }
 }
 
 public class ImplicitFunctionSignedDistancePlotter
-    : Plotter<Scalar>
+    : Plotter<Vector2>
 {
     private readonly ImplicitFunctionPlotter _overlay;
 
@@ -742,11 +751,19 @@ public class ImplicitFunctionSignedDistancePlotter
 
     public RGBAColor OverlayColor
     {
-        get => _overlay.Functions[0].Color;
-        set => _overlay.Functions[0] = (Function, value);
+        get => _overlay.PlottableItems[0].Color;
+        set => _overlay.PlottableItems[0] = (Function, value);
     }
 
-    public Scalar OverlayThickness { get => _overlay.FunctionThickness; set => _overlay.FunctionThickness = value; }
+    public Scalar OverlayThickness
+    {
+        get => _overlay.RegularItemThickness;
+        set
+        {
+            _overlay.RegularItemThickness = value;
+            _overlay.SelectedItemThickness = value;
+        }
+    }
 
     public bool DisplayOverlayFunction { get; set; } = false;
 
@@ -765,7 +782,7 @@ public class ImplicitFunctionSignedDistancePlotter
 
     protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO : implement
 
-    internal protected override unsafe void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Scalar value)> poi)
+    protected internal override unsafe void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Vector2 value)> poi)
     {
         poi = new();
 
@@ -867,7 +884,7 @@ public class CartesianFunctionPlotter<Func>
 
     protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor)
     {
-        if (SelectedFunctionIndex is int i)
+        if (SelectedIndex is int i)
         {
             Func f = Functions[i].Function;
             Scalar y = f[cursor.X];
@@ -881,31 +898,26 @@ public class CartesianFunctionPlotter<Func>
         return null;
     }
 
-    internal protected override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Scalar value)> poi)
+    protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, Func func, Pen pen, Brush fill, out List<(Vector2 pos, Scalar value)> poi)
     {
         poi = new List<(Vector2, Scalar)>();
 
-        for (int idx = 0; idx < Functions.Length; ++idx)
+        float last = y - func[-x / s] * s;
+        float curr = last;
+        Scalar fx;
+
+        for (int i = 0; i <= w; ++i)
         {
-            (Func f, RGBAColor c) = Functions[idx];
-            using Pen pen = new(c, idx == SelectedFunctionIndex ? SelectedFunctionThickness : FunctionThickness);
-            float last = y - f[-x / s] * s;
-            float curr = last;
-            Scalar fx;
+            fx = func[(i - x) / s];
+            curr = y - fx * s;
 
-            for (int i = 0; i <= w; ++i)
-            {
-                fx = f[(i - x) / s];
-                curr = y - fx * s;
+            if (last >= -s && last <= h + s)
+                g.DrawLine(pen, i - 1, last, i, curr);
 
-                if (last >= -s && last <= h + s)
-                    g.DrawLine(pen, i - 1, last, i, curr);
+            last = curr;
 
-                last = curr;
-
-                if (Math.Abs(curr) < PointsOfInterestTolerance)
-                    poi.Add(((i, curr), fx));
-            }
+            if (Math.Abs(curr) < PointsOfInterestTolerance)
+                poi.Add(((i, curr), fx));
         }
     }
 }
@@ -940,7 +952,7 @@ public class PolarFunctionPlotter<Func>
 
     protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor)
     {
-        if (SelectedFunctionIndex is int i)
+        if (SelectedIndex is int i)
         {
             Scalar φ = (((Complex)cursor).Argument + Scalar.Tau) % Scalar.Tau;
             Func f = Functions[i].Function;
@@ -959,34 +971,29 @@ public class PolarFunctionPlotter<Func>
         return null;
     }
 
-    internal protected override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Scalar value)> poi)
+    protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, Func func, Pen pen, Brush fill, out List<(Vector2 pos, Scalar value)> poi)
     {
-        poi = new List<(Vector2, Scalar)>();
+        poi = new();
 
-        for (int idx = 0; idx < Functions.Length; ++idx)
+        Scalar rad = new Vector2(w, h).SquaredLength;
+        Scalar last = func[MinAngle] * s;
+        Scalar curr = last;
+
+        for (Scalar φ = MinAngle + AngleStep; φ <= MaxAngle; φ += AngleStep)
         {
-            (Func f, RGBAColor c) = Functions[idx];
-            using Pen pen = new(c, idx == SelectedFunctionIndex ? SelectedFunctionThickness : FunctionThickness);
-            Scalar rad = new Vector2(w, h).SquaredLength;
-            Scalar last = f[MinAngle] * s;
-            Scalar curr = last;
+            curr = func[φ] * s;
 
-            for (Scalar φ = MinAngle + AngleStep; φ <= MaxAngle; φ += AngleStep)
-            {
-                curr = f[φ] * s;
+            float x1 = x + Math.Cos(φ - AngleStep - 1e-5) * last.Clamp(-rad, rad);
+            float y1 = y - Math.Sin(φ - AngleStep - 1e-5) * last.Clamp(-rad, rad);
+            float x2 = x + Math.Cos(φ) * curr.Clamp(-rad, rad);
+            float y2 = y - Math.Sin(φ) * curr.Clamp(-rad, rad);
 
-                float x1 = x + Math.Cos(φ - AngleStep - 1e-5) * last.Clamp(-rad, rad);
-                float y1 = y - Math.Sin(φ - AngleStep - 1e-5) * last.Clamp(-rad, rad);
-                float x2 = x + Math.Cos(φ) * curr.Clamp(-rad, rad);
-                float y2 = y - Math.Sin(φ) * curr.Clamp(-rad, rad);
+            g.DrawLine(pen, x1, y1, x2, y2);
 
-                g.DrawLine(pen, x1, y1, x2, y2);
+            last = curr;
 
-                last = curr;
-
-                if (Math.Abs(curr) < PointsOfInterestTolerance)
-                    poi.Add(((x2, y2), curr / s));
-            }
+            if (Math.Abs(curr) < PointsOfInterestTolerance)
+                poi.Add(((x2, y2), curr / s));
         }
     }
 }
@@ -1029,7 +1036,7 @@ public class ComplexFunctionPlotter
         return (cursor, CursorColor, $"re = {c.Real}\nim = {c.Imaginary}i\n θ = {c.Argument}\n r = {c.Length}", dir);
     }
 
-    internal protected override unsafe void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Complex value)> poi)
+    protected internal override unsafe void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Complex value)> poi)
     {
         ConcurrentBag<(Vector2, Complex)> bag = new();
         Func<Complex, RGBAColor> color = Style == ComplexColorStyle.Wrapped ? RGBAColor.FromComplexWrapped : RGBAColor.FromComplexSmooth;
@@ -1083,41 +1090,126 @@ public class ComplexFunctionPlotter
 }
 
 public class PointCloud2DPlotter
-    : Plotter<Vector2>
+    : MultiPlotter<IEnumerable<Vector2>, Vector2>
 {
     protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Axes_Graph;
     protected override bool IsPolarPlotter { get; } = false;
 
-    public IEnumerable<Vector2> Points { get; }
-    public Union<RGBAColor, Func<Vector2, RGBAColor>> PointColor { get; set; } = RGBAColor.Red;
     public Scalar PointSize { get; set; } = 8;
+    public Scalar DecayFactor { get; set; } = Scalar.Zero;
 
 
-    public PointCloud2DPlotter(IEnumerable<Vector2> points) => Points = points;
-
-    protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor)
+    public PointCloud2DPlotter(IEnumerable<Vector2> points)
+        : base(points)
     {
-        return null; // TODO
     }
 
-    protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Vector2 value)> poi)
+    public PointCloud2DPlotter(IEnumerable<Vector2> points, RGBAColor color)
+        : base(points, color)
+    {
+    }
+
+    public PointCloud2DPlotter(IEnumerable<(IEnumerable<Vector2> points, RGBAColor Color)> points)
+        : base(points)
+    {
+    }
+
+    public PointCloud2DPlotter(params (IEnumerable<Vector2> points, RGBAColor Color)[] points)
+        : base(points)
+    {
+    }
+
+    protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO
+
+    protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, IEnumerable<Vector2> points, Pen pen, Brush fill, out List<(Vector2 pos, Vector2 value)> poi)
     {
         poi = new();
 
-        foreach (Vector2 point in Points)
+        float α = 1;
+
+        foreach (Vector2 point in points)
         {
-            float px = x + point.X * s;
-            float py = y - point.Y * s;
+            (float px, float py) = ToScreenSpace(point, x, y, s);
+
+            if (α < 0.001)
+                break;
+            else if (DecayFactor.IsPositiveDefinite && fill is SolidBrush sb)
+            {
+                fill = new SolidBrush(new RGBAColor(sb.Color, α));
+                α *= 1 - DecayFactor;
+            }
 
             if (px > -PointSize && px < w + PointSize && py > -PointSize && py < h + PointSize)
             {
-                RGBAColor color = PointColor.Match(LINQ.id, f => f(point));
-                using SolidBrush brush = new(color);
-
-                g.FillEllipse(brush, px - PointSize * .5f, py - PointSize * .5f, PointSize, PointSize);
+                g.FillEllipse(fill, px - PointSize * .5f, py - PointSize * .5f, PointSize, PointSize);
                 poi.Add((new(px, py), point));
             }
         }
+    }
+}
+
+public class Trajectory2DPlotter
+    : PointCloud2DPlotter
+{
+    public bool PlotPoints { get; set; } = false;
+
+
+    public Trajectory2DPlotter(IEnumerable<Vector2> trajectory)
+        : base(trajectory)
+    {
+    }
+
+    public Trajectory2DPlotter(IEnumerable<Vector2> trajectory, RGBAColor color)
+        : base(trajectory, color)
+    {
+    }
+
+    public Trajectory2DPlotter(IEnumerable<(IEnumerable<Vector2> trajectory, RGBAColor Color)> trajectories)
+        : base(trajectories)
+    {
+    }
+
+    public Trajectory2DPlotter(params (IEnumerable<Vector2> trajectory, RGBAColor Color)[] trajectories)
+        : base(trajectories)
+    {
+    }
+
+    protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO
+
+    protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, IEnumerable<Vector2> trajectory, Pen pen, Brush fill, out List<(Vector2 pos, Vector2 value)> poi)
+    {
+        if (PlotPoints)
+            base.PlotGraph(g, w, h, x, y, s, trajectory, pen, fill, out poi);
+        else
+            poi = new(); // TODO
+
+        Vector2? last = null;
+        float α = 1;
+
+        foreach (Vector2 point in trajectory)
+            if (last is null)
+                last = point;
+            else
+            {
+                (float px, float py) = ToScreenSpace(point, x, y, s);
+                (float lx, float ly) = ToScreenSpace(last.Value, x, y, s);
+
+                if (α < 0.001)
+                    break;
+                else if (DecayFactor.IsPositiveDefinite)
+                {
+                    pen = new(new RGBAColor(pen.Color, α), pen.Width);
+                    α *= 1 - DecayFactor;
+                }
+
+                if (px > -PointSize && px < w + PointSize &&
+                    py > -PointSize && py < h + PointSize &&
+                    lx > -PointSize && lx < w + PointSize &&
+                    ly > -PointSize && ly < h + PointSize)
+                    g.DrawLine(pen, px, py, lx, ly);
+
+                last = point;
+            }
     }
 }
 
@@ -1144,12 +1236,9 @@ public class Heatmap2DPlotter
 
     public Heatmap2DPlotter(Function<Vector2, Scalar> function) => Function = function;
 
-    protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor)
-    {
-        return null; // TODO
-    }
+    protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO
 
-    internal protected override unsafe void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Vector2 value)> poi)
+    protected internal override unsafe void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Vector2 value)> poi)
     {
         bool intp = UseInterpolation;
 
@@ -1240,6 +1329,7 @@ public class RecurrenceImplicitPlotter
     {
     }
 }
+
 
 
 

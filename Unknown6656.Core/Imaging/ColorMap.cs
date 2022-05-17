@@ -957,6 +957,44 @@ public abstract class ColorMap
         (1, (0.8901960784313725, 0.9921568627450981, 0.7764705882352941))
     );
 
+    public static DiscreteColorMap VonLuschanChromaticScale { get; } = Uniform(
+        0XFFF4F2F5u,
+        0XFFECEBE9u,
+        0XFFFAF9F7u,
+        0XFFFDFBE6u,
+        0XFFFDF6E6u,
+        0XFFFEF7E5u,
+        0XFFFAF0EFu,
+        0XFFF3EAE5u,
+        0XFFF4F1EAu,
+        0XFFFBFCF4u,
+        0XFFFCF8EDu,
+        0XFFFEF6E1u,
+        0XFFFFF9E1u,
+        0XFFF1E7C3u,
+        0XFFEFE2ADu,
+        0XFFE0D293u,
+        0XFFF2E297u,
+        0XFFEBD69Fu,
+        0XFFEBD985u,
+        0XFFE3C467u,
+        0XFFE1C16Au,
+        0XFFDFC17Bu,
+        0XFFDEB877u,
+        0XFFC7A464u,
+        0XFFBC9762u,
+        0XFF9C6B43u,
+        0XFF8E583Eu,
+        0XFF794D30u,
+        0XFF643116u,
+        0XFF653020u,
+        0XFF603121u,
+        0XFF573229u,
+        0XFF402015u,
+        0XFF312529u,
+        0XFF1B1C2Eu
+    );
+
     #endregion
 
 

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
@@ -12,14 +14,11 @@ using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Mathematics;
 using Unknown6656.Generics;
-using System.Threading;
-using System.Diagnostics;
-using System.Xml;
 
 namespace Unknown6656.Imaging.Plotting;
 
 
-public abstract class FunctionPlotter
+public abstract class Plotter
 {
     /// <summary>
     /// Determines the cursor's position in the function space - NOT in the pixel space.
@@ -135,9 +134,16 @@ public abstract class FunctionPlotter
     }
 }
 
-public abstract class FunctionPlotterPOI
-    : FunctionPlotter
+public abstract class Plotter<POIValue>
+    : Plotter
+    where POIValue : IComparable<POIValue>
 {
+    #region PROPERTIES / FIELDS
+
+    internal const float MARKING_SIZE = 3;
+    internal const int POLAR_DIVISIONS = 8;
+
+
     /// <summary>
     /// Determines whether the points of interest's color (zero points and extrema).
     /// </summary>
@@ -149,23 +155,13 @@ public abstract class FunctionPlotterPOI
     /// Determines whether the points of interest (zero points and extrema) are visible.
     /// </summary>
     public bool PointsOfInterestVisible { set; get; } = false;
-}
 
-public abstract class FunctionPlotter<Value>
-    : FunctionPlotterPOI
-    where Value : unmanaged, IField<Value>, IComparable<Value>
-{
-    #region PROPERTIES / FIELDS
+    protected abstract PlottingOrder Order { get; }
 
-    internal const float MARKING_SIZE = 3;
-    internal const int POLAR_DIVISIONS = 8;
-
-    protected PlottingOrder Order { get; }
+    protected abstract bool IsPolarPlotter { get; }
 
     #endregion
     #region INSTANCE METHODS
-
-    protected FunctionPlotter(PlottingOrder order) => Order = order;
 
     public override void Plot(Graphics g, int width, int height)
     {
@@ -179,7 +175,7 @@ public abstract class FunctionPlotter<Value>
 
         float scale = Scale.Max(1e-5) * DefaultGridSpacing.Max(1);
         PointF center = new(width / 2f - CenterPoint.X * scale, height / 2f + CenterPoint.Y * scale);
-        List<(Vector2 pos, Value desc)> poi = new();
+        List<(Vector2 pos, POIValue desc)> poi = new();
 
         void plot_graph() => PlotGraph(g, width, height, center.X, center.Y, scale, out poi);
 
@@ -439,14 +435,14 @@ public abstract class FunctionPlotter<Value>
                     float mouse_x = x + CursorPosition.X * s;
                     float mouse_y = y - CursorPosition.Y * s;
 
-                    if (this is { AxisType: AxisType.Polar } and ICartesianPlotter)
+                    if (this is { AxisType: AxisType.Polar, IsPolarPlotter: false })
                         g.DrawLines(thin, new[] { mouse_y, cy, y }.OrderBy(LINQ.id).ToArray(y => new PointF(mouse_x, y)));
-                    else if (this is { AxisType: AxisType.Cartesian } and ICartesianPlotter)
+                    else if (this is { AxisType: AxisType.Cartesian, IsPolarPlotter: false })
                         g.DrawLine(thin, mouse_x, mouse_y, mouse_x, Math.Abs(y - mouse_y) > Math.Abs(cy - mouse_y) ? cy : y);
-                    else if (this is { AxisType: AxisType.Polar } and IPolarPlotter)
+                    else if (this is { AxisType: AxisType.Polar, IsPolarPlotter: true })
                         if (new Vector2(x - mouse_x, y - mouse_y).Length > new Vector2(x - cx, y - cy).Length)
                             g.DrawLine(thin, cx, cy, mouse_x, mouse_y);
-                    else if (this is { AxisType: AxisType.Cartesian } and IPolarPlotter)
+                    else if (this is { AxisType: AxisType.Cartesian, IsPolarPlotter: true })
                         if (new Vector2(x - mouse_x, y - mouse_y).Length > new Vector2(x - cx, y - cy).Length)
                             g.DrawLine(thin, x, y, mouse_x, mouse_y);
                         else
@@ -463,16 +459,19 @@ public abstract class FunctionPlotter<Value>
             }
     }
 
-    protected virtual void PlotPOIs(Graphics g, int w, int h, float x, float y, float s, List<(Vector2 pos, Value value)> poi)
+    protected virtual void PlotPOIs(Graphics g, int w, int h, float x, float y, float s, List<(Vector2 pos, POIValue value)> poi)
     {
         using Font font = new(FontFamily, FontSize, FontStyle.Regular, GraphicsUnit.Pixel);
         using Pen pen = new(PointsOfInterestColor, AxisThickness);
         using Brush brush = new SolidBrush(PointsOfInterestColor);
 
-        var grouped = poi.GroupBy(p => p.pos, new CustomEqualityComparer<Vector2>((v1, v2) => v1.DistanceTo(v2) < 2 * MARKING_SIZE))
-            .Select(g => (g.Select(t => (Complex)t.pos).Average(), g.Select(t => t.value).Average(), g.Count()));
+        var grouped = from @group in poi.GroupBy(p => p.pos, new CustomEqualityComparer<Vector2>((v1, v2) => v1.DistanceTo(v2) < 2 * MARKING_SIZE))
+                      let size = @group.Count()
+                      where size > 0
+                      let first = @group.First()
+                      select (first.pos, first.value, size);
 
-        foreach ((Vector2 pos, Value val, int count) in grouped)
+        foreach ((Vector2 pos, POIValue val, int count) in grouped)
         {
             g.DrawLine(pen, pos.X - MARKING_SIZE, pos.Y, pos.X + MARKING_SIZE, pos.Y);
             g.DrawLine(pen, pos.X, pos.Y - MARKING_SIZE, pos.X, pos.Y + MARKING_SIZE);
@@ -489,127 +488,149 @@ public abstract class FunctionPlotter<Value>
 
     protected abstract (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor);
 
-    internal protected abstract void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Value value)> poi);
+    internal protected abstract void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, POIValue value)> poi);
 
     #endregion
 }
 
-public interface IMultiFunctionPlotter
+public interface IMultiPlotter
 {
-    Scalar SelectedFunctionThickness { set; get; }
-    Scalar FunctionThickness { set; get; }
-    int? SelectedFunctionIndex { set; get; }
-    public object? SelectedFunction { get; }
-    public (object Function, RGBAColor Color)[] Functions { get; }
+    public (object Item, RGBAColor Color)[] PlottableItems { get; }
+    public object? SelectedItem { get; }
+    public Scalar SelectedItemThickness { set; get; }
+    public Scalar RegularItemThickness { set; get; }
+    public int? SelectedIndex { get; set; }
+}
+
+public abstract class MultiPlotter<PlotterItem, POIValue>
+    : Plotter<POIValue>
+    , IMultiPlotter
+    where POIValue : IComparable<POIValue>
+{
+    private (PlotterItem, RGBAColor)[] _items;
+    private int? _selidx = null;
+
+
+    public (PlotterItem Item, RGBAColor Color)[] PlottableItems => _items;
+
+    public PlotterItem? SelectedItem => SelectedIndex is int index ? PlottableItems[index].Item : null;
+
+    (object Item, RGBAColor Color)[] IMultiPlotter.PlottableItems => PlottableItems.ToArray(t => (t.Item as object, t.Color));
+
+    object? IMultiPlotter.SelectedItem => SelectedItem;
+
+    public Scalar SelectedItemThickness { set; get; } = 3;
+
+    public Scalar RegularItemThickness { set; get; } = Scalar.Two;
+
+    public int? SelectedIndex
+    {
+        set => _selidx = value is int i ? i >= 0 && i < PlottableItems.Length ? (int?)i : throw new ArgumentOutOfRangeException(nameof(value), $"The index must be a positive and smaller than {PlottableItems.Length}.") : null;
+        get => _selidx;
+    }
+
+
+    public MultiPlotter(PlotterItem item)
+        : this(item, RGBAColor.Red)
+    {
+    }
+
+    public MultiPlotter(PlotterItem item, RGBAColor color)
+        : this((item, color)) => SelectedIndex = 0;
+
+    public MultiPlotter(IEnumerable<(PlotterItem item, RGBAColor Color)> items)
+        : this(items as (PlotterItem item, RGBAColor Color)[] ?? items.ToArray())
+    {
+    }
+
+    public MultiPlotter(params (PlotterItem item, RGBAColor Color)[] items)
+    {
+        _items = items;
+        SelectedIndex = null;
+    }
+
+    public void AddItem(PlotterItem item, RGBAColor color)
+    {
+        int index = _items.Length;
+
+        Array.Resize(ref _items, index + 1);
+
+        _items[index] = (item, color);
+    }
+
+    // public bool RemoveItem(PlotterItem item)
+    // public void RemoveItem(int index)
+    // TODO
 }
 
 public abstract class MultiFunctionPlotter<Func, Value>
-    : FunctionPlotter<Value>
-    , IMultiFunctionPlotter
+    : MultiPlotter<Func, Value>
+    , IMultiPlotter
     where Func : FieldFunction<Value>
     where Value : unmanaged, IField<Value>, IComparable<Value>
 {
     private int? _selidx = null;
 
 
-    public (Func Function, RGBAColor Color)[] Functions { get; }
+    public (Func Function, RGBAColor Color)[] Functions => PlottableItems;
 
-    public Func? SelectedFunction => SelectedFunctionIndex is int index ? Functions[index].Function : null;
-
-    object? IMultiFunctionPlotter.SelectedFunction => SelectedFunction;
-
-    (object Function, RGBAColor Color)[] IMultiFunctionPlotter.Functions => Functions.ToArray(f => (f.Function as object, f.Color));
-
-    public Scalar SelectedFunctionThickness { set; get; } = 3;
-
-    public Scalar FunctionThickness { set; get; } = Scalar.Two;
-
-    public int? SelectedFunctionIndex
-    {
-        set => _selidx = value is int i ? i >= 0 && i < Functions.Length ? (int?)i : throw new ArgumentOutOfRangeException(nameof(value), $"The function index must be a positive and smaller than {Functions.Length}.") : null;
-        get => _selidx;
-    }
+    public Func? SelectedFunction => SelectedItem;
 
 
     public MultiFunctionPlotter(Func function)
-        : this(function, RGBAColor.Red)
+        : base(function)
     {
     }
 
     public MultiFunctionPlotter(Func function, RGBAColor color)
-        : this((function, color)) => SelectedFunctionIndex = 0;
-
-    public MultiFunctionPlotter(params (Func Function, RGBAColor Color)[] functions)
-        : base(PlottingOrder.Grid_Graph_Axes)
+        : base(function, color)
     {
-        Functions = functions;
-        SelectedFunctionIndex = null;
     }
 
-    // public void AddFunction(Func function, RGBAColor color)
-    // public bool RemoveFunction(Func function)
-    // public void RemoveFunction(int index)
-    // TODO
-}
+    public MultiFunctionPlotter(params (Func Function, RGBAColor Color)[] functions)
+        : base(functions)
+    {
+    }
 
-internal interface IPolarPlotter
-    : IMultiFunctionPlotter
-{
-}
-
-internal interface ICartesianPlotter
-    : IMultiFunctionPlotter
-{
+    public MultiFunctionPlotter(IEnumerable<(Func Function, RGBAColor Color)> functions)
+        : base(functions)
+    {
+    }
 }
 
 public class ImplicitFunctionPlotter
-    : FunctionPlotter<Complex>
-    , IMultiFunctionPlotter
+    : MultiPlotter<ImplicitFunction<Vector2>, Vector2>
 {
-    private int? _selidx = null;
-
-
-    public (ImplicitFunction<Vector2> Function, RGBAColor Color)[] Functions { get; }
-
-    public ImplicitFunction<Vector2>? SelectedFunction => SelectedFunctionIndex is int index ? Functions[index].Function : null;
-
-    object? IMultiFunctionPlotter.SelectedFunction => SelectedFunction;
-
-    (object Function, RGBAColor Color)[] IMultiFunctionPlotter.Functions => Functions.ToArray(f => (f.Function as object, f.Color));
-
-    public Scalar SelectedFunctionThickness { set; get; } = 3;
-
-    public Scalar FunctionThickness { set; get; } = Scalar.Two;
-
-    public int? SelectedFunctionIndex
-    {
-        set => _selidx = value is int i ? i >= 0 && i < Functions.Length ? (int?)i : throw new ArgumentOutOfRangeException(nameof(value), $"The function index must be a positive and smaller than {Functions.Length}.") : null;
-        get => _selidx;
-    }
-
+    protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
+    protected override bool IsPolarPlotter { get; } = true;
     public Scalar FillOpacity { set; get; } = .5;
-
     public Scalar FunctionEvaluationTolerance { set; get; } = 1e-6;
-
     public int MarchingSquaresPixelStride { set; get; } = 4;
 
 
     public ImplicitFunctionPlotter(ImplicitFunction<Vector2> function)
-        : this(function, RGBAColor.Red)
+        : base(function)
     {
     }
 
     public ImplicitFunctionPlotter(ImplicitFunction<Vector2> function, RGBAColor color)
-        : this((function, color))
+        : base(function, color)
     {
     }
-    
+
     public ImplicitFunctionPlotter(params (ImplicitFunction<Vector2> Function, RGBAColor Color)[] functions)
-        : base(PlottingOrder.Grid_Graph_Axes) => Functions = functions;
+        : base(functions)
+    {
+    }
+
+    public ImplicitFunctionPlotter(IEnumerable<(ImplicitFunction<Vector2> Function, RGBAColor Color)> functions)
+        : base(functions)
+    {
+    }
 
     protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO : implement
 
-    internal protected override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Complex value)> poi)
+    internal protected override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Vector2 value)> poi)
     {
         poi = new();
 
@@ -703,10 +724,13 @@ public class ImplicitFunctionPlotter
 }
 
 public class ImplicitFunctionSignedDistancePlotter
-    : FunctionPlotter<Complex>
+    : Plotter<Scalar>
 {
     private readonly ImplicitFunctionPlotter _overlay;
 
+
+    protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
+    protected override bool IsPolarPlotter { get; } = true;
 
     public ImplicitFunction<Vector2> Function { get; }
 
@@ -732,7 +756,6 @@ public class ImplicitFunctionSignedDistancePlotter
 
 
     public ImplicitFunctionSignedDistancePlotter(ImplicitFunction<Vector2> function)
-        : base(PlottingOrder.Grid_Graph_Axes)
     {
         Function = function;
         _overlay = new(function);
@@ -742,7 +765,7 @@ public class ImplicitFunctionSignedDistancePlotter
 
     protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO : implement
 
-    internal protected override unsafe void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Complex value)> poi)
+    internal protected override unsafe void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Scalar value)> poi)
     {
         poi = new();
 
@@ -821,9 +844,12 @@ public class ImplicitFunctionSignedDistancePlotter
 
 public class CartesianFunctionPlotter<Func>
     : MultiFunctionPlotter<Func, Scalar>
-    , ICartesianPlotter
     where Func : FieldFunction<Scalar>
 {
+    protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
+    protected override bool IsPolarPlotter { get; } = false;
+
+
     public CartesianFunctionPlotter(Func function)
         : base(function)
     {
@@ -886,9 +912,10 @@ public class CartesianFunctionPlotter<Func>
 
 public class PolarFunctionPlotter<Func>
     : MultiFunctionPlotter<Func, Scalar>
-    , IPolarPlotter
     where Func : FieldFunction<Scalar>
 {
+    protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
+    protected override bool IsPolarPlotter { get; } = true;
     public Scalar MinAngle { set; get; } = Scalar.Zero;
     public Scalar MaxAngle { set; get; } = Scalar.Tau * 4;
     public Scalar AngleStep { set; get; } = 1e-5;
@@ -965,8 +992,11 @@ public class PolarFunctionPlotter<Func>
 }
 
 public class ComplexFunctionPlotter
-    : FunctionPlotter<Complex>
+    : Plotter<Complex>
 {
+    protected override PlottingOrder Order { get; } = PlottingOrder.Graph_Grid_Axes;
+    protected override bool IsPolarPlotter { get; } = false;
+
     public ComplexColorStyle Style { set; get; } = ComplexColorStyle.Wrapped;
     public bool PhaseLinesVisible { set; get; } = false;
     public RGBAColor PhaseLineColor { set; get; } = RGBAColor.White;
@@ -976,8 +1006,7 @@ public class ComplexFunctionPlotter
     public FieldFunction<Complex> Function { get; }
 
 
-    public ComplexFunctionPlotter(FieldFunction<Complex> function)
-        : base(PlottingOrder.Graph_Grid_Axes) => Function = function;
+    public ComplexFunctionPlotter(FieldFunction<Complex> function) => Function = function;
 
     protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor)
     {
@@ -1054,22 +1083,24 @@ public class ComplexFunctionPlotter
 }
 
 public class PointCloud2DPlotter
-    : FunctionPlotter<Complex>
+    : Plotter<Vector2>
 {
+    protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Axes_Graph;
+    protected override bool IsPolarPlotter { get; } = false;
+
     public IEnumerable<Vector2> Points { get; }
     public Union<RGBAColor, Func<Vector2, RGBAColor>> PointColor { get; set; } = RGBAColor.Red;
     public Scalar PointSize { get; set; } = 8;
 
 
-    public PointCloud2DPlotter(IEnumerable<Vector2> points)
-        : base(PlottingOrder.Grid_Axes_Graph) => Points = points;
+    public PointCloud2DPlotter(IEnumerable<Vector2> points) => Points = points;
 
     protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor)
     {
         return null; // TODO
     }
 
-    protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Complex value)> poi)
+    protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Vector2 value)> poi)
     {
         poi = new();
 
@@ -1084,15 +1115,18 @@ public class PointCloud2DPlotter
                 using SolidBrush brush = new(color);
 
                 g.FillEllipse(brush, px - PointSize * .5f, py - PointSize * .5f, PointSize, PointSize);
-                poi.Add((new(px, py), new(point.X, point.Y)));
+                poi.Add((new(px, py), point));
             }
         }
     }
 }
 
 public class Heatmap2DPlotter
-    : FunctionPlotter<Complex>
+    : Plotter<Vector2>
 {
+    protected override PlottingOrder Order { get; } = PlottingOrder.Graph_Grid_Axes;
+    protected override bool IsPolarPlotter { get; } = false;
+
     public ColorMap ColorMap { get; set; } = ColorMap.Jet;
     public Scalar MinValue { get; set; } = short.MinValue;
     public Scalar MaxValue { get; set; } = short.MaxValue;
@@ -1103,20 +1137,19 @@ public class Heatmap2DPlotter
     private double[]? _cache = null;
 
 
-    public Heatmap2DPlotter(Function<Vector2, Scalar> function)
-        : base(PlottingOrder.Graph_Grid_Axes) => Function = function;
-
     public Heatmap2DPlotter(Function<Complex, Scalar> function)
         : this(new Function<Vector2, Scalar>(v => function.Evaluate(v)))
     {
     }
+
+    public Heatmap2DPlotter(Function<Vector2, Scalar> function) => Function = function;
 
     protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor)
     {
         return null; // TODO
     }
 
-    internal protected override unsafe void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Complex value)> poi)
+    internal protected override unsafe void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Vector2 value)> poi)
     {
         bool intp = UseInterpolation;
 
@@ -1172,6 +1205,8 @@ public class Heatmap2DPlotter
 
         g.DrawImageUnscaled(plot, 0, 0);
         poi = new();
+
+        // TODO
     }
 }
 
@@ -1183,7 +1218,63 @@ public class Transformation2DPlotter
 
     public Transformation2DPlotter(Function<Vector2> function)
         : base(new ComplexFunction(c => function[c])) => Function = function;
+
+    // TODO : optional : checkerboard rendering?
 }
+
+public class RecurrenceImplicitPlotter
+    : ImplicitFunctionPlotter
+{
+    public RecurrenceImplicitPlotter(Function<Scalar, Scalar> function, Scalar window_size)
+        : this(function, window_size, RGBAColor.Red)
+    {
+    }
+
+    public RecurrenceImplicitPlotter(Function<Scalar, Scalar> function, Scalar window_size, RGBAColor color)
+        : this(window_size, (function, color))
+    {
+    }
+
+    public RecurrenceImplicitPlotter(Scalar window_size, params (Function<Scalar, Scalar> function, RGBAColor color)[] functions)
+        : base(functions.ToArray(t => (new ImplicitFunction<Vector2>(v => t.function[v.Y + window_size] - t.function[v.X]), t.color)))
+    {
+    }
+}
+
+
+
+
+#if true_
+public class RecurrenceExplicitPlotter
+    : FunctionPlotter<Complex>
+{
+    public Scalar WindowSize { get; set; } = 10;
+    public Scalar WindowOffset { get; set; } = 10;
+    public int WindowResolution { get; set; } = 256;
+    public Function<Scalar, Scalar> Function { get; set; }
+
+
+    public RecurrenceExplicitPlotter(Function<Scalar, Scalar> function) => Function = function;
+
+    protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO
+
+    protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Complex value)> poi)
+    {
+        poi = new();
+
+        using Bitmap plot = new(WindowResolution, WindowResolution, PixelFormat.Format32bppArgb);
+
+        plot.LockRGBAPixels((ptr, _, _) =>
+        {
+
+
+
+
+        });
+    }
+}
+#endif
+
 
 public enum AxisType
 {

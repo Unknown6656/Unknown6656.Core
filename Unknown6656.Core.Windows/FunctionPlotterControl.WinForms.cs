@@ -4,16 +4,16 @@ using System.Drawing;
 using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
+using Unknown6656.Imaging.Plotting;
 using Unknown6656.Generics;
 using Unknown6656.Common;
-using Unknown6656.Imaging.Plotting;
 
 namespace Unknown6656.Controls.WinForms;
 
 
 public partial class FunctionPlotterControl<P>
     : UserControl
-    where P : FunctionPlotter
+    where P : Plotter
 {
     private const int WM_MOUSEHWHEEL = 0x020E;
 
@@ -102,43 +102,43 @@ public partial class FunctionPlotterControl<P>
                 }
                 else if (key == KeyMap.SelectNextFunction)
                 {
-                    if (Plotter is IMultiFunctionPlotter multi)
-                        if (multi.SelectedFunctionIndex < multi.Functions.Length - 1)
-                            ++multi.SelectedFunctionIndex;
-                        else if (multi.SelectedFunctionIndex is null)
-                            multi.SelectedFunctionIndex = 0;
+                    if (Plotter is IMultiPlotter multi)
+                        if (multi.SelectedIndex < multi.PlottableItems.Length - 1)
+                            ++multi.SelectedIndex;
+                        else if (multi.SelectedIndex is null)
+                            multi.SelectedIndex = 0;
                 }
                 else if (key == KeyMap.SelectPreviousFunction)
                 {
-                    if (Plotter is IMultiFunctionPlotter multi)
-                        if (multi.SelectedFunctionIndex > 0)
-                            --multi.SelectedFunctionIndex;
-                        else if (multi.SelectedFunctionIndex is null)
-                            multi.SelectedFunctionIndex = 0;
+                    if (Plotter is IMultiPlotter multi)
+                        if (multi.SelectedIndex > 0)
+                            --multi.SelectedIndex;
+                        else if (multi.SelectedIndex is null)
+                            multi.SelectedIndex = 0;
                 }
                 else if (key == KeyMap.SelectNoFunction)
                 {
-                    if (Plotter is IMultiFunctionPlotter multi)
-                        multi.SelectedFunctionIndex = null;
+                    if (Plotter is IMultiPlotter multi)
+                        multi.SelectedIndex = null;
                 }
                 else if (key == KeyMap.ToggleAxisVisibility)
                 {
-                    if (Plotter is FunctionPlotter plotter)
+                    if (Plotter is Plotter plotter)
                         plotter.AxisVisible ^= true;
                 }
                 else if (key == KeyMap.ToggleCursorVisibility)
                 {
-                    if (Plotter is FunctionPlotter plotter)
+                    if (Plotter is Plotter plotter)
                         plotter.CursorVisible ^= true;
                 }
                 else if (key == KeyMap.ToggleGridVisibility)
                 {
-                    if (Plotter is FunctionPlotter plotter)
+                    if (Plotter is Plotter plotter)
                         plotter.GridVisible ^= true;
                 }
                 else if (key == KeyMap.TogglePolarGrid)
                 {
-                    if (Plotter is FunctionPlotter plotter)
+                    if (Plotter is Plotter plotter)
                         plotter.AxisType = plotter.AxisType is AxisType.Cartesian ? AxisType.Polar : AxisType.Cartesian;
                 }
                 else
@@ -223,7 +223,7 @@ public partial class FunctionPlotterControl<P>
         if (ModifierKeys.HasFlag(Keys.Control) || e is MouseEventArgsExt { IsHorizontal: true })
         {
             delta *= ZoomSpeed;
-            //_scale += delta;
+            _scale += delta;
 
 
             // TODO : zoom

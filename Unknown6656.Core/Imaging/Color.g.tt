@@ -1732,6 +1732,9 @@ var members = new string[]
             }
         }
     }",
+    @"public static $type FromNormalizedVector(Vector2 vector) => FromHSV(vector.Angle, 1, vector.Length);",
+    @"public static $type FromHue(Complex complex) => FromHue(complex.Argument);",
+    @"public static $type FromHue(Vector2 vector) => FromHue(vector.Angle);",
     @"public static $type FromHue(double hue) => FromHSV(hue, 1, 1, 1);",
     @"public static $type FromHSV(double H, double S, double V) => FromHSV(H, S, V, 1);",
     @"public static $type FromHSV(double H, double S, double V, double α)

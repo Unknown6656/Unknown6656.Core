@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -14,6 +13,8 @@ using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Mathematics;
 using Unknown6656.Generics;
+
+using Random = Unknown6656.Mathematics.Numerics.Random;
 
 namespace Unknown6656.Imaging.Plotting;
 
@@ -42,7 +43,7 @@ public abstract class Plotter
     /// <para/>
     /// This means that one unit in the function space will have the size of <see cref="DefaultGridSpacing"/> pixels in the pixel space when assuming a <see cref="Scale"/> of one.
     /// </summary>
-    public virtual Scalar DefaultGridSpacing { set; get; } = 30;
+    public virtual Scalar DefaultGridSpacing { set; get; } = 50;
 
     /// <summary>
     /// Determines the plot's background color.
@@ -491,6 +492,12 @@ public abstract class Plotter<POIValue>
     protected Vector2 ToScreenSpace(Vector2 vector, float x, float y, float s) => new(x + vector.X * s, y - vector.Y * s);
 
     protected Vector2 ToFuncSpace(Vector2 vector, float x, float y, float s) => new((vector.X - x) / s, (y - vector.Y) / s);
+
+    protected bool IsInsideScreenSpace(Vector2 vector, int w, int h, float margin = 1) =>
+        vector.X > -margin && vector.X < w + margin && vector.Y > -margin && vector.Y < h + margin;
+
+    protected bool IsInsideFuncSpace(Vector2 vector, int w, int h, float x, float y, float s, float margin = 1) =>
+        IsInsideScreenSpace(ToScreenSpace(vector, x, y, s), w, h, margin);
 
     #endregion
 }
@@ -1010,10 +1017,10 @@ public class ComplexFunctionPlotter
     public int PhaseLineSteps { set; get; } = POLAR_DIVISIONS * 4;
     public Scalar PhaseLineTolerance { set; get; } = 1e-2;
     public bool UseInterpolation { set; get; } = false;
-    public FieldFunction<Complex> Function { get; }
+    public Function<Complex> Function { get; }
 
 
-    public ComplexFunctionPlotter(FieldFunction<Complex> function) => Function = function;
+    public ComplexFunctionPlotter(Function<Complex> function) => Function = function;
 
     protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor)
     {
@@ -1139,7 +1146,7 @@ public class PointCloud2DPlotter
                 α *= 1 - DecayFactor;
             }
 
-            if (px > -PointSize && px < w + PointSize && py > -PointSize && py < h + PointSize)
+            if (IsInsideScreenSpace((px, py), w, h, PointSize))
             {
                 g.FillEllipse(fill, px - PointSize * .5f, py - PointSize * .5f, PointSize, PointSize);
                 poi.Add((new(px, py), point));
@@ -1151,6 +1158,8 @@ public class PointCloud2DPlotter
 public class Trajectory2DPlotter
     : PointCloud2DPlotter
 {
+    protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
+
     public bool PlotPoints { get; set; } = false;
 
 
@@ -1202,8 +1211,7 @@ public class Trajectory2DPlotter
                     α *= 1 - DecayFactor;
                 }
 
-                if ((px > -PointSize && px < w + PointSize && py > -PointSize && py < h + PointSize) ||
-                    (lx > -PointSize && lx < w + PointSize && ly > -PointSize && ly < h + PointSize))
+                if (IsInsideScreenSpace((px, py), w, h, PointSize) || IsInsideScreenSpace((lx, ly), w, h, PointSize))
                     g.DrawLine(pen, px, py, lx, ly);
 
                 last = point;
@@ -1309,20 +1317,203 @@ public class Transformation2DPlotter
     // TODO : optional : checkerboard rendering?
 }
 
-public class RecurrenceImplicitPlotter
+public static class PlotterSamplingPointGenerator
+{
+    public static List<Vector2> GenerateSamplingPoints(Scalar width, Scalar height, int count, VectorFieldSamplingMethod method) =>
+        GenerateSamplingPoints(width, height, count, method, out _);
+
+    public static List<Vector2> GenerateSamplingPoints(Scalar width, Scalar height, int count, VectorFieldSamplingMethod method, out double mindist)
+    {
+        List<Vector2> samples = new(count);
+
+        if (method is VectorFieldSamplingMethod.SquareGrid)
+        {
+            double length = Math.Sqrt(width * height / count);
+
+            for (double i = length * .5; i < width; i += length)
+                for (double j = length * .5; j < height; j += length)
+                    samples.Add(new(i, j));
+
+            mindist = length;
+        }
+        else if (method is VectorFieldSamplingMethod.Randomized)
+        {
+            Random random = Random.BuiltinRandom;
+
+            for (int i = 0; i < samples.Capacity; ++i)
+                samples.Add(new(random.NextScalar() * width, random.NextScalar() * height));
+
+            mindist = Math.Sqrt(width * height * .5 / count);
+        }
+        else if (method is VectorFieldSamplingMethod.HexagonalGrid)
+        {
+            Scalar φ = Math.Cos(45d.Radians());
+            Scalar mh = height / φ;
+            double δx = Math.Sqrt(width * mh / count);
+            double δy = δx * φ;
+            double cx = (int)((width - δx * .5) / δx + 1) * δx;
+
+            for (double i = δx * .5; i < width; i += δx)
+                for (double j = δy * .5; j < mh; j += δy)
+                    samples.Add(new((i + width + j * φ) % cx, j));
+
+            mindist = δx;
+        }
+        else
+            throw new NotImplementedException();
+
+        return samples;
+    }
+}
+
+public class VectorFieldPlotter
+    : Plotter<Vector2>
+{
+    protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
+    protected override bool IsPolarPlotter { get; } = false;
+
+    public Function<Vector2, Vector2> Function { get; }
+    public int SampleCount { get; set; } = 100;
+    public bool PreventVectorOverlap { get; set; } = false;
+    public Scalar PointThickness { get; set; } = 5;
+    public Scalar VectorThickness { get; set; } = 3;
+    public VectorFieldSamplingMethod SamplingMethod { set; get; } = VectorFieldSamplingMethod.SquareGrid;
+
+
+    public VectorFieldPlotter(Function<Vector2, Vector2> function) => Function = function;
+
+    protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO
+
+    protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Vector2 value)> poi)
+    {
+        poi = new();
+
+        List<Vector2> samples = PlotterSamplingPointGenerator.GenerateSamplingPoints(w, h, SampleCount, SamplingMethod, out double mindist);
+        Vector2[] length = new Vector2[samples.Count];
+        Scalar maxlength = Scalar.Zero;
+
+        for (int i = 0; i < samples.Count; ++i)
+        {
+            Vector2 screen_space = samples[i];
+            Vector2 func_space = ToFuncSpace(screen_space, x, y, s);
+            Vector2 res_func = Function.Evaluate(func_space);
+
+            length[i] = ToScreenSpace(res_func, 0, 0, s);
+            maxlength = maxlength.Max(length[i].Length);
+
+            poi.Add((screen_space, res_func));
+        }
+
+        for (int i = 0; i < samples.Count; ++i)
+        {
+            Vector2 screen_space = samples[i];
+            Vector2 len = length[i];
+            RGBAColor color = RGBAColor.FromHSV(new Complex(len).Argument, 1, len.Length / maxlength);
+            using SolidBrush brush = new(color);
+            using Pen pen = new(brush, VectorThickness);
+
+            if (PreventVectorOverlap)
+                len *= mindist * .5 / maxlength;
+
+            g.FillEllipse(brush, screen_space.X - PointThickness * .5, screen_space.Y - PointThickness * .5, PointThickness, PointThickness);
+            g.DrawLine(pen, screen_space, screen_space + len);
+        }
+    }
+}
+
+public class EvolutionFunctionPlotter<Func>
+    : Plotter<Vector2>
+    where Func : EvolutionFunction<Vector2>
+{
+    private (int w, int h, float x, float y, float s) _last;
+    private readonly Func<Func> _constructor;
+    private MultiPointEvolutionFunction<Func, Vector2>? _function;
+
+    protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
+    protected override bool IsPolarPlotter { get; } = false;
+
+    public MultiPointEvolutionFunction<Func, Vector2> EvolutionFunction => _function ?? throw new InvalidOperationException("The evolution function has not yet been created");
+
+    public int TrajectoryCount { get; set; } = 100;
+    public bool DisplayTrajectoryEndPoint { set; get; } = false;
+    public bool AreTrajectoriesDecaying { get; set; } = true;
+    public int TrajectoryLifetime { get; set; } = 510;
+    public Scalar TrajectoryEndSize { get; set; } = 8;
+    public Scalar TrajectoryThickness { get; set; } = 3;
+    public VectorFieldSamplingMethod SamplingMethod { set; get; } = VectorFieldSamplingMethod.SquareGrid;
+
+
+    public EvolutionFunctionPlotter()
+        : this(Activator.CreateInstance<Func>)
+    {
+    }
+
+    public EvolutionFunctionPlotter(Func<Func> constructor) => _constructor = constructor;
+
+    protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO
+
+    protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Vector2 value)> poi)
+    {
+        poi = new();
+
+        List<Vector2> samples = PlotterSamplingPointGenerator.GenerateSamplingPoints(w, h, TrajectoryCount, SamplingMethod);
+
+        Parallel.For(0, samples.Count, i => samples[i] = ToFuncSpace(samples[i], x, y, s));
+
+        if (_function is null)
+            _function = new(_constructor, samples);
+        else if (_last != (w, h, x, y, s))
+        {
+            _function.UpdateInitialValues(samples);
+            _last = (w, h, x, y, s);
+        }
+
+        if (_function.CurrentIteration > 0)
+            foreach (Func evolution in _function.Evolutions)
+            {
+                List<Vector2> trajectory = (List<Vector2>)evolution.PastValues;
+                RGBAColor color = RGBAColor.FromHue(trajectory[0].Angle);
+
+                using SolidBrush brush = new(color);
+                using Pen pen = new(brush, TrajectoryThickness);
+
+                for (int i = 0; i < trajectory.Count - 1; ++i)
+                {
+                    Vector2 curr = ToScreenSpace(trajectory[i], x, y, s);
+                    Vector2 next = ToScreenSpace(trajectory[i + 1], x, y, s);
+
+                    if (IsInsideScreenSpace(curr, w, h, TrajectoryThickness) || IsInsideScreenSpace(next, w, h, TrajectoryThickness))
+                        g.DrawLine(pen, curr, next);
+                }
+
+                if (trajectory.Count > 0)
+                {
+                    Vector2 point = trajectory[^1];
+                    Vector2 screen = ToScreenSpace(point, x, y, s);
+
+                    if (DisplayTrajectoryEndPoint)
+                        g.FillEllipse(brush, screen.X - .5 * TrajectoryEndSize, screen.Y - .5 * TrajectoryEndSize, TrajectoryEndSize, TrajectoryEndSize);
+
+                    poi.Add((screen, point));
+                }
+            }
+    }
+}
+
+public class ImplicitRecurrencePlotter
     : ImplicitFunctionPlotter
 {
-    public RecurrenceImplicitPlotter(Function<Scalar, Scalar> function, Scalar window_size)
+    public ImplicitRecurrencePlotter(Function<Scalar, Scalar> function, Scalar window_size)
         : this(function, window_size, RGBAColor.Red)
     {
     }
 
-    public RecurrenceImplicitPlotter(Function<Scalar, Scalar> function, Scalar window_size, RGBAColor color)
+    public ImplicitRecurrencePlotter(Function<Scalar, Scalar> function, Scalar window_size, RGBAColor color)
         : this(window_size, (function, color))
     {
     }
 
-    public RecurrenceImplicitPlotter(Scalar window_size, params (Function<Scalar, Scalar> function, RGBAColor color)[] functions)
+    public ImplicitRecurrencePlotter(Scalar window_size, params (Function<Scalar, Scalar> function, RGBAColor color)[] functions)
         : base(functions.ToArray(t => (new ImplicitFunction<Vector2>(v => t.function[v.Y + window_size] - t.function[v.X]), t.color)))
     {
     }
@@ -1374,4 +1565,11 @@ public enum ComplexColorStyle
 {
     Wrapped,
     Smooth,
+}
+
+public enum VectorFieldSamplingMethod
+{
+    SquareGrid,
+    HexagonalGrid,
+    Randomized,
 }

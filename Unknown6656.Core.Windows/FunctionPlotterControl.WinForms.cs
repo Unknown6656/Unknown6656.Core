@@ -7,6 +7,7 @@ using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Imaging.Plotting;
 using Unknown6656.Generics;
 using Unknown6656.Common;
+using Unknown6656.Imaging;
 
 namespace Unknown6656.Controls.WinForms;
 
@@ -73,6 +74,7 @@ public partial class FunctionPlotterControl<P>
         KeyDown += FunctionPlotterControl_KeyDown;
         Load += FunctionPlotterControl_Load;
         ClientSizeChanged += (_, _) => InitiateRedraw();
+
         Cursor = Cursors.Cross;
     }
 

@@ -25,12 +25,14 @@ using Unknown6656.Generics;
 using Unknown6656.Runtime;
 using Unknown6656.Common;
 using Unknown6656.IO;
+using Unknown6656;
 
 using Random = Unknown6656.Mathematics.Numerics.Random;
 using winforms = System.Windows.Forms;
 using System.Threading.Tasks;
 using System.Runtime.ExceptionServices;
 using System.Windows.Forms.Design;
+using System.Windows.Xps;
 
 namespace Testing;
 
@@ -61,7 +63,7 @@ static class test
 }
 #nullable restore
 
-public static unsafe class Program
+public static class Program
 {
     [STAThread]
     public static void Main(string[] args)
@@ -356,12 +358,20 @@ public static unsafe class Program
 
     public static void Main_heatmap_plotter_ui()
     {
-        using var plotter = new FunctionPlotterControl<Heatmap2DPlotter>()
+        using var plotter = new FunctionPlotterControl<EvolutionFunctionPlotter<EvolutionFunction2D>>()
         {
             Dock = winforms.DockStyle.Fill,
-            Plotter = new(new Function<Vector2, Scalar>(v => v.AngleTo((-1, 2))))
+            Plotter = new(() => EvolutionFunction2D.DuffingMap(.1, -.2))
             {
                 CursorVisible = true,
+                PointsOfInterestVisible = false,
+                SamplingMethod = VectorFieldSamplingMethod.HexagonalGrid,
+                DefaultGridSpacing = 50,
+                TrajectoryCount = 100,
+                TrajectoryThickness = 1,
+                BackgroundColor = RGBAColor.Black,
+                AxisColor = RGBAColor.DarkGray,
+                GridVisible = false,
             },
         };
         using var form = new winforms.Form()
@@ -370,8 +380,22 @@ public static unsafe class Program
             Height = 600,
             BackColor = Color.Teal,
         };
+        bool open = true;
+        Task.Factory.StartNew(async delegate
+        {
+            await Task.Delay(500);
+
+            while (open)
+            {
+                await Task.Delay(100);
+
+                plotter.Plotter.EvolutionFunction.Iterate();
+                plotter.Invoke(plotter.Invalidate);
+            }
+        });
         form.Controls.Add(plotter);
         form.ShowDialog();
+        open = false;
     }
 
     public static void Main_complex_plotter_ui()

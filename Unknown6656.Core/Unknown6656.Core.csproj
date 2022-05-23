@@ -82,9 +82,9 @@
             <LastGenOutput>PhysicalSpectrums.cs</LastGenOutput>
             <Generator>TextTemplatingFileGenerator</Generator>
         </None>
-        <None Update="Imaging\ColorMemberGenerator.tt">
+        <None Update="Imaging\Color.g.tt">
             <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>ColorMemberGenerator.cs</LastGenOutput>
+            <LastGenOutput>Color.g.cs</LastGenOutput>
         </None>
         <None Update="IO/CompressionFunctions.tt">
             <LastGenOutput>CompressionFunctions.cs</LastGenOutput>
@@ -120,10 +120,10 @@
         </None>
     </ItemGroup>
     <ItemGroup>
-        <Compile Update="Imaging\ColorMemberGenerator.cs">
+        <Compile Update="Imaging\Color.g.cs">
           <DesignTime>True</DesignTime>
           <AutoGen>True</AutoGen>
-          <DependentUpon>ColorMemberGenerator.tt</DependentUpon>
+          <DependentUpon>Color.g.tt</DependentUpon>
         </Compile>
         <Compile Update="Mathematics\Analysis\ImplicitFunction.g.cs">
           <DesignTime>True</DesignTime>

@@ -30,9 +30,6 @@ using Unknown6656;
 using Random = Unknown6656.Mathematics.Numerics.Random;
 using winforms = System.Windows.Forms;
 using System.Threading.Tasks;
-using System.Runtime.ExceptionServices;
-using System.Windows.Forms.Design;
-using System.Windows.Xps;
 
 namespace Testing;
 
@@ -358,17 +355,16 @@ public static class Program
 
     public static void Main_heatmap_plotter_ui()
     {
-        using var plotter = new FunctionPlotterControl<EvolutionFunctionPlotter<EvolutionFunction2D>>()
+        using var plotter = new FunctionPlotterControl<DiscretizedRecurrencePlotter>()
         {
             Dock = winforms.DockStyle.Fill,
-            Plotter = new(() => EvolutionFunction2D.DuffingMap(.1, -.2))
+            Plotter = new(ScalarFunction.Sine)
             {
                 CursorVisible = true,
                 PointsOfInterestVisible = false,
-                SamplingMethod = VectorFieldSamplingMethod.HexagonalGrid,
                 DefaultGridSpacing = 50,
-                TrajectoryCount = 100,
-                TrajectoryThickness = 1,
+                WindowResolution = 500,
+                WindowSize = 20,
                 BackgroundColor = RGBAColor.Black,
                 AxisColor = RGBAColor.DarkGray,
                 GridVisible = false,
@@ -387,7 +383,51 @@ public static class Program
 
             while (open)
             {
-                await Task.Delay(100);
+                await Task.Delay(10);
+
+                plotter.Plotter.WindowOffset = Math.Sin(DateTime.Now.Ticks * .00000005) * 1 - 10;
+                plotter.Invoke(plotter.Invalidate);
+            }
+        });
+        form.Controls.Add(plotter);
+        form.ShowDialog();
+        open = false;
+    }
+
+    public static void Main_evolution_plotter_ui()
+    {
+        using var plotter = new FunctionPlotterControl<EvolutionFunctionPlotter<EvolutionFunction2D>>()
+        {
+            Dock = winforms.DockStyle.Fill,
+            Plotter = new(() => new(v => (v.Rotate(.1 / v.Length) + (v.Angle * .1).Sin() * .1) * .999))
+            {
+                CursorVisible = true,
+                PointsOfInterestVisible = false,
+                SamplingMethod = VectorFieldSamplingMethod.HexagonalGrid,
+                DefaultGridSpacing = 50,
+                TrajectoryLifetime = 60,
+                TrajectoryCount = 200,
+                TrajectoryThickness = 1,
+                DisplayTrajectoryEndPoint = true,
+                BackgroundColor = RGBAColor.Black,
+                AxisColor = RGBAColor.DarkGray,
+                GridVisible = false,
+            },
+        };
+        using var form = new winforms.Form()
+        {
+            Width = 800,
+            Height = 600,
+            BackColor = Color.Teal,
+        };
+        bool open = true;
+        Task.Factory.StartNew(async delegate
+        {
+            await Task.Delay(500);
+
+            while (open)
+            {
+                await Task.Delay(10);
 
                 plotter.Plotter.EvolutionFunction.Iterate();
                 plotter.Invoke(plotter.Invalidate);

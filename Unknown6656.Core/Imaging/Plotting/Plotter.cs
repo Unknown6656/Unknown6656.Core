@@ -1500,8 +1500,8 @@ public class EvolutionFunctionPlotter<Func>
                     Vector2 point = trajectory[^1];
                     Vector2 screen = ToScreenSpace(point, x, y, s);
 
-                    if (DisplayTrajectoryEndPoint)
-                        using (SolidBrush brush = new(RGBAColor.FromHue(point)))
+                    if (DisplayTrajectoryEndPoint && IsInsideScreenSpace(screen, w, h, TrajectoryEndSize))
+                        using (SolidBrush brush = new(color))
                             g.FillEllipse(brush, screen.X - .5 * TrajectoryEndSize, screen.Y - .5 * TrajectoryEndSize, TrajectoryEndSize, TrajectoryEndSize);
 
                     poi.Add((screen, point));
@@ -1529,41 +1529,53 @@ public class ImplicitRecurrencePlotter
     }
 }
 
-
-
-
-
-#if true_
-public class RecurrenceExplicitPlotter
-    : FunctionPlotter<Complex>
+public class DiscretizedRecurrencePlotter
+    : Plotter<(Scalar current, Scalar previous)>
 {
+    protected override PlottingOrder Order { get; } = PlottingOrder.Graph_Grid_Axes;
+    protected override bool IsPolarPlotter { get; } = false;
+
     public Scalar WindowSize { get; set; } = 10;
-    public Scalar WindowOffset { get; set; } = 10;
+    public Scalar WindowOffset { get; set; } = -5;
     public int WindowResolution { get; set; } = 256;
+    public ColorMap ColorMap { get; set; } = ColorMap.Jet;
     public Function<Scalar, Scalar> Function { get; set; }
 
 
-    public RecurrenceExplicitPlotter(Function<Scalar, Scalar> function) => Function = function;
+    public DiscretizedRecurrencePlotter(Function<Scalar, Scalar> function) => Function = function;
 
     protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO
 
-    protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Complex value)> poi)
+    protected internal override unsafe void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, (Scalar current, Scalar previous) value)> poi)
     {
         poi = new();
 
-        using Bitmap plot = new(WindowResolution, WindowResolution, PixelFormat.Format32bppArgb);
+        int sz = WindowResolution;
+        using Bitmap plot = new(sz, sz, PixelFormat.Format32bppArgb);
+        Scalar[] fvalues = new Scalar[sz];
 
-        plot.LockRGBAPixels((ptr, _, _) =>
+        Parallel.For(0, sz, i => fvalues[i] = Function[i * WindowSize / sz - WindowOffset]);
+
+        plot.LockRGBAPixels((ptr, _, _) => Parallel.For(0, sz * sz, i =>
         {
+            int yy = i / sz;
+            int xx = i % sz;
+            Scalar diff = fvalues[sz - 1 - xx] - fvalues[sz - 1 - yy];
 
+            diff = 1 / (100 * diff * diff + 1);
 
+            ptr[yy * sz + xx] = ColorMap[diff];
+            ptr[yy * sz + xx].Af = diff;
+        }));
 
+        Vector2 pos = ToScreenSpace(new(WindowOffset, -WindowOffset), x, y, s);
+        InterpolationMode imode = g.InterpolationMode;
 
-        });
+        g.InterpolationMode = InterpolationMode.NearestNeighbor;
+        g.DrawImage(plot, pos.X, pos.Y, WindowSize * s, WindowSize * s);
+        g.InterpolationMode = imode;
     }
 }
-#endif
-
 
 public enum AxisType
 {

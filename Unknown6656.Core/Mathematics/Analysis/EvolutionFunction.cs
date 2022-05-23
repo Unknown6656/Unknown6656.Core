@@ -189,6 +189,29 @@ public class MultiPointEvolutionFunction<Function, T>
     public void Reset() => Evolutions.Do(f => f.Reset());
 }
 
+public class EvolutionFunction
+    : EvolutionFunction<Scalar>
+{
+    private readonly Func<Scalar, EvolutionFunction, Scalar> _iterator;
+
+
+    public EvolutionFunction(Func<Scalar, Scalar> iterator)
+        : this((v, _) => iterator(v))
+    {
+    }
+
+    public EvolutionFunction(Func<Scalar, EvolutionFunction, Scalar> iterator) => _iterator = iterator;
+
+    public EvolutionFunction(Function<Scalar, Scalar> iterator)
+        : this(iterator.Evaluate)
+    {
+    }
+
+    protected override Scalar ComputeNextValue() => _iterator(CurrentValue, this);
+
+    // TODO
+}
+
 public class EvolutionFunction2D
     : EvolutionFunction<Vector2>
 {
@@ -221,4 +244,52 @@ public class EvolutionFunction2D
     public static EvolutionFunction2D HenanAttractorMap(Scalar a, Scalar b) => new(v => new(1 - a * v.X * v.X + v.Y, b * v.X));
 
     public static EvolutionFunction2D DuffingMap(Scalar a, Scalar b) => new(v => new(v.Y, -b * v.X + a * v.Y - v.Y.Power(3)));
+
+    public static LorenzAttractorMap LorenzAttractorMap(Scalar ρ, Scalar σ, Scalar β) => new(ρ, σ, β);
+
+    // TODO
+}
+
+public class LorenzAttractorMap
+    : EvolutionFunction2D
+{
+    private Vector3 _last;
+
+    public Func<Vector3, Vector2> TransferFunction { get; }
+    public Scalar ρ { get; }
+    public Scalar σ { get; }
+    public Scalar β { get; }
+
+
+    public LorenzAttractorMap(Scalar ρ, Scalar σ, Scalar β)
+        : this(ρ, σ, β, v => v.XY)
+    {
+    }
+
+    internal LorenzAttractorMap(Scalar ρ, Scalar σ, Scalar β, Func<Vector3, Vector2> transfer)
+        : base(LINQ.id)
+    {
+        TransferFunction = transfer;
+        this.ρ = ρ;
+        this.σ = σ;
+        this.β = β;
+    }
+
+    protected override Vector2 ComputeNextValue()
+    {
+        Scalar dx = σ * (_last.Y - _last.X);
+        Scalar dy = _last.X * (ρ - _last.Z) - _last.Y;
+        Scalar dz = _last.X * _last.Y - β * _last.Z;
+
+        _last += (dx, dy, dz);
+
+        return TransferFunction(_last);
+    }
+
+    public override void Reset()
+    {
+        base.Reset();
+
+        _last = new(CurrentValue);
+    }
 }

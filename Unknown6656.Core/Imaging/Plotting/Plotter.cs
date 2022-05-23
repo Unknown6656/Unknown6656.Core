@@ -1434,10 +1434,10 @@ public class EvolutionFunctionPlotter<Func>
 
     public MultiPointEvolutionFunction<Func, Vector2> EvolutionFunction => _function ?? throw new InvalidOperationException("The evolution function has not yet been created");
 
-    public int TrajectoryCount { get; set; } = 100;
+    public int TrajectoryCount { get; set; } = 200;
     public bool DisplayTrajectoryEndPoint { set; get; } = false;
     public bool AreTrajectoriesDecaying { get; set; } = true;
-    public int TrajectoryLifetime { get; set; } = 510;
+    public int TrajectoryLifetime { get; set; } = 50;
     public Scalar TrajectoryEndSize { get; set; } = 8;
     public Scalar TrajectoryThickness { get; set; } = 3;
     public VectorFieldSamplingMethod SamplingMethod { set; get; } = VectorFieldSamplingMethod.SquareGrid;
@@ -1472,15 +1472,24 @@ public class EvolutionFunctionPlotter<Func>
             foreach (Func evolution in _function.Evolutions)
             {
                 List<Vector2> trajectory = (List<Vector2>)evolution.PastValues;
-                RGBAColor color = RGBAColor.FromHue(trajectory[0].Angle);
+                RGBAColor color = RGBAColor.FromHue(trajectory[0]);
+                using Pen pen = new(color, TrajectoryThickness);
 
-                using SolidBrush brush = new(color);
-                using Pen pen = new(brush, TrajectoryThickness);
-
-                for (int i = 0; i < trajectory.Count - 1; ++i)
+                for (int i = trajectory.Count - 2; i >= 0; --i)
                 {
                     Vector2 curr = ToScreenSpace(trajectory[i], x, y, s);
                     Vector2 next = ToScreenSpace(trajectory[i + 1], x, y, s);
+
+                    if (AreTrajectoriesDecaying)
+                    {
+                        double offs = Math.Max(trajectory.Count - 1 - TrajectoryLifetime, 0);
+                        double α = (i - offs) / TrajectoryLifetime;
+
+                        pen.Color = new RGBAColor(color, α);
+
+                        if (α < .003)
+                            break;
+                    }
 
                     if (IsInsideScreenSpace(curr, w, h, TrajectoryThickness) || IsInsideScreenSpace(next, w, h, TrajectoryThickness))
                         g.DrawLine(pen, curr, next);
@@ -1492,7 +1501,8 @@ public class EvolutionFunctionPlotter<Func>
                     Vector2 screen = ToScreenSpace(point, x, y, s);
 
                     if (DisplayTrajectoryEndPoint)
-                        g.FillEllipse(brush, screen.X - .5 * TrajectoryEndSize, screen.Y - .5 * TrajectoryEndSize, TrajectoryEndSize, TrajectoryEndSize);
+                        using (SolidBrush brush = new(RGBAColor.FromHue(point)))
+                            g.FillEllipse(brush, screen.X - .5 * TrajectoryEndSize, screen.Y - .5 * TrajectoryEndSize, TrajectoryEndSize, TrajectoryEndSize);
 
                     poi.Add((screen, point));
                 }

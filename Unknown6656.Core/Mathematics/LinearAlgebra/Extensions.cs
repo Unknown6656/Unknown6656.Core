@@ -595,6 +595,15 @@ public partial struct Vector2
     public readonly Size ToSize() => new((int)_0, (int)_1);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly Vector2 ToPolar() => (Angle, Length);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector2 FromPolar(Vector2 polar) => FromPolar(polar.X, polar.Y);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Vector2 FromPolar(Scalar θ, Scalar r) => new(θ.Cos() * r, θ.Sin() * r);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 FromComplex(Complex c) => new(c.Real, c.Imaginary);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

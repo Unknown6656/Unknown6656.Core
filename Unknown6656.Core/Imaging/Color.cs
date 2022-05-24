@@ -634,17 +634,56 @@ public unsafe partial struct RGBAColor
             BlendMode.Overlay => ba < .5 ? 2 * b.ComponentwiseMultiply(t) : 1 - (1 - b).ComponentwiseMultiply(1 - t).Multiply(2),
             BlendMode.SoftLight => ta < .5 ? b.ComponentwiseMultiply(t).Multiply(2).Add(b.ComponentwiseMultiply(b).Multiply(1 - 2 * t)) : b.ComponentwiseMultiply(1 - t).Multiply(2).Add(b.ComponentwiseSqrt().Multiply(t.Multiply(2) - 1)),
             BlendMode.HardLight => ta < .5 ? b.ComponentwiseMultiply(t).Multiply(2) : 1 - (1 - b).ComponentwiseMultiply(1 - t).Multiply(2),
+            BlendMode.HardMix => LINQ.Do(delegate
+            {
+                static double blend(double a, double b) => a < 1 - b ? 0 : 1;
+
+                return new RGBAColor(
+                    blend(top.Rf, bottom.Rf),
+                    blend(top.Gf, bottom.Gf),
+                    blend(top.Bf, bottom.Bf)
+                );
+            }),
+            BlendMode.PinLight => LINQ.Do(delegate
+            {
+                static double blend(double a, double b) => b < 2 * a - 1 ? 2 * a - 1 : b < 2 * a ? b : 2 * a;
+
+                return new RGBAColor(
+                    blend(top.Rf, bottom.Rf),
+                    blend(top.Gf, bottom.Gf),
+                    blend(top.Bf, bottom.Bf)
+                );
+            }),
+            BlendMode.LinearLight => new RGBAColor(
+                top.Rf + 2 * bottom.Rf - 1,
+                top.Gf + 2 * bottom.Gf - 1,
+                top.Bf + 2 * bottom.Bf - 1
+            ),
+            BlendMode.VividLight => LINQ.Do(delegate
+            {
+                static double blend(double a, double b) => a <= .5 ? 1 - (1 - b) / (2 * a) : b / (2 * (1 - a));
+
+                return new RGBAColor(
+                    blend(top.Rf, bottom.Rf),
+                    blend(top.Gf, bottom.Gf),
+                    blend(top.Bf, bottom.Bf)
+                );
+            }),
             BlendMode.Add => b + t,
             BlendMode.Subtract => b - t,
             BlendMode.Difference => (b - t).ComponentwiseAbsolute(),
             BlendMode.Exclusion => b + t - 2 * b.ComponentwiseMultiply(t),
             BlendMode.Average => (b + t).Divide(2),
-            BlendMode.BinaryOR => (Vector3)new RGBAColor(bottom.ARGB | top.ARGB),
-            BlendMode.BinaryAND => (Vector3)new RGBAColor(bottom.ARGB & top.ARGB),
-            BlendMode.BinaryXOR => (Vector3)new RGBAColor(bottom.ARGB ^ top.ARGB),
-            BlendMode.BinaryNOR => (Vector3)new RGBAColor(~(bottom.ARGB | top.ARGB)),
-            BlendMode.BinaryNAND => (Vector3)new RGBAColor(~(bottom.ARGB & top.ARGB)),
-            BlendMode.BinaryNXOR => (Vector3)new RGBAColor(~(bottom.ARGB ^ top.ARGB)),
+            BlendMode.BinaryOR => new RGBAColor(bottom.ARGBu | top.ARGBu),
+            BlendMode.BinaryAND => new RGBAColor(bottom.ARGBu & top.ARGBu),
+            BlendMode.BinaryXOR => new RGBAColor(bottom.ARGBu ^ top.ARGBu),
+            BlendMode.BinaryNOR => new RGBAColor(~(bottom.ARGBu | top.ARGBu)),
+            BlendMode.BinaryNAND => new RGBAColor(~(bottom.ARGBu & top.ARGBu)),
+            BlendMode.BinaryNXOR => new RGBAColor(~(bottom.ARGBu ^ top.ARGBu)),
+            BlendMode.BinarySHL => new RGBAColor(bottom.ARGBu << top.ARGB),
+            BlendMode.BinarySHR => new RGBAColor(bottom.ARGBu >> top.ARGB),
+            BlendMode.BinaryROL => new RGBAColor(bottom.ARGBu.ROL(top.ARGB)),
+            BlendMode.BinaryROR => new RGBAColor(bottom.ARGBu.ROR(top.ARGB)),
             BlendMode.HalfwayLerp => LinearInterpolate(bottom, top, .5),
             _ => throw new ArgumentOutOfRangeException(nameof(mode), $"The blend mode '{mode}' is unknown or unsupported.")
         };
@@ -821,15 +860,15 @@ public enum BlendMode
     /// Binary NOR blend mode.
     /// </summary>
     BinaryNOR,
+    BinarySHL,
+    BinarySHR,
+    BinaryROL,
+    BinaryROR,
     HalfwayLerp,
-
-
-    // TODO : VividLight,
-    // TODO : LinearLight,
-    // TODO : PinLight,
-    // TODO : HardMix,
-    // TODO : Exclusion
-    // https://photoblogstop.com/photoshop/photoshop-blend-modes-explained
+    HardMix,
+    PinLight,
+    VividLight,
+    LinearLight,
 }
 
 

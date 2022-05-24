@@ -347,11 +347,21 @@ public sealed class Grayscale
     /// Creates a new instance
     /// </summary>
     public Grayscale()
-        : base(new Matrix3(
-            1, 1, 1,
-            1, 1, 1,
-            1, 1, 1
-        ) / 3)
+        : this(Scalar.One)
+    {
+    }
+
+    public Grayscale(Scalar amount)
+        : base(new Func<Matrix3>(delegate
+        {
+            amount = amount.Clamp();
+
+            return new Matrix3(
+                1, amount, amount,
+                amount, 1, amount,
+                amount, amount, 1
+            ) / (1 + 2 * amount);
+        })())
     {
     }
 }

@@ -127,7 +127,7 @@ public abstract class Plotter
     }
 
 
-    protected enum PlottingOrder
+    internal protected enum PlottingOrder
     {
         Graph_Grid_Axes,
         Grid_Graph_Axes,
@@ -157,7 +157,7 @@ public abstract class Plotter<POIValue>
     /// </summary>
     public bool PointsOfInterestVisible { set; get; } = false;
 
-    protected abstract PlottingOrder Order { get; }
+    internal protected abstract PlottingOrder Order { get; }
 
     protected abstract bool IsPolarPlotter { get; }
 
@@ -485,7 +485,7 @@ public abstract class Plotter<POIValue>
                 g.DrawString(str, font, new SolidBrush(col), 0, 0);
     }
 
-    protected abstract (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor);
+    protected internal abstract (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor);
 
     protected internal abstract void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, POIValue value)> poi);
 
@@ -500,6 +500,40 @@ public abstract class Plotter<POIValue>
         IsInsideScreenSpace(ToScreenSpace(vector, x, y, s), w, h, margin);
 
     #endregion
+}
+
+public class CombinedPlotter<POIValue>
+    : Plotter<POIValue>
+    where POIValue : IComparable<POIValue>
+{
+    internal protected override PlottingOrder Order { get; }
+
+    protected override bool IsPolarPlotter => false;
+
+    public Plotter<POIValue>[] Plotters { get; }
+
+
+    public CombinedPlotter(params Plotter<POIValue>[] plotters)
+    {
+        Plotters = plotters;
+        Order = (PlottingOrder)plotters.Min(p => (int)p.Order);
+    }
+
+    internal protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => (from p in Plotters
+                                                                                                                                               let inf = p.GetInformation(cursor)
+                                                                                                                                               where inf.HasValue
+                                                                                                                                               select inf.Value).FirstOrDefault();
+
+    protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, POIValue value)> poi)
+    {
+        poi = new();
+
+        foreach (Plotter<POIValue> plotter in Plotters)
+        {
+            plotter.PlotGraph(g, w, h, x, y, s, out List<(Vector2, POIValue)> tmp_poi);
+            poi.AddRange(tmp_poi);
+        }
+    }
 }
 
 public interface IMultiPlotter
@@ -592,11 +626,11 @@ public abstract class MultiPlotter<PlotterItem, POIValue>
     protected internal abstract void PlotGraph(Graphics g, int w, int h, float x, float y, float s, PlotterItem item, Pen pen, Brush fill, out List<(Vector2 pos, POIValue value)> poi);
 }
 
-public abstract class MultiFunctionPlotter<Func, Value>
-    : MultiPlotter<Func, Value>
+public abstract class MultiFunctionPlotter<Func, POIValue>
+    : MultiPlotter<Func, POIValue>
     , IMultiPlotter
-    where Func : FieldFunction<Value>
-    where Value : unmanaged, IField<Value>, IComparable<Value>
+    where Func : FieldFunction<POIValue>
+    where POIValue : unmanaged, IField<POIValue>, IComparable<POIValue>
 {
     private int? _selidx = null;
 
@@ -630,7 +664,7 @@ public abstract class MultiFunctionPlotter<Func, Value>
 public class ImplicitFunctionPlotter
     : MultiPlotter<ImplicitFunction<Vector2>, Vector2>
 {
-    protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
+    internal protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
     protected override bool IsPolarPlotter { get; } = true;
     public Scalar FunctionEvaluationTolerance { set; get; } = 1e-6;
     public int MarchingSquaresPixelStride { set; get; } = 4;
@@ -656,7 +690,7 @@ public class ImplicitFunctionPlotter
     {
     }
 
-    protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO : implement
+    internal protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO : implement
 
     protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, ImplicitFunction<Vector2> func, Pen pen, Brush fill, out List<(Vector2 pos, Vector2 value)> poi)
     {
@@ -745,7 +779,7 @@ public class ImplicitFunctionSignedDistancePlotter
     private readonly ImplicitFunctionPlotter _overlay;
 
 
-    protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
+    internal protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
     protected override bool IsPolarPlotter { get; } = true;
 
     public ImplicitFunction<Vector2> Function { get; }
@@ -787,7 +821,7 @@ public class ImplicitFunctionSignedDistancePlotter
         OverlayThickness = 3;
     }
 
-    protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO : implement
+    internal protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO : implement
 
     protected internal override unsafe void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Vector2 value)> poi)
     {
@@ -870,7 +904,7 @@ public class CartesianFunctionPlotter<Func>
     : MultiFunctionPlotter<Func, Scalar>
     where Func : FieldFunction<Scalar>
 {
-    protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
+    internal protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
     protected override bool IsPolarPlotter { get; } = false;
 
 
@@ -889,7 +923,7 @@ public class CartesianFunctionPlotter<Func>
     {
     }
 
-    protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor)
+    internal protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor)
     {
         if (SelectedIndex is int i)
         {
@@ -933,7 +967,7 @@ public class PolarFunctionPlotter<Func>
     : MultiFunctionPlotter<Func, Scalar>
     where Func : FieldFunction<Scalar>
 {
-    protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
+   internal protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
     protected override bool IsPolarPlotter { get; } = true;
     public Scalar MinAngle { set; get; } = Scalar.Zero;
     public Scalar MaxAngle { set; get; } = Scalar.Tau * 4;
@@ -957,7 +991,7 @@ public class PolarFunctionPlotter<Func>
         AngleStep = (Scale * DefaultGridSpacing).Inverse;
     }
 
-    protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor)
+    internal protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor)
     {
         if (SelectedIndex is int i)
         {
@@ -1008,7 +1042,7 @@ public class PolarFunctionPlotter<Func>
 public class ComplexFunctionPlotter
     : Plotter<Complex>
 {
-    protected override PlottingOrder Order { get; } = PlottingOrder.Graph_Grid_Axes;
+    internal protected override PlottingOrder Order { get; } = PlottingOrder.Graph_Grid_Axes;
     protected override bool IsPolarPlotter { get; } = false;
 
     public ComplexColorStyle Style { set; get; } = ComplexColorStyle.Wrapped;
@@ -1022,7 +1056,7 @@ public class ComplexFunctionPlotter
 
     public ComplexFunctionPlotter(Function<Complex> function) => Function = function;
 
-    protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor)
+    internal protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor)
     {
         Complex c = Function[cursor];
         Scalar dir = 0;
@@ -1099,7 +1133,7 @@ public class ComplexFunctionPlotter
 public class PointCloud2DPlotter
     : MultiPlotter<IEnumerable<Vector2>, Vector2>
 {
-    protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Axes_Graph;
+    internal protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Axes_Graph;
     protected override bool IsPolarPlotter { get; } = false;
 
     public Scalar PointSize { get; set; } = 8;
@@ -1126,7 +1160,7 @@ public class PointCloud2DPlotter
     {
     }
 
-    protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO
+    internal protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO
 
     protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, IEnumerable<Vector2> points, Pen pen, Brush fill, out List<(Vector2 pos, Vector2 value)> poi)
     {
@@ -1158,7 +1192,7 @@ public class PointCloud2DPlotter
 public class Trajectory2DPlotter
     : PointCloud2DPlotter
 {
-    protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
+    internal protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
 
     public bool PlotPoints { get; set; } = false;
 
@@ -1183,7 +1217,7 @@ public class Trajectory2DPlotter
     {
     }
 
-    protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO
+    internal protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO
 
     protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, IEnumerable<Vector2> trajectory, Pen pen, Brush fill, out List<(Vector2 pos, Vector2 value)> poi)
     {
@@ -1222,7 +1256,7 @@ public class Trajectory2DPlotter
 public class Heatmap2DPlotter
     : Plotter<Vector2>
 {
-    protected override PlottingOrder Order { get; } = PlottingOrder.Graph_Grid_Axes;
+    internal protected override PlottingOrder Order { get; } = PlottingOrder.Graph_Grid_Axes;
     protected override bool IsPolarPlotter { get; } = false;
 
     public ColorMap ColorMap { get; set; } = ColorMap.Jet;
@@ -1242,7 +1276,7 @@ public class Heatmap2DPlotter
 
     public Heatmap2DPlotter(Function<Vector2, Scalar> function) => Function = function;
 
-    protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO
+    internal protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO
 
     protected internal override unsafe void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Vector2 value)> poi)
     {
@@ -1369,7 +1403,7 @@ public static class PlotterSamplingPointGenerator
 public class VectorFieldPlotter
     : Plotter<Vector2>
 {
-    protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
+    internal protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
     protected override bool IsPolarPlotter { get; } = false;
 
     public Function<Vector2, Vector2> Function { get; }
@@ -1382,7 +1416,7 @@ public class VectorFieldPlotter
 
     public VectorFieldPlotter(Function<Vector2, Vector2> function) => Function = function;
 
-    protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO
+    internal protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO
 
     protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Vector2 value)> poi)
     {
@@ -1429,7 +1463,7 @@ public class EvolutionFunctionPlotter<Func>
     private readonly Func<Func> _constructor;
     private MultiPointEvolutionFunction<Func, Vector2>? _function;
 
-    protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
+    internal protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
     protected override bool IsPolarPlotter { get; } = false;
 
     public MultiPointEvolutionFunction<Func, Vector2> EvolutionFunction => _function ?? throw new InvalidOperationException("The evolution function has not yet been created");
@@ -1450,7 +1484,7 @@ public class EvolutionFunctionPlotter<Func>
 
     public EvolutionFunctionPlotter(Func<Func> constructor) => _constructor = constructor;
 
-    protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO
+    internal protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO
 
     protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Vector2 value)> poi)
     {
@@ -1532,7 +1566,7 @@ public class ImplicitRecurrencePlotter
 public class DiscretizedRecurrencePlotter
     : Plotter<(Scalar current, Scalar previous)>
 {
-    protected override PlottingOrder Order { get; } = PlottingOrder.Graph_Grid_Axes;
+    internal protected override PlottingOrder Order { get; } = PlottingOrder.Graph_Grid_Axes;
     protected override bool IsPolarPlotter { get; } = false;
 
     public Scalar WindowSize { get; set; } = 10;
@@ -1544,7 +1578,7 @@ public class DiscretizedRecurrencePlotter
 
     public DiscretizedRecurrencePlotter(Function<Scalar, Scalar> function) => Function = function;
 
-    protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO
+    internal protected override (Vector2 Position, RGBAColor Color, string? Value, Scalar DerivativeAngle)? GetInformation(Vector2 cursor) => null; // TODO
 
     protected internal override unsafe void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, (Scalar current, Scalar previous) value)> poi)
     {

@@ -3,11 +3,10 @@
 
 using System.Drawing;
 using System.Linq;
-using System.Linq.Expressions;
 
 using Unknown6656.Mathematics.LinearAlgebra;
 
-namespace Unknown6656.Imaging.Effects;
+namespace Unknown6656.Imaging.Effects.Instagram;
 
 
 /// <summary>
@@ -52,9 +51,9 @@ public abstract class InstagramFilter
     public static SlumberFilter Slumber { get; } = new();
     public static StinsonFilter Stinson { get; } = new();
     public static ToasterFilter Toaster { get; } = new();
-    //public static ValenciaFilter Valencia { get; } = new();
-    //public static WaldenFilter Walden { get; } = new();
-    //public static WillowFilter Willow { get; } = new();
+    public static ValenciaFilter Valencia { get; } = new();
+    public static WaldenFilter Walden { get; } = new();
+    public static WillowFilter Willow { get; } = new();
     public static XPro2Filter XPro2 { get; } = new();
     public static LegacyNashvilleFilter LegacyNashville { get; } = new();
 
@@ -614,6 +613,24 @@ public sealed class JunoFilter
     };
 }
 
+public sealed class ValenciaFilter
+    : InstagramFilter
+{
+    protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
+    {
+        FromDelegate((bmp, region) =>
+        {
+            using Bitmap cs = bmp.ApplyEffect(new ConstantColor(0xff3A0339u));
+            using Bitmap cm = BitmapExtensions.Blend(bmp, cs, BlendMode.Exclusion, region);
+
+            return BitmapExtensions.Blend(bmp, cm, BlendMode.Normal, region, .5);
+        }),
+        new Contrast(1.08),
+        new Brightness(1.08),
+        new Sepia(.08),
+    };
+}
+
 public sealed class VesperFilter
     : InstagramFilter
 {
@@ -624,6 +641,43 @@ public sealed class VesperFilter
         new Contrast(1.15),
         new Brightness(1.2),
         new Saturation(1.3),
+    };
+}
+
+public sealed class WaldenFilter
+    : InstagramFilter
+{
+    protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
+    {
+        FromDelegate((bmp, region) =>
+        {
+            using Bitmap cs = bmp.ApplyEffect(new ConstantColor(0xff0044CCu));
+            using Bitmap cm = BitmapExtensions.Blend(bmp, cs, BlendMode.Screen, region);
+
+            return BitmapExtensions.Blend(bmp, cm, BlendMode.Normal, region, .3);
+        }),
+        new Brightness(1.1),
+        new Hue(-10),
+        new Sepia(.3),
+        new Saturation(1.6),
+    };
+}
+
+public sealed class WillowFilter
+    : InstagramFilter
+{
+    protected override PartialBitmapEffect[] Effects { get; } = new PartialBitmapEffect[]
+    {
+        FromDelegate((bmp, region) =>
+        {
+            using Bitmap cs1 = bmp.ApplyEffect(new RadialGradient(null, null, 0xFFD4A9AFu, 0xFFD4A9AFu, 0xFF0B427Du));
+
+            return bmp.Blend(cs1, BlendMode.Overlay);
+        }),
+        new ConstantColor(0xFFD8CDCBu) { Blending = BlendMode.Color },
+        new Grayscale(.5),
+        new Contrast(.95),
+        new Brightness(.9),
     };
 }
 

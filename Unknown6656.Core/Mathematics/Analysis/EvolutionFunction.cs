@@ -31,7 +31,6 @@ public abstract class EvolutionFunction<T>
         get => _initial_val;
         set => UpdateInitialValue(value);
     }
-
     public IEnumerable<T?> PastValues => _values;
     public int CurrentIteration => _values.Count - 1;
     public T? CurrentValue => _values[CurrentIteration];
@@ -233,7 +232,9 @@ public class EvolutionFunction2D
     protected override Vector2 ComputeNextValue() => _iterator(CurrentValue, this);
 
 
-    public static EvolutionFunction2D GingerBreadMap => new(v => new(1 - v.Y + v.X.Abs(), v.X));
+    public static EvolutionFunction2D GingerBreadMap() => new(v => new(1 - v.Y + v.X.Abs(), v.X));
+
+    public static EvolutionFunction2D ArnoldsCatMap() => new(v => new((2 * v.X + v.Y).DecimalPlaces, (v.X + v.Y).DecimalPlaces));
 
     public static EvolutionFunction2D ExponentialMap(Vector2 c) => new(v => v.ToComplex().Exp().Add(c).ToVector());
 
@@ -241,11 +242,33 @@ public class EvolutionFunction2D
 
     public static EvolutionFunction2D GaussMap(Scalar a, Scalar b) => new(v => v.ToComplex().Power(2).Multiply(-a).Exp().Add(b));
 
-    public static EvolutionFunction2D HenanAttractorMap(Scalar a, Scalar b) => new(v => new(1 - a * v.X * v.X + v.Y, b * v.X));
+    public static EvolutionFunction2D HenonMap(Scalar a, Scalar b) => new(v => new(1 - a * v.X * v.X + v.Y, b * v.X));
 
-    public static EvolutionFunction2D DuffingMap(Scalar a, Scalar b) => new(v => new(v.Y, -b * v.X + a * v.Y - v.Y.Power(3)));
+    public static EvolutionFunction2D DuffingMap(Scalar a, Scalar b) => new(v => new(v.X + v.Y, v.Y * (1 + a) - b * v.X - v.X.Power(3)));
+
+    public static EvolutionFunction2D BogdanovMap(Scalar ε, Scalar k, Scalar µ) => new(v =>
+    {
+        Scalar y = (1 + ε) * v.Y + k * v.X * (v.X - 1) + µ * v.X * v.Y;
+
+        return new(v.X + y, y);
+    });
+
+    public static EvolutionFunction2D StandardMap(Scalar k) => new(v =>
+    {
+        Scalar θ = v.Angle;
+        Scalar r = v.Length;
+
+        r = (r + k * θ.Sin()).Modulus(Scalar.τ);
+        θ = (θ + r).Modulus(Scalar.τ);
+
+        return Vector2.FromPolar(θ, r);
+    });
+
+    public static EvolutionFunction2D JuliaMap() => new(v => v.ToComplex().Power(3).Add(Complex.One).ToVector());
 
     public static LorenzAttractorMap LorenzAttractorMap(Scalar ρ, Scalar σ, Scalar β) => new(ρ, σ, β);
+
+
 
     // TODO
 }

@@ -2019,6 +2019,17 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
             }
 #>
     );
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static <#=typename#> KacMurdockSzegöMatrix(Scalar a) => new(
+<#
+            for (int i = 0; i < dim; ++i)
+            {
+#>
+        <#=string.Join(", ", r(0, dim).Select(j => i == j ? "1" : $"a.Power({Math.Abs(i - j)}) * .5")) + (i < dim - 1 ? "," : "")#>
+<#
+            }
+#>    );
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> FromRowPermutation(int[] row_indices) => FromColumnPermutation(row_indices).Transposed;

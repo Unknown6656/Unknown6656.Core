@@ -286,138 +286,20 @@ public unsafe class ErrorDiffusionDithering
 }
 
 [SupportedOSPlatform(OS.WIN)]
-public unsafe class OrderedDithering
+public unsafe abstract class OrderedDithering
     : Dithering
 {
     private readonly double[] _dithering_matrix;
     private readonly int _dithering_width, _dithering_height;
-    private readonly int _thresholding_steps;
 
     public OrderedDitheringAlgorithm Algorithm { get; } = OrderedDitheringAlgorithm.__UNDEFINED__;
 
 
-    public OrderedDithering(OrderedDitheringAlgorithm algorithm)
-        : this(algorithm switch
-        {
-            OrderedDitheringAlgorithm.Bayer => new int[8, 8]
-            {
-                { 0, 32,  8, 40,  2, 34, 10, 42},
-                { 48, 16, 56, 24, 50, 18, 58, 26},
-                { 12, 44,  4, 36, 14, 46,  6, 38},
-                { 60, 28, 52, 20, 62, 30, 54, 22},
-                { 3, 35, 11, 43,  1, 33,  9, 41},
-                { 51, 19, 59, 27, 49, 17, 57, 25},
-                { 15, 47,  7, 39, 13, 45,  5, 37},
-                { 63, 31, 55, 23, 61, 29, 53, 21}
-            },
-            OrderedDitheringAlgorithm.Bayer2 => new int[8, 8]
-            {
-                { 52, 14, 58, 4 , 53, 9 , 59, 1 },
-                { 30, 36, 20, 42, 25, 37, 17, 43 },
-                { 57, 8 , 48, 16, 61, 5 , 49, 10 },
-                { 24, 41, 32, 32, 21, 45, 26, 33 },
-                { 54, 11, 62, 2 , 51, 15, 56, 3 },
-                { 27, 38, 18, 46, 31, 35, 19, 40 },
-                { 60, 6 , 50, 12, 55, 7 , 47, 13 },
-                { 22, 44, 28, 34, 23, 39, 29, 31 },
-            },
-            OrderedDitheringAlgorithm.Bayer3 => new int[4, 4]
-            {
-                { 5, 9, 6, 10 },
-                { 13, 1, 14, 2 },
-                { 7, 11, 4, 8 },
-                { 15, 3, 12, 0 },
-            },
-            OrderedDitheringAlgorithm.Halftone => new int[8, 8]
-            {
-                { 62, 58, 50, 36, 32, 46, 55, 63},
-                { 54, 40, 27, 23, 19, 28, 41, 59},
-                { 45, 31, 14, 10, 6, 15, 24, 51},
-                { 35, 18, 5, 1, 2, 11, 20, 37},
-                { 39, 22, 9, 0, 3, 7, 16, 33},
-                { 49, 26, 13, 4, 8, 12, 29, 47},
-                { 57, 43, 30, 17, 21, 25, 42, 56},
-                { 61, 53, 48, 34, 38, 52, 60, 64},
-            },
-            OrderedDitheringAlgorithm.Ordered_2x8 => new int[2, 8]
-            {
-                { 14, 12, 10, 8, 9, 11, 13, 15 },
-                { 6, 4, 2, 0, 1, 3, 5, 7 },
-            },
-            OrderedDitheringAlgorithm.Ordered_8x2 => new int[8, 2]
-            {
-                { 6, 14 },
-                { 4, 12 },
-                { 2, 10 },
-                { 0, 8 },
-                { 1, 9 },
-                { 3, 11 },
-                { 5, 13 },
-                { 7, 15 },
-            },
-            OrderedDitheringAlgorithm.DispersedDots_8 => new int[8, 8]
-            {
-                { 65, 59, 51, 42, 43, 52, 60, 66 },
-                { 58, 36, 29, 21, 22, 30, 37, 61 },
-                { 50, 28, 15, 9 , 10, 16, 31, 53 },
-                { 41, 20, 8 , 2 , 3 , 11, 23, 45 },
-                { 40, 19, 7 , 1 , 4 , 12, 24, 46 },
-                { 49, 27, 14, 6 , 5 , 13, 32, 54 },
-                { 57, 35, 26, 18, 17, 25, 34, 62 },
-                { 64, 56, 48, 39, 38, 47, 55, 63 },
-            },
-            OrderedDitheringAlgorithm.DispersedDots_6 => new int[6, 6]
-            {
-                { 32, 24, 16, 20, 31, 35 },
-                { 28, 12, 4 , 8 , 15, 27 },
-                { 21, 9 , 0 , 2 , 7 , 19 },
-                { 17, 5 , 3 , 1 , 11, 23 },
-                { 25, 13, 10, 6 , 14, 30 },
-                { 33, 29, 22, 18, 26, 34 },
-            },
-            OrderedDitheringAlgorithm.DispersedDots_4 => new int[4, 4]
-            {
-                { 15, 8, 5 , 12 },
-                { 4 , 0, 3 , 9  },
-                { 11, 2, 1 , 6  },
-                { 14, 7, 10, 13 },
-            },
-            OrderedDitheringAlgorithm.DispersedDots_3 => new int[3, 3]
-            {
-                { 6, 2, 7 },
-                { 1, 0, 3 },
-                { 5, 4, 8 },
-            },
-            OrderedDitheringAlgorithm.DispersedDots_2 => new int[2, 2]
-            {
-                { 1, 2 },
-                { 0, 3 },
-            },
-            OrderedDitheringAlgorithm.WavyHatchet_16 => new int[16, 16]
-            {
-                { 7 , 2 , 11, 11, 11, 2 , 11, 9 , 11, 11, 2 , 11, 11, 11, 11, 6 },
-                { 15, 2 , 20, 27, 2 , 27, 24, 21, 1 , 1 , 1 , 2 , 18, 27, 3 , 21 },
-                { 15, 26, 8 , 6 , 2 , 19, 1 , 1 , 5 , 10, 23, 1 , 1 , 3 , 25, 26 },
-                { 15, 21, 1 , 1 , 2 , 27, 20, 5 , 16, 21, 10, 27, 2 , 1 , 1 , 27 },
-                { 1 , 1 , 13, 13, 8 , 2 , 7 , 13, 13, 13, 13, 6 , 2 , 13, 13, 1 },
-                { 2 , 27, 22, 21, 17, 2 , 20, 27, 16, 27, 6 , 21, 2 , 27, 20, 27 },
-                { 15, 19, 22, 1 , 1 , 1 , 2 , 19, 16, 3 , 23, 2 , 18, 9 , 25, 2 },
-                { 15, 1 , 1 , 5 , 17, 21, 1 , 1 , 3 , 27, 20, 2 , 18, 21, 7 , 2 },
-                { 12, 12, 5 , 12, 12, 12, 12, 2 , 1 , 1 , 12, 12, 12, 1 , 1 , 2 },
-                { 2 , 6 , 20, 27, 17, 27, 3 , 2 , 16, 10, 1 , 1 , 1 , 27, 25, 21 },
-                { 2 , 9 , 22, 19, 17, 6 , 24, 2 , 16, 26, 2 , 4 , 18, 19, 25, 26 },
-                { 1 , 2 , 9 , 27, 6 , 27, 2 , 27, 16, 21, 2 , 10, 18, 27, 1 , 1 },
-                { 14, 1 , 1 , 3 , 14, 14, 2 , 14, 14, 2 , 14, 14, 1 , 1 , 5 , 14 },
-                { 15, 27, 2 , 1 , 1 , 27, 20, 27, 1 , 1 , 23, 21, 18, 5 , 20, 27 },
-                { 15, 3 , 2 , 26, 17, 1 , 1 , 1 , 16, 2 , 23, 26, 6 , 26, 10, 19 },
-                { 6 , 27, 2 , 27, 17, 2 , 4 , 27, 16, 27, 2 , 7 , 18, 21, 25, 8 },
-            },
-            OrderedDitheringAlgorithm.__UNDEFINED__ => throw new ArgumentException("A valid ordered dithering algorithm has to be provided.", nameof(algorithm)),
-            _ => throw new ArgumentOutOfRangeException(nameof(algorithm)),
-        }) => Algorithm = algorithm;
+    public OrderedDithering(OrderedDitheringAlgorithm algorithm, ColorPalette palette)
+        : this(GetDitheringMatrix(algorithm), palette) => Algorithm = algorithm;
 
-    public OrderedDithering(int[,] dithering_matrix)
-        : base(ColorPalette.BlackAndWhite)
+    public OrderedDithering(int[,] dithering_matrix, ColorPalette palette)
+        : base(palette)
     {
         _dithering_width = dithering_matrix.GetLength(0);
         _dithering_height = dithering_matrix.GetLength(1);
@@ -437,11 +319,204 @@ public unsafe class OrderedDithering
         {
             (int x, int y) = GetAbsoluteCoordinates(idx, w);
             double threshold = _dithering_matrix[x % _dithering_width + (y % _dithering_height) * _dithering_width];
-            double src = source[idx].CIEGray;
 
-            destination[idx] = src < threshold ? RGBAColor.Black : RGBAColor.White;
+            destination[idx] = GetColorFrom01Threshold(source[idx], threshold);
         });
     }
+
+    protected abstract RGBAColor GetColorFrom01Threshold(RGBAColor source, double threshold);
+
+    protected static int[,] GetDitheringMatrix(OrderedDitheringAlgorithm algorithm) => algorithm switch
+    {
+        OrderedDitheringAlgorithm.Bayer => new int[8, 8]
+        {
+            { 0, 32,  8, 40,  2, 34, 10, 42},
+            { 48, 16, 56, 24, 50, 18, 58, 26},
+            { 12, 44,  4, 36, 14, 46,  6, 38},
+            { 60, 28, 52, 20, 62, 30, 54, 22},
+            { 3, 35, 11, 43,  1, 33,  9, 41},
+            { 51, 19, 59, 27, 49, 17, 57, 25},
+            { 15, 47,  7, 39, 13, 45,  5, 37},
+            { 63, 31, 55, 23, 61, 29, 53, 21}
+        },
+        OrderedDitheringAlgorithm.Bayer2 => new int[8, 8]
+        {
+            { 52, 14, 58, 4 , 53, 9 , 59, 1 },
+            { 30, 36, 20, 42, 25, 37, 17, 43 },
+            { 57, 8 , 48, 16, 61, 5 , 49, 10 },
+            { 24, 41, 32, 32, 21, 45, 26, 33 },
+            { 54, 11, 62, 2 , 51, 15, 56, 3 },
+            { 27, 38, 18, 46, 31, 35, 19, 40 },
+            { 60, 6 , 50, 12, 55, 7 , 47, 13 },
+            { 22, 44, 28, 34, 23, 39, 29, 31 },
+        },
+        OrderedDitheringAlgorithm.Bayer3 => new int[4, 4]
+        {
+            { 5, 9, 6, 10 },
+            { 13, 1, 14, 2 },
+            { 7, 11, 4, 8 },
+            { 15, 3, 12, 0 },
+        },
+        OrderedDitheringAlgorithm.Halftone => new int[8, 8]
+        {
+            { 62, 58, 50, 36, 32, 46, 55, 63},
+            { 54, 40, 27, 23, 19, 28, 41, 59},
+            { 45, 31, 14, 10, 6, 15, 24, 51},
+            { 35, 18, 5, 1, 2, 11, 20, 37},
+            { 39, 22, 9, 0, 3, 7, 16, 33},
+            { 49, 26, 13, 4, 8, 12, 29, 47},
+            { 57, 43, 30, 17, 21, 25, 42, 56},
+            { 61, 53, 48, 34, 38, 52, 60, 64},
+        },
+        OrderedDitheringAlgorithm.Ordered_2x8 => new int[2, 8]
+        {
+            { 14, 12, 10, 8, 9, 11, 13, 15 },
+            { 6, 4, 2, 0, 1, 3, 5, 7 },
+        },
+        OrderedDitheringAlgorithm.Ordered_8x2 => new int[8, 2]
+        {
+            { 6, 14 },
+            { 4, 12 },
+            { 2, 10 },
+            { 0, 8 },
+            { 1, 9 },
+            { 3, 11 },
+            { 5, 13 },
+            { 7, 15 },
+        },
+        OrderedDitheringAlgorithm.DispersedDots_8 => new int[8, 8]
+        {
+            { 65, 59, 51, 42, 43, 52, 60, 66 },
+            { 58, 36, 29, 21, 22, 30, 37, 61 },
+            { 50, 28, 15, 9 , 10, 16, 31, 53 },
+            { 41, 20, 8 , 2 , 3 , 11, 23, 45 },
+            { 40, 19, 7 , 1 , 4 , 12, 24, 46 },
+            { 49, 27, 14, 6 , 5 , 13, 32, 54 },
+            { 57, 35, 26, 18, 17, 25, 34, 62 },
+            { 64, 56, 48, 39, 38, 47, 55, 63 },
+        },
+        OrderedDitheringAlgorithm.DispersedDots_6 => new int[6, 6]
+        {
+            { 32, 24, 16, 20, 31, 35 },
+            { 28, 12, 4 , 8 , 15, 27 },
+            { 21, 9 , 0 , 2 , 7 , 19 },
+            { 17, 5 , 3 , 1 , 11, 23 },
+            { 25, 13, 10, 6 , 14, 30 },
+            { 33, 29, 22, 18, 26, 34 },
+        },
+        OrderedDitheringAlgorithm.DispersedDots_4 => new int[4, 4]
+        {
+            { 15, 8, 5 , 12 },
+            { 4 , 0, 3 , 9  },
+            { 11, 2, 1 , 6  },
+            { 14, 7, 10, 13 },
+        },
+        OrderedDitheringAlgorithm.DispersedDots_3 => new int[3, 3]
+        {
+            { 6, 2, 7 },
+            { 1, 0, 3 },
+            { 5, 4, 8 },
+        },
+        OrderedDitheringAlgorithm.DispersedDots_2 => new int[2, 2]
+        {
+            { 1, 2 },
+            { 0, 3 },
+        },
+        OrderedDitheringAlgorithm.WavyHatchet_16 => new int[16, 16]
+        {
+            { 7 , 2 , 11, 11, 11, 2 , 11, 9 , 11, 11, 2 , 11, 11, 11, 11, 6 },
+            { 15, 2 , 20, 27, 2 , 27, 24, 21, 1 , 1 , 1 , 2 , 18, 27, 3 , 21 },
+            { 15, 26, 8 , 6 , 2 , 19, 1 , 1 , 5 , 10, 23, 1 , 1 , 3 , 25, 26 },
+            { 15, 21, 1 , 1 , 2 , 27, 20, 5 , 16, 21, 10, 27, 2 , 1 , 1 , 27 },
+            { 1 , 1 , 13, 13, 8 , 2 , 7 , 13, 13, 13, 13, 6 , 2 , 13, 13, 1 },
+            { 2 , 27, 22, 21, 17, 2 , 20, 27, 16, 27, 6 , 21, 2 , 27, 20, 27 },
+            { 15, 19, 22, 1 , 1 , 1 , 2 , 19, 16, 3 , 23, 2 , 18, 9 , 25, 2 },
+            { 15, 1 , 1 , 5 , 17, 21, 1 , 1 , 3 , 27, 20, 2 , 18, 21, 7 , 2 },
+            { 12, 12, 5 , 12, 12, 12, 12, 2 , 1 , 1 , 12, 12, 12, 1 , 1 , 2 },
+            { 2 , 6 , 20, 27, 17, 27, 3 , 2 , 16, 10, 1 , 1 , 1 , 27, 25, 21 },
+            { 2 , 9 , 22, 19, 17, 6 , 24, 2 , 16, 26, 2 , 4 , 18, 19, 25, 26 },
+            { 1 , 2 , 9 , 27, 6 , 27, 2 , 27, 16, 21, 2 , 10, 18, 27, 1 , 1 },
+            { 14, 1 , 1 , 3 , 14, 14, 2 , 14, 14, 2 , 14, 14, 1 , 1 , 5 , 14 },
+            { 15, 27, 2 , 1 , 1 , 27, 20, 27, 1 , 1 , 23, 21, 18, 5 , 20, 27 },
+            { 15, 3 , 2 , 26, 17, 1 , 1 , 1 , 16, 2 , 23, 26, 6 , 26, 10, 19 },
+            { 6 , 27, 2 , 27, 17, 2 , 4 , 27, 16, 27, 2 , 7 , 18, 21, 25, 8 },
+        },
+        OrderedDitheringAlgorithm.__UNDEFINED__ => throw new ArgumentException("A valid ordered dithering algorithm has to be provided.", nameof(algorithm)),
+        _ => throw new ArgumentOutOfRangeException(nameof(algorithm)),
+    };
+}
+
+[SupportedOSPlatform(OS.WIN)]
+public unsafe class ColoredOrderedDithering
+    : OrderedDithering
+{
+    private readonly (int r, int g, int b) _color_steps;
+
+    public double Bias { set; get; } = 0;
+    public double Spread { set; get; } = .5;
+
+
+    public ColoredOrderedDithering(OrderedDitheringAlgorithm algorithm, int color_steps)
+        : this(algorithm, color_steps, color_steps, color_steps)
+    {
+    }
+
+    public ColoredOrderedDithering(OrderedDitheringAlgorithm algorithm, int red_color_steps, int green_color_steps, int blue_color_steps)
+        : this(GetDitheringMatrix(algorithm), red_color_steps, green_color_steps, blue_color_steps)
+    {
+    }
+
+    public ColoredOrderedDithering(int[,] dithering_matrix, int color_steps)
+        : this(dithering_matrix, color_steps, color_steps, color_steps)
+    {
+    }
+
+    public ColoredOrderedDithering(int[,] dithering_matrix, int red_color_steps, int green_color_steps, int blue_color_steps)
+        : base(dithering_matrix, null!)
+    {
+        if (red_color_steps <= 0 || red_color_steps >= 256)
+            throw new ArgumentOutOfRangeException(nameof(red_color_steps), "The number of color steps must be >0 and <256.");
+        else if (green_color_steps <= 0 || green_color_steps >= 256)
+            throw new ArgumentOutOfRangeException(nameof(green_color_steps), "The number of color steps must be >0 and <256.");
+        else if (blue_color_steps <= 0 || blue_color_steps >= 256)
+            throw new ArgumentOutOfRangeException(nameof(blue_color_steps), "The number of color steps must be >0 and <256.");
+
+        _color_steps = (red_color_steps, green_color_steps, blue_color_steps);
+    }
+
+    protected override RGBAColor GetColorFrom01Threshold(RGBAColor source, double threshold)
+    {
+        Vector3 rgb = source;
+        int rsteps = _color_steps.r - 1;
+        int gsteps = _color_steps.g - 1;
+        int bsteps = _color_steps.b - 1;
+
+        rgb += Spread * (threshold - .5) + Bias;
+
+        return new(
+            (int)(rsteps * rgb.X + .5) / rsteps,
+            (int)(gsteps * rgb.Y + .5) / gsteps,
+            (int)(bsteps * rgb.Z + .5) / bsteps,
+            source.Af
+        );
+    }
+}
+
+[SupportedOSPlatform(OS.WIN)]
+public unsafe class BlackWhiteOrderedDithering
+    : OrderedDithering
+{
+    public BlackWhiteOrderedDithering(OrderedDitheringAlgorithm algorithm)
+        : base(algorithm, ColorPalette.BlackAndWhite)
+    {
+    }
+
+    public BlackWhiteOrderedDithering(int[,] dithering_matrix)
+        : base(dithering_matrix, ColorPalette.BlackAndWhite)
+    {
+    }
+
+    protected override RGBAColor GetColorFrom01Threshold(RGBAColor source, double threshold) => source.CIEGray < threshold ? RGBAColor.Black : RGBAColor.White;
 }
 
 [SupportedOSPlatform(OS.WIN)]

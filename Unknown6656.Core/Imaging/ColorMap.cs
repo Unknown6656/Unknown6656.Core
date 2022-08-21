@@ -1005,6 +1005,8 @@ public abstract class ColorMap
 
     public abstract RGBAColor Interpolate(Scalar c);
 
+    public ContinuousColorMap Slice(Scalar start, Scalar end) => new(x => Interpolate(x, start, end));
+
     public RGBAColor Interpolate(Scalar c, Scalar min, Scalar max) => Interpolate((c - min) / (max - min));
 
     public virtual ColorMap Reverse() => new ContinuousColorMap(x => Interpolate(1 - x));

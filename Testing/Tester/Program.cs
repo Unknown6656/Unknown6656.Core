@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Reflection;
 using System.Drawing;
@@ -19,6 +20,7 @@ using Unknown6656.Controls.WinForms;
 using Unknown6656.Controls.Console;
 using Unknown6656.Imaging.Plotting;
 using Unknown6656.Imaging.Effects;
+using Unknown6656.Imaging.Effects.Instagram;
 using Unknown6656.Imaging.Video;
 using Unknown6656.Imaging;
 using Unknown6656.Generics;
@@ -29,7 +31,6 @@ using Unknown6656;
 
 using Random = Unknown6656.Mathematics.Numerics.Random;
 using winforms = System.Windows.Forms;
-using System.Threading.Tasks;
 
 namespace Testing;
 
@@ -67,7 +68,16 @@ public static class Program
     {
         Console.OutputEncoding = Encoding.UTF8;
 
-        Main_heatmap_plotter_ui();
+        Matrix3 m = (
+            1, 2, 1,
+            -3, 1, 2,
+            0, 1, -1
+        );
+
+        Console.WriteLine(m);
+        Console.WriteLine(m.Exp());
+        Console.WriteLine(m.Sin());
+        Console.WriteLine(m.Cos());
 
         return;
         var prov = new CSharpSignatureProvider();
@@ -101,7 +111,7 @@ public static class Program
         var file = "img2.png";
         var img = ((Bitmap)Image.FromFile(file)).ToARGB32();
 
-        img.ApplyEffect(new QOIFCorruptedEffect(0) { FormatVersion = QOIFVersion.V2 })
+        img.ApplyEffect(new QOIFCorruptedEffect(20) { FormatVersion = QOIFVersion.V2 })
            .Save("conv.png");
 
         //img.SaveQOIFImage(file + ".qoi", QOIFVersion.Original);
@@ -355,10 +365,13 @@ public static class Program
 
     public static void Main_heatmap_plotter_ui()
     {
+        var lol = new XorShift().NextScalars(500);
+        var f = new ScalarFunction(x => lol[(int)((x % lol.Length + lol.Length) % lol.Length)]);
+
         using var plotter = new FunctionPlotterControl<DiscretizedRecurrencePlotter>()
         {
             Dock = winforms.DockStyle.Fill,
-            Plotter = new(ScalarFunction.Sine)
+            Plotter = new(f)
             {
                 CursorVisible = true,
                 PointsOfInterestVisible = false,
@@ -385,7 +398,7 @@ public static class Program
             {
                 await Task.Delay(10);
 
-                plotter.Plotter.WindowOffset = Math.Sin(DateTime.Now.Ticks * .00000005) * 1 - 10;
+                plotter.Plotter.WindowOffset = Math.Sin(DateTime.Now.Ticks * .00000005) * 1 - plotter.Plotter.WindowSize * .5;
                 plotter.Invoke(plotter.Invalidate);
             }
         });
@@ -399,7 +412,8 @@ public static class Program
         using var plotter = new FunctionPlotterControl<EvolutionFunctionPlotter<EvolutionFunction2D>>()
         {
             Dock = winforms.DockStyle.Fill,
-            Plotter = new(() => new(v => (v.Rotate(.1 / v.Length) + (v.Angle * .1).Sin() * .1) * .999))
+            //Plotter = new(() => new(v => (v.Rotate(.1 / v.Length) + (v.Angle * .1).Sin() * .1) * .999))
+            Plotter = new(() => EvolutionFunction2D.HenonMap(1.4, 0.3))
             {
                 CursorVisible = true,
                 PointsOfInterestVisible = false,
@@ -408,7 +422,7 @@ public static class Program
                 TrajectoryLifetime = 60,
                 TrajectoryCount = 200,
                 TrajectoryThickness = 1,
-                DisplayTrajectoryEndPoint = true,
+                //DisplayTrajectoryEndPoint = true,
                 BackgroundColor = RGBAColor.Black,
                 AxisColor = RGBAColor.DarkGray,
                 GridVisible = false,
@@ -504,8 +518,8 @@ public static class Program
 
         f1 = ImplicitScalarFunction2D.RoundHeart().Scale(2).Shift((0, -1))
                * ImplicitScalarFunction2D.Heart().Shift((-5, -2));
-        f2 = ImplicitScalarFunction2D.LambertW0();
-        f3 = ImplicitScalarFunction2D.Cartesian(ScalarFunction.Sine);
+        f2 = ImplicitScalarFunction2D.Cartesian(ScalarFunction.Sine);
+        f3 = new ImplicitScalarFunction2D(v => v.X.Exp().Sin() - v.Y * v.Y);
 
         int count = 40;
         for (int i = 0; i <= count; ++i)
@@ -513,9 +527,9 @@ public static class Program
             var p0 = i / (float)count;
 
 
-            ImplicitScalarFunction2D f(Scalar p) => new(p <= .5 ? ImplicitScalarFunction2D.LinearInterpolate(f1, f2, p * 2)
-                                                                : ImplicitScalarFunction2D.LinearInterpolate(f2, f3, p * 2 - 1));
-
+            // ImplicitScalarFunction2D f(Scalar p) => new(p <= .5 ? ImplicitScalarFunction2D.LinearInterpolate(f1, f2, p * 2)
+            //                                                     : ImplicitScalarFunction2D.LinearInterpolate(f2, f3, p * 2 - 1));
+            ImplicitScalarFunction2D f(Scalar p) => new(ImplicitScalarFunction2D.LinearInterpolate(f1, f3, p));
 
 
 
@@ -768,7 +782,7 @@ public static class Program
         })
         {
             Console.WriteLine(alg);
-            img.ApplyEffect(new OrderedDithering(alg), reg).Save($"dithering-{alg}.png");
+            img.ApplyEffect(new ColoredOrderedDithering(alg, 16), reg).Save($"dithering-{alg}.png");
         }
     }
 

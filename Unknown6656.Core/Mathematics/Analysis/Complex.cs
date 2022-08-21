@@ -24,6 +24,10 @@ public unsafe readonly /* ref */ struct Complex
     , Algebra<Scalar, Polynomial>.IComposite1D
     // , Algebra<Complex, ComplexPolynomial>.IComposite1D
     , INative<Complex>
+    , IComparable<Complex>
+    //, IComparable
+    //, IFormattable
+    //, ICloneable
 {
     #region PRIVATE FIELDS
 

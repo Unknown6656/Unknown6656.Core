@@ -33,6 +33,14 @@ internal static unsafe class NativeInterop
     [SupportedOSPlatform(OS.WIN)]
     public static extern bool GetConsoleMode(void* hWnd, ConsoleMode* lpMode);
 
+    [return: MarshalAs(UnmanagedType.Bool)]
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    public static extern bool SetCurrentConsoleFontEx(void* hWnd, bool MaximumWindow, ref ConsoleFontInfo ConsoleCurrentFontEx);
+
+    [return: MarshalAs(UnmanagedType.Bool)]
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    public static extern bool GetCurrentConsoleFontEx(void* hWnd, bool MaximumWindow, ref ConsoleFontInfo ConsoleCurrentFontEx);
+
     [DllImport("kernel32.dll")]
     [SupportedOSPlatform(OS.WIN)]
     public static extern void* VirtualAlloc(void* addr, int size, int type, int protect);

@@ -11,6 +11,7 @@ using Unknown6656.Generics;
 using Unknown6656.Imaging;
 using Unknown6656.Runtime;
 using Unknown6656.Common;
+using System.Drawing;
 
 namespace Unknown6656.Controls.Console;
 
@@ -78,7 +79,7 @@ public static unsafe class ConsoleExtensions
             if (!OS.IsWindows)
                 throw new InvalidOperationException("Writing the STDIN console mode is not supported on non-Windows operating systems.");
             else if (!NativeInterop.SetConsoleMode(STDINHandle, value))
-                throw new InvalidOperationException("An error occurred when writing the STDIN console mode.");
+                throw NETRuntimeInterop.GetLastWin32Error();
         }
         get
         {
@@ -87,7 +88,7 @@ public static unsafe class ConsoleExtensions
 
             ConsoleMode mode = default;
 
-            return NativeInterop.GetConsoleMode(STDINHandle, &mode) ? mode : throw new InvalidOperationException("An error occurred when reading the STDIN console mode.");
+            return NativeInterop.GetConsoleMode(STDINHandle, &mode) ? mode : throw NETRuntimeInterop.GetLastWin32Error();
         }
     }
 
@@ -99,7 +100,7 @@ public static unsafe class ConsoleExtensions
             if (!OS.IsWindows)
                 throw new InvalidOperationException("Writing the STDOUT console mode is not supported on non-Windows operating systems.");
             else if (!NativeInterop.SetConsoleMode(STDOUTHandle, value))
-                throw new InvalidOperationException("An error occurred when writing the STDOUT console mode.");
+                throw NETRuntimeInterop.GetLastWin32Error();
         }
         get
         {
@@ -108,7 +109,43 @@ public static unsafe class ConsoleExtensions
 
             ConsoleMode mode = default;
 
-            return NativeInterop.GetConsoleMode(STDOUTHandle, &mode) ? mode : throw new InvalidOperationException("An error occurred when reading the STDOUT console mode.");
+            return NativeInterop.GetConsoleMode(STDOUTHandle, &mode) ? mode : throw NETRuntimeInterop.GetLastWin32Error();
+        }
+    }
+
+    [SupportedOSPlatform(OS.WIN)]
+    public static ConsoleFontInfo FontInfo
+    {
+        set
+        {
+            if (!OS.IsWindows)
+                throw new InvalidOperationException("Changing the console font is not supported on non-Windows operating systems.");
+            else if (!NativeInterop.SetCurrentConsoleFontEx(STDOUTHandle, false, ref value))
+                throw NETRuntimeInterop.GetLastWin32Error();
+        }
+        get
+        {
+            if (!OS.IsWindows)
+                throw new InvalidOperationException("Reading the console font is not supported on non-Windows operating systems.");
+
+            ConsoleFontInfo font = new()
+            {
+                cbSize = Marshal.SizeOf<ConsoleFontInfo>()
+            };
+
+            return NativeInterop.GetCurrentConsoleFontEx(STDOUTHandle, false, ref font) ? font : throw NETRuntimeInterop.GetLastWin32Error();
+        }
+    }
+
+    [SupportedOSPlatform(OS.WIN)]
+    public static Font Font
+    {
+        set => SetCurrentFont(value);
+        get
+        {
+            ConsoleFontInfo font = FontInfo;
+
+            return new Font(font.FontName, font.FontSize.H, font.FontWeight > 550 ? FontStyle.Bold : FontStyle.Regular);
         }
     }
 
@@ -201,6 +238,24 @@ public static unsafe class ConsoleExtensions
 
     public static void WriteInverted(object? value) => Console.Write($"\x1b[7m{value}\x1b[27m");
 
+    [SupportedOSPlatform(OS.WIN)]
+    public static (ConsoleFontInfo before, ConsoleFontInfo after) SetCurrentFont(Font font)
+    {
+        ConsoleFontInfo before = FontInfo;
+        ConsoleFontInfo set = new()
+        {
+            cbSize = Marshal.SizeOf<ConsoleFontInfo>(),
+            FontIndex = 0,
+            FontFamily = ConsoleFontInfo.FIXED_WIDTH_TRUETYPE,
+            FontName = font.Name,
+            FontWeight = font.Bold ? 700 : 400,
+            FontSize = font.Size > 0 ? (default, (short)font.Size) : before.FontSize,
+        };
+
+        FontInfo = set;
+
+        return (before, FontInfo);
+    }
 
     public static unsafe string HexDumpToString(this byte[] data, int width) => HexDumpToString(new Span<byte>(data), width);
 
@@ -354,6 +409,22 @@ public static unsafe class ConsoleExtensions
                 LINQ.TryDo(() => Console.CursorVisible = vis);
         }
     }
+}
+
+[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+public struct ConsoleFontInfo
+{
+    internal const int FIXED_WIDTH_TRUETYPE = 0x0036;
+
+    public int cbSize;
+    public int FontIndex;
+    public short FontWidth;
+    public (short W, short H) FontSize;
+    public int FontFamily;
+    public int FontWeight;
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+    //[MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.wc, SizeConst = 32)]
+    public string FontName;
 }
 
 public sealed class ConsoleState

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Drawing.Imaging;
 using System.Drawing;
+using System.Linq;
 using System.IO;
 using System;
 
@@ -53,7 +53,7 @@ public class GIF
         if (count <= 1)
             return new[] { new GIFFrame(gif) };
 
-        byte[] times = img.GetPropertyItem(0x5100).Value;
+        byte[] times = gif.GetPropertyItem(0x5100).Value;
         List<GIFFrame> frames = new();
 
         for (int frame = 0; frame < count; ++frame)
@@ -78,7 +78,7 @@ public class GIFWriter
 {
     public const int DONT_LOOP = -1;
     public const int LOOP_INDEFINITELY = 0;
-    private const long SourceGlobalColorInfoPosition = 10,
+    private const long SourceGlobalColorInfoPosition = 10;
     private const long SourceImageBlockPosition = 789;
 
     private readonly BinaryWriter _writer;

@@ -967,7 +967,7 @@ public class PolarFunctionPlotter<Func>
     : MultiFunctionPlotter<Func, Scalar>
     where Func : FieldFunction<Scalar>
 {
-   internal protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
+    internal protected override PlottingOrder Order { get; } = PlottingOrder.Grid_Graph_Axes;
     protected override bool IsPolarPlotter { get; } = true;
     public Scalar MinAngle { set; get; } = Scalar.Zero;
     public Scalar MaxAngle { set; get; } = Scalar.Tau * 4;
@@ -1036,6 +1036,41 @@ public class PolarFunctionPlotter<Func>
             if (Math.Abs(curr) < PointsOfInterestTolerance)
                 poi.Add(((x2, y2), curr / s));
         }
+    }
+}
+
+public class CartesianFunctionFamilyPlotter
+    : CartesianFunctionPlotter<ScalarFunction>
+{
+    public CartesianFunctionFamilyPlotter(Function<Vector2, Scalar> function, Scalar start, Scalar end, int count, ColorMap colormap)
+        : base(GenerateFunctions(function, start, end, count, colormap))
+    {
+    }
+
+    internal static (ScalarFunction function, RGBAColor color)[] GenerateFunctions(Function<Vector2, Scalar> function, Scalar start, Scalar end, int count, ColorMap colormap)
+    {
+        (ScalarFunction function, RGBAColor color)[] functions = new (ScalarFunction, RGBAColor)[count];
+
+        for (int i = 0; i < count; ++i)
+        {
+            Scalar progress = i / (Scalar)(count - 1);
+
+            functions[i] = (
+                new(x => function.Evaluate(new(x, end * progress + start * (1 - progress)))),
+                colormap[progress]
+            );
+        }
+
+        return functions;
+    }
+}
+
+public class PolarFunctionFamilyPlotter
+    : PolarFunctionPlotter<ScalarFunction>
+{
+    public PolarFunctionFamilyPlotter(Function<Vector2, Scalar> function, Scalar start, Scalar end, int count, ColorMap colormap)
+        : base(CartesianFunctionFamilyPlotter.GenerateFunctions(function, start, end, count, colormap))
+    {
     }
 }
 

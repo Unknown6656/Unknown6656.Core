@@ -656,12 +656,10 @@ namespace Unknown6656.Imaging.Effects
 
     // static noise generator
     // perlin noise generator
+    // gauss distributed noise generator
 }
 
 /*
-
-
-
     /// <summary>
     /// Represents a gaussian blur bitmap effect
     /// </summary>

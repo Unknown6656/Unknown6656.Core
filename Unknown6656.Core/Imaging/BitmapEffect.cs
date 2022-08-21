@@ -12,14 +12,61 @@ using Unknown6656.Imaging.Effects;
 namespace Unknown6656.Imaging;
 
 
+public abstract class BitmapComputation<T>
+{
+    public abstract T Compute(Bitmap bitmap);
+}
+
+public abstract class PartialBitmapComputation<T>
+    : BitmapComputation<T>
+{
+    public T Compute(Bitmap bmp, Rectangle region)
+    {
+        bmp = bmp.ApplyEffect(Crop.To(region));
+
+        return Compute(bmp);
+    }
+
+    public T Compute(Bitmap bmp, (Range Horizontal, Range Vertical) region) => Compute(bmp, region.Horizontal, region.Vertical);
+
+    public T Compute(Bitmap bmp, Range horizontal, Range vertical)
+    {
+        int hs = horizontal.Start.GetOffset(bmp.Width);
+        int he = horizontal.End.GetOffset(bmp.Width);
+        int vs = vertical.Start.GetOffset(bmp.Height);
+        int ve = vertical.End.GetOffset(bmp.Height);
+        Rectangle rect = new(hs, vs, he - hs, ve - vs);
+
+        return Compute(bmp, rect);
+    }
+}
+
 /// <summary>
 /// Represents an abstract bitmap effect.
 /// </summary>
 public abstract class BitmapEffect
+    //: BitmapComputation<Bitmap>
 {
     public abstract Bitmap ApplyTo(Bitmap bmp);
 
-    // TODO : add apply with intensity.
+    public virtual unsafe Bitmap ApplyTo(Bitmap bmp, Scalar intensity)
+    {
+        if (intensity.IsZero)
+            return bmp;
+
+        Bitmap output = ApplyTo(bmp);
+
+        if (bmp != output && !intensity.IsOne)
+        {
+            bmp.LockRGBAPixels((ps, ws, hs) =>
+            output.LockRGBAPixels((pd, _, _) =>
+            {
+                Parallel.For(0, ws * hs, i => pd[i] = RGBAColor.LinearInterpolate(ps[i], pd[i], intensity));
+            }));
+        }
+
+        return output;
+    }
 }
 
 internal unsafe delegate void ProcessFunc(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region);
@@ -42,30 +89,27 @@ public abstract unsafe class PartialBitmapEffect
 
     public Bitmap ApplyTo(Bitmap bmp, Rectangle region, Scalar intensity)
     {
-        using Bitmap fx = ApplyTo(bmp, region);
-        Bitmap res = new(bmp.Width, bmp.Height);
-        BitmapLocker l_src = bmp;
-        BitmapLocker l_dst = res;
+        if (intensity.IsZero)
+            return bmp;
 
-        l_src.LockRGBAPixels((ps, ws, hs) =>
-        l_dst.LockRGBAPixels((pd, wd, hd) =>
+        Bitmap fx = ApplyTo(bmp, region);
+
+        if (!intensity.IsOne && bmp != fx)
         {
-            if (bmp == fx)
-                Parallel.For(0, ws * hs, i => pd[i] = ps[i]);
-            else
+            BitmapLocker l_src = bmp;
+            BitmapLocker l_dst = fx;
+
+            l_src.LockRGBAPixels((ps, ws, hs) =>
+            l_dst.LockRGBAPixels((pd, wd, hd) =>
             {
-                BitmapLocker l_fx = fx;
+                Parallel.For(0, ws * hs, i => pd[i] = RGBAColor.LinearInterpolate(ps[i], pd[i], intensity));
+            }));
+        }
 
-                l_fx.LockRGBAPixels((px, wx, hx) =>
-                    Parallel.For(0, ws * hs, i => pd[i] = RGBAColor.LinearInterpolate(ps[i], px[i], intensity))
-                );
-            }
-        }));
-
-        return res;
+        return fx;
     }
 
-    public Bitmap ApplyTo(Bitmap bmp, Scalar intensity) => ApplyTo(bmp, (.., ..), intensity);
+    public override Bitmap ApplyTo(Bitmap bmp, Scalar intensity) => ApplyTo(bmp, (.., ..), intensity);
 
     public override Bitmap ApplyTo(Bitmap bmp) => ApplyTo(bmp, (.., ..), Scalar.One);
 

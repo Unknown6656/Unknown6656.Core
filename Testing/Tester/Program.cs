@@ -68,16 +68,7 @@ public static class Program
     {
         Console.OutputEncoding = Encoding.UTF8;
 
-        Matrix3 m = (
-            1, 2, 1,
-            -3, 1, 2,
-            0, 1, -1
-        );
-
-        Console.WriteLine(m);
-        Console.WriteLine(m.Exp());
-        Console.WriteLine(m.Sin());
-        Console.WriteLine(m.Cos());
+        Main_BMP_effects();
 
         return;
         var prov = new CSharpSignatureProvider();
@@ -759,6 +750,8 @@ public static class Program
             ErrorDiffusionDitheringAlgorithm.SierraTwoRow,
             ErrorDiffusionDitheringAlgorithm.SierraLite,
             ErrorDiffusionDitheringAlgorithm.TwoDimensional,
+
+            //ErrorDiffusionDitheringAlgorithm.GradientBased,
         })
         {
             Console.WriteLine(alg);
@@ -782,7 +775,8 @@ public static class Program
         })
         {
             Console.WriteLine(alg);
-            img.ApplyEffect(new ColoredOrderedDithering(alg, 16), reg).Save($"dithering-{alg}.png");
+            img.ApplyEffect(new BlackWhiteOrderedDithering(alg), reg).Save($"dithering-bw-{alg}.png");
+            img.ApplyEffect(new ColoredOrderedDithering(alg, 16), reg).Save($"dithering-col-{alg}.png");
         }
     }
 
@@ -816,29 +810,29 @@ public static class Program
         Bitmap img = im2;
 
         // img = BitmapMask.FromLuma(im1).ApplyTo(im1).ApplyEffect(new BlendEffect(im2, BlendMode.Screen, 1));
-        // img = im2.ApplyEffect(new ChainedPartialBitmapEffect(
-        //     new ColorKey(0xf000, 0)
-        //     new MultiPointGradient(
-        //         ((500, 200), 0xff00),
-        //         ((1000, 200), 0xf00f),
-        //         ((700, 900), 0xf0f0)
-        //     ),
-        //     new PerlinNoiseEffect(new PerlinNoiseSettings(new System.Random(0x12345678))
-        //     {
-        //     })
-        //     new HexagonalPixelation(10)
-        //      new SobelEdgeDetection()
-        // ), reg, .5);
+        //img = im2.ApplyEffect(new ChainedPartialBitmapEffect(
+        //    new ColorKey(0xf000, 0),
+        //    new MultiPointGradient(
+        //        ((500, 200), 0xff00),
+        //        ((1000, 200), 0xf00f),
+        //        ((700, 900), 0xf0f0)
+        //    ),
+        //    new PerlinNoiseEffect(new PerlinNoiseSettings(new System.Random(0x12345678))
+        //    {
+        //    }),
+        //    new HexagonalPixelation(10),
+        //    new SobelEdgeDetection()
+        //), reg, .5);
 
         //img = img
         //    .ApplyEffect(new HexagonalPixelation(10), reg, .6)
         //    .ApplyEffect(new HexagonalPixelation(20), (1440.., ..), .6)
         //    ;
 
-        img = img.ApplyEffect(new ChainedPartialBitmapEffect(
-                new BoxBlur(5),
-                new Colorize(ColorMap.BlackbodyHeat)
-            ));
+        //img = img.ApplyEffect(new ChainedPartialBitmapEffect(
+        //        new BoxBlur(5),
+        //        new Colorize(ColorMap.BlackbodyHeat)
+        //    ), reg);
 
 
         //res = res.ToLumaInvertedMask().Colorize(ColorMap.Spectral);

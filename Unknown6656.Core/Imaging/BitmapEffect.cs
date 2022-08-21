@@ -12,35 +12,6 @@ using Unknown6656.Imaging.Effects;
 namespace Unknown6656.Imaging;
 
 
-public abstract class BitmapComputation<T>
-{
-    public abstract T Compute(Bitmap bitmap);
-}
-
-public abstract class PartialBitmapComputation<T>
-    : BitmapComputation<T>
-{
-    public T Compute(Bitmap bmp, Rectangle region)
-    {
-        bmp = bmp.ApplyEffect(Crop.To(region));
-
-        return Compute(bmp);
-    }
-
-    public T Compute(Bitmap bmp, (Range Horizontal, Range Vertical) region) => Compute(bmp, region.Horizontal, region.Vertical);
-
-    public T Compute(Bitmap bmp, Range horizontal, Range vertical)
-    {
-        int hs = horizontal.Start.GetOffset(bmp.Width);
-        int he = horizontal.End.GetOffset(bmp.Width);
-        int vs = vertical.Start.GetOffset(bmp.Height);
-        int ve = vertical.End.GetOffset(bmp.Height);
-        Rectangle rect = new(hs, vs, he - hs, ve - vs);
-
-        return Compute(bmp, rect);
-    }
-}
-
 /// <summary>
 /// Represents an abstract bitmap effect.
 /// </summary>

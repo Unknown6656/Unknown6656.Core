@@ -1188,6 +1188,19 @@ var members = new string[]
             ($R, $G, $B) = (color.$R, color.$G, color.$B);
         }
     }",
+    @"public (double x, double y) NormalizedChromaticity => ToNormalizedChromaticity();",
+    @"public (double X, double Y, double Z) XYZ
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        readonly get => ToXYZ();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set
+        {
+            $type color = FromXYZ(value.X, value.Y, value.Z);
+            ($R, $G, $B) = (color.$R, color.$G, color.$B);
+        }
+    }",
+
     @"public (double Y, double U, double V) YUV
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -1207,6 +1220,17 @@ var members = new string[]
         set
         {
             $type color = FromYIQ(value.Y, value.I, value.Q);
+            ($R, $G, $B) = (color.$R, color.$G, color.$B);
+        }
+    }",
+    @"public double BlackbodyTemperature
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        readonly get => ToBlackbodyTemperature();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set
+        {
+            $type color = FromBlackbodyTemperature(value);
             ($R, $G, $B) = (color.$R, color.$G, color.$B);
         }
     }",
@@ -1399,6 +1423,18 @@ var members = new string[]
         return (h, s, l);
     }",
     @"public readonly (double R, double G, double B) ToRGB() => ($R, $G, $B);",
+    @"public readonly (double X, double Y, double Z) ToXYZ() => new Matrix3(
+        .4124, .3576, .1805,
+        .2126, .7152, .0722,
+        .0193, .1192, .9505
+    ) * this;",
+    @"public readonly (double x, double y) ToNormalizedChromaticity()
+    {
+        (double X, double Y, double Z) = ToXYZ();
+        double sum = X + Y + Z;
+
+        return (X / sum, Y / sum);
+    }",
     @"public readonly (double H, double S, double V) ToHSV()
     {
         (double H, double S, double L) = ToHSL();
@@ -1423,13 +1459,11 @@ var members = new string[]
         double rf = pre($R);
         double gf = pre($G);
         double bf = pre($B);
-        double x = (rf * .4124 + gf * .3576 + bf * .1805) /  .95047;
-        double y = (rf * .2126 + gf * .7152 + bf * .0722) / 1.00000;
-        double z = (rf * .0193 + gf * .1192 + bf * .9505) / 1.08883;
+        (double x, double y, double z) = ToXYZ();
 
-        x = post(x);
-        y = post(y);
-        z = post(z);
+        x = post(x /  .95047);
+        y = post(y / 1.00000);
+        z = post(z / 1.08883);
 
         return (
             L: (116 * y) - 16,
@@ -1514,6 +1548,13 @@ var members = new string[]
 
         return (H, C, L);
     }",
+    @"public readonly double ToBlackbodyTemperature()
+    {
+        (double x, double y) = ToNormalizedChromaticity();
+        double n = (x - .332) / (.1858 - y);
+
+        return ((449 * n + 3525) * n + 6823.3) * n + 5520.33;
+    }",
     @"public readonly ConsoleColor ToConsoleColor(ConsoleColorScheme color_scheme)
     {
         $type copy = this;
@@ -1587,10 +1628,21 @@ var members = new string[]
                 color = FromHCY(x, y, z);
             else if (mode is ""hcya"")
                 color = FromHCY(x, y, z, w);
+            else if (mode is ""xyz"")
+                color = FromXYZ(x, y, z);
+            else if (mode is ""yuv"")
+                color = FromYUV(x, y, z);
+            else if (mode is ""uv"")
+                color = FromUV(x, y);
+            else if (mode is ""xyza"")
+                color = FromXYZ(x, y, z, w);
+            else if (mode is ""yuva"")
+                color = FromYUV(x, y, z, w);
+            else if (mode is ""uva"")
+                color = FromUV(x, y, w);
 
-            // TODO: xyz
+
             // TODO: yiq
-            // TODO: yuv
             // TODO: ycbcr / ybr
             // TODO: cmyk
 
@@ -1958,8 +2010,8 @@ var members = new string[]
 
         return new $type(color.X, color.Y, color.Z, α);
     }",
-    @"public static $type FromBlackbodyRadiation(double temperature) => FromBlackbodyRadiation(temperature, 1);",
-    @"public static $type FromBlackbodyRadiation(double temperature, double α)
+    @"public static $type FromBlackbodyTemperature(double temperature) => FromBlackbodyTemperature(temperature, 1);",
+    @"public static $type FromBlackbodyTemperature(double temperature, double α)
     {
         double x = temperature / 1000;
         double x2 = x * x;

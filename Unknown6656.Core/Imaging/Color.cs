@@ -169,14 +169,14 @@ public interface IColor<Color>
     /// </summary>
     /// <param name=""temperature"">The black body temperature (in Kelvin).</param>
     /// <returns><typeparamref name="Color"/></returns>
-    static abstract Color FromBlackbodyRadiation(double temperature);
+    static abstract Color FromBlackbodyTemperature(double temperature);
 
     /// <summary>
     /// Returns the <typeparamref name="Color"/> associated with the given black body temperature (in Kelvin).
     /// </summary>
     /// <param name=""temperature"">The black body temperature (in Kelvin).</param>
     /// <returns><typeparamref name="Color"/></returns>
-    static abstract Color FromBlackbodyRadiation(double temperature, double α);
+    static abstract Color FromBlackbodyTemperature(double temperature, double α);
 
     static abstract implicit operator Color(System.Drawing.Color color);
 

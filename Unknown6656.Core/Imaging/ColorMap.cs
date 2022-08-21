@@ -18,11 +18,11 @@ public abstract class ColorMap
 
     public static DiscreteColorMap LegacyBlackbodyHeat { get; } = Uniform(0xf000, 0xff88, 0xffb7, 0xffff, 0xf9ef, 0xf6cf);
 
-    public static DiscreteColorMap NarrowBlackbodyHeat { get; } = new(Enumerable.Range(0, 1000).Select(i => RGBAColor.FromBlackbodyRadiation(7 * i)));
+    public static DiscreteColorMap NarrowBlackbodyHeat { get; } = new(Enumerable.Range(0, 1000).Select(i => RGBAColor.FromBlackbodyTemperature(7 * i)));
 
-    public static DiscreteColorMap ExtendedBlackbodyHeat { get; } = new(Enumerable.Range(0, 1000).Select(i => RGBAColor.FromBlackbodyRadiation(14 * i)));
+    public static DiscreteColorMap ExtendedBlackbodyHeat { get; } = new(Enumerable.Range(0, 1000).Select(i => RGBAColor.FromBlackbodyTemperature(14 * i)));
 
-    public static DiscreteColorMap BlackbodyHeat { get; } = new(Enumerable.Range(0, 1000).Select(i => RGBAColor.FromBlackbodyRadiation(11 * i)));
+    public static DiscreteColorMap BlackbodyHeat { get; } = new(Enumerable.Range(0, 1000).Select(i => RGBAColor.FromBlackbodyTemperature(11 * i)));
 
     public static ContinuousColorMap HueMap { get; } = new(s => RGBAColor.FromHSL(s * Scalar.Tau, 1, 1));
 

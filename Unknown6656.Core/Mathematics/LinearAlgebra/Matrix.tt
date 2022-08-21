@@ -943,21 +943,23 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> Modulus(Scalar factor) => new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i} % factor"))#>);
 
-    public readonly <#=typename#> Sin()
+    public readonly <#=typename#> Sin(InfiniteSeriesSettings? settings = null)
     {
+        settings ??= InfiniteSeriesSettings.Default;
+
         <#=typename#> result = this;
         <#=typename#> exponent = this;
         <#=typename#> squared = Multiply(this);
         <#=typename#> last = result;
         Scalar factor = Scalar.One;
 
-        for (int i = 1; i < 2000; i += 2)
+        for (int i = 1; i < settings.MaxIterationCount; i += 2)
         {
             result += factor * exponent;
             factor *= -i * (i + 1);
             exponent *= squared;
 
-            if (result.DistanceTo(last, MatrixNorm.EucledianNorm) < Scalar.ComputationalEpsilon)
+            if (result.DistanceTo(last, MatrixNorm.EucledianNorm) < settings.Epsilon)
                 break;
             else
                 last = result;
@@ -966,21 +968,23 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         return result;
     }
 
-    public readonly <#=typename#> Cos()
+    public readonly <#=typename#> Cos(InfiniteSeriesSettings? settings = null)
     {
+        settings ??= InfiniteSeriesSettings.Default;
+
         <#=typename#> result = Identity;
         <#=typename#> exponent = this;
         <#=typename#> squared = Multiply(this);
         <#=typename#> last = result;
         Scalar factor = Scalar.One;
 
-        for (int i = 2; i < 2000; i += 2)
+        for (int i = 2; i < settings.MaxIterationCount; i += 2)
         {
             factor *= -i * (i - 1);
             result += factor * exponent;
             exponent *= squared;
 
-            if (result.DistanceTo(last, MatrixNorm.EucledianNorm) < Scalar.ComputationalEpsilon)
+            if (result.DistanceTo(last, MatrixNorm.EucledianNorm) < settings.Epsilon)
                 break;
             else
                 last = result;
@@ -989,20 +993,22 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         return result;
     }
 
-    public readonly <#=typename#> Exp()
+    public readonly <#=typename#> Exp(InfiniteSeriesSettings? settings = null)
     {
+        settings ??= InfiniteSeriesSettings.Default;
+
         <#=typename#> result = Identity;
         <#=typename#> exponent = this;
         <#=typename#> last = result;
         Scalar factor = Scalar.One;
 
-        for (int i = 0; i < 2000; ++i)
+        for (int i = 1; i < settings.MaxIterationCount; ++i)
         {
-            result += factor * exponent;
-            factor /= i;
+            result += factor.Inverse * exponent;
+            factor *= i;
             exponent *= this;
 
-            if (result.DistanceTo(last, MatrixNorm.EucledianNorm) < Scalar.ComputationalEpsilon)
+            if (result.DistanceTo(last, MatrixNorm.EucledianNorm) < settings.Epsilon)
                 break;
             else
                 last = result;
@@ -1961,13 +1967,13 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     public static <#=typename#> Divide(<#=typename#> m, Scalar s) => m.Divide(s);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static <#=typename#> Exp(<#=typename#> matrix) => matrix.Exp();
+    public static <#=typename#> Exp(<#=typename#> matrix, InfiniteSeriesSettings? settings = null) => matrix.Exp(settings);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static <#=typename#> Sin(<#=typename#> matrix) => matrix.Sin();
+    public static <#=typename#> Sin(<#=typename#> matrix, InfiniteSeriesSettings? settings = null) => matrix.Sin(settings);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static <#=typename#> Cos(<#=typename#> matrix) => matrix.Cos();
+    public static <#=typename#> Cos(<#=typename#> matrix, InfiniteSeriesSettings? settings = null) => matrix.Cos(settings);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> CracovianProduct(in <#=typename#> first, in <#=typename#> second) => second.Transposed.Multiply(in second);

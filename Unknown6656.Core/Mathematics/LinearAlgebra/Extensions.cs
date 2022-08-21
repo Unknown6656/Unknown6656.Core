@@ -198,7 +198,6 @@ public partial struct Matrix4
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 Rotate(Vector3 axis, Scalar angle) => CreateRotation(Identity, axis, angle);
 
-
     /// <summary>
     /// Creates a frustrum projection matrix.
     /// </summary>

@@ -682,7 +682,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 
 #pragma warning disable CS8995
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly int CompareTo(object? other!!) => CompareTo((<#=typename#>)other);
+    public readonly int CompareTo(object? other) => CompareTo((<#=typename#>)other);
 #pragma warning restore CS8995
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -152,7 +152,7 @@ public unsafe class DataStream
     {
     }
 
-    public DataStream(Stream ms!!) : this(Array.Empty<byte>()) => ms.CopyTo(this);
+    public DataStream(Stream ms) : this(Array.Empty<byte>()) => ms.CopyTo(this);
 
     public DataStream(IEnumerable<byte>? data)
         : this(data as byte[] ?? data?.ToArray())

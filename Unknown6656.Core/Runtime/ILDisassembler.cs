@@ -49,7 +49,7 @@ public unsafe class ILDisassembler
     public string Disassemble(MethodInfo method) =>
         method.GetMethodBody() is { } body ? Disassemble(body, method.Module) : throw new ArgumentException("The given method does not define a method body.", nameof(method));
 
-    public string Disassemble(MethodBody method!!, Module module)
+    public string Disassemble(MethodBody method, Module module)
     {
         byte[]? signature = LINQ.TryDo(() => module.ResolveSignature(method.LocalSignatureMetadataToken), null);
         IList<LocalVariableInfo> variables = method.LocalVariables;

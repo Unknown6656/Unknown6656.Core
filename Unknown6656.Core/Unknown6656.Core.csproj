@@ -55,7 +55,7 @@
         <Content Include="Mathematics\Geometry\Shape3D.cs" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="SSH.NET" Version="2020.0.1" />
+        <PackageReference Include="SSH.NET" Version="2020.0.2" />
         <PackageReference Include="System.Drawing.Common" Version="7.0.0-preview.3.22175.4" />
         <PackageReference Include="System.Drawing.Primitives" Version="4.3.0" />
         <PackageReference Include="Unknown6656.Currying" Version="1.1.0" />

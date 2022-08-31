@@ -58,7 +58,7 @@ namespace Unknown6656.Testing.Tests
                 4, 5, 6,
                 7, 8, 9
             );
-            MemoryStream ms = DataStream.FromUnmanaged(src).ToStream();
+            MemoryStream ms = DataStream.FromUnmanaged(src);
             Matrix3 dst1;
             Scalar* dst2 = stackalloc Scalar[9];
 

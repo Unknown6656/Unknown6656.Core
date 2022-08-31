@@ -82,25 +82,25 @@ namespace Unknown6656.Testing.Tests
         }
 
         [TestMethod]
-        public byte[] Test_06__OEAEP_MD5() => test_oaep(HashFunctions.MD5);
+        public byte[] Test_06__OEAEP_MD5() => test_oaep(HashFunction.MD5);
 
         [TestMethod]
-        public byte[] Test_07__OEAEP_SHA1() => test_oaep(HashFunctions.SHA1);
+        public byte[] Test_07__OEAEP_SHA1() => test_oaep(HashFunction.SHA1);
 
         [TestMethod]
-        public byte[] Test_08__OEAEP_SHA256() => test_oaep(HashFunctions.SHA256);
+        public byte[] Test_08__OEAEP_SHA256() => test_oaep(HashFunction.SHA256);
 
         [TestMethod]
-        public byte[] Test_09__OEAEP_SHA384() => test_oaep(HashFunctions.SHA384);
+        public byte[] Test_09__OEAEP_SHA384() => test_oaep(HashFunction.SHA384);
 
         [TestMethod]
-        public byte[] Test_10__OEAEP_SHA512() => test_oaep(HashFunctions.SHA512);
+        public byte[] Test_10__OEAEP_SHA512() => test_oaep(HashFunction.SHA512);
 
         [TestMethod]
         public void Test_11__IND_CPA()
         {
             const int count = 10;
-            var oaep = HashFunctions.MD5.CreateOAEP(RANDOM);
+            var oaep = HashFunction.MD5.CreateOAEP(RANDOM);
             var enc = Enumerable.Repeat(DATA_1, count)
                                 .Select(s => Convert.ToBase64String(oaep.Pad(s)))
                                 .Distinct()

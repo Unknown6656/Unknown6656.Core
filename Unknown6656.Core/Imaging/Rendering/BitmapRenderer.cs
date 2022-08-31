@@ -7,7 +7,7 @@ using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
 using Unknown6656.Controls.Console;
-
+using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Runtime;
 
 namespace Unknown6656.Imaging.Rendering;
@@ -24,12 +24,25 @@ public abstract class Renderer
 
     public void Render(Bitmap bitmap, BitmapRenderingOptions options_override)
     {
-        (int width, int height) = GetOutputDimensions();
+        (int canv_w, int canv_h) = GetOutputDimensions();
+        (int img_w, int img_h) = GetOutputDimensions();
+        (double sx, double sy) = options_override.Size._scale;
 
+        if (options_override.Size._stretch)
+        {
+            sx = (double)canv_w / img_w;
+            sy = (double)canv_h / img_h;
+        }
 
+        if (options_override.Size._contain)
+            sx = sy = Math.Min((double)canv_w / img_w, (double)canv_h / img_h);
 
+        if (options_override.Size._cover)
+            sx = sy = Math.Max((double)canv_w / img_w, (double)canv_h / img_h);
 
+        //double
 
+        throw new NotImplementedException();
     }
 
 
@@ -71,13 +84,6 @@ public unsafe class GDIWindowRenderer
 
 
 /*
-
-size:
-    -conver
-    -contain
-    -original
-    -custom(...)
-
 colors:
     -grayscale
     -original
@@ -87,33 +93,94 @@ dithering:
     -none
     -ordered(...)
     -unordered(...)
-
 */
 
-public record BitmapRenderingOptions(BitmapPosition Position, BitmapSize Size, BitmapColors Colors);
-
-public record BitmapPosition(HorizontalPosition HorizontalPosition, VerticalPosition VerticalPosition);
-
-public record BitmapSize
+public sealed record BitmapRenderingOptions
 {
-    public static BitmapSize Cover { get; } => new() { _cover = true };
-
-    public static BitmapSize Contain { get; } => new() { _contain = true };
-
-
-    private bool _cover;
-    private bool _contain;
-    private double _scale;
+    public BitmapPosition Position { get; init; } = BitmapPosition.Center;
+    public BitmapSize Size { get; init; } = BitmapSize.Contain;
+    public BitmapColors Colors { get; init; } = BitmapColors.Original;
+    public BitmapDithering Dithering { get; init; }
 }
 
-public enum HorizontalPosition
+public sealed record BitmapDithering
+{
+
+}
+
+public sealed record BitmapColors
+{
+    public static BitmapColors Original { get; } = new() { _original = true };
+
+
+    internal bool _original;
+
+    public RGBAColor BackgroundColor { get; set; } = RGBAColor.Transparent;
+
+
+}
+
+public sealed record BitmapPosition(HorizontalAlignment HorizontalAlignment, double HorizontalOffset, VerticalAlignment VerticalAlignment, double VerticalOffset)
+{
+    public static BitmapPosition Center { get; } = new(HorizontalAlignment.Center, VerticalAlignment.Center);
+
+    public static BitmapPosition CenterLeft { get; } = new(HorizontalAlignment.Left, VerticalAlignment.Center);
+
+    public static BitmapPosition CenterRight { get; } = new(HorizontalAlignment.Right, VerticalAlignment.Center);
+
+    public static BitmapPosition CenterTop { get; } = new(HorizontalAlignment.Center, VerticalAlignment.Top);
+
+    public static BitmapPosition CenterBottom { get; } = new(HorizontalAlignment.Center, VerticalAlignment.Bottom);
+
+    public static BitmapPosition BottomLeft { get; } = new(HorizontalAlignment.Left, VerticalAlignment.Bottom);
+
+    public static BitmapPosition BottomRight { get; } = new(HorizontalAlignment.Right, VerticalAlignment.Bottom);
+
+    public static BitmapPosition TopLeft { get; } = new(HorizontalAlignment.Left, VerticalAlignment.Top);
+
+    public static BitmapPosition TopRight { get; } = new(HorizontalAlignment.Right, VerticalAlignment.Top);
+
+
+    public BitmapPosition(HorizontalAlignment HorizontalAlignment, VerticalAlignment VerticalAlignment)
+        : this(HorizontalAlignment, 0, VerticalAlignment, 0)
+    {
+    }
+
+    public BitmapPosition(HorizontalAlignment HorizontalAlignment, VerticalAlignment VerticalAlignment, Vector2 Offset)
+        : this(HorizontalAlignment, Offset.X, VerticalAlignment, Offset.Y)
+    {
+    }
+}
+
+public sealed record BitmapSize
+{
+    public static BitmapSize Cover { get; } = new() { _cover = true };
+
+    public static BitmapSize Contain { get; } = new() { _contain = true };
+
+    public static BitmapSize Original { get; } = Uniform(1);
+
+    public static BitmapSize Stretch { get; } = new() { _stretch = true };
+
+
+    internal bool _cover;
+    internal bool _contain;
+    internal bool _stretch;
+    internal Vector2 _scale;
+
+    public static BitmapSize Uniform(double scale) => Anisotropic(scale, scale);
+
+    public static BitmapSize Anisotropic(double horizontal_scale, double vertical_scale) => new() { _scale = (horizontal_scale, vertical_scale) };
+}
+
+public enum HorizontalAlignment
 {
     Left,
     Center,
     Right,
 }
 
-public enum VerticalPosition
+public enum VerticalAlignment
 {
     Top,
     Center,

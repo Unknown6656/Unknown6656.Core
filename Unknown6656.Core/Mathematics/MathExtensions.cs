@@ -14,8 +14,6 @@ using Unknown6656.Common;
 
 using static System.Math;
 
-using bint = System.Numerics.BigInteger;
-
 namespace Unknown6656.Mathematics;
 
 
@@ -26,13 +24,13 @@ public static partial class MathExtensions
 
 
     public static T BinaryToGray<T>(this T num)
-        where T : IBitwiseOperators<T, T, T>
-                , IShiftOperators<T, T> => num ^ (num >> 1);
+        where T : num.IBitwiseOperators<T, T, T>
+                , num.IShiftOperators<T, int, T> => num ^ (num >> 1);
 
     public static T GrayToBinary<T>(this T num)
-        where T : IBitwiseOperators<T, T, T>
-                , IShiftOperators<T, T>
-                , IEqualityOperators<T, T>
+        where T : num.IBitwiseOperators<T, T, T>
+                , num.IShiftOperators<T, int, T>
+                , num.IEqualityOperators<T, T, bool>
     {
         T mask = num;
 
@@ -61,9 +59,9 @@ public static partial class MathExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsPowerOf2<T>(this T l)
         where T : struct
-                , IBitwiseOperators<T, T, T>
-                , IEqualityOperators<T, T>
-                , IDecrementOperators<T>
+                , num.IBitwiseOperators<T, T, T>
+                , num.IEqualityOperators<T, T, bool>
+                , num.IDecrementOperators<T>
     {
         T c = l;
 
@@ -91,22 +89,22 @@ public static partial class MathExtensions
     public static double Clamp(this double x) => x.Clamp(0, 1);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static T Clamp<T>(this T scalar, T min, T max) where T : IComparisonOperators<T, T> => scalar <= min ? min : scalar >= max ? max : scalar;
+    public static T Clamp<T>(this T scalar, T min, T max) where T : num.IComparisonOperators<T, T, bool> => scalar <= min ? min : scalar >= max ? max : scalar;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Map<T>(this T scalar, (T lower, T upper) from, (T lower, T upper) to)
-        where T : IDivisionOperators<T, T, T>
-                , ISubtractionOperators<T, T, T>
-                , IMultiplyOperators<T, T, T>
-                , IAdditionOperators<T, T, T> => (scalar - from.lower) / (from.upper - from.lower) * (to.upper - to.lower) + to.lower;
+        where T : num.IDivisionOperators<T, T, T>
+                , num.ISubtractionOperators<T, T, T>
+                , num.IMultiplyOperators<T, T, T>
+                , num.IAdditionOperators<T, T, T> => (scalar - from.lower) / (from.upper - from.lower) * (to.upper - to.lower) + to.lower;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T ClampMap<T>(this T scalar, (T lower, T upper) from, (T lower, T upper) to)
-        where T : IDivisionOperators<T, T, T>
-                , ISubtractionOperators<T, T, T>
-                , IMultiplyOperators<T, T, T>
-                , IAdditionOperators<T, T, T>
-                , IComparisonOperators<T, T> => scalar.Clamp(from.lower, from.upper).Map(from, to);
+        where T : num.IDivisionOperators<T, T, T>
+                , num.ISubtractionOperators<T, T, T>
+                , num.IMultiplyOperators<T, T, T>
+                , num.IAdditionOperators<T, T, T>
+                , num.IComparisonOperators<T, T, bool> => scalar.Clamp(from.lower, from.upper).Map(from, to);
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

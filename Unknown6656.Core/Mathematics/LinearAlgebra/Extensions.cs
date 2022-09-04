@@ -12,8 +12,6 @@ using Unknown6656.Mathematics.Geometry;
 using Unknown6656.Generics;
 using Unknown6656.Imaging;
 
-using num = System.Numerics;
-
 using static System.Math;
 
 namespace Unknown6656.Mathematics.LinearAlgebra;

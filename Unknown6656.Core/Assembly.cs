@@ -1,4 +1,7 @@
-﻿using System.Runtime.CompilerServices;
+﻿global using num = System.Numerics;
+global using bint = System.Numerics.BigInteger;
+
+using System.Runtime.CompilerServices;
 using System;
 
 using Unknown6656.Runtime;

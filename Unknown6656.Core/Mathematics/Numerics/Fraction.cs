@@ -4,8 +4,6 @@ using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;
 
-using bint = System.Numerics.BigInteger;
-
 namespace Unknown6656.Mathematics.Numerics;
 
 

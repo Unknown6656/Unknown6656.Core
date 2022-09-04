@@ -28,8 +28,6 @@ using Unknown6656.Generics;
 using Unknown6656.Common;
 using Unknown6656.IO;
 
-using num = System.Numerics;
-
 namespace Unknown6656.Mathematics.LinearAlgebra;
 
 // TODO : fix coefficient naming 'XYZWVU'

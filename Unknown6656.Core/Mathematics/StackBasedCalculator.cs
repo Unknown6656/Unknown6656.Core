@@ -5,7 +5,6 @@ using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Analysis;
 using Unknown6656.Generics;
 
-using bint = System.Numerics.BigInteger;
 using data = Unknown6656.Union<Unknown6656.Mathematics.Analysis.Complex, System.Numerics.BigInteger>;
 
 namespace Unknown6656.Mathematics

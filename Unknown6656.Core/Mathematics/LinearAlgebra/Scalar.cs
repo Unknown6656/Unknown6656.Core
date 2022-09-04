@@ -19,8 +19,6 @@ using Unknown6656.Generics;
 using Unknown6656.Common;
 using Unknown6656.IO;
 
-using bint = System.Numerics.BigInteger;
-
 namespace Unknown6656.Mathematics.LinearAlgebra;
 
 

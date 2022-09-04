@@ -11,8 +11,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{CE73
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestRunner", "Testing\TestRunner\TestRunner.csproj", "{67EC59EF-FB16-4ABD-A49F-BC1B84BC10EC}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "TesterFS", "Testing\TesterFS\TesterFS.fsproj", "{23661566-BE5B-4CB8-BC2A-937E5A455C9F}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Unknown6656.Analyzers", "Unknown6656.Analyzers", "{A829D6F4-5319-4F55-A8EF-65D64BA8567D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Unknown6656.Core.Windows", "Unknown6656.Core.Windows\Unknown6656.Core.Windows.csproj", "{C9887F69-FBBD-4E25-8404-7E595CCD6C03}"
@@ -21,6 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		publish.bat = publish.bat
 		publish.ps1 = publish.ps1
+		TODO.txt = TODO.txt
 		version.txt = version.txt
 	EndProjectSection
 EndProject
@@ -42,10 +41,6 @@ Global
 		{67EC59EF-FB16-4ABD-A49F-BC1B84BC10EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{67EC59EF-FB16-4ABD-A49F-BC1B84BC10EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{67EC59EF-FB16-4ABD-A49F-BC1B84BC10EC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{23661566-BE5B-4CB8-BC2A-937E5A455C9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{23661566-BE5B-4CB8-BC2A-937E5A455C9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{23661566-BE5B-4CB8-BC2A-937E5A455C9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{23661566-BE5B-4CB8-BC2A-937E5A455C9F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C9887F69-FBBD-4E25-8404-7E595CCD6C03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C9887F69-FBBD-4E25-8404-7E595CCD6C03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9887F69-FBBD-4E25-8404-7E595CCD6C03}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -57,7 +52,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{10A7856E-9DCC-4EF3-931E-8249207E7B47} = {CE7343E2-CA89-4943-BA0B-3C7E6D8F0C15}
 		{67EC59EF-FB16-4ABD-A49F-BC1B84BC10EC} = {CE7343E2-CA89-4943-BA0B-3C7E6D8F0C15}
-		{23661566-BE5B-4CB8-BC2A-937E5A455C9F} = {CE7343E2-CA89-4943-BA0B-3C7E6D8F0C15}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DC31AD11-A921-43EF-9E43-6FB08B592FC3}

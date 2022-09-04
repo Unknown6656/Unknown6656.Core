@@ -1,4 +1,5 @@
 ﻿#nullable enable
+#if !NET7_0_OR_GREATER
 
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -834,3 +835,5 @@ public readonly unsafe struct UInt128
 
     #endregion
 }
+
+#endif

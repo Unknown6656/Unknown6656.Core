@@ -1,0 +1,17 @@
+General TODOs
+
+- generic wave collapse function
+    - use for texture generation
+- bitmap renderer
+    - ascii art creator
+    - ascii video renderer
+- vibrancy effect bitmap
+- white balance algorithm
+- purple fringing effect
+- purple fringing removal
+- hue split effect
+- rgb split effect
+- YAMLFile.cs
+- Quaternions
+- Maybe 3D Plotter
+- 

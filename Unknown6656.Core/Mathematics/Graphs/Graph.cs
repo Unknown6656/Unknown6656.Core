@@ -1,8 +1,6 @@
 ﻿// #define ID_API
 #define DEBUG
 
-#nullable enable
-
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;

@@ -10,8 +10,6 @@
 //   All your changes to this file will be lost upon re-generation.  //
 ///////////////////////////////////////////////////////////////////////
 
-#nullable enable
-
 using System;
 
 using Unknown6656.Mathematics.LinearAlgebra;

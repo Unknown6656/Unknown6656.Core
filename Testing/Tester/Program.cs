@@ -35,7 +35,6 @@ using winforms = System.Windows.Forms;
 namespace Testing;
 
 
-#nullable enable
 static class test
 {
     [MethodImpl(MethodImplOptions.InternalCall)]
@@ -59,7 +58,6 @@ static class test
 
     public class A<T>{}
 }
-#nullable restore
 
 public static class Program
 {

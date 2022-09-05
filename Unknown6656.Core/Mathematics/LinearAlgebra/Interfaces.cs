@@ -1,8 +1,6 @@
 ﻿// #define DEFAULT_IMPL
 #define READONLY
 
-#nullable enable
-
 
 #if DEFAULT_IMPL
 using System.ComponentModel;

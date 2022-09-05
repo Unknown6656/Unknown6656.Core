@@ -11,8 +11,6 @@
 
 #define READONLY
 
-#nullable enable
-
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;

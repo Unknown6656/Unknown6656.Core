@@ -1,6 +1,4 @@
-﻿#nullable enable 
-
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;

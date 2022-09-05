@@ -11,8 +11,6 @@
 
 // #define GENERIC_MATH
 
-#nullable enable
-
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;

@@ -49,17 +49,13 @@
         <AssemblyVersion>$([System.IO.File]::ReadAllText("$(SolutionDir)/version.txt"))</AssemblyVersion>
     </PropertyGroup>
     <ItemGroup>
-      <ProjectReference Include="..\Unknown6656.Core\Unknown6656.Core.csproj" />
-    </ItemGroup>
-    <ItemGroup>
-        <None Include="unknown6656-logo-1024.png" Pack="true" PackagePath="" />
-    </ItemGroup>
-    <ItemGroup>
+        <ProjectReference Include="..\Unknown6656.Core\Unknown6656.Core.csproj" />
         <PackageReference Include="Unknown6656.Generics" Version="0.9.10" />
+        <None Include="$(SolutionDir)Unknown6656.Core/unknown6656-logo-1024.png" Pack="true" PackagePath=""/>
     </ItemGroup>
     <ItemGroup>
-      <Compile Update="FunctionPlotterControl.WPF.cs">
-        <SubType>Code</SubType>
-      </Compile>
+        <Compile Update="FunctionPlotterControl.WPF.cs">
+            <SubType>Code</SubType>
+        </Compile>
     </ItemGroup>
 </Project>

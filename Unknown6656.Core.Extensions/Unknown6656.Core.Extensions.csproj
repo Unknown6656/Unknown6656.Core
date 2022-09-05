@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net7.0-windows</TargetFramework>
+
+        <LangVersion>preview</LangVersion>
+        <Nullable>enable</Nullable>
+        <EnablePreviewFeatures>True</EnablePreviewFeatures>
+        <NullableContextOptions>enable</NullableContextOptions>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+        <AssemblyName>Unknown6656.Core.Extensions</AssemblyName>
+        <RootNamespace>Unknown6656</RootNamespace>
+        <OutputPath>$(SolutionDir)bin</OutputPath>
+        <DocumentationFile></DocumentationFile>
+
+        <DefineConstants>TRACE;DOUBLE_PRECISION</DefineConstants>
+        <NoWarn>1701;1702;8652</NoWarn>
+
+        <!--<TrimMode>Link</TrimMode>-->
+        <Deterministic>true</Deterministic>
+        <PublishTrimmed>true</PublishTrimmed>
+        <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+        <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+        <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+        <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+        <Authors>unknown6656</Authors>
+        <Company>unknown6656</Company>
+        <Product>Unknown6656 Core Library - General Extensions</Product>
+        <Description>
+            Unknown6656 Core Library - Extensions.
+        </Description>
+        <Copyright>Copyright © 2014-$([System.DateTime]::Today.ToString(yyyy)), unknown6656</Copyright>
+        <PackageProjectUrl>https://github.com/unknown6656/Unknown6656.Core</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Unknown6656/Unknown6656.Core</RepositoryUrl>
+        <PackageIcon>unknown6656-logo-1024.png</PackageIcon>
+        <PackageTags>unknown6656;core;library;extentions;ssh</PackageTags>
+
+        <PackageId>Unknown6656.Core.Extensions</PackageId>
+        <IncludeSymbols>true</IncludeSymbols>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <RepositoryType>Git</RepositoryType>
+        <Version>$([System.IO.File]::ReadAllText("$(SolutionDir)/version.txt"))</Version>
+        <AssemblyVersion>$([System.IO.File]::ReadAllText("$(SolutionDir)/version.txt"))</AssemblyVersion>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="SSH.NET" Version="2020.0.2" />
+        <ProjectReference Include="..\Unknown6656.Core\Unknown6656.Core.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="unknown6656-logo-1024.png" />
+    </ItemGroup>
+</Project>

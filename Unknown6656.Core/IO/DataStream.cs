@@ -20,8 +20,6 @@ using System.Net;
 using System.IO;
 using System;
 
-using Renci.SshNet;
-
 using Unknown6656.Mathematics.LinearAlgebra;
 using Unknown6656.Mathematics.Cryptography;
 using Unknown6656.Mathematics.Numerics;
@@ -103,7 +101,6 @@ public unsafe class DataStream
     #region STATIC FIELDS / PROPERTIES
 
     private static readonly Regex FTP_PROTOCOL_REGEX = new(@"^(?<protocol>ftps?):\/\/(?<uname>[^:]+)(:(?<passw>[^@]+))?@(?<url>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-    private static readonly Regex SSH_PROTOCOL_REGEX = new(@"^(sftp|ssh|s?scp):\/\/(?<uname>[^:]+)(:(?<passw>[^@]+))?@(?<host>[^:\/]+|\[[0-9a-f\:]+\])(:(?<port>[0-9]{1,6}))?(\/|\\)(?<path>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly Regex BASE64_REGEX = new(@"^.\s*data:\s*[^\w\/\-\+]+\s*;(\s*base64\s*,)?(?<data>(?:[a-z0-9+/]{4})*(?:[a-z0-9+/]{2}==|[a-z0-9+/]{3}=)?)$", RegexOptions.Compiled | RegexOptions.Compiled);
     private static readonly FieldInfo _MEMORYSTREAM_ORIGIN;
     private static readonly FieldInfo _MEMORYSTREAM_BUFFER;
@@ -1216,32 +1213,6 @@ public unsafe class DataStream
         using (FtpWebResponse resp = (FtpWebResponse)req.GetResponse())
         using (Stream s = resp.GetResponseStream())
             return FromStream(s);
-    }
-
-    public static DataStream FromSSH(string uri)
-    {
-        if (uri.Match(SSH_PROTOCOL_REGEX, out ReadOnlyIndexer<string, string>? g))
-        {
-            string host = g["host"];
-            string uname = g["uname"];
-            string passw = g["passw"];
-            string rpath = '/' + g["path"];
-
-            if (!int.TryParse(g["port"], out int port))
-                port = 22;
-
-            using (SftpClient sftp = new(host, port, uname, passw))
-            using (MemoryStream ms = new())
-            {
-                sftp.Connect();
-                sftp.DownloadFile(rpath, ms);
-                sftp.Disconnect();
-
-                return FromStream(ms);
-            }
-        }
-        else
-            throw new ArgumentException($"Invalid SSH URI: The URI should have the format '<protocol>://<user>:<password>@<host>:<port>/<path>'.", nameof(uri));
     }
 
     public static DataStream FromDataURI(string uri)

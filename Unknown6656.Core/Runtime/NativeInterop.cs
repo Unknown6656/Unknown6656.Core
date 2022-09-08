@@ -67,6 +67,14 @@ internal static unsafe class NativeInterop
     [DllImport(KERNEL32, SetLastError = true, CharSet = CharSet.Unicode)]
     public static extern bool GetCurrentConsoleFontEx(void* hWnd, bool MaximumWindow, ref ConsoleFontInfo ConsoleCurrentFontEx);
 
+    [return: MarshalAs(UnmanagedType.Bool)]
+    [DllImport(KERNEL32, SetLastError = true, CharSet = CharSet.Unicode)]
+    public static extern bool ReadConsoleInput(nint hConsoleInput, [Out] INPUT_RECORD[] lpBuffer, int nLength, out int lpNumberOfEventsRead);
+
+    [return: MarshalAs(UnmanagedType.Bool)]
+    [DllImport(KERNEL32, SetLastError = true, CharSet = CharSet.Unicode)]
+    public static extern bool WriteConsoleInput(nint hConsoleInput, INPUT_RECORD[] lpBuffer, int nLength, out int lpNumberOfEventsWritten);
+
     [DllImport(KERNEL32)]
     [SupportedOSPlatform(OS.WIN)]
     public static extern void* VirtualAlloc(void* addr, int size, int type, int protect);

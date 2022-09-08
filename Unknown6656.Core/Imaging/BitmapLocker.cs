@@ -89,6 +89,24 @@ public unsafe class BitmapLocker
         return arr!;
     }
 
+    public RGBAColor[,] ToRGBAPixels2D()
+    {
+        RGBAColor[,]? arr = null;
+
+        LockRGBAPixels((ptr, w, h) =>
+        {
+            arr = new RGBAColor[w, h];
+
+            Parallel.For(0, arr.Length, i => arr[i % w, i / w] = ptr[i]);
+        });
+
+        return arr!;
+    }
+
+    public void FromPixelArray(RGBAColor[] array) => LockRGBAPixels((ptr, w, h) => Parallel.For(0, w * h, i => ptr[i] = array[i]));
+
+    public void FromPixelArray(RGBAColor[,] array) => LockRGBAPixels((ptr, w, h) => Parallel.For(0, w* h, i => ptr[i] = array[i % w, i / w]));
+
     public static implicit operator BitmapLocker(Bitmap bmp) => new(bmp);
 
     public static implicit operator Bitmap(BitmapLocker lck) => lck.Bitmap;

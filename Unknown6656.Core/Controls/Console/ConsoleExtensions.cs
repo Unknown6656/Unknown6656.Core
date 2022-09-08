@@ -72,6 +72,10 @@ public static unsafe class ConsoleExtensions
                                                      : throw new InvalidOperationException("This operation is not supported on non-Windows operating systems.");
 
     [SupportedOSPlatform(OS.WIN)]
+    public static void* STDERRHandle => OS.IsWindows ? NativeInterop.GetStdHandle(-12)
+                                                     : throw new InvalidOperationException("This operation is not supported on non-Windows operating systems.");
+
+    [SupportedOSPlatform(OS.WIN)]
     public static ConsoleMode STDINConsoleMode
     {
         set

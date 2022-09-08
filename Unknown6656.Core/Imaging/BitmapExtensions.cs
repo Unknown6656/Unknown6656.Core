@@ -53,7 +53,31 @@ public static unsafe class BitmapExtensions
         return res;
     }
 
+    public static Bitmap EmptyBitmap(int width, int height) => new(width, height);
+
+    public static Bitmap FromPixelArray(this RGBAColor[] array, int width, int height)
+    {
+        Bitmap bitmap = EmptyBitmap(width, height);
+        BitmapLocker locker = bitmap;
+
+        locker.FromPixelArray(array);
+
+        return bitmap;
+    }
+
+    public static Bitmap FromPixelArray(this RGBAColor[,] array)
+    {
+        Bitmap bitmap = EmptyBitmap(array.GetLength(0), array.GetLength(1));
+        BitmapLocker locker = bitmap;
+
+        locker.FromPixelArray(array);
+
+        return bitmap;
+    }
+
     public static RGBAColor[] ToPixelArray(this Bitmap bmp) => new BitmapLocker(bmp).ToRGBAPixels();
+
+    public static RGBAColor[,] ToPixelArray2D(this Bitmap bmp) => new BitmapLocker(bmp).ToRGBAPixels2D();
 
     public static void SaveAsJPEG(this Bitmap bmp, string path, int quality_level)
     {

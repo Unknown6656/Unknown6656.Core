@@ -1,55 +1,84 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Runtime.Versioning;
+using System.Drawing.Drawing2D;
 using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Runtime.Versioning;
-using System.Text;
-using System.Threading.Tasks;
-using Unknown6656.Controls.Console;
+using System;
+
 using Unknown6656.Mathematics.LinearAlgebra;
+using Unknown6656.Imaging.Effects;
 using Unknown6656.Runtime;
 
 namespace Unknown6656.Imaging.Rendering;
 
 
+[SupportedOSPlatform(OS.WIN)]
 public abstract class Renderer
 {
-    public virtual BitmapRenderingOptions Options { get; }
+    public virtual RenderingOptions Options { get; }
 
 
-    public Renderer(BitmapRenderingOptions options) => Options = options;
+    public Renderer(RenderingOptions options) => Options = options;
 
     public void Render(Bitmap bitmap) => Render(bitmap, Options);
 
-    public void Render(Bitmap bitmap, BitmapRenderingOptions options_override)
+    public virtual void Render(Bitmap bitmap, RenderingOptions options_override)
     {
         (int canv_w, int canv_h) = GetOutputDimensions();
-        (int img_w, int img_h) = GetOutputDimensions();
-        (double sx, double sy) = options_override.Size._scale;
+        (int src_w, int src_h) = (bitmap.Width, bitmap.Height);
+        (float sx, float sy) = options_override.Size._scale;
 
         if (options_override.Size._stretch)
         {
-            sx = (double)canv_w / img_w;
-            sy = (double)canv_h / img_h;
+            sx = (float)canv_w / src_w;
+            sy = (float)canv_h / src_h;
         }
 
         if (options_override.Size._contain)
-            sx = sy = Math.Min((double)canv_w / img_w, (double)canv_h / img_h);
+            sx = sy = Math.Min((float)canv_w / src_w, (float)canv_h / src_h);
 
         if (options_override.Size._cover)
-            sx = sy = Math.Max((double)canv_w / img_w, (double)canv_h / img_h);
+            sx = sy = Math.Max((float)canv_w / src_w, (float)canv_h / src_h);
 
-        //double
+        float img_w = src_w * sx;
+        float img_h = src_h * sy;
+        float px = options_override.Position.HorizontalAlignment switch
+        {
+            HorizontalAlignment.Left => 0,
+            HorizontalAlignment.Center => .5f,
+            HorizontalAlignment.Right => 1,
+        } * (canv_w - img_w) - options_override.Position.HorizontalOffset;
+        float py = options_override.Position.VerticalAlignment switch
+        {
+            VerticalAlignment.Top => 0,
+            VerticalAlignment.Center => .5f,
+            VerticalAlignment.Bottom => 1,
+        } * (canv_h - img_h) - options_override.Position.VerticalOffset;
 
-        throw new NotImplementedException();
+        Bitmap canvas = new(canv_w, canv_h);
+        using Graphics g = Graphics.FromImage(canvas);
+
+        g.CompositingMode = CompositingMode.SourceOver;
+        (g.InterpolationMode, g.SmoothingMode, g.CompositingQuality) = options_override.Interpolation switch
+        {
+            BitmapInterpolation.Bicubic => (InterpolationMode.HighQualityBicubic, SmoothingMode.AntiAlias, CompositingQuality.HighQuality),
+            BitmapInterpolation.Bilinear => (InterpolationMode.HighQualityBilinear, SmoothingMode.HighQuality, CompositingQuality.AssumeLinear),
+            BitmapInterpolation.NearestNeighbor => (InterpolationMode.NearestNeighbor, SmoothingMode.HighSpeed, CompositingQuality.HighSpeed),
+        };
+        g.Clear(options_override.Colors.BackgroundColor);
+        g.DrawImage(bitmap, px, py, img_w, img_h);
+
+        if (options_override.Colors._effect is { } fx)
+            canvas = fx.ApplyTo(canvas);
+
+        RGBAColor[,] colors = canvas.ToPixelArray2D();
+
+        canvas.Dispose();
+
+        RenderBitmap(colors, options_override);
     }
-
-
 
     protected abstract (int width, int height) GetOutputDimensions();
 
-    protected abstract void RenderBitmap(RGBAColor[,] colors);
+    protected abstract void RenderBitmap(RGBAColor[,] colors, RenderingOptions options_override);
 }
 
 [SupportedOSPlatform(OS.WIN)]
@@ -59,7 +88,7 @@ public unsafe class GDIWindowRenderer
     public void* HWND { get; }
 
 
-    public GDIWindowRenderer(void* hwnd, BitmapRenderingOptions options)
+    public GDIWindowRenderer(void* hwnd, RenderingOptions options)
         : base(options) => HWND = hwnd;
 
     protected override (int width, int height) GetOutputDimensions()
@@ -69,98 +98,101 @@ public unsafe class GDIWindowRenderer
         return (rect.Width, rect.Height);
     }
 
-    protected override void RenderBitmap(RGBAColor[,] colors)
+    protected override void RenderBitmap(RGBAColor[,] colors, RenderingOptions options_override)
     {
+        using Bitmap bmp = BitmapExtensions.FromPixelArray(colors);
         using Graphics g = Graphics.FromHwnd((nint)HWND);
 
-
-        throw new NotImplementedException();
-
+        g.CompositingMode = CompositingMode.SourceCopy;
+        g.CompositingQuality = CompositingQuality.HighSpeed;
+        g.InterpolationMode = InterpolationMode.NearestNeighbor;
+        g.SmoothingMode = SmoothingMode.HighSpeed;
+        g.PixelOffsetMode = PixelOffsetMode.None;
+        g.DrawImageUnscaled(bmp, 0, 0);
     }
 
-    public static GDIWindowRenderer FromConsoleWindow(BitmapRenderingOptions options) => new(NativeInterop.GetConsoleWindow(), options);
+    public static GDIWindowRenderer FromHwnd(nint hwnd, RenderingOptions options) => new((void*)hwnd, options);
+
+    public static GDIWindowRenderer FromHwnd(void* hwnd, RenderingOptions options) => new(hwnd, options);
+
+    public static GDIWindowRenderer FromConsoleWindow(RenderingOptions options) => new(NativeInterop.GetConsoleWindow(), options);
 }
 
-
-
-/*
-colors:
-    -grayscale
-    -original
-    -palette(...)
-
-dithering:
-    -none
-    -ordered(...)
-    -unordered(...)
-*/
-
-public sealed record BitmapRenderingOptions
+public record RenderingOptions
 {
-    public BitmapPosition Position { get; init; } = BitmapPosition.Center;
-    public BitmapSize Size { get; init; } = BitmapSize.Contain;
-    public BitmapColors Colors { get; init; } = BitmapColors.Original;
-    public BitmapDithering Dithering { get; init; }
+    public PositionOptions Position { get; init; } = PositionOptions.Center;
+    public SizeOptions Size { get; init; } = SizeOptions.Contain;
+    public ColorOptions Colors { get; init; } = ColorOptions.OriginalColors;
+    public BitmapInterpolation Interpolation { get; init; } = BitmapInterpolation.Bilinear;
 }
 
-public sealed record BitmapDithering
+public class ColorOptions
 {
-
-}
-
-public sealed record BitmapColors
-{
-    public static BitmapColors Original { get; } = new() { _original = true };
-
-
-    internal bool _original;
+    public static ColorOptions OriginalColors => new(null);
+    public static ColorOptions BlackAndWhite => FromPalette(ColorPalette.BlackAndWhite);
+    public static ColorOptions Grayscale => FromPalette(ColorPalette.Grayscale[256]);
 
     public RGBAColor BackgroundColor { get; set; } = RGBAColor.Transparent;
 
+    internal readonly BitmapEffect? _effect;
 
+
+    private ColorOptions(BitmapEffect? effect) => _effect = effect;
+
+    public static ColorOptions FromPalette(ColorPalette palette) => new(new Colorize(palette));
+
+    public static ColorOptions Dithered(ErrorDiffusionDitheringAlgorithm algorithm, ColorPalette palette) =>
+        new(new ErrorDiffusionDithering(algorithm, palette));
+
+    public static ColorOptions Dithered(OrderedDitheringAlgorithm algorithm) => new(new BlackWhiteOrderedDithering(algorithm));
+
+    public static ColorOptions Dithered(OrderedDitheringAlgorithm algorithm, int color_steps) => Dithered(algorithm, color_steps, color_steps, color_steps);
+
+    public static ColorOptions Dithered(OrderedDitheringAlgorithm algorithm, int red_color_steps, int green_color_steps, int blue_color_steps) =>
+        new(new ColoredOrderedDithering(algorithm, red_color_steps, green_color_steps, blue_color_steps));
 }
 
-public sealed record BitmapPosition(HorizontalAlignment HorizontalAlignment, double HorizontalOffset, VerticalAlignment VerticalAlignment, double VerticalOffset)
+public record PositionOptions(HorizontalAlignment HorizontalAlignment, float HorizontalOffset, VerticalAlignment VerticalAlignment, float VerticalOffset)
 {
-    public static BitmapPosition Center { get; } = new(HorizontalAlignment.Center, VerticalAlignment.Center);
+    public static PositionOptions Center { get; } = new(HorizontalAlignment.Center, VerticalAlignment.Center);
 
-    public static BitmapPosition CenterLeft { get; } = new(HorizontalAlignment.Left, VerticalAlignment.Center);
+    public static PositionOptions CenterLeft { get; } = new(HorizontalAlignment.Left, VerticalAlignment.Center);
 
-    public static BitmapPosition CenterRight { get; } = new(HorizontalAlignment.Right, VerticalAlignment.Center);
+    public static PositionOptions CenterRight { get; } = new(HorizontalAlignment.Right, VerticalAlignment.Center);
 
-    public static BitmapPosition CenterTop { get; } = new(HorizontalAlignment.Center, VerticalAlignment.Top);
+    public static PositionOptions CenterTop { get; } = new(HorizontalAlignment.Center, VerticalAlignment.Top);
 
-    public static BitmapPosition CenterBottom { get; } = new(HorizontalAlignment.Center, VerticalAlignment.Bottom);
+    public static PositionOptions CenterBottom { get; } = new(HorizontalAlignment.Center, VerticalAlignment.Bottom);
 
-    public static BitmapPosition BottomLeft { get; } = new(HorizontalAlignment.Left, VerticalAlignment.Bottom);
+    public static PositionOptions BottomLeft { get; } = new(HorizontalAlignment.Left, VerticalAlignment.Bottom);
 
-    public static BitmapPosition BottomRight { get; } = new(HorizontalAlignment.Right, VerticalAlignment.Bottom);
+    public static PositionOptions BottomRight { get; } = new(HorizontalAlignment.Right, VerticalAlignment.Bottom);
 
-    public static BitmapPosition TopLeft { get; } = new(HorizontalAlignment.Left, VerticalAlignment.Top);
+    public static PositionOptions TopLeft { get; } = new(HorizontalAlignment.Left, VerticalAlignment.Top);
 
-    public static BitmapPosition TopRight { get; } = new(HorizontalAlignment.Right, VerticalAlignment.Top);
+    public static PositionOptions TopRight { get; } = new(HorizontalAlignment.Right, VerticalAlignment.Top);
 
 
-    public BitmapPosition(HorizontalAlignment HorizontalAlignment, VerticalAlignment VerticalAlignment)
+    public PositionOptions(HorizontalAlignment HorizontalAlignment, VerticalAlignment VerticalAlignment)
         : this(HorizontalAlignment, 0, VerticalAlignment, 0)
     {
     }
 
-    public BitmapPosition(HorizontalAlignment HorizontalAlignment, VerticalAlignment VerticalAlignment, Vector2 Offset)
+    public PositionOptions(HorizontalAlignment HorizontalAlignment, VerticalAlignment VerticalAlignment, Vector2 Offset)
         : this(HorizontalAlignment, Offset.X, VerticalAlignment, Offset.Y)
     {
     }
 }
 
-public sealed record BitmapSize
+public class SizeOptions
 {
-    public static BitmapSize Cover { get; } = new() { _cover = true };
+    public static SizeOptions Cover { get; } = new() { _cover = true };
 
-    public static BitmapSize Contain { get; } = new() { _contain = true };
+    public static SizeOptions Contain { get; } = new() { _contain = true };
 
-    public static BitmapSize Original { get; } = Uniform(1);
+    public static SizeOptions Original { get; } = Uniform(1);
 
-    public static BitmapSize Stretch { get; } = new() { _stretch = true };
+    public static SizeOptions Stretch { get; } = new() { _stretch = true };
 
 
     internal bool _cover;
@@ -168,9 +200,20 @@ public sealed record BitmapSize
     internal bool _stretch;
     internal Vector2 _scale;
 
-    public static BitmapSize Uniform(double scale) => Anisotropic(scale, scale);
+    private SizeOptions()
+    {
+    }
 
-    public static BitmapSize Anisotropic(double horizontal_scale, double vertical_scale) => new() { _scale = (horizontal_scale, vertical_scale) };
+    public static SizeOptions Uniform(double scale) => Anisotropic(scale, scale);
+
+    public static SizeOptions Anisotropic(double horizontal_scale, double vertical_scale) => new() { _scale = (horizontal_scale, vertical_scale) };
+}
+
+public enum BitmapInterpolation
+{
+    Bilinear,
+    Bicubic,
+    NearestNeighbor,
 }
 
 public enum HorizontalAlignment

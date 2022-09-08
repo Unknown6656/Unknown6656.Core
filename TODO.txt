@@ -5,6 +5,8 @@ General TODOs
 - bitmap renderer
     - ascii art creator
     - ascii video renderer
+- apply glsl shader to bitmap
+- Switch to .NET7's generic math
 - vibrancy effect bitmap
 - white balance algorithm
 - purple fringing effect

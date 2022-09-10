@@ -69,9 +69,13 @@ public class ASCIIConsoleRenderer
     }
 }
 
-public record ASCIIRenderingOptions(int Width = 30, int Height = 15)
+public record ASCIIRenderingOptions
     : RenderingOptions
 {
+    public required int Width { get; init; } = 30;
+    public required int Height { get; init; } = 15;
+    public double CharacterAspectRatio { get; init; } = .5;
+
     /// <summary>
     /// Ordered by darkness descending
     /// </summary>

@@ -2,18 +2,18 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System;
 
+using Unknown6656.Generics;
 using Unknown6656.Runtime;
 
 namespace Unknown6656.Controls.Console;
 
 
-public delegate void ConsoleMouseEvent(MouseEvent r);
-
-public delegate void ConsoleKeyEvent(KeyEvent r);
+public delegate void ConsoleMouseEventHandler(int x, int y, MouseButtons buttons, ModifierKeysState modifiers);
 
 
 public static class ConsoleMouseListener
@@ -23,10 +23,11 @@ public static class ConsoleMouseListener
 
     public static bool IsRunning => _running;
 
-    public static event ConsoleMouseEvent? MouseEvent;
-
-    public static event ConsoleKeyEvent? KeyEvent;
-
+    public static event ConsoleMouseEventHandler? MouseMove;
+    public static event ConsoleMouseEventHandler? MouseDoubleClick;
+    public static event ConsoleMouseEventHandler? MouseHorizontalWheel;
+    public static event ConsoleMouseEventHandler? MouseVerticalWheel;
+    // TODO : key events
 
     public static void Start()
     {
@@ -36,34 +37,53 @@ public static class ConsoleMouseListener
 
             Task.Factory.StartNew(async delegate
             {
-                nint handleIn;
+                nint handle;
                 unsafe
                 {
-                    handleIn = (nint)ConsoleExtensions.STDINHandle;
+                    handle = (nint)ConsoleExtensions.STDINHandle;
                 }
+                ConsoleMode mode = ConsoleExtensions.STDINConsoleMode;
+                ConsoleExtensions.STDINConsoleMode = (mode | ConsoleMode.ENABLE_MOUSE_INPUT
+                                                           | ConsoleMode.ENABLE_WINDOW_INPUT
+                                                           | ConsoleMode.ENABLE_EXTENDED_FLAGS)
+                                                          & ~ConsoleMode.ENABLE_QUICK_EDIT_MODE;
 
                 while (_running)
-                {
-                    INPUT_RECORD[] record = { new() };
-                    NativeInterop.ReadConsoleInput(handleIn, record, record.Length, out int read);
-
-                    if (!_running)
-                        NativeInterop.WriteConsoleInput(handleIn, record, record.Length, out _);
-                    else if (read > 0)
-                        switch (record[0].EventType)
+                    if (NativeInterop.GetNumberOfConsoleInputEvents(handle, out int count))
+                        try
                         {
-                            case EventType.MouseEvent:
-                                MouseEvent?.Invoke(record[0].MouseEvent);
-                                break;
-                            case EventType.KeyEvent:
-                                KeyEvent?.Invoke(record[0].KeyEvent);
-                                break;
-                            case EventType.BufferSizeEvent:
-                                break;
+                            List<INPUT_RECORD> records = Enumerable.Repeat(new INPUT_RECORD(), count).ToList();
+                            NativeInterop.ReadConsoleInput(handle, records.GetInternalArray(), count, out int read);
+
+                            if (read < records.Count)
+                                records.RemoveRange(read, records.Count - read);
+
+                            for (int i = 0; i < records.Count; ++i)
+                                if (records[i] is { EventType: EventType.MouseEvent, MouseEvent: { } @event })
+                                {
+                                    (@event.dwEventFlags switch
+                                    {
+                                        MouseActions.Movement => MouseMove,
+                                        MouseActions.DoubleClick => MouseDoubleClick,
+                                        MouseActions.Wheel => MouseVerticalWheel,
+                                        MouseActions.HorizontalWheel => MouseHorizontalWheel,
+                                        _ => null
+                                    })?.Invoke(@event.wMousePositionX, @event.wMousePositionY, @event.dwButtonState, @event.dwControlKeyState);
+                                    records.RemoveAt(i--);
+                                }
+                                // TODO : key event
+
+                            if (records.Count > 0)
+                                NativeInterop.WriteConsoleInput(handle, records.ToArray(), records.Count, out _);
+                        }
+                        catch (Exception e)
+                        {
+                            System.Console.WriteLine(e);
                         }
                     else
                         await Task.Delay(10);
-                }
+
+                ConsoleExtensions.STDINConsoleMode = mode;
             });
         }
     }
@@ -72,7 +92,7 @@ public static class ConsoleMouseListener
 }
 
 [StructLayout(LayoutKind.Explicit)]
-internal struct INPUT_RECORD
+internal record struct INPUT_RECORD
 {
     [FieldOffset(0)]
     public EventType EventType;
@@ -80,12 +100,14 @@ internal struct INPUT_RECORD
     public KeyEvent KeyEvent;
     [FieldOffset(4)]
     public MouseEvent MouseEvent;
-    // [FieldOffset(4)]
-    // public (short X, short Y) WindowBufferSizeEvent;
+    [FieldOffset(4)]
+    public short WindowBufferSizeEventX;
+    [FieldOffset(6)]
+    public short WindowBufferSizeEventY;
     // [FieldOffset(4)]
     // public MENU_EVENT_RECORD MenuEvent;
-    // [FieldOffset(4)]
-    // public FOCUS_EVENT_RECORD FocusEvent;
+    [FieldOffset(4)]
+    public int FocusEvent;
 }
 
 public enum EventType
@@ -134,16 +156,17 @@ public enum ModifierKeysState
     Enhanced = 0x0100,
 }
 
-public struct MouseEvent
+public record struct MouseEvent
 {
-    public (short X, short Y) dwMousePosition;
+    public short wMousePositionX;
+    public short wMousePositionY;
     public MouseButtons dwButtonState;
     public ModifierKeysState dwControlKeyState;
     public MouseActions dwEventFlags;
 }
 
 [StructLayout(LayoutKind.Explicit, CharSet = CharSet.Unicode)]
-public struct KeyEvent
+public record struct KeyEvent
 {
     [FieldOffset(0)]
     public bool bKeyDown;

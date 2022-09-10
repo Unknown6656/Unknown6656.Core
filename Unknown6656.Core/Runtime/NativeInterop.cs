@@ -73,6 +73,14 @@ internal static unsafe class NativeInterop
 
     [return: MarshalAs(UnmanagedType.Bool)]
     [DllImport(KERNEL32, SetLastError = true, CharSet = CharSet.Unicode)]
+    public static extern bool PeekConsoleInput(nint hConsoleInput, [Out] INPUT_RECORD[] lpBuffer, int nLength, out int lpNumberOfEventsRead);
+
+    [return: MarshalAs(UnmanagedType.Bool)]
+    [DllImport(KERNEL32, SetLastError = true)]
+    public static extern bool GetNumberOfConsoleInputEvents(nint hConsoleInput, out int lpcNumberOfEvents);
+
+    [return: MarshalAs(UnmanagedType.Bool)]
+    [DllImport(KERNEL32, SetLastError = true, CharSet = CharSet.Unicode)]
     public static extern bool WriteConsoleInput(nint hConsoleInput, INPUT_RECORD[] lpBuffer, int nLength, out int lpNumberOfEventsWritten);
 
     [DllImport(KERNEL32)]

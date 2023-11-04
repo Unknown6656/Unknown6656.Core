@@ -139,7 +139,7 @@ public class ColorOptions
 
     private ColorOptions(BitmapEffect? effect) => _effect = effect;
 
-    public static ColorOptions FromPalette(ColorPalette palette) => new(new Colorize(palette));
+    public static ColorOptions FromPalette(ColorPalette palette) => new(new ReduceColorSpace(palette));
 
     public static ColorOptions Dithered(ErrorDiffusionDitheringAlgorithm algorithm, ColorPalette palette) =>
         new(new ErrorDiffusionDithering(algorithm, palette));

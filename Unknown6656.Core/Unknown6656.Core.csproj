@@ -4,6 +4,7 @@
 
         <LangVersion>Preview</LangVersion>
         <EnablePreviewFeatures>True</EnablePreviewFeatures>
+        <GenerateRequiresPreviewFeaturesAttribute>False</GenerateRequiresPreviewFeaturesAttribute>
         <Nullable>enable</Nullable>
         <NullableContextOptions>enable</NullableContextOptions>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

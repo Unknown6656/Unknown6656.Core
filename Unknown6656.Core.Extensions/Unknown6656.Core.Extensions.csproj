@@ -48,7 +48,7 @@
         <AssemblyVersion>$([System.IO.File]::ReadAllText("$(SolutionDir)/version.txt"))</AssemblyVersion>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="SSH.NET" Version="2020.0.2" />
+        <PackageReference Include="SSH.NET" Version="2023.0.0" />
         <ProjectReference Include="..\Unknown6656.Core\Unknown6656.Core.csproj" />
         <None Include="$(SolutionDir)Unknown6656.Core/unknown6656-logo-1024.png" Pack="true" PackagePath=""/>
     </ItemGroup>

@@ -41,7 +41,6 @@ public static partial class MathExtensions
         return num;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int[] GetOffsets(this Range range, int length, int offset = 0)
     {
         int start = range.Start.GetOffset(length) + offset;
@@ -54,7 +53,6 @@ public static partial class MathExtensions
         return arr;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsPowerOf2<T>(this T l)
         where T : struct
                 , num.IBitwiseOperators<T, T, T>
@@ -68,35 +66,26 @@ public static partial class MathExtensions
         return (c & l) == default;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsZero(this double v) => Abs(v) <= 2 * double.Epsilon;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool Is(this double x, double y) => Scalar.Is(x, y);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool Are(this IEnumerable<double> xs, IEnumerable<double> ys) => xs.Are(ys, Scalar.EqualityComparer);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool Are(this IEnumerable<Scalar> xs, IEnumerable<Scalar> ys) => xs.Are(ys, Scalar.EqualityComparer);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool Are(this IEnumerable<float> xs, IEnumerable<float> ys) => xs.Are(ys, Scalar.EqualityComparer);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double Clamp(this double x) => x.Clamp(0, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Clamp<T>(this T scalar, T min, T max) where T : num.IComparisonOperators<T, T, bool> => scalar <= min ? min : scalar >= max ? max : scalar;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T Map<T>(this T scalar, (T lower, T upper) from, (T lower, T upper) to)
         where T : num.IDivisionOperators<T, T, T>
                 , num.ISubtractionOperators<T, T, T>
                 , num.IMultiplyOperators<T, T, T>
                 , num.IAdditionOperators<T, T, T> => (scalar - from.lower) / (from.upper - from.lower) * (to.upper - to.lower) + to.lower;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T ClampMap<T>(this T scalar, (T lower, T upper) from, (T lower, T upper) to)
         where T : num.IDivisionOperators<T, T, T>
                 , num.ISubtractionOperators<T, T, T>
@@ -105,16 +94,12 @@ public static partial class MathExtensions
                 , num.IComparisonOperators<T, T, bool> => scalar.Clamp(from.lower, from.upper).Map(from, to);
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float Product(this IEnumerable<float> scalars) => scalars.Aggregate(1f, (s1, s2) => s1 * s2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double Product(this IEnumerable<double> scalars) => scalars.Aggregate(1d, (s1, s2) => s1 * s2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static decimal Product(this IEnumerable<decimal> scalars) => scalars.Aggregate(1m, (s1, s2) => s1 * s2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [return: MaybeNull]
     public static T Median<T>(this IEnumerable<T> scalars)
         where T : IComparable<T>
@@ -124,19 +109,14 @@ public static partial class MathExtensions
         return ordered.Length == 0 ? default : ordered[ordered.Length / 2];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float Average(this IEnumerable<float>? scalars) => (scalars as float[] ?? scalars?.ToArray()) is float[] arr ? arr.Sum() / arr.Length : 0f;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double Average(this IEnumerable<double>? scalars) => (scalars as double[] ?? scalars?.ToArray()) is double[] arr ? arr.Sum() / arr.Length : 0d;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static decimal Average(this IEnumerable<decimal>? scalars) => (scalars as decimal[] ?? scalars?.ToArray()) is decimal[] arr ? arr.Sum() / arr.Length : 0m;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float Variance(this IEnumerable<float>? scalars) => (float)Variance(scalars?.Select(Convert.ToDouble));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double Variance(this IEnumerable<double>? scalars)
     {
         double avg = scalars.Average();
@@ -144,16 +124,12 @@ public static partial class MathExtensions
         return Pow(scalars?.Sum(x => x - avg) ?? 0, 2);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float StandardDeviation(this IEnumerable<float>? scalars) => (float)StandardDeviation(scalars?.Select(Convert.ToDouble));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double StandardDeviation(this IEnumerable<double>? scalars) => Sqrt(scalars.Variance());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static decimal StandardDeviation(this IEnumerable<decimal>? scalars) => (decimal)StandardDeviation(scalars?.Select(Convert.ToDouble));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float GeometricMean(this IEnumerable<float> scalars) => (float)GeometricMean(scalars.Select(Convert.ToDouble));
 
     public static double GeometricMean(this IEnumerable<double> scalars)
@@ -163,7 +139,6 @@ public static partial class MathExtensions
         return Pow(arr.Product(), 1d / arr.Length);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static decimal GeometricMean(this IEnumerable<decimal> scalars) => (decimal)GeometricMean(scalars.Select(Convert.ToDouble));
 
     /// <summary>
@@ -189,10 +164,8 @@ public static partial class MathExtensions
         return last_avg;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double FastPow(this double @base, double exp) => Exp(Log(@base) * exp);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static unsafe float FastUnsafeInverseSqrt(float x)
     {
         float x2 = x * .5f;
@@ -206,7 +179,6 @@ public static partial class MathExtensions
         return x;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static unsafe float FastUnsafeLog2(float x)
     {
         const int f_one = 0x3f800000; // 1.0f
@@ -215,7 +187,6 @@ public static partial class MathExtensions
         return (*(int*)&x - f_one) * down;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static unsafe float FastUnsafeExp2(float x)
     {
         const int f_one = 0x3f800000; // 1.0f
@@ -223,7 +194,6 @@ public static partial class MathExtensions
         return BitConverter.Int32BitsToSingle(*(int*)&x + f_one);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static unsafe float FastUnsafePow(float x, float y)
     {
         const int f_one = 0x3f800000; // 1.0f
@@ -231,7 +201,6 @@ public static partial class MathExtensions
         return BitConverter.Int32BitsToSingle((int)(y * (*(int*)&x - f_one)) + f_one);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static unsafe float FastUnsafeSqrt(float x)
     {
         const int f_one = 0x03f80000; // 1.0f >> 1
@@ -248,28 +217,20 @@ public static partial class MathExtensions
         return y;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double ACosh(this double x) => x < 1 ? 0 : Log(x + Sqrt(x * x - 1));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double ASinh(this double x) => (x < 0 ? -1 : x > 0 ? 1 : 0) * Log(Abs(x) + Sqrt(1 + x * x));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double ATanh(this double x) => Abs(x) >= 1 ? 0 : .5f * Log((1 + x) / (1 - x));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double Degrees(this double radians) => radians * 57.295779513082320876798154814105;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar Degrees(this Scalar radians) => radians * 57.295779513082320876798154814105;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double Radians(this double degrees) => degrees * 0.01745329251994329576923690768489;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar Radians(this Scalar degrees) => degrees * 0.01745329251994329576923690768489;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static unsafe T BitRotateLeft<T>(this T value, int offset) where T : unmanaged => BitRotateLeft(value, offset, sizeof(T));
 
     public static unsafe T BitRotateLeft<T>(this T value, int offset, int bit_size) where T : unmanaged
@@ -294,7 +255,6 @@ public static partial class MathExtensions
         return *(T*)&result;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static unsafe bool HasFlag<T>(this T value, T flag)
         where T : unmanaged
     {
@@ -308,13 +268,10 @@ public static partial class MathExtensions
         return false;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static unsafe T ROL<T>(this T value, int offset) where T : unmanaged => BitRotateLeft(value, offset);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static unsafe T ROR<T>(this T value, int offset) where T : unmanaged => ROL(value, -offset);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte[] XOR(this byte[] arr1, byte[] arr2)
     {
         byte[] res = new byte[Min(arr1.Length, arr2.Length)];
@@ -324,10 +281,8 @@ public static partial class MathExtensions
         return res;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static unsafe T* ToPointer<T>(this ref T value) where T : unmanaged => (T*)Unsafe.AsPointer(ref value);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static unsafe ref T ToRef<T>(T* pointer) where T : unmanaged => ref Unsafe.AsRef<T>(pointer);
 
     public static unsafe void SetLeastSignificantBit<T>(this ref T value, int bit_position, bool bit) where T : unmanaged => value.SetMostSignificantBit(sizeof(T) - 1 - bit_position, bit);
@@ -376,7 +331,6 @@ public static partial class MathExtensions
         return r;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ulong GreatestCommonDivisor(ulong a, ulong b)
     {
         while (a != 0 && b != 0)
@@ -388,7 +342,6 @@ public static partial class MathExtensions
         return a == 0 ? b : a;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bint GreatestCommonDivisor(bint a, bint b)
     {
         if (a < 0)
@@ -406,13 +359,10 @@ public static partial class MathExtensions
         return a.IsZero ? b : a;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bint LeastCommonMultiple(bint a, bint b) => (a / GreatestCommonDivisor(a, b)) * b;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ulong LeastCommonMultiple(ulong a, ulong b) => (a / GreatestCommonDivisor(a, b)) * b;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsPrime(this bint number)
     {
         if (number < 2)
@@ -426,13 +376,10 @@ public static partial class MathExtensions
         return !Enumerable.Range(limit + 1, (int)Sqrt((double)number) - limit).AsParallel().Select(i => number % i).Any(i => i == 0);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int BinomialCoefficient(int n, int k) => (int)BinomialCoefficient((bint)n, k);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static long BinomialCoefficient(long n, long k) => (long)BinomialCoefficient((bint)n, k);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bint BinomialCoefficient(bint n, bint k)
     {
         bint result = 1;
@@ -443,7 +390,6 @@ public static partial class MathExtensions
         return result;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bint[] PrimeFactorization(this bint a)
     {
         List<bint> f = new();
@@ -458,7 +404,6 @@ public static partial class MathExtensions
         return [.. f];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bint? Phi(this bint a) => a.PrimeFactorization().ToArray() is { Length: 2 } l ? (bint?)((l[0] - 1) * (l[1] - 1)) : null;
 
     public static void InterlockedMinMax(ref double min, ref double max, double value)

@@ -514,10 +514,8 @@ public sealed class BytewiseEncoding
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetByteCount(char[] chars, int index, int count) => count;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetBytes(char[] chars, int charIndex, int charCount, byte[] bytes, int byteIndex)
     {
         for (int i = 0; i < charCount; ++i)
@@ -526,10 +524,8 @@ public sealed class BytewiseEncoding
         return charCount;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetCharCount(byte[] bytes, int index, int count) => count;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetChars(byte[] bytes, int byteIndex, int byteCount, char[] chars, int charIndex)
     {
         for (int i = 0; i < byteCount; ++i)
@@ -538,9 +534,7 @@ public sealed class BytewiseEncoding
         return byteCount;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetMaxByteCount(int charCount) => charCount;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetMaxCharCount(int byteCount) => byteCount;
 }

@@ -19,19 +19,14 @@ public static class Sequences
 
     public static Sequence<int> Primes => new(MathExtensions._primes);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Sequence<bint> Collatz(bint start = default) => (start, i => i.IsEven ? i / 2 : i * 3 + 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Sequence<double> AllNumbers(double epsilon = double.Epsilon * 2) => (0, s => -s * (1 + (s > 0 ? 0 : epsilon)));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Sequence<Scalar> InclusiveRange(Scalar start, Scalar end, uint stepcount) => InclusiveInterval(start, end, (end - start) / stepcount);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Sequence<Scalar> InclusiveInterval(Scalar start, Scalar end) => InclusiveInterval(start, end, Scalar.ComputationalEpsilon);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Sequence<Scalar> InclusiveInterval(Scalar start, Scalar end, Scalar step)
     {
         IEnumerable<Scalar> iter()
@@ -55,10 +50,8 @@ public static class Sequences
         return iter().ToSequence();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Sequence<Scalar> OpenInterval(Scalar start, bool ascending = true) => OpenInterval(start, Scalar.ComputationalEpsilon, ascending);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Sequence<Scalar> OpenInterval(Scalar start, Scalar step, bool ascending = true) => (start, i => ascending ? i + step : i - step);
 
 

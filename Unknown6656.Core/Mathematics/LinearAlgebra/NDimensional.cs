@@ -289,25 +289,21 @@ public unsafe abstract class VectorN<Vector, Matrix, Polynomial, Scalar>
     #endregion
     #region CONSTRUCTORS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public VectorN(in Vector vector)
         : this(vector._coefficients)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public VectorN(int size, Scalar value)
         : this(Enumerable.Repeat(value, size))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public VectorN(params Scalar[]? coefficients)
         : this(coefficients as IEnumerable<Scalar>)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public VectorN(IEnumerable<Scalar>? coefficients) => _coefficients = coefficients?.ToArray() ?? Array.Empty<Scalar>();
 
     #endregion
@@ -329,58 +325,41 @@ public unsafe abstract class VectorN<Vector, Matrix, Polynomial, Scalar>
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector Negate() => FromCoefficients(_coefficients.Select(c => c.Negate()));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector Add(in Vector second) => Size != second.Size ? throw new ArgumentException("Mismatching dimensions: Both vectors must have the same dimensions.", nameof(second))
                                                                : FromCoefficients(_coefficients.ZipOuter(second._coefficients, (x, y) => x.Add(y)));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector Add(params Vector[] others) => others.Aggregate((Vector)this, (t, n) => t.Add(n));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector Subtract(in Vector second) => Add(second.AdditiveInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector Subtract(params Vector[] others) => others.Aggregate((Vector)this, (t, n) => t.Subtract(n));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector Increment() => Add(ScalarVector(Size, Scalar.One));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector Decrement() => Subtract(ScalarVector(Size, Scalar.One));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector Multiply(Scalar factor) => FromCoefficients(_coefficients.Select(c => c.Multiply(factor)));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector Multiply(params Scalar[] factors) => factors.Aggregate((Vector)this, (t, n) => t.Multiply(n));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector Divide(Scalar factor) => Multiply(factor.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector Divide(params Scalar[] factors) => factors.Aggregate((Vector)this, (t, n) => t.Divide(n));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector Modulus(Scalar factor) => FromCoefficients(_coefficients.Select(c => c.Modulus(factor)));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector ComponentwiseDivide(in Vector second) => Size != second.Size ? throw new ArgumentException("Mismatching dimensions: Both vectors must have the same dimensions.", nameof(second))
                                                                                : FromCoefficients(_coefficients.ZipOuter(second._coefficients, (x, y) => x.Divide(y)));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector ComponentwiseMultiply(in Vector second) => Size != second.Size ? throw new ArgumentException("Mismatching dimensions: Both vectors must have the same dimensions.", nameof(second))
                                                                                  : FromCoefficients(_coefficients.ZipOuter(second._coefficients, (x, y) => x.Multiply(y)));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector ComponentwiseAbsolute() => FromCoefficients(_coefficients.Select(c => c.Abs()));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector ComponentwisSqrt() => FromCoefficients(_coefficients.Select(c => c.Sqrt()));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector Power(int e)
     {
         if (e < 0)
@@ -404,7 +383,6 @@ public unsafe abstract class VectorN<Vector, Matrix, Polynomial, Scalar>
         return r;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Scalar Dot(in Vector other)
     {
         if (Size != other.Size)
@@ -418,10 +396,8 @@ public unsafe abstract class VectorN<Vector, Matrix, Polynomial, Scalar>
         return acc;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsOrthogonal(in Vector second) => Dot(second).IsZero;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector Reflect(in Vector normal)
     {
         Scalar θ = Dot(normal);
@@ -429,10 +405,8 @@ public unsafe abstract class VectorN<Vector, Matrix, Polynomial, Scalar>
         return normal.Multiply(θ.Add(θ)).Subtract(this);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Scalar DistanceTo(in Vector second) => Subtract(second).Length;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Refract(in Vector normal, Scalar eta, out Vector refracted)
     {
         Scalar θ = Dot(normal);
@@ -444,7 +418,6 @@ public unsafe abstract class VectorN<Vector, Matrix, Polynomial, Scalar>
         return res;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsLinearDependant(in Vector other, out Scalar? factor)
     {
         factor = null;
@@ -460,10 +433,8 @@ public unsafe abstract class VectorN<Vector, Matrix, Polynomial, Scalar>
         return factor != null;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Scalar AngleTo(in Vector second) => Dot(second).Acos();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix OuterProduct(in Vector second)
     {
         Scalar[,] coeff = new Scalar[Size, Size];
@@ -475,18 +446,14 @@ public unsafe abstract class VectorN<Vector, Matrix, Polynomial, Scalar>
         return Matrix.FromCoefficients(coeff);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Scalar GetEntry(int index) => index < 0 || index > _coefficients.Length ? throw new IndexOutOfRangeException($"The index must be a positive number smaller than {_coefficients.Length}.")
                                                                               : _coefficients[index];
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual Vector SetEntry(int index, Scalar value) => index < 0 || index > _coefficients.Length ? throw new IndexOutOfRangeException($"The index must be a positive number smaller than {_coefficients.Length}.")
                                                                                                          : Vector.FromCoefficients(_coefficients.Take(index).Append(value).Concat(_coefficients.Skip(index + 1)));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector GetEntries(Range rows) => FromArray(_coefficients[rows]); // TODO : range checks
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual Vector SetEntries(Range rows, Vector values)
     {
         // TODO : range checks
@@ -501,7 +468,6 @@ public unsafe abstract class VectorN<Vector, Matrix, Polynomial, Scalar>
         return FromArray(t);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual Vector SwapEntries(int src_idx, int dst_idx)
     {
         // TODO : range checks
@@ -515,17 +481,13 @@ public unsafe abstract class VectorN<Vector, Matrix, Polynomial, Scalar>
         return FromArray(t);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector GetMinor(int row) => FromCoefficients(_coefficients.Take(row).Concat(_coefficients.Skip(row + 1)));
 
     /// <inheritdoc cref="IVector{V, S}.Clamp(S, S)"/>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector Clamp() => Clamp(Scalar.Zero, Scalar.One);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector Clamp(Scalar low, Scalar high) => FromCoefficients(_coefficients.Select(c => c.Clamp(low, high)));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector NormalizeMinMax()
     {
         Scalar min = CoefficientMin;
@@ -534,91 +496,65 @@ public unsafe abstract class VectorN<Vector, Matrix, Polynomial, Scalar>
         return FromCoefficients(_coefficients.Select(c => c.Subtract(min).Divide(fac)));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector LinearInterpolate(in Vector other, Scalar factor) => Multiply(Scalar.One.Subtract(factor)).Add(other.Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int CompareTo(Vector? other) => other is null ? 1 : Length.CompareTo(other.Length);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int CompareTo(object? other) => other is { } ? CompareTo((Vector)other) : throw new ArgumentNullException(nameof(other));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Is(Vector? other) => other is { } && _coefficients.Are(other._coefficients, EqualityComparer<Scalar>.Default);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Is(Vector other, Scalar tolerance) => Size == other.Size && _coefficients.Zip(other._coefficients, (c1, c2) => c1.Subtract(c2).Abs().CompareTo(tolerance)).All(c => c <= 0);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsNot(Vector other) => !Is(other);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetHashCode() => LINQ.GetHashCode(_coefficients);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool Equals(object? obj) => obj is Vector v && Equals(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Equals(Vector? other) => Is(other);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override string ToString() => $"({string.Join(", ", _coefficients)})";
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerator<Scalar> GetEnumerator() => _coefficients.Cast<Scalar>().GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator IEnumerable.GetEnumerator() => _coefficients.GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public object Clone() => FromArray(_coefficients);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Scalar[] ToArray() => Coefficients;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public X[] ToArray<X>() where X : unmanaged => _coefficients.CopyTo<Scalar, X>();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ToNative<X>(X* dst) where X : unmanaged => _coefficients.CopyTo(dst);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Polynomial ToPolynomial() => Polynomial.CreatePolynomial(_coefficients);
 
     #endregion
     #region STATIC FUNCTIONS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector ZeroVector(int size) => ScalarVector(size, default);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector ScalarVector(int size, Scalar s) => FromCoefficients(Enumerable.Repeat(s, size));
 
     /// <inheritdoc cref="Algebra{S}.IEucledianVectorSpace{V}.Dot(V)"/>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar Dot(in Vector v1, in Vector v2) => v1.Dot(v2);
 
     /// <inheritdoc cref="AngleTo"/>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar AngleBetween(in Vector v1, in Vector v2) => v1.AngleTo(v2);
 
     /// <inheritdoc cref="Algebra{S}.IVectorSpace{V}.IsLinearDependant(V, out S?)"/>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsLinearDependant(in Vector v1, in Vector v2) => v1.IsLinearDependant(v2, out _);
 
     /// <inheritdoc cref="Algebra{S}.IVector{V, M}.OuterProduct"/>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix OuterProduct(in Vector v1, in Vector v2) => v1.OuterProduct(v2);
 
     /// <inheritdoc cref="Algebra{S}.IVectorSpace{V}.LinearInterpolate(V, S)"/>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector LinearInterpolate(in Vector v1, in Vector v2, Scalar factor) => v1.LinearInterpolate(v2, factor);
 
     /// <inheritdoc cref="IsLinearDependant(Vector, out Scalar?)"/>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsLinearDependant(in Vector v1, in Vector v2, out Scalar? factor) => v1.IsLinearDependant(v2, out factor);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector FromArray(params Scalar[] v) => FromCoefficients(v);
 
     public static Vector FromCoefficients(params Scalar[] coefficients) => Vector.FromCoefficients(coefficients);
@@ -628,28 +564,20 @@ public unsafe abstract class VectorN<Vector, Matrix, Polynomial, Scalar>
     #endregion
     #region OPERATORS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static bool IEquality<Vector>.operator ==(Vector? first, Vector? second) => first == second;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static bool IEquality<Vector>.operator !=(Vector? first, Vector? second) => first != second;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(in VectorN<Vector, Matrix, Polynomial, Scalar>? v1, in VectorN<Vector, Matrix, Polynomial, Scalar>? v2) => v1?.Is(v2) ?? v2 is null;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(in VectorN<Vector, Matrix, Polynomial, Scalar>? v1, in VectorN<Vector, Matrix, Polynomial, Scalar>? v2) => !(v1 == v2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <(in VectorN<Vector, Matrix, Polynomial, Scalar> v1, in VectorN<Vector, Matrix, Polynomial, Scalar> v2) => v1.CompareTo(v2) < 0;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <=(in VectorN<Vector, Matrix, Polynomial, Scalar> v1, in VectorN<Vector, Matrix, Polynomial, Scalar> v2) => v1 == v2 || v1 < v2;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >(in VectorN<Vector, Matrix, Polynomial, Scalar> v1, in VectorN<Vector, Matrix, Polynomial, Scalar> v2) => v1.CompareTo(v2) > 0;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >=(in VectorN<Vector, Matrix, Polynomial, Scalar> v1, in VectorN<Vector, Matrix, Polynomial, Scalar> v2) => v1 == v2 || v1 > v2;
 
     /// <summary>
@@ -657,79 +585,54 @@ public unsafe abstract class VectorN<Vector, Matrix, Polynomial, Scalar>
     /// </summary>
     /// <param name="v">Original vector</param>
     /// <returns>Normalized vector</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector operator ~(in VectorN<Vector, Matrix, Polynomial, Scalar> v) => v.Normalized;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector operator +(in VectorN<Vector, Matrix, Polynomial, Scalar> v) => v;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static Vector IGroup<Vector>.operator +(in Vector group) => group;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static Vector IGroup<Vector>.operator -(in Vector group) => group.Negate();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector operator -(in VectorN<Vector, Matrix, Polynomial, Scalar> v) => v.Negate();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector operator ++(in VectorN<Vector, Matrix, Polynomial, Scalar> v) => v.Increment();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector operator --(in VectorN<Vector, Matrix, Polynomial, Scalar> v) => v.Decrement();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector operator +(in VectorN<Vector, Matrix, Polynomial, Scalar> v1, in VectorN<Vector, Matrix, Polynomial, Scalar> v2) => v1.Add(v2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static Vector INumericGroup<Vector>.operator +(in Vector first, in Vector second) => first.Add(second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector operator -(in VectorN<Vector, Matrix, Polynomial, Scalar> v1, in VectorN<Vector, Matrix, Polynomial, Scalar> v2) => v1.Subtract(v2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static Vector IGroup<Vector>.operator -(in Vector first, in Vector second) => first.Subtract(second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar operator *(in VectorN<Vector, Matrix, Polynomial, Scalar> v1, in VectorN<Vector, Matrix, Polynomial, Scalar> v2) => v1.Dot(v2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector operator *(Scalar f, in VectorN<Vector, Matrix, Polynomial, Scalar> v) => v.Multiply(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector operator *(in VectorN<Vector, Matrix, Polynomial, Scalar> v, Scalar f) => v.Multiply(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static Scalar Algebra<Scalar>.IEucledianVectorSpace<Vector>.operator *(in Vector first, in Vector second) => first.Dot(second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector operator /(in VectorN<Vector, Matrix, Polynomial, Scalar> v, Scalar f) => v.Divide(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Scalar[](in VectorN<Vector, Matrix, Polynomial, Scalar> v) => v.Coefficients;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Vector(in VectorN<Vector, Matrix, Polynomial, Scalar> v) => FromArray(v.Coefficients);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator VectorN<Vector, Matrix, Polynomial, Scalar>(Scalar[] coeff) => FromArray(coeff);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Polynomial(in VectorN<Vector, Matrix, Polynomial, Scalar> v) => v.ToPolynomial();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator VectorN<Vector, Matrix, Polynomial, Scalar>(Scalar s) => FromArray([s]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static Vector Algebra<Scalar>.IVectorSpace<Vector>.operator *(Scalar scalar, in Vector vector) => vector.Multiply(scalar);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static Vector Algebra<Scalar>.IVectorSpace<Vector>.operator *(in Vector vector, Scalar scalar) => vector.Multiply(scalar);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static Vector Algebra<Scalar>.IVectorSpace<Vector>.operator /(in Vector vector, Scalar scalar) => vector.Divide(scalar);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static Vector Algebra<Scalar>.IVectorSpace<Vector>.operator %(in Vector vector, Scalar scalar) => vector.Modulus(scalar);
 
     #endregion
@@ -1242,11 +1145,9 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Addition result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix Add(in Matrix second) => Size != second.Size ? throw new ArgumentException($"Mismatched dimensions: A matrix of the dimensions {Size} cannot be added to a matrix of the dimensinos {second.Size}.", nameof(second))
                                                      : FromCoefficients(_columns, _rows, _coefficients.Zip(second._coefficients).Select(z => z.First.Add(z.Second)).ToArray());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix Add(Scalar second)
     {
         Scalar[,] v = Coefficients;
@@ -1257,29 +1158,22 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
         return FromCoefficients(v);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix Add(params Matrix[] others) => others.Aggregate((Matrix)this, (x, y) => x.Add(y));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix Increment() => Add(Scalar.One);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix Decrement() => Subtract(Scalar.One);
 
     /// <summary>
     /// Negates the current instance and returns the result without modifying the current instance.
     /// </summary>
     /// <returns>Negated object</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix Negate() => FromColumns(Columns.Select(c => c.Negate()).ToArray());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix Subtract(in Matrix second) => Add(second.Negate());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix Subtract(params Matrix[] others) => others.Aggregate((Matrix)this, (x, y) => x.Subtract(y));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix Subtract(Scalar second) => Add(second.Negate());
 
     /// <summary>
@@ -1289,7 +1183,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix Multiply(in Matrix second)
     {
         if (_columns == second._rows)
@@ -1307,7 +1200,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
             throw new ArgumentException($"The given matrix must have the same number of rows as this matrix' column count.", nameof(second));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix Multiply(params Matrix[] others) => others.Aggregate((Matrix)this, (t, n) => t.Multiply(n));
 
     /// <summary>
@@ -1315,7 +1207,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
     /// </summary>
     /// <param name="vector">Vector</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector Multiply(in Vector vector)
     {
         if (vector.Size != Size.Columns)
@@ -1335,39 +1226,28 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
     /// </summary>
     /// <param name="factor">T factor</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix Multiply(Scalar factor) => FromCoefficients(_columns, _rows, _coefficients.Select(c => c.Multiply(factor)).ToArray());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix Divide(Scalar factor) => Multiply(factor.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix Divide(in Matrix second) => Multiply(second.Inverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix Modulus(Scalar factor) => FromCoefficients(_columns, _rows, _coefficients.Select(c => c.Modulus(factor)).ToArray());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix ComponentwiseDivide(in Matrix second) => Size != second.Size ? throw new ArgumentException($"Mismatched dimensions: A matrix of the dimensions {Size} cannot be divided component-wise by a matrix of the dimensinos {second.Size}.", nameof(second))
                                                                                : FromCoefficients(_columns, _rows, _coefficients.Zip(second._coefficients).Select(z => z.First.Divide(z.Second)).ToArray());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix ComponentwiseMultiply(in Matrix second) => Size != second.Size ? throw new ArgumentException($"Mismatched dimensions: A matrix of the dimensions {Size} cannot be multiplied component-wise with a matrix of the dimensinos {second.Size}.", nameof(second))
                                                                                  : FromCoefficients(_columns, _rows, _coefficients.Zip(second._coefficients).Select(z => z.First.Multiply(z.Second)).ToArray());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix ComponentwiseAbsolute() => FromCoefficients(_columns, _rows, _coefficients.Select(c => c.Abs()).ToArray());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix ComponentwisSqrt() => FromCoefficients(_columns, _rows, _coefficients.Select(c => c.Sqrt()).ToArray());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix Clamp() => Clamp(Scalar.Zero, Scalar.One);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix Clamp(Scalar low, Scalar high) => FromCoefficients(_columns, _rows, _coefficients.Select(c => c.Clamp(low, high)).ToArray());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix NormalizeMinMax()
     {
         Scalar min = CoefficientMin;
@@ -1381,7 +1261,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
     /// </summary>
     /// <param name="vector">Vector</param>
     /// <returns>Solution</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Solve(Vector vector, out Vector solution)
     {
         Scalar one = Scalar.One;
@@ -1431,7 +1310,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
         return !solution.HasNaNs;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix Power(int e)
     {
         if (e < 0)
@@ -1455,7 +1333,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
         return r;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal Matrix GetLinearIndependentForm()
     {
         Scalar one = Scalar.One;
@@ -1485,7 +1362,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
         return m;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsLinearDependant(in Matrix other, out Scalar? factor)
     {
         Scalar[] div = ComponentwiseDivide(other).FlattenedCoefficients.Distinct().ToArray();
@@ -1493,48 +1369,36 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
         return (factor = div.Length == 1 ? (Scalar?)div[0] : null) != null;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix LinearInterpolate(in Matrix other, Scalar factor) => Multiply(Scalar.One.Subtract(factor)).Add(other.Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Is(Matrix? other) => other is { } && Size == other.Size && _coefficients.Are(other._coefficients, EqualityComparer<Scalar>.Default);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Is(Matrix other, Scalar tolerance) => Size == other.Size && _coefficients.Zip(other._coefficients, (c1, c2) => c1.Subtract(c2).Abs().CompareTo(tolerance)).All(c => c <= 0);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsNot(Matrix? other) => !Is(other);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool Equals(object? obj) => obj is Matrix v && Equals(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Equals(Matrix? other) => Is(other);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int CompareTo(Matrix? other) => Is(other) ? 0 : throw new NotImplementedException(); // TODO
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int CompareTo(object? other) => CompareTo((Matrix)other!);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetHashCode() => HashCode.Combine(_columns, _rows, LINQ.GetHashCode(_coefficients));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ToString(bool @short) => @short ? ToShortString() : ToString();
 
     /// <summary>
     /// The NxM-matrix' string representation
     /// </summary>
     /// <returns>String representation</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override string ToString() => string.Join("\n", Transposed.Columns.Select(c => $"| {string.Join(", ", c.ToArray().Select(f => $"{f,22:F16}"))} |"));
 
     /// <summary>
     /// The NxM-matrix' short string representation
     /// </summary>
     /// <returns>Short string representation</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ToShortString() => string.Join("\n", (from col in Columns
                                                         let strings = (from entry in col.ToArray().Select(f => $"{f,22:F16}")
                                                                        let end = entry.Reverse().TakeWhile(c => c == '0').Count()
@@ -1553,38 +1417,29 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
                                                             return string.IsNullOrWhiteSpace(s) || s == "0" ? "0" : s;
                                                         }).ToArray()).Transpose().Select(r => $"| {string.Join(", ", r)} |"));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix<MatrixNM<Vector, Matrix, Polynomial, Scalar>>(this);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator IEnumerable.GetEnumerator() => Columns.GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerator<Vector> GetEnumerator() => (IEnumerator<Vector>)Columns.GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public object Clone() => (Matrix)this;
 
     /// <summary>
     /// Returns the matrix as a flat array of matrix elements in column major format.
     /// </summary>
     /// <returns>Column major representation of the matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Scalar[] ToArray() => FlattenedCoefficients;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public unsafe X[] ToArray<X>() where X : unmanaged => FlattenedCoefficients.CopyTo<Scalar, X>();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public unsafe void ToNative<X>(X* dst) where X : unmanaged => FlattenedCoefficients.CopyTo(dst);
 
     #endregion
     #region ROW/COLUMN OPERATIONS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix MultiplyRow(int row, Scalar factor) => SetRow(row, GetRow(row).Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix SwapRows(int src_row, int dst_row)
     {
         Vector row = GetRow(src_row);
@@ -1593,16 +1448,12 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
               .SetRow(dst_row, row);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix AddRows(int src_row, int dst_row) => AddRows(src_row, dst_row, Scalar.One);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix AddRows(int src_row, int dst_row, Scalar factor) => SetRow(dst_row, GetRow(src_row).Multiply(factor).Add(GetRow(dst_row)));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix MultiplyColumn(int col, Scalar factor) => SetColumn(col, GetColumn(col).Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix SwapColumns(int src_col, int dst_col)
     {
         Vector col = GetColumn(src_col);
@@ -1611,10 +1462,8 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
               .SetColumn(dst_col, col);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix AddColumns(int src_col, int dst_col) => AddColumns(src_col, dst_col, Scalar.One);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix AddColumns(int src_col, int dst_col, Scalar factor) => SetColumn(dst_col, GetColumn(src_col).Multiply(factor).Add(GetColumn(dst_col)));
 
     /// <summary>
@@ -1622,7 +1471,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
     /// </summary>
     /// <param name="column">Column vector index (zero-based)</param>
     /// <returns>Column vector</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector GetColumn(int column) => Vector.FromCoefficients(FilterCoefficients(c => c.column == column));
 
     /// <summary>
@@ -1631,7 +1479,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
     /// <param name="column">Column vector index (zero-based)</param>
     /// <param name="vector">New column vector</param>
     /// <returns>Modified matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual Matrix SetColumn(int column, in Vector vector)
     {
         Vector[] cols = Columns;
@@ -1641,10 +1488,8 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
         return FromColumns(cols);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix GetColumns(Range columns) => GetRegion(columns, 0.._rows);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix SetColumns(Range columns, in Matrix values) => SetRegion(columns, 0.._rows, values);
 
     /// <summary>
@@ -1652,7 +1497,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
     /// </summary>
     /// <param name="row">Row vector index (zero-based)</param>
     /// <returns>Row vector</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vector GetRow(int row) => Vector.FromCoefficients(FilterCoefficients(c => c.row == row));
 
     /// <summary>
@@ -1661,7 +1505,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
     /// <param name="row">Row vector index (zero-based)</param>
     /// <param name="vector">New row vector</param>
     /// <returns>Modified matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual Matrix SetRow(int row, in Vector vector)
     {
         Vector[] rows = Rows;
@@ -1671,17 +1514,13 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
         return FromRows(rows);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix GetRows(Range rows) => GetRegion(0.._columns, rows);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix SetRows(Range rows, in Matrix values) => SetRegion(0.._columns, rows, values);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Scalar GetValue(int row, int column) => row >= _rows || column >= _columns || row < 0 || column < 0 ? throw new IndexOutOfRangeException($"The indices ({column}, {row}) is invalid: The indices must each be a value between (0, 0) and ({_columns - 1}, {_rows - 1}).")
                                                                                                           : _coefficients[row * _columns + column];
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual Matrix SetValue(int row, int column, Scalar value)
     {
         if (row >= _rows || column >= _columns || row < 0 || column < 0)
@@ -1694,7 +1533,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
         return FromCoefficients(_columns, _rows, c);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix GetRegion(Range columns, Range rows)
     {
         int[] idx_c = columns.GetOffsets(_columns);
@@ -1709,7 +1547,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
         return FromCoefficients(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual Matrix SetRegion(Range columns, Range rows, in Matrix values)
     {
         int[] idx_c = columns.GetOffsets(_columns);
@@ -1724,7 +1561,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
         return FromCoefficients(t);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix GetMinor(int column, int row) => FromColumns(
         Columns
         .Take(column)
@@ -1742,7 +1578,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
     /// Returns a set of the first 0 principal submatrices.
     /// </summary>
     /// <returns>Set of principal submatrices</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Algebra<Scalar>.IMatrix[] GetPrincipalSubmatrices()
     {
         int dim = Math.Min(_columns, _rows) - 1;
@@ -1783,7 +1618,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
     #endregion
 
     /* TODO : fix
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public (Matrix3 L, Matrix3 U) LUDecompose()
     {
         mat3 U = (Matrix3)Clone();
@@ -1804,7 +1638,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
                 ), U);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2 CholeskyDecompose()
     {
         Matrix2 res = default;
@@ -1819,7 +1652,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
     }
     */
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public (Matrix U, Matrix D) IwasawaDecompose()
     {
         Matrix ONB = OrthonormalBasis;
@@ -1828,7 +1660,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
         return (ONB, D);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public (Vector[] Eigenvectors, Scalar[] Eigenvalues) EigenDecompose(IEqualityComparer<Scalar> comparer)
     {
         (Vector vec, Scalar val)[] pairs = GetEigenpairs(comparer);
@@ -1838,7 +1669,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
         return (vectors, values);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public (Vector Eigenvector, Scalar Eigenvalue)[] GetEigenpairs(IEqualityComparer<Scalar> comparer)
     {
         if (!IsSquare)
@@ -1864,47 +1694,34 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected abstract (Vector Eigenvector, Scalar Eigenvalue) DoInverseVectoriteration(Scalar offset, IEqualityComparer<Scalar> comparer);
 
     public (Matrix U, Matrix Σ, Matrix V) GetSingularvalueDecomposition() => throw new NotImplementedException(); // TODO
 
     #region STATIC METHODS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix Add(Matrix m1, Matrix m2) => m1.Add(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix Subtract(Matrix m1, Matrix m2) => m1.Subtract(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix Multiply(Matrix m1, Matrix m2) => m1.Multiply(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector Multiply(Matrix matrix, Vector vector) => matrix.Multiply(vector);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix Multiply(Matrix matrix, Scalar scalar) => matrix.Multiply(scalar);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix Divide(Matrix matrix, Scalar scalar) => matrix.Divide(scalar);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix ZeroMatrix(int size) => ZeroMatrix(size, size);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix ZeroMatrix(int columns, int rows) => ScaleMatrix(columns, rows, Scalar.Zero);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix IdentityMatrix(int size) => IdentityMatrix(size, size);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix IdentityMatrix(int columns, int rows) => ScaleMatrix(columns, rows, Scalar.One);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix ScaleMatrix(int size, Scalar scale) => ScaleMatrix(size, size, scale);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix ScaleMatrix(int columns, int rows, Scalar scale)
     {
         Scalar[,] coeff = new Scalar[columns, rows];
@@ -1915,10 +1732,8 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
         return FromCoefficients(coeff);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix DiagonalMatrix(in Vector diagonal) => DiagonalMatrix(diagonal.Coefficients);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix DiagonalMatrix(params Scalar[] values)
     {
         Scalar[,] coeff = new Scalar[values.Length, values.Length];
@@ -1929,7 +1744,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
         return FromCoefficients(coeff);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix SparseMatrix(int columns, int rows, params (int column, int row, Scalar value)[] entries)
     {
         Scalar[,] m = new Scalar[columns, rows];
@@ -1940,25 +1754,18 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
         return FromCoefficients(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix SparseMatrix(params (int column, int row, Scalar value)[] entries) => SparseMatrix(entries.Max(e => e.column), entries.Max(e => e.row), entries);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix FromCoefficients(in Scalar[,] arr) => Matrix.FromCoefficients(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix FromCoefficients(int columns, int rows, Scalar[] arr) => FromCoefficients(arr.Reshape(columns, rows));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix FromRows(in Vector[] arr) => FromColumns(arr).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix FromColumns(in Vector[] arr) => Matrix.FromColumnVectors(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix FromCompressedStorageFormat(CompressedStorageFormat<Scalar> compressed) => FromCoefficients(compressed.ToMatrix());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static Matrix Algebra<Scalar>.IMatrix<Matrix>.FromArray(Scalar[] coefficients)
     {
         int size = (int)Math.Sqrt(coefficients.Length);
@@ -1969,10 +1776,8 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
             return FromCoefficients(size, size, coefficients);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix FromCoefficients(Scalar[,] coefficients) => Matrix.FromCoefficients(coefficients);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix FromColumnVectors(Vector[] columns) => Matrix.FromColumnVectors(columns);
 
     #endregion
@@ -1984,7 +1789,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
     /// <param name="v1">First matrix</param>
     /// <param name="v2">Second matrix</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(in MatrixNM<Vector, Matrix, Polynomial, Scalar> m1, in MatrixNM<Vector, Matrix, Polynomial, Scalar> m2) => m1.Is((Matrix)m2);
 
     /// <summary>
@@ -1993,7 +1797,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
     /// <param name="v1">First matrix</param>
     /// <param name="v2">Second matrix</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(in MatrixNM<Vector, Matrix, Polynomial, Scalar> m1, in MatrixNM<Vector, Matrix, Polynomial, Scalar> m2) => m1.IsNot((Matrix)m2);
 
     /// <summary>
@@ -2001,7 +1804,6 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
     /// </summary>
     /// <param name="v">Original matrix</param>
     /// <returns>Unchanged matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix operator +(in MatrixNM<Vector, Matrix, Polynomial, Scalar> m) => (Matrix)m;
 
     /// <summary>
@@ -2009,17 +1811,14 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
     /// </summary>
     /// <param name="v">Original matrix</param>
     /// <returns>Negated matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix operator -(in MatrixNM<Vector, Matrix, Polynomial, Scalar> m) => m.Negate();
 
     static Matrix IGroup<Matrix>.operator +(in Matrix matrix) => matrix;
 
     static Matrix IGroup<Matrix>.operator -(in Matrix matrix) => -matrix;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix operator ++(in MatrixNM<Vector, Matrix, Polynomial, Scalar> m) => m.Increment();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix operator --(in MatrixNM<Vector, Matrix, Polynomial, Scalar> m) => m.Decrement();
 
     static Matrix IRing<Matrix>.operator ++(in Matrix matrix) => matrix.Increment();
@@ -2032,15 +1831,12 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Addition result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix operator +(in MatrixNM<Vector, Matrix, Polynomial, Scalar> m1, in MatrixNM<Vector, Matrix, Polynomial, Scalar> m2) => m1.Add((Matrix)m2);
 
     static Matrix INumericGroup<Matrix>.operator +(in Matrix first, in Matrix second) => first.Add(in second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix operator +(Scalar f, in MatrixNM<Vector, Matrix, Polynomial, Scalar> m) => m.Add(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix operator +(in MatrixNM<Vector, Matrix, Polynomial, Scalar> m, Scalar f) => m.Add(f);
 
     /// <summary>
@@ -2049,15 +1845,12 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Subtraction result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix operator -(in MatrixNM<Vector, Matrix, Polynomial, Scalar> m1, in MatrixNM<Vector, Matrix, Polynomial, Scalar> m2) => m1.Subtract((Matrix)m2);
 
     static Matrix IGroup<Matrix>.operator -(in Matrix first, in Matrix second) => first.Subtract(in second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix operator -(Scalar f, in MatrixNM<Vector, Matrix, Polynomial, Scalar> m) => ScaleMatrix(m._columns, m._rows, f).Subtract((Matrix)m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix operator -(in MatrixNM<Vector, Matrix, Polynomial, Scalar> m, Scalar f) => m.Subtract(f);
 
     static Matrix IRing<Matrix>.operator *(in Matrix first, in Matrix second) => first.Multiply(in second);
@@ -2066,53 +1859,38 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
 
     static Matrix Algebra<Scalar>.IVectorSpace<Matrix>.operator *(in Matrix matrix, Scalar scalar) => matrix.Multiply(scalar);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector operator *(in MatrixNM<Vector, Matrix, Polynomial, Scalar> matrix, in Vector v) => matrix.Multiply(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix operator *(in MatrixNM<Vector, Matrix, Polynomial, Scalar> m1, in MatrixNM<Vector, Matrix, Polynomial, Scalar> m2) => m1.Multiply((Matrix)m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix operator *(in MatrixNM<Vector, Matrix, Polynomial, Scalar> matrix, Scalar scalar) => matrix.Multiply(scalar);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix operator *(Scalar scalar, in MatrixNM<Vector, Matrix, Polynomial, Scalar> matrix) => matrix.Multiply(scalar);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static MatrixNM<Vector, Matrix, Polynomial, Scalar> operator ^(in MatrixNM<Vector, Matrix, Polynomial, Scalar> m, int c) => m.Power(c);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix operator /(in MatrixNM<Vector, Matrix, Polynomial, Scalar> matrix, Scalar scalar) => matrix.Divide(scalar);
 
     static Matrix Algebra<Scalar>.IVectorSpace<Matrix>.operator /(in Matrix matrix, Scalar scalar) => matrix.Divide(scalar);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix operator %(in MatrixNM<Vector, Matrix, Polynomial, Scalar> matrix, Scalar scalar) => matrix.Modulus(scalar);
 
     static Matrix Algebra<Scalar>.IVectorSpace<Matrix>.operator %(in Matrix matrix, Scalar scalar) => matrix.Modulus(scalar);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix(in MatrixNM<Vector, Matrix, Polynomial, Scalar> m) => FromCoefficients(m.Coefficients);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Vector[](in MatrixNM<Vector, Matrix, Polynomial, Scalar> m) => m.Columns;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Scalar[](in MatrixNM<Vector, Matrix, Polynomial, Scalar> m) => m.ToArray();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Scalar[,](in MatrixNM<Vector, Matrix, Polynomial, Scalar> m) => m.Coefficients;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator MatrixNM<Vector, Matrix, Polynomial, Scalar>(in Scalar[,] arr) => FromCoefficients(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator MatrixNM<Vector, Matrix, Polynomial, Scalar>(Scalar s) => ScaleMatrix(1, 1, s);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator CompressedStorageFormat<Scalar>(MatrixNM<Vector, Matrix, Polynomial, Scalar> m) => m.ToCompressedStorageFormat();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator MatrixNM<Vector, Matrix, Polynomial, Scalar>(CompressedStorageFormat<Scalar> c) => FromCompressedStorageFormat(c);
 
     static bool IEquality<Matrix>.operator ==(Matrix first, Matrix second) => throw new NotImplementedException();
@@ -2267,7 +2045,6 @@ public abstract class WritableMatrixNM<Vector, Matrix, Polynomial, Scalar>
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override Matrix SetValue(int row, int column, Scalar value)
     {
         if (row >= _rows || column >= _columns || row < 0 || column < 0)
@@ -2278,7 +2055,6 @@ public abstract class WritableMatrixNM<Vector, Matrix, Polynomial, Scalar>
         return this;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override Matrix SetRegion(Range columns, Range rows, in Matrix values)
     {
         int[] idx_c = columns.GetOffsets(_columns);
@@ -2292,7 +2068,6 @@ public abstract class WritableMatrixNM<Vector, Matrix, Polynomial, Scalar>
         return this;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override Matrix SetColumn(int column, in Vector vector)
     {
         Scalar[] m = vector.Coefficients;
@@ -2303,7 +2078,6 @@ public abstract class WritableMatrixNM<Vector, Matrix, Polynomial, Scalar>
         return this;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override Matrix SetRow(int row, in Vector vector)
     {
         Scalar[] m = vector.Coefficients;
@@ -2345,7 +2119,6 @@ public abstract class WritableVectorN<Vector, Matrix, Polynomial, Scalar>
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override Vector SetEntry(int index, Scalar value)
     {
         if (index < 0 || index > _coefficients.Length)
@@ -2356,7 +2129,6 @@ public abstract class WritableVectorN<Vector, Matrix, Polynomial, Scalar>
         return this;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override Vector SetEntries(Range rows, Vector values)
     {
         // TODO : range checks
@@ -2370,7 +2142,6 @@ public abstract class WritableVectorN<Vector, Matrix, Polynomial, Scalar>
         return this;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override Vector SwapEntries(int src_idx, int dst_idx)
     {
         // TODO : range checks

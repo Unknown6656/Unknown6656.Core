@@ -30,7 +30,6 @@ public unsafe sealed partial class UnsafeFunctionPointer
         if (!string.IsNullOrEmpty(typestr))
             typestr = "<" + typestr + ">";
 #>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Action<#=typestr#> AsAction<#=typestr#>()
         => new(Invoke);
 
@@ -41,7 +40,6 @@ public unsafe sealed partial class UnsafeFunctionPointer
     {
         string typestr = '<' + string.Join(", ", r(0, i).Select(j => "T" + j).Append("T")) + '>';
 #>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Func<#=typestr#> AsFunction<#=typestr#>() =>
         new(Invoke<#=typestr#>);
 
@@ -52,7 +50,6 @@ public unsafe sealed partial class UnsafeFunctionPointer
     {
         string typestr = '<' + string.Join(", ", r(0, i).Select(j => "T" + j).Append("T")) + '>';
 #>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public delegate*<#=typestr#> AsUnsafe<#=typestr#>() =>
         (delegate*<#=typestr#>)BufferAddress;
 
@@ -70,11 +67,9 @@ public unsafe sealed partial class UnsafeFunctionPointer
         if (!string.IsNullOrEmpty(typestr))
             typestr = "<" + typestr + ">";
 #>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Invoke<#=typestr#>(<#=argstr#>) =>
         ((<#= i == 0 ? "delegate*<void>" : typestr.Replace("<", "delegate*<").Replace(">", ", void>") #>)BufferAddress)(<#=args#>);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T Invoke<#=typestr_e#>(<#=argstr#>) =>
         ((delegate*<#=typestr_e#>)BufferAddress)(<#=args#>);
 

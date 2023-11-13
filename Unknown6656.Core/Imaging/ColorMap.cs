@@ -1077,7 +1077,6 @@ public class DiscreteColorMap
 
     public override DiscreteColorMap Reverse() => new(_colors.Select(c => (1 - c.X, c.Color)));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override RGBAColor Interpolate(Scalar c)
     {
         Scalar x0, x1;

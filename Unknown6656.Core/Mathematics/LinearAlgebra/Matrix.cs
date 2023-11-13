@@ -471,7 +471,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// Creates a new 2x2-matrix where all diagonal elements have the value <paramref name="scale"/>. All elements outside the main diagonal are set to <see cref="Scalar.Zero"/>.
     /// </summary>
     /// <param name="scale">Scalar factor</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2(Scalar scale)
         : this(scale, 0,
                0, scale)
@@ -483,133 +482,112 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// </summary>
     /// <param name="diag_0">The diagonal element at the position (0, 0).</param>
     /// <param name="diag_1">The diagonal element at the position (1, 1).</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2(Scalar diag_0, Scalar diag_1)
         : this(diag_0, 0,
                0, diag_1)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2(Scalar s_0_0, Scalar s_1_0, Scalar s_0_1, Scalar s_1_1)
         : this(new Vector2(s_0_0, s_0_1),
                new Vector2(s_1_0, s_1_1))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2(Scalar[] values)
         : this(values[0], values[1],
                values[2], values[3])
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2(Scalar[,] values)
         : this(values[0, 0], values[1, 0],
                values[0, 1], values[1, 1])
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2(Scalar[][] values)
         : this(values[0][0], values[1][0],
                values[0][1], values[1][1])
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2(in Matrix2 matrix)
         : this(matrix.Columns)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2(in Matrix3 matrix)
         : this(new Vector2(matrix[0]), new Vector2(matrix[1]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2(in Matrix4 matrix)
         : this(new Vector2(matrix[0]), new Vector2(matrix[1]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2(in Matrix5 matrix)
         : this(new Vector2(matrix[0]), new Vector2(matrix[1]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2(in Matrix6 matrix)
         : this(new Vector2(matrix[0]), new Vector2(matrix[1]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2(in Matrix7 matrix)
         : this(new Vector2(matrix[0]), new Vector2(matrix[1]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2(in Matrix8 matrix)
         : this(new Vector2(matrix[0]), new Vector2(matrix[1]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2(in Matrix9 matrix)
         : this(new Vector2(matrix[0]), new Vector2(matrix[1]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2(in Matrix10 matrix)
         : this(new Vector2(matrix[0]), new Vector2(matrix[1]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2(in MatrixNM matrix)
         : this(matrix.Coefficients)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2(Matrix2* matrix)
         : this(*matrix)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2(Scalar* values)
         : this(values[0], values[1],
                values[2], values[3])
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2(Vector2* columns)
         : this(columns[0], columns[1])
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2(IEnumerable<Vector2> columns)
         : this(columns.ToArray())
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2(Vector2[] columns)
         : this(columns[0], columns[1])
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2(Vector2 v0, Vector2 v1)
     {
         _c0 = v0;
@@ -623,7 +601,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// Negates the current instance and returns the result without modifying the current instance.
     /// </summary>
     /// <returns>Negated object</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 Negate() => new(-_c0, -_c1);
 
     /// <summary>
@@ -631,28 +608,20 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Addition result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 Add(in Matrix2 second) => new(_c0 + second._c0, _c1 + second._c1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 Add(params Matrix2[] matrices) => matrices.Aggregate(this, Add);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 Add(Scalar Scalar) => Add(new Matrix2(Scalar));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 Increment() => Add(1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 Decrement() => Add(-1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 Subtract(in Matrix2 second) => Add(second.Negate());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 Subtract(params Matrix2[] matrices) => matrices.Aggregate(this, Subtract);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2 Subtract(Scalar scalar) => Add(scalar.Negate());
 
 
@@ -663,7 +632,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 Multiply(in Matrix2 second)
     {
         Vector2[] A = Rows;
@@ -677,7 +645,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
         return new Matrix2(C);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 Multiply(params Matrix2[] matrices) => matrices.Aggregate(this, Multiply);
 
     /// <summary>
@@ -685,7 +652,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// </summary>
     /// <param name="vector">Vector</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector2 Multiply(in Vector2 vector) => new(
         _c0[0] * vector[0] + _c1[0] * vector[1],
         _c0[1] * vector[0] + _c1[1] * vector[1]
@@ -696,13 +662,10 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// </summary>
     /// <param name="factor">Scalar factor</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 Multiply(Scalar factor) => new(_c0 * factor, _c1 * factor);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 Multiply(params Scalar[] factors) => Multiply(factors.Aggregate(Scalar.One, Scalar.Multiply));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix2 Power(int e)
     {
         if (e < 0)
@@ -726,10 +689,8 @@ public unsafe readonly /* ref */ partial struct Matrix2
         return r;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 Divide(Scalar factor) => Multiply(factor.Inverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 Modulus(Scalar factor) => new(_c0 % factor, _c1 % factor);
 
     public readonly Matrix2 Sin(InfiniteSeriesSettings? settings = null)
@@ -818,50 +779,36 @@ public unsafe readonly /* ref */ partial struct Matrix2
         MatrixNorm.L2_Norm => SpectralNorm,
     };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePNorm(Scalar p) => ToArray().Select(c => c.Abs().Power(p)).Sum().Power(p.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePQNorm(Scalar p, Scalar q) => Columns.Select(c => c.Select(v => v.Abs().Power(p)).Sum().Power(q / p)).Sum().Power(q.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputeMatrixCondition(MatrixNorm norm) => ComputeNorm(norm) * MultiplicativeInverse.ComputeNorm(norm);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePMatrixCondition(Scalar p) => ComputePNorm(p) * MultiplicativeInverse.ComputePNorm(p);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePQMatrixCondition(Scalar p, Scalar q) => ComputePQNorm(p, q) * MultiplicativeInverse.ComputePQNorm(p, q);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 ComponentwiseDivide(in Matrix2 second) => new(_c0.ComponentwiseDivide(second._c0), _c1.ComponentwiseDivide(second._c1));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 ComponentwiseMultiply(in Matrix2 second) => new(_c0.ComponentwiseMultiply(second._c0), _c1.ComponentwiseMultiply(second._c1));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 ComponentwiseApply(Func<Scalar, Scalar> function) => new(_c0.ComponentwiseApply(function), _c1.ComponentwiseApply(function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 ComponentwiseApply(Matrix2 second, Func<Scalar, Scalar, Scalar> function) =>
         new(_c0.ComponentwiseApply(second._c0, function), _c1.ComponentwiseApply(second._c1, function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 ComponentwiseApply(Matrix2 second, Matrix2 third, Func<Scalar, Scalar, Scalar, Scalar> function) =>
         new(_c0.ComponentwiseApply(second._c0, third._c0, function), _c1.ComponentwiseApply(second._c1, third._c1, function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 Clamp() => Clamp(Scalar.Zero, Scalar.One);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 Clamp(Scalar low, Scalar high) => new(_c0.Clamp(low, high), _c1.Clamp(low, high));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 LinearInterpolate(in Matrix2 other, Scalar factor) => Multiply(1 - factor).Add(other.Multiply(factor));
 
     #endregion
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool IsLinearDependant(in Matrix2 other, out Scalar? factor)
     {
         factor = null;
@@ -889,11 +836,9 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// Returns a set of the first 0 principal submatrices.
     /// </summary>
     /// <returns>Set of principal submatrices</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Algebra<Scalar>.IMatrix[] GetPrincipalSubmatrices()
         => new Algebra<Scalar>.IMatrix[1] { _c0[0] };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal readonly Matrix2 GetLinearIndependentForm()
     {
         Matrix2 m = this;
@@ -929,7 +874,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// </summary>
     /// <param name="vector">Vector2</param>
     /// <returns>Solution</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace2 Solve(Vector2 vector)
     {
         if (IsDiagonal)
@@ -972,7 +916,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
             return new VectorSpace2(SolveCG(vector));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace2 Solve(VectorSpace2 vectorspace)
     {
         VectorSpace2 result = VectorSpace2.Empty;
@@ -984,7 +927,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
         return result;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly bool Algebra<Scalar>.IMatrix<Vector2, Matrix2>.Solve(Vector2 vector, out Vector2 solution)
     {
         VectorSpace2 space = Solve(vector);
@@ -1000,7 +942,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector2 SolveCG(Vector2 vector)
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -1077,7 +1018,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
     #endregion
     #region INSTANCE METHODS : DECOMPOSITIONS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Vector2[] Eigenvectors, Scalar[] Eigenvalues) EigenDecompose(Scalar tolerance)
     {
         (Vector2 vec, Scalar val)[] pairs = GetEigenpairs(tolerance);
@@ -1087,7 +1027,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
         return (vectors, values);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Vector2 Eigenvector, Scalar Eigenvalue)[] GetEigenpairs(Scalar tolerance)
     {
         if (IsUpperTriangular || IsLowerTriangular || IsDiagonal)
@@ -1103,7 +1042,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
         return pairs;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private readonly (Vector2 Eigenvector, Scalar Eigenvalue) DoInverseVectoriteration(Scalar offset, Scalar tolerance)
     {
         Vector2 v_old = default;
@@ -1127,10 +1065,8 @@ public unsafe readonly /* ref */ partial struct Matrix2
         return (v_new, 1 / (λ - offset));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace2 GetEigenspace(Scalar eigenvalue) => VectorSpace2.FromVectors(Subtract(DiagonalMatrix(eigenvalue)).Columns.Select(v => v.Normalized)); // TODO : fix this shite
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int GetAlgebraicMulticiplity(Scalar eigenvalue) => GetEigenspace(eigenvalue).Dimension;
 
     /// <summary>
@@ -1151,7 +1087,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// Decomposes the current matrix (in a non-destructive fashion) into three matrices: A permutation-matrix P, an upper-triangular matrix U, and a lower-triangular matrix L.
     /// </summary>
     /// <returns>A tuple consisting of the permutation-matrix P, the upper-triangular matrix U, and the lower-triangular matrix L.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix2 P, Matrix2 L, Matrix2 U) PLUDecompose()
     {
         int[] perm = { 0, 1 };
@@ -1195,7 +1130,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
         return (FromRowPermutation(perm), L, U);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Scalar A, Scalar C) SchurComplement()
     {
         (MatrixNM A, MatrixNM C) = SchurComplement(1);
@@ -1203,7 +1137,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
         return ((Scalar)A, (Scalar)C);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (MatrixNM A, MatrixNM C) SchurComplement(int size)
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -1224,7 +1157,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// <summary>
     /// Decomposes the current matrix instance into a lower triangular matrix 'L'. The product of L with its transposed results in the current matrix.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 CholeskyDecompose()
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -1239,7 +1171,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
         );
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix2 Q, Matrix2 R) QRDecompose()
     {
         Matrix2 A = this;
@@ -1283,7 +1214,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
         );
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix2 U, Matrix2 D) IwasawaDecompose()
     {
         Matrix2 ONB = OrthonormalBasis;
@@ -1294,45 +1224,33 @@ public unsafe readonly /* ref */ partial struct Matrix2
 
     #endregion
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace2 GetKrylovSpace(Vector2 vector) => VectorSpace2.KrylovSpace(vector, this);
 
     #region INSTANCE METHODS : COMPARISONS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Is(Matrix2 o, Scalar tolerance) => _c0.Is(o._c0, tolerance) && _c1.Is(o._c1, tolerance);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Is(Matrix2 o) => Is(o, Scalar.ComputationalEpsilon);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool IsNot(Matrix2 o) => !Is(o);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override bool Equals(object? obj) => obj is Matrix2 v && Equals(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Equals(Matrix2 other) => Is(other);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo(Matrix2 other) => Is(other) ? 0 : throw new NotImplementedException();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo(object? other) => other is Matrix2 m ? CompareTo(m) : throw new ArgumentException($"The given value must be a Matrix of the type '{typeof(Matrix2)}'.", nameof(other));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override int GetHashCode() => LINQ.GetHashCode(Columns);
 
     #endregion
     #region INSTANCE METHODS : TO_STRING
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(bool @short) => @short ? ToShortString() : ToString();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(string? format) => ToString(format, null);
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(IFormatProvider prov) => ToString(null, prov);
 
     public readonly string ToString(string? format, IFormatProvider? provider) =>
@@ -1342,14 +1260,12 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// The 2x2-matrix' string representation
     /// </summary>
     /// <returns>String representation</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override string ToString() => Rows.Select(c => $"| {c.ToArray().Select(f => $"{f,22:F16}").StringJoin(", ")} |").StringJoinLines();
 
     /// <summary>
     /// The 2x2-matrix' short string representation
     /// </summary>
     /// <returns>Short string representation</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToShortString() => (from col in Columns
                                                let strings = (from entry in col.ToArray().Select(f => f.ToShortString("F25").PadRight(27).PadLeft(34))
                                                               let end = entry.Reverse().TakeWhile(c => c == '0' || c == ' ').Count()
@@ -1378,7 +1294,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// Creates the homogeneous 3x3 transformation matrix from the current matrix.
     /// </summary>
     /// <returns>Homogeneous 3x3 transformation matrix.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 ToHomogeneousTransformationMatrix() => (
         _c0.ToHomogeneousCoordinates(),
         _c1.ToHomogeneousCoordinates(),
@@ -1389,7 +1304,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// Returns the matrix as a flat array of matrix elements in column major format.
     /// </summary>
     /// <returns>Column major representation of the matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar[] ToArray() => FlattenedCoefficients.ToArray();
 
     /// <summary>
@@ -1397,7 +1311,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// This isomorphism is a simple multiplication of a given vector with the current matrix.
     /// </summary>
     /// <returns>The isomorphism.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Function<Vector2> ToIsomorphism()
     {
         Matrix2 copy = this;
@@ -1405,33 +1318,24 @@ public unsafe readonly /* ref */ partial struct Matrix2
         return new Function<Vector2>(v => copy.Multiply(v));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix(this);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly IEnumerator<Vector2> GetEnumerator() => ((IEnumerable<Vector2>)Columns).GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly IEnumerator<Scalar> IEnumerable<Scalar>.GetEnumerator() => Columns.SelectMany(v => v.AsEnumerable()).GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(out Scalar x_0_0, out Scalar x_1_0, out Scalar x_0_1, out Scalar x_1_1) =>
         (x_0_0, x_1_0, x_0_1, x_1_1) = (_c0[0], _c1[0], _c0[1], _c1[1]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(out Vector2 v0, out Vector2 v1) =>
         (v0, v1) = (_c0, _c1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly object Clone() => new Matrix2(this);
 
     #endregion
@@ -1442,7 +1346,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// </summary>
     /// <param name="column">Column vector index (zero-based)</param>
     /// <returns>Column vector</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector2 GetColumn(int column) => column switch
     {
         0 => _c0,
@@ -1456,7 +1359,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// <param name="column">Column vector index (zero-based)</param>
     /// <param name="vector">New column vector</param>
     /// <returns>Modified matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 SetColumn(int column, in Vector2 vector)
     {
         if (column < 0 || column >= 2)
@@ -1469,13 +1371,10 @@ public unsafe readonly /* ref */ partial struct Matrix2
         return FromColumns(cols);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetColumns(Range columns) => GetRegion(columns, 0..2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 SetColumns(Range columns, in MatrixNM values) => SetRegion(columns, 0..2, values);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 SwapColumns(int src_col, int dst_col)
     {
         Vector2 col = GetColumn(src_col);
@@ -1484,13 +1383,10 @@ public unsafe readonly /* ref */ partial struct Matrix2
                 .SetColumn(dst_col, col);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 MultiplyColumn(int col, Scalar factor) => SetColumn(col, GetColumn(col).Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 AddColumns(int src_col, int dst_col) => AddColumns(src_col, dst_col, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 AddColumns(int src_col, int dst_col, Scalar factor) => SetColumn(dst_col, GetColumn(src_col).Multiply(factor).Add(GetColumn(dst_col)));
 
     /// <summary>
@@ -1498,7 +1394,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// </summary>
     /// <param name="row">Row vector index (zero-based)</param>
     /// <returns>Row vector</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector2 GetRow(int row) => Transposed.GetColumn(row);
 
     /// <summary>
@@ -1507,16 +1402,12 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// <param name="row">Row vector index (zero-based)</param>
     /// <param name="vector">New row vector</param>
     /// <returns>Modified matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 SetRow(int row, in Vector2 vector) => Transposed.SetColumn(row, vector).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetRows(Range rows) => GetRegion(0..2, rows);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 SetRows(Range rows, in MatrixNM values) => SetRegion(0..2, rows, values);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 SwapRows(int src_row, int dst_row)
     {
         Vector2 row = GetRow(src_row);
@@ -1525,16 +1416,12 @@ public unsafe readonly /* ref */ partial struct Matrix2
                 .SetRow(dst_row, row);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 AddRows(int src_row, int dst_row) => AddRows(src_row, dst_row, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 AddRows(int src_row, int dst_row, Scalar factor) => SetRow(dst_row, GetRow(src_row).Multiply(factor).Add(GetRow(dst_row)));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 MultiplyRow(int row, Scalar factor) => SetRow(row, GetRow(row).Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetRegion(Range columns, Range rows)
     {
         // TODO : range checks
@@ -1551,7 +1438,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
         return new MatrixNM(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 SetRegion(Range columns, Range rows, in MatrixNM values)
     {
         // TODO : range checks
@@ -1572,43 +1458,30 @@ public unsafe readonly /* ref */ partial struct Matrix2
     #endregion
     #region STATIC METHODS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 Add(Matrix2 m1, Matrix2 m2) => m1.Add(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 Subtract(Matrix2 m1, Matrix2 m2) => m1.Subtract(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 Multiply(Matrix2 m1, Matrix2 m2) => m1.Multiply(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 Multiply(Matrix2 m, Vector2 v) => m.Multiply(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 Multiply(Matrix2 m, Scalar s) => m.Multiply(s);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 Divide(Matrix2 m, Scalar s) => m.Divide(s);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 Exp(Matrix2 matrix, InfiniteSeriesSettings? settings = null) => matrix.Exp(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 Sin(Matrix2 matrix, InfiniteSeriesSettings? settings = null) => matrix.Sin(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 Cos(Matrix2 matrix, InfiniteSeriesSettings? settings = null) => matrix.Cos(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 CracovianProduct(in Matrix2 first, in Matrix2 second) => second.Transposed.Multiply(in second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 HadamardProduct(in Matrix2 first, in Matrix2 second) => first.ComponentwiseMultiply(in second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar DistanceBetween(Matrix2 first, Matrix2 second, MatrixNorm norm) => first.DistanceTo(second, norm);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 SparseMatrix(params (int column, int row, Scalar value)[] entries)
     {
         Scalar[,] m = new Scalar[2, 2];
@@ -1619,10 +1492,8 @@ public unsafe readonly /* ref */ partial struct Matrix2
         return FromArray(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 SingleEntryMatrix(int column, int row) => SingleEntryMatrix(column, row, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 SingleEntryMatrix(int column, int row, Scalar value)
     {
         Scalar[,] m = new Scalar[2, 2];
@@ -1632,28 +1503,22 @@ public unsafe readonly /* ref */ partial struct Matrix2
         return FromArray(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 DiagonalMatrix(Scalar scalar) => Identity * scalar;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 DiagonalMatrix(in Vector2 diagonal) => DiagonalMatrix(diagonal[0], diagonal[1]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 DiagonalMatrix(Scalar d0, Scalar d1) => (
         d0, 0,
         0, d1
     );
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 KacMurdockSzegöMatrix(Scalar a) => new(
         1, a.Power(1) * .5,
         a.Power(1) * .5, 1
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 FromRowPermutation(int[] row_indices) => FromColumnPermutation(row_indices).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 FromColumnPermutation(int[] column_indices)
     {
         if (column_indices.Distinct().Count() != column_indices.Length)
@@ -1677,13 +1542,10 @@ public unsafe readonly /* ref */ partial struct Matrix2
 
     public static Matrix2 FromNative<T>(T* src) where T : unmanaged => new((Scalar*)src);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 FromCompressedStorageFormat(CompressedStorageFormat<Scalar> compressed) => FromArray(compressed.ToMatrix());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 FromArray(in Scalar[,] arr) => arr.GetLength(0) < 2 || arr.GetLength(1) < 2 ? throw new ArgumentException("The array must have a minimum size of 2x2.", nameof(arr)) : new Matrix2(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 FromArray(in Scalar[] arr) => arr switch {
         null => throw new ArgumentNullException(nameof(arr)),
         _ when arr.Length < 4 => throw new ArgumentException("The array must have a minimum length of 4.", nameof(arr)),
@@ -1693,10 +1555,8 @@ public unsafe readonly /* ref */ partial struct Matrix2
         )
     };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 FromRows(in Vector2[] arr) => FromColumns(arr).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 FromColumns(in Vector2[] arr) => arr switch {
         null => throw new ArgumentNullException(nameof(arr)),
         { Length: 2 } => new Matrix2(
@@ -1717,7 +1577,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(Matrix2 m1, Matrix2 m2) => m1.Is(m2);
 
     /// <summary>
@@ -1726,7 +1585,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(Matrix2 m1, Matrix2 m2) => !(m1 == m2);
 
     /// <summary>
@@ -1734,7 +1592,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// </summary>
     /// <param name="m">Original matrix</param>
     /// <returns>Unchanged matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 operator +(in Matrix2 m) => m;
 
     /// <summary>
@@ -1742,25 +1599,18 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// </summary>
     /// <param name="m">Original matrix</param>
     /// <returns>Negated matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 operator -(in Matrix2 m) => m.Negate();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 operator +(Scalar f, in Matrix2 m) => m.Add(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 operator +(in Matrix2 m, Scalar f) => m.Add(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 operator -(Scalar f, in Matrix2 m) => new Matrix2(f).Subtract(in m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 operator -(in Matrix2 m, Scalar f) => m.Subtract(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 operator ++(in Matrix2 m) => m.Increment();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 operator --(in Matrix2 m) => m.Decrement();
 
     /// <summary>
@@ -1769,7 +1619,6 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Addition result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 operator +(in Matrix2 m1, in Matrix2 m2) => m1.Add(in m2);
 
     /// <summary>
@@ -1778,25 +1627,18 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Subtraction result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 operator -(in Matrix2 m1, in Matrix2 m2) => m1.Subtract(in m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 operator *(in Matrix2 m, in Vector2 v) => m.Multiply(in v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 operator *(in Matrix2 m1, in Matrix2 m2) => m1.Multiply(in m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 operator *(in Matrix2 m, Scalar f) => m.Multiply(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 operator *(Scalar f, in Matrix2 m) => m.Multiply(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 operator ^(in Matrix2 m, int c) => m.Power(c);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 operator ^(in Matrix2 m1, in Matrix2 m2) => CracovianProduct(in m1, in m2);
 
     /// <summary>
@@ -1805,76 +1647,54 @@ public unsafe readonly /* ref */ partial struct Matrix2
     /// <param name="A">Matrix A</param>
     /// <param name="b">Vector b</param>
     /// <returns>Solution x</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static VectorSpace2 operator |(Matrix2 A, Vector2 b) => A.Solve(b);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static VectorSpace2 operator |(Matrix2 A, VectorSpace2 b) => A.Solve(b);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 operator /(Matrix2 m1, Matrix2 m2) => m1.Multiply(m2.Inverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 operator /(in Matrix2 m, Scalar f) => m.Divide(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 operator %(in Matrix2 m, Scalar f) => m.Modulus(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (Vector2 x0, Vector2 x1) (in Matrix2 m) => (m[0], m[1]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix2((Vector2 x0, Vector2 x1) t) => new(t.x0, t.x1);
 /*
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator ((Scalar r0, Scalar r1) c0, (Scalar r0, Scalar r1) c1) (in Matrix2 m) => (m[0], m[1]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix2(in ((Scalar r0, Scalar r1) c0, (Scalar r0, Scalar r1) c1) t) => new(t.c0, t.c1);
 */
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (Scalar x_0_0, Scalar x_1_0, Scalar x_0_1, Scalar x_1_1) (in Matrix2 m) => (
         m._c0[0], m._c1[0],
         m._c0[1], m._c1[1]
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix2(in (Scalar x_0_0, Scalar x_1_0, Scalar x_0_1, Scalar x_1_1) t) => new(
         t.x_0_0, t.x_1_0,
         t.x_0_1, t.x_1_1
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix2(Scalar m) => new(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix2(in Vector2[] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Vector2[](in Matrix2 m) => m.Columns;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Scalar[](in Matrix2 m) => m.ToArray();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix2(Scalar[] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Scalar[,](in Matrix2 m) => m.Coefficients;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix2(Scalar[,] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator MatrixNM(in Matrix2 m) => new(m.Coefficients);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix2(in MatrixNM m) => new(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator CompressedStorageFormat<Scalar>(in Matrix2 m) => CompressedStorageFormat<Scalar>.FromMatrix<Matrix2>(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Function<Vector2>(in Matrix2 m) => m.ToIsomorphism();
 
     #endregion
@@ -1892,10 +1712,8 @@ public unsafe readonly /* ref */ partial struct Matrix2
 
 public static class Matrix2Extensions
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 Sum(this IEnumerable<Matrix2> matrices) => Matrix2.Zero.Add(matrices.ToArray());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 Average(this IEnumerable<Matrix2> matrices)
     {
         Matrix2 mat = Matrix2.Zero;
@@ -2394,7 +2212,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// Creates a new 3x3-matrix where all diagonal elements have the value <paramref name="scale"/>. All elements outside the main diagonal are set to <see cref="Scalar.Zero"/>.
     /// </summary>
     /// <param name="scale">Scalar factor</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3(Scalar scale)
         : this(scale, 0, 0,
                0, scale, 0,
@@ -2408,7 +2225,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// <param name="diag_0">The diagonal element at the position (0, 0).</param>
     /// <param name="diag_1">The diagonal element at the position (1, 1).</param>
     /// <param name="diag_2">The diagonal element at the position (2, 2).</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3(Scalar diag_0, Scalar diag_1, Scalar diag_2)
         : this(diag_0, 0, 0,
                0, diag_1, 0,
@@ -2416,7 +2232,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3(Scalar s_0_0, Scalar s_1_0, Scalar s_2_0, Scalar s_0_1, Scalar s_1_1, Scalar s_2_1, Scalar s_0_2, Scalar s_1_2, Scalar s_2_2)
         : this(new Vector3(s_0_0, s_0_1, s_0_2),
                new Vector3(s_1_0, s_1_1, s_1_2),
@@ -2424,7 +2239,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3(Scalar[] values)
         : this(values[0], values[1], values[2],
                values[3], values[4], values[5],
@@ -2432,7 +2246,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3(Scalar[,] values)
         : this(values[0, 0], values[1, 0], values[2, 0],
                values[0, 1], values[1, 1], values[2, 1],
@@ -2440,7 +2253,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3(Scalar[][] values)
         : this(values[0][0], values[1][0], values[2][0],
                values[0][1], values[1][1], values[2][1],
@@ -2448,73 +2260,61 @@ public unsafe readonly /* ref */ partial struct Matrix3
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3(in Matrix2 matrix)
         : this(new Vector3(matrix[0]), new Vector3(matrix[1]), Vector3.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3(in Matrix3 matrix)
         : this(matrix.Columns)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3(in Matrix4 matrix)
         : this(new Vector3(matrix[0]), new Vector3(matrix[1]), new Vector3(matrix[2]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3(in Matrix5 matrix)
         : this(new Vector3(matrix[0]), new Vector3(matrix[1]), new Vector3(matrix[2]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3(in Matrix6 matrix)
         : this(new Vector3(matrix[0]), new Vector3(matrix[1]), new Vector3(matrix[2]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3(in Matrix7 matrix)
         : this(new Vector3(matrix[0]), new Vector3(matrix[1]), new Vector3(matrix[2]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3(in Matrix8 matrix)
         : this(new Vector3(matrix[0]), new Vector3(matrix[1]), new Vector3(matrix[2]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3(in Matrix9 matrix)
         : this(new Vector3(matrix[0]), new Vector3(matrix[1]), new Vector3(matrix[2]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3(in Matrix10 matrix)
         : this(new Vector3(matrix[0]), new Vector3(matrix[1]), new Vector3(matrix[2]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3(in MatrixNM matrix)
         : this(matrix.Coefficients)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3(Matrix3* matrix)
         : this(*matrix)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3(Scalar* values)
         : this(values[0], values[1], values[2],
                values[3], values[4], values[5],
@@ -2522,25 +2322,21 @@ public unsafe readonly /* ref */ partial struct Matrix3
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3(Vector3* columns)
         : this(columns[0], columns[1], columns[2])
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3(IEnumerable<Vector3> columns)
         : this(columns.ToArray())
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3(Vector3[] columns)
         : this(columns[0], columns[1], columns[2])
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3(Vector3 v0, Vector3 v1, Vector3 v2)
     {
         _c0 = v0;
@@ -2555,7 +2351,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// Negates the current instance and returns the result without modifying the current instance.
     /// </summary>
     /// <returns>Negated object</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 Negate() => new(-_c0, -_c1, -_c2);
 
     /// <summary>
@@ -2563,31 +2358,22 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Addition result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 Add(in Matrix3 second) => new(_c0 + second._c0, _c1 + second._c1, _c2 + second._c2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 Add(params Matrix3[] matrices) => matrices.Aggregate(this, Add);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 Add(Scalar Scalar) => Add(new Matrix3(Scalar));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 Increment() => Add(1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 Decrement() => Add(-1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 Subtract(in Matrix3 second) => Add(second.Negate());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 Subtract(params Matrix3[] matrices) => matrices.Aggregate(this, Subtract);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3 Subtract(Scalar scalar) => Add(scalar.Negate());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector2 HomogeneousMultiply(in Vector2 second) => Multiply(second.ToHomogeneousCoordinates()).FromHomogeneousCoordinates();
 
     /// <summary>
@@ -2597,7 +2383,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 Multiply(in Matrix3 second)
     {
         Vector3[] A = Rows;
@@ -2611,7 +2396,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
         return new Matrix3(C);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 Multiply(params Matrix3[] matrices) => matrices.Aggregate(this, Multiply);
 
     /// <summary>
@@ -2619,7 +2403,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// </summary>
     /// <param name="vector">Vector</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector3 Multiply(in Vector3 vector) => new(
         _c0[0] * vector[0] + _c1[0] * vector[1] + _c2[0] * vector[2],
         _c0[1] * vector[0] + _c1[1] * vector[1] + _c2[1] * vector[2],
@@ -2631,13 +2414,10 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// </summary>
     /// <param name="factor">Scalar factor</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 Multiply(Scalar factor) => new(_c0 * factor, _c1 * factor, _c2 * factor);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 Multiply(params Scalar[] factors) => Multiply(factors.Aggregate(Scalar.One, Scalar.Multiply));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3 Power(int e)
     {
         if (e < 0)
@@ -2661,10 +2441,8 @@ public unsafe readonly /* ref */ partial struct Matrix3
         return r;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 Divide(Scalar factor) => Multiply(factor.Inverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 Modulus(Scalar factor) => new(_c0 % factor, _c1 % factor, _c2 % factor);
 
     public readonly Matrix3 Sin(InfiniteSeriesSettings? settings = null)
@@ -2753,50 +2531,36 @@ public unsafe readonly /* ref */ partial struct Matrix3
         MatrixNorm.L2_Norm => SpectralNorm,
     };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePNorm(Scalar p) => ToArray().Select(c => c.Abs().Power(p)).Sum().Power(p.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePQNorm(Scalar p, Scalar q) => Columns.Select(c => c.Select(v => v.Abs().Power(p)).Sum().Power(q / p)).Sum().Power(q.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputeMatrixCondition(MatrixNorm norm) => ComputeNorm(norm) * MultiplicativeInverse.ComputeNorm(norm);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePMatrixCondition(Scalar p) => ComputePNorm(p) * MultiplicativeInverse.ComputePNorm(p);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePQMatrixCondition(Scalar p, Scalar q) => ComputePQNorm(p, q) * MultiplicativeInverse.ComputePQNorm(p, q);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 ComponentwiseDivide(in Matrix3 second) => new(_c0.ComponentwiseDivide(second._c0), _c1.ComponentwiseDivide(second._c1), _c2.ComponentwiseDivide(second._c2));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 ComponentwiseMultiply(in Matrix3 second) => new(_c0.ComponentwiseMultiply(second._c0), _c1.ComponentwiseMultiply(second._c1), _c2.ComponentwiseMultiply(second._c2));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 ComponentwiseApply(Func<Scalar, Scalar> function) => new(_c0.ComponentwiseApply(function), _c1.ComponentwiseApply(function), _c2.ComponentwiseApply(function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 ComponentwiseApply(Matrix3 second, Func<Scalar, Scalar, Scalar> function) =>
         new(_c0.ComponentwiseApply(second._c0, function), _c1.ComponentwiseApply(second._c1, function), _c2.ComponentwiseApply(second._c2, function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 ComponentwiseApply(Matrix3 second, Matrix3 third, Func<Scalar, Scalar, Scalar, Scalar> function) =>
         new(_c0.ComponentwiseApply(second._c0, third._c0, function), _c1.ComponentwiseApply(second._c1, third._c1, function), _c2.ComponentwiseApply(second._c2, third._c2, function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 Clamp() => Clamp(Scalar.Zero, Scalar.One);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 Clamp(Scalar low, Scalar high) => new(_c0.Clamp(low, high), _c1.Clamp(low, high), _c2.Clamp(low, high));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 LinearInterpolate(in Matrix3 other, Scalar factor) => Multiply(1 - factor).Add(other.Multiply(factor));
 
     #endregion
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool IsLinearDependant(in Matrix3 other, out Scalar? factor)
     {
         factor = null;
@@ -2824,11 +2588,9 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// Returns a set of the first 1 principal submatrices.
     /// </summary>
     /// <returns>Set of principal submatrices</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Algebra<Scalar>.IMatrix[] GetPrincipalSubmatrices()
         => new Algebra<Scalar>.IMatrix[] { _c0[0], ToMatrix2() };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal readonly Matrix3 GetLinearIndependentForm()
     {
         Matrix3 m = this;
@@ -2864,7 +2626,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// </summary>
     /// <param name="vector">Vector3</param>
     /// <returns>Solution</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace3 Solve(Vector3 vector)
     {
         if (IsDiagonal)
@@ -2907,7 +2668,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
             return new VectorSpace3(SolveCG(vector));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace3 Solve(VectorSpace3 vectorspace)
     {
         VectorSpace3 result = VectorSpace3.Empty;
@@ -2919,7 +2679,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
         return result;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly bool Algebra<Scalar>.IMatrix<Vector3, Matrix3>.Solve(Vector3 vector, out Vector3 solution)
     {
         VectorSpace3 space = Solve(vector);
@@ -2935,7 +2694,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector3 SolveCG(Vector3 vector)
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -3012,7 +2770,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     #endregion
     #region INSTANCE METHODS : DECOMPOSITIONS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Vector3[] Eigenvectors, Scalar[] Eigenvalues) EigenDecompose(Scalar tolerance)
     {
         (Vector3 vec, Scalar val)[] pairs = GetEigenpairs(tolerance);
@@ -3022,7 +2779,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
         return (vectors, values);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Vector3 Eigenvector, Scalar Eigenvalue)[] GetEigenpairs(Scalar tolerance)
     {
         if (IsUpperTriangular || IsLowerTriangular || IsDiagonal)
@@ -3038,7 +2794,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
         return pairs;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private readonly (Vector3 Eigenvector, Scalar Eigenvalue) DoInverseVectoriteration(Scalar offset, Scalar tolerance)
     {
         Vector3 v_old = default;
@@ -3062,10 +2817,8 @@ public unsafe readonly /* ref */ partial struct Matrix3
         return (v_new, 1 / (λ - offset));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace3 GetEigenspace(Scalar eigenvalue) => VectorSpace3.FromVectors(Subtract(DiagonalMatrix(eigenvalue)).Columns.Select(v => v.Normalized)); // TODO : fix this shite
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int GetAlgebraicMulticiplity(Scalar eigenvalue) => GetEigenspace(eigenvalue).Dimension;
 
     /// <summary>
@@ -3086,7 +2839,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// Decomposes the current matrix (in a non-destructive fashion) into three matrices: A permutation-matrix P, an upper-triangular matrix U, and a lower-triangular matrix L.
     /// </summary>
     /// <returns>A tuple consisting of the permutation-matrix P, the upper-triangular matrix U, and the lower-triangular matrix L.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix3 P, Matrix3 L, Matrix3 U) PLUDecompose()
     {
         int[] perm = { 0, 1, 2 };
@@ -3130,7 +2882,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
         return (FromRowPermutation(perm), L, U);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Scalar A, Matrix2 C) SchurComplement()
     {
         (MatrixNM A, MatrixNM C) = SchurComplement(1);
@@ -3138,7 +2889,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
         return ((Scalar)A, (Matrix2)C);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (MatrixNM A, MatrixNM C) SchurComplement(int size)
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -3159,7 +2909,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// <summary>
     /// Decomposes the current matrix instance into a lower triangular matrix 'L'. The product of L with its transposed results in the current matrix.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 CholeskyDecompose()
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -3182,7 +2931,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
         );
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix3 Q, Matrix3 R) QRDecompose()
     {
         Matrix3 A = this;
@@ -3246,7 +2994,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
         );
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix3 U, Matrix3 D) IwasawaDecompose()
     {
         Matrix3 ONB = OrthonormalBasis;
@@ -3257,45 +3004,33 @@ public unsafe readonly /* ref */ partial struct Matrix3
 
     #endregion
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace3 GetKrylovSpace(Vector3 vector) => VectorSpace3.KrylovSpace(vector, this);
 
     #region INSTANCE METHODS : COMPARISONS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Is(Matrix3 o, Scalar tolerance) => _c0.Is(o._c0, tolerance) && _c1.Is(o._c1, tolerance) && _c2.Is(o._c2, tolerance);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Is(Matrix3 o) => Is(o, Scalar.ComputationalEpsilon);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool IsNot(Matrix3 o) => !Is(o);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override bool Equals(object? obj) => obj is Matrix3 v && Equals(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Equals(Matrix3 other) => Is(other);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo(Matrix3 other) => Is(other) ? 0 : throw new NotImplementedException();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo(object? other) => other is Matrix3 m ? CompareTo(m) : throw new ArgumentException($"The given value must be a Matrix of the type '{typeof(Matrix3)}'.", nameof(other));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override int GetHashCode() => LINQ.GetHashCode(Columns);
 
     #endregion
     #region INSTANCE METHODS : TO_STRING
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(bool @short) => @short ? ToShortString() : ToString();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(string? format) => ToString(format, null);
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(IFormatProvider prov) => ToString(null, prov);
 
     public readonly string ToString(string? format, IFormatProvider? provider) =>
@@ -3305,14 +3040,12 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// The 3x3-matrix' string representation
     /// </summary>
     /// <returns>String representation</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override string ToString() => Rows.Select(c => $"| {c.ToArray().Select(f => $"{f,22:F16}").StringJoin(", ")} |").StringJoinLines();
 
     /// <summary>
     /// The 3x3-matrix' short string representation
     /// </summary>
     /// <returns>Short string representation</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToShortString() => (from col in Columns
                                                let strings = (from entry in col.ToArray().Select(f => f.ToShortString("F25").PadRight(27).PadLeft(34))
                                                               let end = entry.Reverse().TakeWhile(c => c == '0' || c == ' ').Count()
@@ -3341,7 +3074,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// Returns the upper-left 2x2 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>2x2 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 ToMatrix2() => (
         _c0[0], _c1[0],
         _c0[1], _c1[1]
@@ -3351,7 +3083,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// Creates the homogeneous 4x4 transformation matrix from the current matrix.
     /// </summary>
     /// <returns>Homogeneous 4x4 transformation matrix.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 ToHomogeneousTransformationMatrix() => (
         _c0.ToHomogeneousCoordinates(),
         _c1.ToHomogeneousCoordinates(),
@@ -3363,7 +3094,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// Returns the matrix as a flat array of matrix elements in column major format.
     /// </summary>
     /// <returns>Column major representation of the matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar[] ToArray() => FlattenedCoefficients.ToArray();
 
     /// <summary>
@@ -3371,7 +3101,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// This isomorphism is a simple multiplication of a given vector with the current matrix.
     /// </summary>
     /// <returns>The isomorphism.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Function<Vector3> ToIsomorphism()
     {
         Matrix3 copy = this;
@@ -3379,33 +3108,24 @@ public unsafe readonly /* ref */ partial struct Matrix3
         return new Function<Vector3>(v => copy.Multiply(v));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix(this);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly IEnumerator<Vector3> GetEnumerator() => ((IEnumerable<Vector3>)Columns).GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly IEnumerator<Scalar> IEnumerable<Scalar>.GetEnumerator() => Columns.SelectMany(v => v.AsEnumerable()).GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(out Scalar x_0_0, out Scalar x_1_0, out Scalar x_2_0, out Scalar x_0_1, out Scalar x_1_1, out Scalar x_2_1, out Scalar x_0_2, out Scalar x_1_2, out Scalar x_2_2) =>
         (x_0_0, x_1_0, x_2_0, x_0_1, x_1_1, x_2_1, x_0_2, x_1_2, x_2_2) = (_c0[0], _c1[0], _c2[0], _c0[1], _c1[1], _c2[1], _c0[2], _c1[2], _c2[2]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(out Vector3 v0, out Vector3 v1, out Vector3 v2) =>
         (v0, v1, v2) = (_c0, _c1, _c2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly object Clone() => new Matrix3(this);
 
     #endregion
@@ -3416,7 +3136,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// </summary>
     /// <param name="column">Column vector index (zero-based)</param>
     /// <returns>Column vector</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector3 GetColumn(int column) => column switch
     {
         0 => _c0,
@@ -3431,7 +3150,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// <param name="column">Column vector index (zero-based)</param>
     /// <param name="vector">New column vector</param>
     /// <returns>Modified matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 SetColumn(int column, in Vector3 vector)
     {
         if (column < 0 || column >= 3)
@@ -3444,13 +3162,10 @@ public unsafe readonly /* ref */ partial struct Matrix3
         return FromColumns(cols);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetColumns(Range columns) => GetRegion(columns, 0..3);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 SetColumns(Range columns, in MatrixNM values) => SetRegion(columns, 0..3, values);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 SwapColumns(int src_col, int dst_col)
     {
         Vector3 col = GetColumn(src_col);
@@ -3459,13 +3174,10 @@ public unsafe readonly /* ref */ partial struct Matrix3
                 .SetColumn(dst_col, col);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 MultiplyColumn(int col, Scalar factor) => SetColumn(col, GetColumn(col).Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 AddColumns(int src_col, int dst_col) => AddColumns(src_col, dst_col, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 AddColumns(int src_col, int dst_col, Scalar factor) => SetColumn(dst_col, GetColumn(src_col).Multiply(factor).Add(GetColumn(dst_col)));
 
     /// <summary>
@@ -3473,7 +3185,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// </summary>
     /// <param name="row">Row vector index (zero-based)</param>
     /// <returns>Row vector</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector3 GetRow(int row) => Transposed.GetColumn(row);
 
     /// <summary>
@@ -3482,16 +3193,12 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// <param name="row">Row vector index (zero-based)</param>
     /// <param name="vector">New row vector</param>
     /// <returns>Modified matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 SetRow(int row, in Vector3 vector) => Transposed.SetColumn(row, vector).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetRows(Range rows) => GetRegion(0..3, rows);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 SetRows(Range rows, in MatrixNM values) => SetRegion(0..3, rows, values);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 SwapRows(int src_row, int dst_row)
     {
         Vector3 row = GetRow(src_row);
@@ -3500,16 +3207,12 @@ public unsafe readonly /* ref */ partial struct Matrix3
                 .SetRow(dst_row, row);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 AddRows(int src_row, int dst_row) => AddRows(src_row, dst_row, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 AddRows(int src_row, int dst_row, Scalar factor) => SetRow(dst_row, GetRow(src_row).Multiply(factor).Add(GetRow(dst_row)));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 MultiplyRow(int row, Scalar factor) => SetRow(row, GetRow(row).Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetRegion(Range columns, Range rows)
     {
         // TODO : range checks
@@ -3526,7 +3229,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
         return new MatrixNM(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 SetRegion(Range columns, Range rows, in MatrixNM values)
     {
         // TODO : range checks
@@ -3549,7 +3251,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// <param name="column">Zero-based column index</param>
     /// <param name="row">Zero-based row index</param>
     /// <returns>2x2-minor</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 GetMinor(int column, int row) =>
         Columns
         .Take(column)
@@ -3564,43 +3265,30 @@ public unsafe readonly /* ref */ partial struct Matrix3
     #endregion
     #region STATIC METHODS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 Add(Matrix3 m1, Matrix3 m2) => m1.Add(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 Subtract(Matrix3 m1, Matrix3 m2) => m1.Subtract(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 Multiply(Matrix3 m1, Matrix3 m2) => m1.Multiply(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3 Multiply(Matrix3 m, Vector3 v) => m.Multiply(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 Multiply(Matrix3 m, Scalar s) => m.Multiply(s);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 Divide(Matrix3 m, Scalar s) => m.Divide(s);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 Exp(Matrix3 matrix, InfiniteSeriesSettings? settings = null) => matrix.Exp(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 Sin(Matrix3 matrix, InfiniteSeriesSettings? settings = null) => matrix.Sin(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 Cos(Matrix3 matrix, InfiniteSeriesSettings? settings = null) => matrix.Cos(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 CracovianProduct(in Matrix3 first, in Matrix3 second) => second.Transposed.Multiply(in second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 HadamardProduct(in Matrix3 first, in Matrix3 second) => first.ComponentwiseMultiply(in second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar DistanceBetween(Matrix3 first, Matrix3 second, MatrixNorm norm) => first.DistanceTo(second, norm);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 SparseMatrix(params (int column, int row, Scalar value)[] entries)
     {
         Scalar[,] m = new Scalar[3, 3];
@@ -3611,10 +3299,8 @@ public unsafe readonly /* ref */ partial struct Matrix3
         return FromArray(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 SingleEntryMatrix(int column, int row) => SingleEntryMatrix(column, row, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 SingleEntryMatrix(int column, int row, Scalar value)
     {
         Scalar[,] m = new Scalar[3, 3];
@@ -3624,30 +3310,24 @@ public unsafe readonly /* ref */ partial struct Matrix3
         return FromArray(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 DiagonalMatrix(Scalar scalar) => Identity * scalar;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 DiagonalMatrix(in Vector3 diagonal) => DiagonalMatrix(diagonal[0], diagonal[1], diagonal[2]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 DiagonalMatrix(Scalar d0, Scalar d1, Scalar d2) => (
         d0, 0, 0,
         0, d1, 0,
         0, 0, d2
     );
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 KacMurdockSzegöMatrix(Scalar a) => new(
         1, a.Power(1) * .5, a.Power(2) * .5,
         a.Power(1) * .5, 1, a.Power(1) * .5,
         a.Power(2) * .5, a.Power(1) * .5, 1
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 FromRowPermutation(int[] row_indices) => FromColumnPermutation(row_indices).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 FromColumnPermutation(int[] column_indices)
     {
         if (column_indices.Distinct().Count() != column_indices.Length)
@@ -3671,13 +3351,10 @@ public unsafe readonly /* ref */ partial struct Matrix3
 
     public static Matrix3 FromNative<T>(T* src) where T : unmanaged => new((Scalar*)src);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 FromCompressedStorageFormat(CompressedStorageFormat<Scalar> compressed) => FromArray(compressed.ToMatrix());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 FromArray(in Scalar[,] arr) => arr.GetLength(0) < 3 || arr.GetLength(1) < 3 ? throw new ArgumentException("The array must have a minimum size of 3x3.", nameof(arr)) : new Matrix3(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 FromArray(in Scalar[] arr) => arr switch {
         null => throw new ArgumentNullException(nameof(arr)),
         _ when arr.Length < 9 => throw new ArgumentException("The array must have a minimum length of 9.", nameof(arr)),
@@ -3688,10 +3365,8 @@ public unsafe readonly /* ref */ partial struct Matrix3
         )
     };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 FromRows(in Vector3[] arr) => FromColumns(arr).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 FromColumns(in Vector3[] arr) => arr switch {
         null => throw new ArgumentNullException(nameof(arr)),
         { Length: 3 } => new Matrix3(
@@ -3713,7 +3388,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(Matrix3 m1, Matrix3 m2) => m1.Is(m2);
 
     /// <summary>
@@ -3722,7 +3396,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(Matrix3 m1, Matrix3 m2) => !(m1 == m2);
 
     /// <summary>
@@ -3730,7 +3403,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// </summary>
     /// <param name="m">Original matrix</param>
     /// <returns>Unchanged matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 operator +(in Matrix3 m) => m;
 
     /// <summary>
@@ -3738,25 +3410,18 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// </summary>
     /// <param name="m">Original matrix</param>
     /// <returns>Negated matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 operator -(in Matrix3 m) => m.Negate();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 operator +(Scalar f, in Matrix3 m) => m.Add(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 operator +(in Matrix3 m, Scalar f) => m.Add(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 operator -(Scalar f, in Matrix3 m) => new Matrix3(f).Subtract(in m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 operator -(in Matrix3 m, Scalar f) => m.Subtract(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 operator ++(in Matrix3 m) => m.Increment();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 operator --(in Matrix3 m) => m.Decrement();
 
     /// <summary>
@@ -3765,7 +3430,6 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Addition result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 operator +(in Matrix3 m1, in Matrix3 m2) => m1.Add(in m2);
 
     /// <summary>
@@ -3774,25 +3438,18 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Subtraction result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 operator -(in Matrix3 m1, in Matrix3 m2) => m1.Subtract(in m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3 operator *(in Matrix3 m, in Vector3 v) => m.Multiply(in v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 operator *(in Matrix3 m1, in Matrix3 m2) => m1.Multiply(in m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 operator *(in Matrix3 m, Scalar f) => m.Multiply(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 operator *(Scalar f, in Matrix3 m) => m.Multiply(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 operator ^(in Matrix3 m, int c) => m.Power(c);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 operator ^(in Matrix3 m1, in Matrix3 m2) => CracovianProduct(in m1, in m2);
 
     /// <summary>
@@ -3801,78 +3458,56 @@ public unsafe readonly /* ref */ partial struct Matrix3
     /// <param name="A">Matrix A</param>
     /// <param name="b">Vector b</param>
     /// <returns>Solution x</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static VectorSpace3 operator |(Matrix3 A, Vector3 b) => A.Solve(b);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static VectorSpace3 operator |(Matrix3 A, VectorSpace3 b) => A.Solve(b);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 operator /(Matrix3 m1, Matrix3 m2) => m1.Multiply(m2.Inverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 operator /(in Matrix3 m, Scalar f) => m.Divide(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 operator %(in Matrix3 m, Scalar f) => m.Modulus(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (Vector3 x0, Vector3 x1, Vector3 x2) (in Matrix3 m) => (m[0], m[1], m[2]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix3((Vector3 x0, Vector3 x1, Vector3 x2) t) => new(t.x0, t.x1, t.x2);
 /*
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator ((Scalar r0, Scalar r1, Scalar r2) c0, (Scalar r0, Scalar r1, Scalar r2) c1, (Scalar r0, Scalar r1, Scalar r2) c2) (in Matrix3 m) => (m[0], m[1], m[2]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix3(in ((Scalar r0, Scalar r1, Scalar r2) c0, (Scalar r0, Scalar r1, Scalar r2) c1, (Scalar r0, Scalar r1, Scalar r2) c2) t) => new(t.c0, t.c1, t.c2);
 */
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (Scalar x_0_0, Scalar x_1_0, Scalar x_2_0, Scalar x_0_1, Scalar x_1_1, Scalar x_2_1, Scalar x_0_2, Scalar x_1_2, Scalar x_2_2) (in Matrix3 m) => (
         m._c0[0], m._c1[0], m._c2[0],
         m._c0[1], m._c1[1], m._c2[1],
         m._c0[2], m._c1[2], m._c2[2]
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix3(in (Scalar x_0_0, Scalar x_1_0, Scalar x_2_0, Scalar x_0_1, Scalar x_1_1, Scalar x_2_1, Scalar x_0_2, Scalar x_1_2, Scalar x_2_2) t) => new(
         t.x_0_0, t.x_1_0, t.x_2_0,
         t.x_0_1, t.x_1_1, t.x_2_1,
         t.x_0_2, t.x_1_2, t.x_2_2
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix3(Scalar m) => new(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix3(in Vector3[] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Vector3[](in Matrix3 m) => m.Columns;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Scalar[](in Matrix3 m) => m.ToArray();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix3(Scalar[] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Scalar[,](in Matrix3 m) => m.Coefficients;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix3(Scalar[,] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator MatrixNM(in Matrix3 m) => new(m.Coefficients);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix3(in MatrixNM m) => new(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator CompressedStorageFormat<Scalar>(in Matrix3 m) => CompressedStorageFormat<Scalar>.FromMatrix<Matrix3>(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Function<Vector3>(in Matrix3 m) => m.ToIsomorphism();
 
     #endregion
@@ -3890,10 +3525,8 @@ public unsafe readonly /* ref */ partial struct Matrix3
 
 public static class Matrix3Extensions
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 Sum(this IEnumerable<Matrix3> matrices) => Matrix3.Zero.Add(matrices.ToArray());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 Average(this IEnumerable<Matrix3> matrices)
     {
         Matrix3 mat = Matrix3.Zero;
@@ -4395,7 +4028,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// Creates a new 4x4-matrix where all diagonal elements have the value <paramref name="scale"/>. All elements outside the main diagonal are set to <see cref="Scalar.Zero"/>.
     /// </summary>
     /// <param name="scale">Scalar factor</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4(Scalar scale)
         : this(scale, 0, 0, 0,
                0, scale, 0, 0,
@@ -4411,7 +4043,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// <param name="diag_1">The diagonal element at the position (1, 1).</param>
     /// <param name="diag_2">The diagonal element at the position (2, 2).</param>
     /// <param name="diag_3">The diagonal element at the position (3, 3).</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4(Scalar diag_0, Scalar diag_1, Scalar diag_2, Scalar diag_3)
         : this(diag_0, 0, 0, 0,
                0, diag_1, 0, 0,
@@ -4420,7 +4051,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4(Scalar s_0_0, Scalar s_1_0, Scalar s_2_0, Scalar s_3_0, Scalar s_0_1, Scalar s_1_1, Scalar s_2_1, Scalar s_3_1, Scalar s_0_2, Scalar s_1_2, Scalar s_2_2, Scalar s_3_2, Scalar s_0_3, Scalar s_1_3, Scalar s_2_3, Scalar s_3_3)
         : this(new Vector4(s_0_0, s_0_1, s_0_2, s_0_3),
                new Vector4(s_1_0, s_1_1, s_1_2, s_1_3),
@@ -4429,7 +4059,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4(Scalar[] values)
         : this(values[0], values[1], values[2], values[3],
                values[4], values[5], values[6], values[7],
@@ -4438,7 +4067,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4(Scalar[,] values)
         : this(values[0, 0], values[1, 0], values[2, 0], values[3, 0],
                values[0, 1], values[1, 1], values[2, 1], values[3, 1],
@@ -4447,7 +4075,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4(Scalar[][] values)
         : this(values[0][0], values[1][0], values[2][0], values[3][0],
                values[0][1], values[1][1], values[2][1], values[3][1],
@@ -4456,73 +4083,61 @@ public unsafe readonly /* ref */ partial struct Matrix4
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4(in Matrix2 matrix)
         : this(new Vector4(matrix[0]), new Vector4(matrix[1]), Vector4.Zero, Vector4.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4(in Matrix3 matrix)
         : this(new Vector4(matrix[0]), new Vector4(matrix[1]), new Vector4(matrix[2]), Vector4.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4(in Matrix4 matrix)
         : this(matrix.Columns)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4(in Matrix5 matrix)
         : this(new Vector4(matrix[0]), new Vector4(matrix[1]), new Vector4(matrix[2]), new Vector4(matrix[3]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4(in Matrix6 matrix)
         : this(new Vector4(matrix[0]), new Vector4(matrix[1]), new Vector4(matrix[2]), new Vector4(matrix[3]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4(in Matrix7 matrix)
         : this(new Vector4(matrix[0]), new Vector4(matrix[1]), new Vector4(matrix[2]), new Vector4(matrix[3]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4(in Matrix8 matrix)
         : this(new Vector4(matrix[0]), new Vector4(matrix[1]), new Vector4(matrix[2]), new Vector4(matrix[3]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4(in Matrix9 matrix)
         : this(new Vector4(matrix[0]), new Vector4(matrix[1]), new Vector4(matrix[2]), new Vector4(matrix[3]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4(in Matrix10 matrix)
         : this(new Vector4(matrix[0]), new Vector4(matrix[1]), new Vector4(matrix[2]), new Vector4(matrix[3]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4(in MatrixNM matrix)
         : this(matrix.Coefficients)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4(Matrix4* matrix)
         : this(*matrix)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4(Scalar* values)
         : this(values[0], values[1], values[2], values[3],
                values[4], values[5], values[6], values[7],
@@ -4531,25 +4146,21 @@ public unsafe readonly /* ref */ partial struct Matrix4
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4(Vector4* columns)
         : this(columns[0], columns[1], columns[2], columns[3])
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4(IEnumerable<Vector4> columns)
         : this(columns.ToArray())
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4(Vector4[] columns)
         : this(columns[0], columns[1], columns[2], columns[3])
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4(Vector4 v0, Vector4 v1, Vector4 v2, Vector4 v3)
     {
         _c0 = v0;
@@ -4565,7 +4176,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// Negates the current instance and returns the result without modifying the current instance.
     /// </summary>
     /// <returns>Negated object</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 Negate() => new(-_c0, -_c1, -_c2, -_c3);
 
     /// <summary>
@@ -4573,31 +4183,22 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Addition result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 Add(in Matrix4 second) => new(_c0 + second._c0, _c1 + second._c1, _c2 + second._c2, _c3 + second._c3);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 Add(params Matrix4[] matrices) => matrices.Aggregate(this, Add);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 Add(Scalar Scalar) => Add(new Matrix4(Scalar));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 Increment() => Add(1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 Decrement() => Add(-1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 Subtract(in Matrix4 second) => Add(second.Negate());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 Subtract(params Matrix4[] matrices) => matrices.Aggregate(this, Subtract);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4 Subtract(Scalar scalar) => Add(scalar.Negate());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector3 HomogeneousMultiply(in Vector3 second) => Multiply(second.ToHomogeneousCoordinates()).FromHomogeneousCoordinates();
 
     /// <summary>
@@ -4607,7 +4208,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 Multiply(in Matrix4 second)
     {
         Vector4[] A = Rows;
@@ -4621,7 +4221,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
         return new Matrix4(C);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 Multiply(params Matrix4[] matrices) => matrices.Aggregate(this, Multiply);
 
     /// <summary>
@@ -4629,7 +4228,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// </summary>
     /// <param name="vector">Vector</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector4 Multiply(in Vector4 vector) => new(
         _c0[0] * vector[0] + _c1[0] * vector[1] + _c2[0] * vector[2] + _c3[0] * vector[3],
         _c0[1] * vector[0] + _c1[1] * vector[1] + _c2[1] * vector[2] + _c3[1] * vector[3],
@@ -4642,13 +4240,10 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// </summary>
     /// <param name="factor">Scalar factor</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 Multiply(Scalar factor) => new(_c0 * factor, _c1 * factor, _c2 * factor, _c3 * factor);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 Multiply(params Scalar[] factors) => Multiply(factors.Aggregate(Scalar.One, Scalar.Multiply));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix4 Power(int e)
     {
         if (e < 0)
@@ -4672,10 +4267,8 @@ public unsafe readonly /* ref */ partial struct Matrix4
         return r;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 Divide(Scalar factor) => Multiply(factor.Inverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 Modulus(Scalar factor) => new(_c0 % factor, _c1 % factor, _c2 % factor, _c3 % factor);
 
     public readonly Matrix4 Sin(InfiniteSeriesSettings? settings = null)
@@ -4764,50 +4357,36 @@ public unsafe readonly /* ref */ partial struct Matrix4
         MatrixNorm.L2_Norm => SpectralNorm,
     };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePNorm(Scalar p) => ToArray().Select(c => c.Abs().Power(p)).Sum().Power(p.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePQNorm(Scalar p, Scalar q) => Columns.Select(c => c.Select(v => v.Abs().Power(p)).Sum().Power(q / p)).Sum().Power(q.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputeMatrixCondition(MatrixNorm norm) => ComputeNorm(norm) * MultiplicativeInverse.ComputeNorm(norm);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePMatrixCondition(Scalar p) => ComputePNorm(p) * MultiplicativeInverse.ComputePNorm(p);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePQMatrixCondition(Scalar p, Scalar q) => ComputePQNorm(p, q) * MultiplicativeInverse.ComputePQNorm(p, q);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 ComponentwiseDivide(in Matrix4 second) => new(_c0.ComponentwiseDivide(second._c0), _c1.ComponentwiseDivide(second._c1), _c2.ComponentwiseDivide(second._c2), _c3.ComponentwiseDivide(second._c3));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 ComponentwiseMultiply(in Matrix4 second) => new(_c0.ComponentwiseMultiply(second._c0), _c1.ComponentwiseMultiply(second._c1), _c2.ComponentwiseMultiply(second._c2), _c3.ComponentwiseMultiply(second._c3));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 ComponentwiseApply(Func<Scalar, Scalar> function) => new(_c0.ComponentwiseApply(function), _c1.ComponentwiseApply(function), _c2.ComponentwiseApply(function), _c3.ComponentwiseApply(function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 ComponentwiseApply(Matrix4 second, Func<Scalar, Scalar, Scalar> function) =>
         new(_c0.ComponentwiseApply(second._c0, function), _c1.ComponentwiseApply(second._c1, function), _c2.ComponentwiseApply(second._c2, function), _c3.ComponentwiseApply(second._c3, function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 ComponentwiseApply(Matrix4 second, Matrix4 third, Func<Scalar, Scalar, Scalar, Scalar> function) =>
         new(_c0.ComponentwiseApply(second._c0, third._c0, function), _c1.ComponentwiseApply(second._c1, third._c1, function), _c2.ComponentwiseApply(second._c2, third._c2, function), _c3.ComponentwiseApply(second._c3, third._c3, function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 Clamp() => Clamp(Scalar.Zero, Scalar.One);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 Clamp(Scalar low, Scalar high) => new(_c0.Clamp(low, high), _c1.Clamp(low, high), _c2.Clamp(low, high), _c3.Clamp(low, high));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 LinearInterpolate(in Matrix4 other, Scalar factor) => Multiply(1 - factor).Add(other.Multiply(factor));
 
     #endregion
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool IsLinearDependant(in Matrix4 other, out Scalar? factor)
     {
         factor = null;
@@ -4835,7 +4414,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// Returns a set of the first 2 principal submatrices.
     /// </summary>
     /// <returns>Set of principal submatrices</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Algebra<Scalar>.IMatrix[] GetPrincipalSubmatrices()
     {
         (Matrix2 Sub2, Matrix3 Sub3) = PrincipalSubmatrices;
@@ -4843,7 +4421,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
         return new Algebra<Scalar>.IMatrix[] { _c0[0], Sub2, Sub3 };
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal readonly Matrix4 GetLinearIndependentForm()
     {
         Matrix4 m = this;
@@ -4879,7 +4456,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// </summary>
     /// <param name="vector">Vector4</param>
     /// <returns>Solution</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace4 Solve(Vector4 vector)
     {
         if (IsDiagonal)
@@ -4922,7 +4498,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
             return new VectorSpace4(SolveCG(vector));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace4 Solve(VectorSpace4 vectorspace)
     {
         VectorSpace4 result = VectorSpace4.Empty;
@@ -4934,7 +4509,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
         return result;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly bool Algebra<Scalar>.IMatrix<Vector4, Matrix4>.Solve(Vector4 vector, out Vector4 solution)
     {
         VectorSpace4 space = Solve(vector);
@@ -4950,7 +4524,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector4 SolveCG(Vector4 vector)
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -5027,7 +4600,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     #endregion
     #region INSTANCE METHODS : DECOMPOSITIONS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Vector4[] Eigenvectors, Scalar[] Eigenvalues) EigenDecompose(Scalar tolerance)
     {
         (Vector4 vec, Scalar val)[] pairs = GetEigenpairs(tolerance);
@@ -5037,7 +4609,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
         return (vectors, values);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Vector4 Eigenvector, Scalar Eigenvalue)[] GetEigenpairs(Scalar tolerance)
     {
         if (IsUpperTriangular || IsLowerTriangular || IsDiagonal)
@@ -5053,7 +4624,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
         return pairs;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private readonly (Vector4 Eigenvector, Scalar Eigenvalue) DoInverseVectoriteration(Scalar offset, Scalar tolerance)
     {
         Vector4 v_old = default;
@@ -5077,10 +4647,8 @@ public unsafe readonly /* ref */ partial struct Matrix4
         return (v_new, 1 / (λ - offset));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace4 GetEigenspace(Scalar eigenvalue) => VectorSpace4.FromVectors(Subtract(DiagonalMatrix(eigenvalue)).Columns.Select(v => v.Normalized)); // TODO : fix this shite
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int GetAlgebraicMulticiplity(Scalar eigenvalue) => GetEigenspace(eigenvalue).Dimension;
 
     /// <summary>
@@ -5101,7 +4669,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// Decomposes the current matrix (in a non-destructive fashion) into three matrices: A permutation-matrix P, an upper-triangular matrix U, and a lower-triangular matrix L.
     /// </summary>
     /// <returns>A tuple consisting of the permutation-matrix P, the upper-triangular matrix U, and the lower-triangular matrix L.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix4 P, Matrix4 L, Matrix4 U) PLUDecompose()
     {
         int[] perm = { 0, 1, 2, 3 };
@@ -5145,7 +4712,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
         return (FromRowPermutation(perm), L, U);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix2 A, Matrix2 C) SchurComplement()
     {
         (MatrixNM A, MatrixNM C) = SchurComplement(2);
@@ -5153,7 +4719,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
         return ((Matrix2)A, (Matrix2)C);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (MatrixNM A, MatrixNM C) SchurComplement(int size)
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -5174,7 +4739,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// <summary>
     /// Decomposes the current matrix instance into a lower triangular matrix 'L'. The product of L with its transposed results in the current matrix.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 CholeskyDecompose()
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -5195,7 +4759,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
         throw new NotImplementedException();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix4 Q, Matrix4 R) QRDecompose()
     {
         Matrix4 A = this;
@@ -5281,7 +4844,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
         );
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix4 U, Matrix4 D) IwasawaDecompose()
     {
         Matrix4 ONB = OrthonormalBasis;
@@ -5292,45 +4854,33 @@ public unsafe readonly /* ref */ partial struct Matrix4
 
     #endregion
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace4 GetKrylovSpace(Vector4 vector) => VectorSpace4.KrylovSpace(vector, this);
 
     #region INSTANCE METHODS : COMPARISONS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Is(Matrix4 o, Scalar tolerance) => _c0.Is(o._c0, tolerance) && _c1.Is(o._c1, tolerance) && _c2.Is(o._c2, tolerance) && _c3.Is(o._c3, tolerance);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Is(Matrix4 o) => Is(o, Scalar.ComputationalEpsilon);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool IsNot(Matrix4 o) => !Is(o);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override bool Equals(object? obj) => obj is Matrix4 v && Equals(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Equals(Matrix4 other) => Is(other);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo(Matrix4 other) => Is(other) ? 0 : throw new NotImplementedException();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo(object? other) => other is Matrix4 m ? CompareTo(m) : throw new ArgumentException($"The given value must be a Matrix of the type '{typeof(Matrix4)}'.", nameof(other));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override int GetHashCode() => LINQ.GetHashCode(Columns);
 
     #endregion
     #region INSTANCE METHODS : TO_STRING
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(bool @short) => @short ? ToShortString() : ToString();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(string? format) => ToString(format, null);
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(IFormatProvider prov) => ToString(null, prov);
 
     public readonly string ToString(string? format, IFormatProvider? provider) =>
@@ -5340,14 +4890,12 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// The 4x4-matrix' string representation
     /// </summary>
     /// <returns>String representation</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override string ToString() => Rows.Select(c => $"| {c.ToArray().Select(f => $"{f,22:F16}").StringJoin(", ")} |").StringJoinLines();
 
     /// <summary>
     /// The 4x4-matrix' short string representation
     /// </summary>
     /// <returns>Short string representation</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToShortString() => (from col in Columns
                                                let strings = (from entry in col.ToArray().Select(f => f.ToShortString("F25").PadRight(27).PadLeft(34))
                                                               let end = entry.Reverse().TakeWhile(c => c == '0' || c == ' ').Count()
@@ -5376,7 +4924,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// Returns the upper-left 2x2 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>2x2 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 ToMatrix2() => (
         _c0[0], _c1[0],
         _c0[1], _c1[1]
@@ -5386,7 +4933,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// Returns the upper-left 3x3 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>3x3 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 ToMatrix3() => (
         _c0[0], _c1[0], _c2[0],
         _c0[1], _c1[1], _c2[1],
@@ -5397,7 +4943,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// Creates the homogeneous 5x5 transformation matrix from the current matrix.
     /// </summary>
     /// <returns>Homogeneous 5x5 transformation matrix.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 ToHomogeneousTransformationMatrix() => (
         _c0.ToHomogeneousCoordinates(),
         _c1.ToHomogeneousCoordinates(),
@@ -5410,7 +4955,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// Returns the matrix as a flat array of matrix elements in column major format.
     /// </summary>
     /// <returns>Column major representation of the matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar[] ToArray() => FlattenedCoefficients.ToArray();
 
     /// <summary>
@@ -5418,7 +4962,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// This isomorphism is a simple multiplication of a given vector with the current matrix.
     /// </summary>
     /// <returns>The isomorphism.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Function<Vector4> ToIsomorphism()
     {
         Matrix4 copy = this;
@@ -5426,33 +4969,24 @@ public unsafe readonly /* ref */ partial struct Matrix4
         return new Function<Vector4>(v => copy.Multiply(v));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix(this);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly IEnumerator<Vector4> GetEnumerator() => ((IEnumerable<Vector4>)Columns).GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly IEnumerator<Scalar> IEnumerable<Scalar>.GetEnumerator() => Columns.SelectMany(v => v.AsEnumerable()).GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(out Scalar x_0_0, out Scalar x_1_0, out Scalar x_2_0, out Scalar x_3_0, out Scalar x_0_1, out Scalar x_1_1, out Scalar x_2_1, out Scalar x_3_1, out Scalar x_0_2, out Scalar x_1_2, out Scalar x_2_2, out Scalar x_3_2, out Scalar x_0_3, out Scalar x_1_3, out Scalar x_2_3, out Scalar x_3_3) =>
         (x_0_0, x_1_0, x_2_0, x_3_0, x_0_1, x_1_1, x_2_1, x_3_1, x_0_2, x_1_2, x_2_2, x_3_2, x_0_3, x_1_3, x_2_3, x_3_3) = (_c0[0], _c1[0], _c2[0], _c3[0], _c0[1], _c1[1], _c2[1], _c3[1], _c0[2], _c1[2], _c2[2], _c3[2], _c0[3], _c1[3], _c2[3], _c3[3]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(out Vector4 v0, out Vector4 v1, out Vector4 v2, out Vector4 v3) =>
         (v0, v1, v2, v3) = (_c0, _c1, _c2, _c3);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly object Clone() => new Matrix4(this);
 
     #endregion
@@ -5463,7 +4997,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// </summary>
     /// <param name="column">Column vector index (zero-based)</param>
     /// <returns>Column vector</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector4 GetColumn(int column) => column switch
     {
         0 => _c0,
@@ -5479,7 +5012,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// <param name="column">Column vector index (zero-based)</param>
     /// <param name="vector">New column vector</param>
     /// <returns>Modified matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 SetColumn(int column, in Vector4 vector)
     {
         if (column < 0 || column >= 4)
@@ -5492,13 +5024,10 @@ public unsafe readonly /* ref */ partial struct Matrix4
         return FromColumns(cols);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetColumns(Range columns) => GetRegion(columns, 0..4);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 SetColumns(Range columns, in MatrixNM values) => SetRegion(columns, 0..4, values);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 SwapColumns(int src_col, int dst_col)
     {
         Vector4 col = GetColumn(src_col);
@@ -5507,13 +5036,10 @@ public unsafe readonly /* ref */ partial struct Matrix4
                 .SetColumn(dst_col, col);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 MultiplyColumn(int col, Scalar factor) => SetColumn(col, GetColumn(col).Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 AddColumns(int src_col, int dst_col) => AddColumns(src_col, dst_col, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 AddColumns(int src_col, int dst_col, Scalar factor) => SetColumn(dst_col, GetColumn(src_col).Multiply(factor).Add(GetColumn(dst_col)));
 
     /// <summary>
@@ -5521,7 +5047,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// </summary>
     /// <param name="row">Row vector index (zero-based)</param>
     /// <returns>Row vector</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector4 GetRow(int row) => Transposed.GetColumn(row);
 
     /// <summary>
@@ -5530,16 +5055,12 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// <param name="row">Row vector index (zero-based)</param>
     /// <param name="vector">New row vector</param>
     /// <returns>Modified matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 SetRow(int row, in Vector4 vector) => Transposed.SetColumn(row, vector).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetRows(Range rows) => GetRegion(0..4, rows);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 SetRows(Range rows, in MatrixNM values) => SetRegion(0..4, rows, values);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 SwapRows(int src_row, int dst_row)
     {
         Vector4 row = GetRow(src_row);
@@ -5548,16 +5069,12 @@ public unsafe readonly /* ref */ partial struct Matrix4
                 .SetRow(dst_row, row);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 AddRows(int src_row, int dst_row) => AddRows(src_row, dst_row, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 AddRows(int src_row, int dst_row, Scalar factor) => SetRow(dst_row, GetRow(src_row).Multiply(factor).Add(GetRow(dst_row)));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 MultiplyRow(int row, Scalar factor) => SetRow(row, GetRow(row).Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetRegion(Range columns, Range rows)
     {
         // TODO : range checks
@@ -5574,7 +5091,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
         return new MatrixNM(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 SetRegion(Range columns, Range rows, in MatrixNM values)
     {
         // TODO : range checks
@@ -5597,7 +5113,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// <param name="column">Zero-based column index</param>
     /// <param name="row">Zero-based row index</param>
     /// <returns>3x3-minor</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 GetMinor(int column, int row) =>
         Columns
         .Take(column)
@@ -5612,43 +5127,30 @@ public unsafe readonly /* ref */ partial struct Matrix4
     #endregion
     #region STATIC METHODS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 Add(Matrix4 m1, Matrix4 m2) => m1.Add(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 Subtract(Matrix4 m1, Matrix4 m2) => m1.Subtract(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 Multiply(Matrix4 m1, Matrix4 m2) => m1.Multiply(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector4 Multiply(Matrix4 m, Vector4 v) => m.Multiply(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 Multiply(Matrix4 m, Scalar s) => m.Multiply(s);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 Divide(Matrix4 m, Scalar s) => m.Divide(s);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 Exp(Matrix4 matrix, InfiniteSeriesSettings? settings = null) => matrix.Exp(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 Sin(Matrix4 matrix, InfiniteSeriesSettings? settings = null) => matrix.Sin(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 Cos(Matrix4 matrix, InfiniteSeriesSettings? settings = null) => matrix.Cos(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 CracovianProduct(in Matrix4 first, in Matrix4 second) => second.Transposed.Multiply(in second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 HadamardProduct(in Matrix4 first, in Matrix4 second) => first.ComponentwiseMultiply(in second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar DistanceBetween(Matrix4 first, Matrix4 second, MatrixNorm norm) => first.DistanceTo(second, norm);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 SparseMatrix(params (int column, int row, Scalar value)[] entries)
     {
         Scalar[,] m = new Scalar[4, 4];
@@ -5659,10 +5161,8 @@ public unsafe readonly /* ref */ partial struct Matrix4
         return FromArray(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 SingleEntryMatrix(int column, int row) => SingleEntryMatrix(column, row, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 SingleEntryMatrix(int column, int row, Scalar value)
     {
         Scalar[,] m = new Scalar[4, 4];
@@ -5672,13 +5172,10 @@ public unsafe readonly /* ref */ partial struct Matrix4
         return FromArray(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 DiagonalMatrix(Scalar scalar) => Identity * scalar;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 DiagonalMatrix(in Vector4 diagonal) => DiagonalMatrix(diagonal[0], diagonal[1], diagonal[2], diagonal[3]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 DiagonalMatrix(Scalar d0, Scalar d1, Scalar d2, Scalar d3) => (
         d0, 0, 0, 0,
         0, d1, 0, 0,
@@ -5686,7 +5183,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
         0, 0, 0, d3
     );
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 KacMurdockSzegöMatrix(Scalar a) => new(
         1, a.Power(1) * .5, a.Power(2) * .5, a.Power(3) * .5,
         a.Power(1) * .5, 1, a.Power(1) * .5, a.Power(2) * .5,
@@ -5694,10 +5190,8 @@ public unsafe readonly /* ref */ partial struct Matrix4
         a.Power(3) * .5, a.Power(2) * .5, a.Power(1) * .5, 1
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 FromRowPermutation(int[] row_indices) => FromColumnPermutation(row_indices).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 FromColumnPermutation(int[] column_indices)
     {
         if (column_indices.Distinct().Count() != column_indices.Length)
@@ -5721,13 +5215,10 @@ public unsafe readonly /* ref */ partial struct Matrix4
 
     public static Matrix4 FromNative<T>(T* src) where T : unmanaged => new((Scalar*)src);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 FromCompressedStorageFormat(CompressedStorageFormat<Scalar> compressed) => FromArray(compressed.ToMatrix());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 FromArray(in Scalar[,] arr) => arr.GetLength(0) < 4 || arr.GetLength(1) < 4 ? throw new ArgumentException("The array must have a minimum size of 4x4.", nameof(arr)) : new Matrix4(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 FromArray(in Scalar[] arr) => arr switch {
         null => throw new ArgumentNullException(nameof(arr)),
         _ when arr.Length < 16 => throw new ArgumentException("The array must have a minimum length of 16.", nameof(arr)),
@@ -5739,10 +5230,8 @@ public unsafe readonly /* ref */ partial struct Matrix4
         )
     };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 FromRows(in Vector4[] arr) => FromColumns(arr).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 FromColumns(in Vector4[] arr) => arr switch {
         null => throw new ArgumentNullException(nameof(arr)),
         { Length: 4 } => new Matrix4(
@@ -5765,7 +5254,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(Matrix4 m1, Matrix4 m2) => m1.Is(m2);
 
     /// <summary>
@@ -5774,7 +5262,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(Matrix4 m1, Matrix4 m2) => !(m1 == m2);
 
     /// <summary>
@@ -5782,7 +5269,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// </summary>
     /// <param name="m">Original matrix</param>
     /// <returns>Unchanged matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 operator +(in Matrix4 m) => m;
 
     /// <summary>
@@ -5790,25 +5276,18 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// </summary>
     /// <param name="m">Original matrix</param>
     /// <returns>Negated matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 operator -(in Matrix4 m) => m.Negate();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 operator +(Scalar f, in Matrix4 m) => m.Add(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 operator +(in Matrix4 m, Scalar f) => m.Add(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 operator -(Scalar f, in Matrix4 m) => new Matrix4(f).Subtract(in m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 operator -(in Matrix4 m, Scalar f) => m.Subtract(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 operator ++(in Matrix4 m) => m.Increment();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 operator --(in Matrix4 m) => m.Decrement();
 
     /// <summary>
@@ -5817,7 +5296,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Addition result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 operator +(in Matrix4 m1, in Matrix4 m2) => m1.Add(in m2);
 
     /// <summary>
@@ -5826,25 +5304,18 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Subtraction result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 operator -(in Matrix4 m1, in Matrix4 m2) => m1.Subtract(in m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector4 operator *(in Matrix4 m, in Vector4 v) => m.Multiply(in v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 operator *(in Matrix4 m1, in Matrix4 m2) => m1.Multiply(in m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 operator *(in Matrix4 m, Scalar f) => m.Multiply(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 operator *(Scalar f, in Matrix4 m) => m.Multiply(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 operator ^(in Matrix4 m, int c) => m.Power(c);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 operator ^(in Matrix4 m1, in Matrix4 m2) => CracovianProduct(in m1, in m2);
 
     /// <summary>
@@ -5853,34 +5324,24 @@ public unsafe readonly /* ref */ partial struct Matrix4
     /// <param name="A">Matrix A</param>
     /// <param name="b">Vector b</param>
     /// <returns>Solution x</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static VectorSpace4 operator |(Matrix4 A, Vector4 b) => A.Solve(b);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static VectorSpace4 operator |(Matrix4 A, VectorSpace4 b) => A.Solve(b);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 operator /(Matrix4 m1, Matrix4 m2) => m1.Multiply(m2.Inverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 operator /(in Matrix4 m, Scalar f) => m.Divide(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 operator %(in Matrix4 m, Scalar f) => m.Modulus(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (Vector4 x0, Vector4 x1, Vector4 x2, Vector4 x3) (in Matrix4 m) => (m[0], m[1], m[2], m[3]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix4((Vector4 x0, Vector4 x1, Vector4 x2, Vector4 x3) t) => new(t.x0, t.x1, t.x2, t.x3);
 /*
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator ((Scalar r0, Scalar r1, Scalar r2, Scalar r3) c0, (Scalar r0, Scalar r1, Scalar r2, Scalar r3) c1, (Scalar r0, Scalar r1, Scalar r2, Scalar r3) c2, (Scalar r0, Scalar r1, Scalar r2, Scalar r3) c3) (in Matrix4 m) => (m[0], m[1], m[2], m[3]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix4(in ((Scalar r0, Scalar r1, Scalar r2, Scalar r3) c0, (Scalar r0, Scalar r1, Scalar r2, Scalar r3) c1, (Scalar r0, Scalar r1, Scalar r2, Scalar r3) c2, (Scalar r0, Scalar r1, Scalar r2, Scalar r3) c3) t) => new(t.c0, t.c1, t.c2, t.c3);
 */
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (Scalar x_0_0, Scalar x_1_0, Scalar x_2_0, Scalar x_3_0, Scalar x_0_1, Scalar x_1_1, Scalar x_2_1, Scalar x_3_1, Scalar x_0_2, Scalar x_1_2, Scalar x_2_2, Scalar x_3_2, Scalar x_0_3, Scalar x_1_3, Scalar x_2_3, Scalar x_3_3) (in Matrix4 m) => (
         m._c0[0], m._c1[0], m._c2[0], m._c3[0],
         m._c0[1], m._c1[1], m._c2[1], m._c3[1],
@@ -5888,7 +5349,6 @@ public unsafe readonly /* ref */ partial struct Matrix4
         m._c0[3], m._c1[3], m._c2[3], m._c3[3]
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix4(in (Scalar x_0_0, Scalar x_1_0, Scalar x_2_0, Scalar x_3_0, Scalar x_0_1, Scalar x_1_1, Scalar x_2_1, Scalar x_3_1, Scalar x_0_2, Scalar x_1_2, Scalar x_2_2, Scalar x_3_2, Scalar x_0_3, Scalar x_1_3, Scalar x_2_3, Scalar x_3_3) t) => new(
         t.x_0_0, t.x_1_0, t.x_2_0, t.x_3_0,
         t.x_0_1, t.x_1_1, t.x_2_1, t.x_3_1,
@@ -5896,37 +5356,26 @@ public unsafe readonly /* ref */ partial struct Matrix4
         t.x_0_3, t.x_1_3, t.x_2_3, t.x_3_3
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix4(Scalar m) => new(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix4(in Vector4[] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Vector4[](in Matrix4 m) => m.Columns;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Scalar[](in Matrix4 m) => m.ToArray();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix4(Scalar[] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Scalar[,](in Matrix4 m) => m.Coefficients;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix4(Scalar[,] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator MatrixNM(in Matrix4 m) => new(m.Coefficients);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix4(in MatrixNM m) => new(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator CompressedStorageFormat<Scalar>(in Matrix4 m) => CompressedStorageFormat<Scalar>.FromMatrix<Matrix4>(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Function<Vector4>(in Matrix4 m) => m.ToIsomorphism();
 
     #endregion
@@ -5944,10 +5393,8 @@ public unsafe readonly /* ref */ partial struct Matrix4
 
 public static class Matrix4Extensions
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 Sum(this IEnumerable<Matrix4> matrices) => Matrix4.Zero.Add(matrices.ToArray());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 Average(this IEnumerable<Matrix4> matrices)
     {
         Matrix4 mat = Matrix4.Zero;
@@ -6465,7 +5912,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// Creates a new 5x5-matrix where all diagonal elements have the value <paramref name="scale"/>. All elements outside the main diagonal are set to <see cref="Scalar.Zero"/>.
     /// </summary>
     /// <param name="scale">Scalar factor</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5(Scalar scale)
         : this(scale, 0, 0, 0, 0,
                0, scale, 0, 0, 0,
@@ -6483,7 +5929,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// <param name="diag_2">The diagonal element at the position (2, 2).</param>
     /// <param name="diag_3">The diagonal element at the position (3, 3).</param>
     /// <param name="diag_4">The diagonal element at the position (4, 4).</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5(Scalar diag_0, Scalar diag_1, Scalar diag_2, Scalar diag_3, Scalar diag_4)
         : this(diag_0, 0, 0, 0, 0,
                0, diag_1, 0, 0, 0,
@@ -6493,7 +5938,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5(Scalar s_0_0, Scalar s_1_0, Scalar s_2_0, Scalar s_3_0, Scalar s_4_0, Scalar s_0_1, Scalar s_1_1, Scalar s_2_1, Scalar s_3_1, Scalar s_4_1, Scalar s_0_2, Scalar s_1_2, Scalar s_2_2, Scalar s_3_2, Scalar s_4_2, Scalar s_0_3, Scalar s_1_3, Scalar s_2_3, Scalar s_3_3, Scalar s_4_3, Scalar s_0_4, Scalar s_1_4, Scalar s_2_4, Scalar s_3_4, Scalar s_4_4)
         : this(new Vector5(s_0_0, s_0_1, s_0_2, s_0_3, s_0_4),
                new Vector5(s_1_0, s_1_1, s_1_2, s_1_3, s_1_4),
@@ -6503,7 +5947,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5(Scalar[] values)
         : this(values[0], values[1], values[2], values[3], values[4],
                values[5], values[6], values[7], values[8], values[9],
@@ -6513,7 +5956,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5(Scalar[,] values)
         : this(values[0, 0], values[1, 0], values[2, 0], values[3, 0], values[4, 0],
                values[0, 1], values[1, 1], values[2, 1], values[3, 1], values[4, 1],
@@ -6523,7 +5965,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5(Scalar[][] values)
         : this(values[0][0], values[1][0], values[2][0], values[3][0], values[4][0],
                values[0][1], values[1][1], values[2][1], values[3][1], values[4][1],
@@ -6533,73 +5974,61 @@ public unsafe readonly /* ref */ partial struct Matrix5
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5(in Matrix2 matrix)
         : this(new Vector5(matrix[0]), new Vector5(matrix[1]), Vector5.Zero, Vector5.Zero, Vector5.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5(in Matrix3 matrix)
         : this(new Vector5(matrix[0]), new Vector5(matrix[1]), new Vector5(matrix[2]), Vector5.Zero, Vector5.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5(in Matrix4 matrix)
         : this(new Vector5(matrix[0]), new Vector5(matrix[1]), new Vector5(matrix[2]), new Vector5(matrix[3]), Vector5.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5(in Matrix5 matrix)
         : this(matrix.Columns)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5(in Matrix6 matrix)
         : this(new Vector5(matrix[0]), new Vector5(matrix[1]), new Vector5(matrix[2]), new Vector5(matrix[3]), new Vector5(matrix[4]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5(in Matrix7 matrix)
         : this(new Vector5(matrix[0]), new Vector5(matrix[1]), new Vector5(matrix[2]), new Vector5(matrix[3]), new Vector5(matrix[4]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5(in Matrix8 matrix)
         : this(new Vector5(matrix[0]), new Vector5(matrix[1]), new Vector5(matrix[2]), new Vector5(matrix[3]), new Vector5(matrix[4]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5(in Matrix9 matrix)
         : this(new Vector5(matrix[0]), new Vector5(matrix[1]), new Vector5(matrix[2]), new Vector5(matrix[3]), new Vector5(matrix[4]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5(in Matrix10 matrix)
         : this(new Vector5(matrix[0]), new Vector5(matrix[1]), new Vector5(matrix[2]), new Vector5(matrix[3]), new Vector5(matrix[4]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5(in MatrixNM matrix)
         : this(matrix.Coefficients)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5(Matrix5* matrix)
         : this(*matrix)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5(Scalar* values)
         : this(values[0], values[1], values[2], values[3], values[4],
                values[5], values[6], values[7], values[8], values[9],
@@ -6609,25 +6038,21 @@ public unsafe readonly /* ref */ partial struct Matrix5
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5(Vector5* columns)
         : this(columns[0], columns[1], columns[2], columns[3], columns[4])
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5(IEnumerable<Vector5> columns)
         : this(columns.ToArray())
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5(Vector5[] columns)
         : this(columns[0], columns[1], columns[2], columns[3], columns[4])
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5(Vector5 v0, Vector5 v1, Vector5 v2, Vector5 v3, Vector5 v4)
     {
         _c0 = v0;
@@ -6644,7 +6069,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// Negates the current instance and returns the result without modifying the current instance.
     /// </summary>
     /// <returns>Negated object</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 Negate() => new(-_c0, -_c1, -_c2, -_c3, -_c4);
 
     /// <summary>
@@ -6652,31 +6076,22 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Addition result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 Add(in Matrix5 second) => new(_c0 + second._c0, _c1 + second._c1, _c2 + second._c2, _c3 + second._c3, _c4 + second._c4);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 Add(params Matrix5[] matrices) => matrices.Aggregate(this, Add);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 Add(Scalar Scalar) => Add(new Matrix5(Scalar));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 Increment() => Add(1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 Decrement() => Add(-1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 Subtract(in Matrix5 second) => Add(second.Negate());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 Subtract(params Matrix5[] matrices) => matrices.Aggregate(this, Subtract);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5 Subtract(Scalar scalar) => Add(scalar.Negate());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector4 HomogeneousMultiply(in Vector4 second) => Multiply(second.ToHomogeneousCoordinates()).FromHomogeneousCoordinates();
 
     /// <summary>
@@ -6686,7 +6101,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 Multiply(in Matrix5 second)
     {
         Vector5[] A = Rows;
@@ -6700,7 +6114,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
         return new Matrix5(C);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 Multiply(params Matrix5[] matrices) => matrices.Aggregate(this, Multiply);
 
     /// <summary>
@@ -6708,7 +6121,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// </summary>
     /// <param name="vector">Vector</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector5 Multiply(in Vector5 vector) => new(
         _c0[0] * vector[0] + _c1[0] * vector[1] + _c2[0] * vector[2] + _c3[0] * vector[3] + _c4[0] * vector[4],
         _c0[1] * vector[0] + _c1[1] * vector[1] + _c2[1] * vector[2] + _c3[1] * vector[3] + _c4[1] * vector[4],
@@ -6722,13 +6134,10 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// </summary>
     /// <param name="factor">Scalar factor</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 Multiply(Scalar factor) => new(_c0 * factor, _c1 * factor, _c2 * factor, _c3 * factor, _c4 * factor);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 Multiply(params Scalar[] factors) => Multiply(factors.Aggregate(Scalar.One, Scalar.Multiply));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix5 Power(int e)
     {
         if (e < 0)
@@ -6752,10 +6161,8 @@ public unsafe readonly /* ref */ partial struct Matrix5
         return r;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 Divide(Scalar factor) => Multiply(factor.Inverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 Modulus(Scalar factor) => new(_c0 % factor, _c1 % factor, _c2 % factor, _c3 % factor, _c4 % factor);
 
     public readonly Matrix5 Sin(InfiniteSeriesSettings? settings = null)
@@ -6844,50 +6251,36 @@ public unsafe readonly /* ref */ partial struct Matrix5
         MatrixNorm.L2_Norm => SpectralNorm,
     };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePNorm(Scalar p) => ToArray().Select(c => c.Abs().Power(p)).Sum().Power(p.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePQNorm(Scalar p, Scalar q) => Columns.Select(c => c.Select(v => v.Abs().Power(p)).Sum().Power(q / p)).Sum().Power(q.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputeMatrixCondition(MatrixNorm norm) => ComputeNorm(norm) * MultiplicativeInverse.ComputeNorm(norm);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePMatrixCondition(Scalar p) => ComputePNorm(p) * MultiplicativeInverse.ComputePNorm(p);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePQMatrixCondition(Scalar p, Scalar q) => ComputePQNorm(p, q) * MultiplicativeInverse.ComputePQNorm(p, q);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 ComponentwiseDivide(in Matrix5 second) => new(_c0.ComponentwiseDivide(second._c0), _c1.ComponentwiseDivide(second._c1), _c2.ComponentwiseDivide(second._c2), _c3.ComponentwiseDivide(second._c3), _c4.ComponentwiseDivide(second._c4));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 ComponentwiseMultiply(in Matrix5 second) => new(_c0.ComponentwiseMultiply(second._c0), _c1.ComponentwiseMultiply(second._c1), _c2.ComponentwiseMultiply(second._c2), _c3.ComponentwiseMultiply(second._c3), _c4.ComponentwiseMultiply(second._c4));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 ComponentwiseApply(Func<Scalar, Scalar> function) => new(_c0.ComponentwiseApply(function), _c1.ComponentwiseApply(function), _c2.ComponentwiseApply(function), _c3.ComponentwiseApply(function), _c4.ComponentwiseApply(function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 ComponentwiseApply(Matrix5 second, Func<Scalar, Scalar, Scalar> function) =>
         new(_c0.ComponentwiseApply(second._c0, function), _c1.ComponentwiseApply(second._c1, function), _c2.ComponentwiseApply(second._c2, function), _c3.ComponentwiseApply(second._c3, function), _c4.ComponentwiseApply(second._c4, function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 ComponentwiseApply(Matrix5 second, Matrix5 third, Func<Scalar, Scalar, Scalar, Scalar> function) =>
         new(_c0.ComponentwiseApply(second._c0, third._c0, function), _c1.ComponentwiseApply(second._c1, third._c1, function), _c2.ComponentwiseApply(second._c2, third._c2, function), _c3.ComponentwiseApply(second._c3, third._c3, function), _c4.ComponentwiseApply(second._c4, third._c4, function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 Clamp() => Clamp(Scalar.Zero, Scalar.One);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 Clamp(Scalar low, Scalar high) => new(_c0.Clamp(low, high), _c1.Clamp(low, high), _c2.Clamp(low, high), _c3.Clamp(low, high), _c4.Clamp(low, high));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 LinearInterpolate(in Matrix5 other, Scalar factor) => Multiply(1 - factor).Add(other.Multiply(factor));
 
     #endregion
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool IsLinearDependant(in Matrix5 other, out Scalar? factor)
     {
         factor = null;
@@ -6915,7 +6308,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// Returns a set of the first 3 principal submatrices.
     /// </summary>
     /// <returns>Set of principal submatrices</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Algebra<Scalar>.IMatrix[] GetPrincipalSubmatrices()
     {
         (Matrix2 Sub2, Matrix3 Sub3, Matrix4 Sub4) = PrincipalSubmatrices;
@@ -6923,7 +6315,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
         return new Algebra<Scalar>.IMatrix[] { _c0[0], Sub2, Sub3, Sub4 };
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal readonly Matrix5 GetLinearIndependentForm()
     {
         Matrix5 m = this;
@@ -6959,7 +6350,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// </summary>
     /// <param name="vector">Vector5</param>
     /// <returns>Solution</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace5 Solve(Vector5 vector)
     {
         if (IsDiagonal)
@@ -7002,7 +6392,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
             return new VectorSpace5(SolveCG(vector));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace5 Solve(VectorSpace5 vectorspace)
     {
         VectorSpace5 result = VectorSpace5.Empty;
@@ -7014,7 +6403,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
         return result;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly bool Algebra<Scalar>.IMatrix<Vector5, Matrix5>.Solve(Vector5 vector, out Vector5 solution)
     {
         VectorSpace5 space = Solve(vector);
@@ -7030,7 +6418,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector5 SolveCG(Vector5 vector)
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -7107,7 +6494,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     #endregion
     #region INSTANCE METHODS : DECOMPOSITIONS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Vector5[] Eigenvectors, Scalar[] Eigenvalues) EigenDecompose(Scalar tolerance)
     {
         (Vector5 vec, Scalar val)[] pairs = GetEigenpairs(tolerance);
@@ -7117,7 +6503,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
         return (vectors, values);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Vector5 Eigenvector, Scalar Eigenvalue)[] GetEigenpairs(Scalar tolerance)
     {
         if (IsUpperTriangular || IsLowerTriangular || IsDiagonal)
@@ -7133,7 +6518,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
         return pairs;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private readonly (Vector5 Eigenvector, Scalar Eigenvalue) DoInverseVectoriteration(Scalar offset, Scalar tolerance)
     {
         Vector5 v_old = default;
@@ -7157,10 +6541,8 @@ public unsafe readonly /* ref */ partial struct Matrix5
         return (v_new, 1 / (λ - offset));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace5 GetEigenspace(Scalar eigenvalue) => VectorSpace5.FromVectors(Subtract(DiagonalMatrix(eigenvalue)).Columns.Select(v => v.Normalized)); // TODO : fix this shite
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int GetAlgebraicMulticiplity(Scalar eigenvalue) => GetEigenspace(eigenvalue).Dimension;
 
     /// <summary>
@@ -7181,7 +6563,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// Decomposes the current matrix (in a non-destructive fashion) into three matrices: A permutation-matrix P, an upper-triangular matrix U, and a lower-triangular matrix L.
     /// </summary>
     /// <returns>A tuple consisting of the permutation-matrix P, the upper-triangular matrix U, and the lower-triangular matrix L.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix5 P, Matrix5 L, Matrix5 U) PLUDecompose()
     {
         int[] perm = { 0, 1, 2, 3, 4 };
@@ -7225,7 +6606,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
         return (FromRowPermutation(perm), L, U);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix2 A, Matrix3 C) SchurComplement()
     {
         (MatrixNM A, MatrixNM C) = SchurComplement(2);
@@ -7233,7 +6613,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
         return ((Matrix2)A, (Matrix3)C);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (MatrixNM A, MatrixNM C) SchurComplement(int size)
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -7254,7 +6633,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// <summary>
     /// Decomposes the current matrix instance into a lower triangular matrix 'L'. The product of L with its transposed results in the current matrix.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 CholeskyDecompose()
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -7275,7 +6653,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
         throw new NotImplementedException();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix5 Q, Matrix5 R) QRDecompose()
     {
         Matrix5 A = this;
@@ -7385,7 +6762,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
         );
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix5 U, Matrix5 D) IwasawaDecompose()
     {
         Matrix5 ONB = OrthonormalBasis;
@@ -7396,45 +6772,33 @@ public unsafe readonly /* ref */ partial struct Matrix5
 
     #endregion
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace5 GetKrylovSpace(Vector5 vector) => VectorSpace5.KrylovSpace(vector, this);
 
     #region INSTANCE METHODS : COMPARISONS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Is(Matrix5 o, Scalar tolerance) => _c0.Is(o._c0, tolerance) && _c1.Is(o._c1, tolerance) && _c2.Is(o._c2, tolerance) && _c3.Is(o._c3, tolerance) && _c4.Is(o._c4, tolerance);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Is(Matrix5 o) => Is(o, Scalar.ComputationalEpsilon);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool IsNot(Matrix5 o) => !Is(o);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override bool Equals(object? obj) => obj is Matrix5 v && Equals(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Equals(Matrix5 other) => Is(other);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo(Matrix5 other) => Is(other) ? 0 : throw new NotImplementedException();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo(object? other) => other is Matrix5 m ? CompareTo(m) : throw new ArgumentException($"The given value must be a Matrix of the type '{typeof(Matrix5)}'.", nameof(other));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override int GetHashCode() => LINQ.GetHashCode(Columns);
 
     #endregion
     #region INSTANCE METHODS : TO_STRING
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(bool @short) => @short ? ToShortString() : ToString();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(string? format) => ToString(format, null);
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(IFormatProvider prov) => ToString(null, prov);
 
     public readonly string ToString(string? format, IFormatProvider? provider) =>
@@ -7444,14 +6808,12 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// The 5x5-matrix' string representation
     /// </summary>
     /// <returns>String representation</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override string ToString() => Rows.Select(c => $"| {c.ToArray().Select(f => $"{f,22:F16}").StringJoin(", ")} |").StringJoinLines();
 
     /// <summary>
     /// The 5x5-matrix' short string representation
     /// </summary>
     /// <returns>Short string representation</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToShortString() => (from col in Columns
                                                let strings = (from entry in col.ToArray().Select(f => f.ToShortString("F25").PadRight(27).PadLeft(34))
                                                               let end = entry.Reverse().TakeWhile(c => c == '0' || c == ' ').Count()
@@ -7480,7 +6842,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// Returns the upper-left 2x2 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>2x2 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 ToMatrix2() => (
         _c0[0], _c1[0],
         _c0[1], _c1[1]
@@ -7490,7 +6851,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// Returns the upper-left 3x3 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>3x3 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 ToMatrix3() => (
         _c0[0], _c1[0], _c2[0],
         _c0[1], _c1[1], _c2[1],
@@ -7501,7 +6861,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// Returns the upper-left 4x4 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>4x4 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 ToMatrix4() => (
         _c0[0], _c1[0], _c2[0], _c3[0],
         _c0[1], _c1[1], _c2[1], _c3[1],
@@ -7513,7 +6872,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// Creates the homogeneous 6x6 transformation matrix from the current matrix.
     /// </summary>
     /// <returns>Homogeneous 6x6 transformation matrix.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 ToHomogeneousTransformationMatrix() => (
         _c0.ToHomogeneousCoordinates(),
         _c1.ToHomogeneousCoordinates(),
@@ -7527,7 +6885,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// Returns the matrix as a flat array of matrix elements in column major format.
     /// </summary>
     /// <returns>Column major representation of the matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar[] ToArray() => FlattenedCoefficients.ToArray();
 
     /// <summary>
@@ -7535,7 +6892,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// This isomorphism is a simple multiplication of a given vector with the current matrix.
     /// </summary>
     /// <returns>The isomorphism.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Function<Vector5> ToIsomorphism()
     {
         Matrix5 copy = this;
@@ -7543,33 +6899,24 @@ public unsafe readonly /* ref */ partial struct Matrix5
         return new Function<Vector5>(v => copy.Multiply(v));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix(this);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly IEnumerator<Vector5> GetEnumerator() => ((IEnumerable<Vector5>)Columns).GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly IEnumerator<Scalar> IEnumerable<Scalar>.GetEnumerator() => Columns.SelectMany(v => v.AsEnumerable()).GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(out Scalar x_0_0, out Scalar x_1_0, out Scalar x_2_0, out Scalar x_3_0, out Scalar x_4_0, out Scalar x_0_1, out Scalar x_1_1, out Scalar x_2_1, out Scalar x_3_1, out Scalar x_4_1, out Scalar x_0_2, out Scalar x_1_2, out Scalar x_2_2, out Scalar x_3_2, out Scalar x_4_2, out Scalar x_0_3, out Scalar x_1_3, out Scalar x_2_3, out Scalar x_3_3, out Scalar x_4_3, out Scalar x_0_4, out Scalar x_1_4, out Scalar x_2_4, out Scalar x_3_4, out Scalar x_4_4) =>
         (x_0_0, x_1_0, x_2_0, x_3_0, x_4_0, x_0_1, x_1_1, x_2_1, x_3_1, x_4_1, x_0_2, x_1_2, x_2_2, x_3_2, x_4_2, x_0_3, x_1_3, x_2_3, x_3_3, x_4_3, x_0_4, x_1_4, x_2_4, x_3_4, x_4_4) = (_c0[0], _c1[0], _c2[0], _c3[0], _c4[0], _c0[1], _c1[1], _c2[1], _c3[1], _c4[1], _c0[2], _c1[2], _c2[2], _c3[2], _c4[2], _c0[3], _c1[3], _c2[3], _c3[3], _c4[3], _c0[4], _c1[4], _c2[4], _c3[4], _c4[4]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(out Vector5 v0, out Vector5 v1, out Vector5 v2, out Vector5 v3, out Vector5 v4) =>
         (v0, v1, v2, v3, v4) = (_c0, _c1, _c2, _c3, _c4);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly object Clone() => new Matrix5(this);
 
     #endregion
@@ -7580,7 +6927,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// </summary>
     /// <param name="column">Column vector index (zero-based)</param>
     /// <returns>Column vector</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector5 GetColumn(int column) => column switch
     {
         0 => _c0,
@@ -7597,7 +6943,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// <param name="column">Column vector index (zero-based)</param>
     /// <param name="vector">New column vector</param>
     /// <returns>Modified matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 SetColumn(int column, in Vector5 vector)
     {
         if (column < 0 || column >= 5)
@@ -7610,13 +6955,10 @@ public unsafe readonly /* ref */ partial struct Matrix5
         return FromColumns(cols);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetColumns(Range columns) => GetRegion(columns, 0..5);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 SetColumns(Range columns, in MatrixNM values) => SetRegion(columns, 0..5, values);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 SwapColumns(int src_col, int dst_col)
     {
         Vector5 col = GetColumn(src_col);
@@ -7625,13 +6967,10 @@ public unsafe readonly /* ref */ partial struct Matrix5
                 .SetColumn(dst_col, col);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 MultiplyColumn(int col, Scalar factor) => SetColumn(col, GetColumn(col).Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 AddColumns(int src_col, int dst_col) => AddColumns(src_col, dst_col, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 AddColumns(int src_col, int dst_col, Scalar factor) => SetColumn(dst_col, GetColumn(src_col).Multiply(factor).Add(GetColumn(dst_col)));
 
     /// <summary>
@@ -7639,7 +6978,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// </summary>
     /// <param name="row">Row vector index (zero-based)</param>
     /// <returns>Row vector</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector5 GetRow(int row) => Transposed.GetColumn(row);
 
     /// <summary>
@@ -7648,16 +6986,12 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// <param name="row">Row vector index (zero-based)</param>
     /// <param name="vector">New row vector</param>
     /// <returns>Modified matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 SetRow(int row, in Vector5 vector) => Transposed.SetColumn(row, vector).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetRows(Range rows) => GetRegion(0..5, rows);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 SetRows(Range rows, in MatrixNM values) => SetRegion(0..5, rows, values);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 SwapRows(int src_row, int dst_row)
     {
         Vector5 row = GetRow(src_row);
@@ -7666,16 +7000,12 @@ public unsafe readonly /* ref */ partial struct Matrix5
                 .SetRow(dst_row, row);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 AddRows(int src_row, int dst_row) => AddRows(src_row, dst_row, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 AddRows(int src_row, int dst_row, Scalar factor) => SetRow(dst_row, GetRow(src_row).Multiply(factor).Add(GetRow(dst_row)));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 MultiplyRow(int row, Scalar factor) => SetRow(row, GetRow(row).Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetRegion(Range columns, Range rows)
     {
         // TODO : range checks
@@ -7692,7 +7022,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
         return new MatrixNM(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 SetRegion(Range columns, Range rows, in MatrixNM values)
     {
         // TODO : range checks
@@ -7715,7 +7044,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// <param name="column">Zero-based column index</param>
     /// <param name="row">Zero-based row index</param>
     /// <returns>4x4-minor</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 GetMinor(int column, int row) =>
         Columns
         .Take(column)
@@ -7730,43 +7058,30 @@ public unsafe readonly /* ref */ partial struct Matrix5
     #endregion
     #region STATIC METHODS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 Add(Matrix5 m1, Matrix5 m2) => m1.Add(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 Subtract(Matrix5 m1, Matrix5 m2) => m1.Subtract(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 Multiply(Matrix5 m1, Matrix5 m2) => m1.Multiply(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector5 Multiply(Matrix5 m, Vector5 v) => m.Multiply(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 Multiply(Matrix5 m, Scalar s) => m.Multiply(s);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 Divide(Matrix5 m, Scalar s) => m.Divide(s);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 Exp(Matrix5 matrix, InfiniteSeriesSettings? settings = null) => matrix.Exp(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 Sin(Matrix5 matrix, InfiniteSeriesSettings? settings = null) => matrix.Sin(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 Cos(Matrix5 matrix, InfiniteSeriesSettings? settings = null) => matrix.Cos(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 CracovianProduct(in Matrix5 first, in Matrix5 second) => second.Transposed.Multiply(in second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 HadamardProduct(in Matrix5 first, in Matrix5 second) => first.ComponentwiseMultiply(in second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar DistanceBetween(Matrix5 first, Matrix5 second, MatrixNorm norm) => first.DistanceTo(second, norm);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 SparseMatrix(params (int column, int row, Scalar value)[] entries)
     {
         Scalar[,] m = new Scalar[5, 5];
@@ -7777,10 +7092,8 @@ public unsafe readonly /* ref */ partial struct Matrix5
         return FromArray(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 SingleEntryMatrix(int column, int row) => SingleEntryMatrix(column, row, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 SingleEntryMatrix(int column, int row, Scalar value)
     {
         Scalar[,] m = new Scalar[5, 5];
@@ -7790,13 +7103,10 @@ public unsafe readonly /* ref */ partial struct Matrix5
         return FromArray(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 DiagonalMatrix(Scalar scalar) => Identity * scalar;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 DiagonalMatrix(in Vector5 diagonal) => DiagonalMatrix(diagonal[0], diagonal[1], diagonal[2], diagonal[3], diagonal[4]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 DiagonalMatrix(Scalar d0, Scalar d1, Scalar d2, Scalar d3, Scalar d4) => (
         d0, 0, 0, 0, 0,
         0, d1, 0, 0, 0,
@@ -7805,7 +7115,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
         0, 0, 0, 0, d4
     );
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 KacMurdockSzegöMatrix(Scalar a) => new(
         1, a.Power(1) * .5, a.Power(2) * .5, a.Power(3) * .5, a.Power(4) * .5,
         a.Power(1) * .5, 1, a.Power(1) * .5, a.Power(2) * .5, a.Power(3) * .5,
@@ -7814,10 +7123,8 @@ public unsafe readonly /* ref */ partial struct Matrix5
         a.Power(4) * .5, a.Power(3) * .5, a.Power(2) * .5, a.Power(1) * .5, 1
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 FromRowPermutation(int[] row_indices) => FromColumnPermutation(row_indices).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 FromColumnPermutation(int[] column_indices)
     {
         if (column_indices.Distinct().Count() != column_indices.Length)
@@ -7841,13 +7148,10 @@ public unsafe readonly /* ref */ partial struct Matrix5
 
     public static Matrix5 FromNative<T>(T* src) where T : unmanaged => new((Scalar*)src);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 FromCompressedStorageFormat(CompressedStorageFormat<Scalar> compressed) => FromArray(compressed.ToMatrix());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 FromArray(in Scalar[,] arr) => arr.GetLength(0) < 5 || arr.GetLength(1) < 5 ? throw new ArgumentException("The array must have a minimum size of 5x5.", nameof(arr)) : new Matrix5(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 FromArray(in Scalar[] arr) => arr switch {
         null => throw new ArgumentNullException(nameof(arr)),
         _ when arr.Length < 25 => throw new ArgumentException("The array must have a minimum length of 25.", nameof(arr)),
@@ -7860,10 +7164,8 @@ public unsafe readonly /* ref */ partial struct Matrix5
         )
     };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 FromRows(in Vector5[] arr) => FromColumns(arr).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 FromColumns(in Vector5[] arr) => arr switch {
         null => throw new ArgumentNullException(nameof(arr)),
         { Length: 5 } => new Matrix5(
@@ -7887,7 +7189,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(Matrix5 m1, Matrix5 m2) => m1.Is(m2);
 
     /// <summary>
@@ -7896,7 +7197,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(Matrix5 m1, Matrix5 m2) => !(m1 == m2);
 
     /// <summary>
@@ -7904,7 +7204,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// </summary>
     /// <param name="m">Original matrix</param>
     /// <returns>Unchanged matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 operator +(in Matrix5 m) => m;
 
     /// <summary>
@@ -7912,25 +7211,18 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// </summary>
     /// <param name="m">Original matrix</param>
     /// <returns>Negated matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 operator -(in Matrix5 m) => m.Negate();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 operator +(Scalar f, in Matrix5 m) => m.Add(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 operator +(in Matrix5 m, Scalar f) => m.Add(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 operator -(Scalar f, in Matrix5 m) => new Matrix5(f).Subtract(in m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 operator -(in Matrix5 m, Scalar f) => m.Subtract(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 operator ++(in Matrix5 m) => m.Increment();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 operator --(in Matrix5 m) => m.Decrement();
 
     /// <summary>
@@ -7939,7 +7231,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Addition result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 operator +(in Matrix5 m1, in Matrix5 m2) => m1.Add(in m2);
 
     /// <summary>
@@ -7948,25 +7239,18 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Subtraction result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 operator -(in Matrix5 m1, in Matrix5 m2) => m1.Subtract(in m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector5 operator *(in Matrix5 m, in Vector5 v) => m.Multiply(in v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 operator *(in Matrix5 m1, in Matrix5 m2) => m1.Multiply(in m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 operator *(in Matrix5 m, Scalar f) => m.Multiply(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 operator *(Scalar f, in Matrix5 m) => m.Multiply(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 operator ^(in Matrix5 m, int c) => m.Power(c);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 operator ^(in Matrix5 m1, in Matrix5 m2) => CracovianProduct(in m1, in m2);
 
     /// <summary>
@@ -7975,34 +7259,24 @@ public unsafe readonly /* ref */ partial struct Matrix5
     /// <param name="A">Matrix A</param>
     /// <param name="b">Vector b</param>
     /// <returns>Solution x</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static VectorSpace5 operator |(Matrix5 A, Vector5 b) => A.Solve(b);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static VectorSpace5 operator |(Matrix5 A, VectorSpace5 b) => A.Solve(b);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 operator /(Matrix5 m1, Matrix5 m2) => m1.Multiply(m2.Inverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 operator /(in Matrix5 m, Scalar f) => m.Divide(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 operator %(in Matrix5 m, Scalar f) => m.Modulus(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (Vector5 x0, Vector5 x1, Vector5 x2, Vector5 x3, Vector5 x4) (in Matrix5 m) => (m[0], m[1], m[2], m[3], m[4]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix5((Vector5 x0, Vector5 x1, Vector5 x2, Vector5 x3, Vector5 x4) t) => new(t.x0, t.x1, t.x2, t.x3, t.x4);
 /*
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator ((Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4) c0, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4) c1, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4) c2, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4) c3, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4) c4) (in Matrix5 m) => (m[0], m[1], m[2], m[3], m[4]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix5(in ((Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4) c0, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4) c1, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4) c2, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4) c3, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4) c4) t) => new(t.c0, t.c1, t.c2, t.c3, t.c4);
 */
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (Scalar x_0_0, Scalar x_1_0, Scalar x_2_0, Scalar x_3_0, Scalar x_4_0, Scalar x_0_1, Scalar x_1_1, Scalar x_2_1, Scalar x_3_1, Scalar x_4_1, Scalar x_0_2, Scalar x_1_2, Scalar x_2_2, Scalar x_3_2, Scalar x_4_2, Scalar x_0_3, Scalar x_1_3, Scalar x_2_3, Scalar x_3_3, Scalar x_4_3, Scalar x_0_4, Scalar x_1_4, Scalar x_2_4, Scalar x_3_4, Scalar x_4_4) (in Matrix5 m) => (
         m._c0[0], m._c1[0], m._c2[0], m._c3[0], m._c4[0],
         m._c0[1], m._c1[1], m._c2[1], m._c3[1], m._c4[1],
@@ -8011,7 +7285,6 @@ public unsafe readonly /* ref */ partial struct Matrix5
         m._c0[4], m._c1[4], m._c2[4], m._c3[4], m._c4[4]
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix5(in (Scalar x_0_0, Scalar x_1_0, Scalar x_2_0, Scalar x_3_0, Scalar x_4_0, Scalar x_0_1, Scalar x_1_1, Scalar x_2_1, Scalar x_3_1, Scalar x_4_1, Scalar x_0_2, Scalar x_1_2, Scalar x_2_2, Scalar x_3_2, Scalar x_4_2, Scalar x_0_3, Scalar x_1_3, Scalar x_2_3, Scalar x_3_3, Scalar x_4_3, Scalar x_0_4, Scalar x_1_4, Scalar x_2_4, Scalar x_3_4, Scalar x_4_4) t) => new(
         t.x_0_0, t.x_1_0, t.x_2_0, t.x_3_0, t.x_4_0,
         t.x_0_1, t.x_1_1, t.x_2_1, t.x_3_1, t.x_4_1,
@@ -8020,37 +7293,26 @@ public unsafe readonly /* ref */ partial struct Matrix5
         t.x_0_4, t.x_1_4, t.x_2_4, t.x_3_4, t.x_4_4
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix5(Scalar m) => new(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix5(in Vector5[] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Vector5[](in Matrix5 m) => m.Columns;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Scalar[](in Matrix5 m) => m.ToArray();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix5(Scalar[] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Scalar[,](in Matrix5 m) => m.Coefficients;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix5(Scalar[,] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator MatrixNM(in Matrix5 m) => new(m.Coefficients);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix5(in MatrixNM m) => new(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator CompressedStorageFormat<Scalar>(in Matrix5 m) => CompressedStorageFormat<Scalar>.FromMatrix<Matrix5>(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Function<Vector5>(in Matrix5 m) => m.ToIsomorphism();
 
     #endregion
@@ -8068,10 +7330,8 @@ public unsafe readonly /* ref */ partial struct Matrix5
 
 public static class Matrix5Extensions
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 Sum(this IEnumerable<Matrix5> matrices) => Matrix5.Zero.Add(matrices.ToArray());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 Average(this IEnumerable<Matrix5> matrices)
     {
         Matrix5 mat = Matrix5.Zero;
@@ -8593,7 +7853,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// Creates a new 6x6-matrix where all diagonal elements have the value <paramref name="scale"/>. All elements outside the main diagonal are set to <see cref="Scalar.Zero"/>.
     /// </summary>
     /// <param name="scale">Scalar factor</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6(Scalar scale)
         : this(scale, 0, 0, 0, 0, 0,
                0, scale, 0, 0, 0, 0,
@@ -8613,7 +7872,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// <param name="diag_3">The diagonal element at the position (3, 3).</param>
     /// <param name="diag_4">The diagonal element at the position (4, 4).</param>
     /// <param name="diag_5">The diagonal element at the position (5, 5).</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6(Scalar diag_0, Scalar diag_1, Scalar diag_2, Scalar diag_3, Scalar diag_4, Scalar diag_5)
         : this(diag_0, 0, 0, 0, 0, 0,
                0, diag_1, 0, 0, 0, 0,
@@ -8624,7 +7882,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6(Scalar s_0_0, Scalar s_1_0, Scalar s_2_0, Scalar s_3_0, Scalar s_4_0, Scalar s_5_0, Scalar s_0_1, Scalar s_1_1, Scalar s_2_1, Scalar s_3_1, Scalar s_4_1, Scalar s_5_1, Scalar s_0_2, Scalar s_1_2, Scalar s_2_2, Scalar s_3_2, Scalar s_4_2, Scalar s_5_2, Scalar s_0_3, Scalar s_1_3, Scalar s_2_3, Scalar s_3_3, Scalar s_4_3, Scalar s_5_3, Scalar s_0_4, Scalar s_1_4, Scalar s_2_4, Scalar s_3_4, Scalar s_4_4, Scalar s_5_4, Scalar s_0_5, Scalar s_1_5, Scalar s_2_5, Scalar s_3_5, Scalar s_4_5, Scalar s_5_5)
         : this(new Vector6(s_0_0, s_0_1, s_0_2, s_0_3, s_0_4, s_0_5),
                new Vector6(s_1_0, s_1_1, s_1_2, s_1_3, s_1_4, s_1_5),
@@ -8635,7 +7892,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6(Scalar[] values)
         : this(values[0], values[1], values[2], values[3], values[4], values[5],
                values[6], values[7], values[8], values[9], values[10], values[11],
@@ -8646,7 +7902,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6(Scalar[,] values)
         : this(values[0, 0], values[1, 0], values[2, 0], values[3, 0], values[4, 0], values[5, 0],
                values[0, 1], values[1, 1], values[2, 1], values[3, 1], values[4, 1], values[5, 1],
@@ -8657,7 +7912,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6(Scalar[][] values)
         : this(values[0][0], values[1][0], values[2][0], values[3][0], values[4][0], values[5][0],
                values[0][1], values[1][1], values[2][1], values[3][1], values[4][1], values[5][1],
@@ -8668,73 +7922,61 @@ public unsafe readonly /* ref */ partial struct Matrix6
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6(in Matrix2 matrix)
         : this(new Vector6(matrix[0]), new Vector6(matrix[1]), Vector6.Zero, Vector6.Zero, Vector6.Zero, Vector6.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6(in Matrix3 matrix)
         : this(new Vector6(matrix[0]), new Vector6(matrix[1]), new Vector6(matrix[2]), Vector6.Zero, Vector6.Zero, Vector6.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6(in Matrix4 matrix)
         : this(new Vector6(matrix[0]), new Vector6(matrix[1]), new Vector6(matrix[2]), new Vector6(matrix[3]), Vector6.Zero, Vector6.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6(in Matrix5 matrix)
         : this(new Vector6(matrix[0]), new Vector6(matrix[1]), new Vector6(matrix[2]), new Vector6(matrix[3]), new Vector6(matrix[4]), Vector6.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6(in Matrix6 matrix)
         : this(matrix.Columns)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6(in Matrix7 matrix)
         : this(new Vector6(matrix[0]), new Vector6(matrix[1]), new Vector6(matrix[2]), new Vector6(matrix[3]), new Vector6(matrix[4]), new Vector6(matrix[5]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6(in Matrix8 matrix)
         : this(new Vector6(matrix[0]), new Vector6(matrix[1]), new Vector6(matrix[2]), new Vector6(matrix[3]), new Vector6(matrix[4]), new Vector6(matrix[5]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6(in Matrix9 matrix)
         : this(new Vector6(matrix[0]), new Vector6(matrix[1]), new Vector6(matrix[2]), new Vector6(matrix[3]), new Vector6(matrix[4]), new Vector6(matrix[5]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6(in Matrix10 matrix)
         : this(new Vector6(matrix[0]), new Vector6(matrix[1]), new Vector6(matrix[2]), new Vector6(matrix[3]), new Vector6(matrix[4]), new Vector6(matrix[5]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6(in MatrixNM matrix)
         : this(matrix.Coefficients)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6(Matrix6* matrix)
         : this(*matrix)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6(Scalar* values)
         : this(values[0], values[1], values[2], values[3], values[4], values[5],
                values[6], values[7], values[8], values[9], values[10], values[11],
@@ -8745,25 +7987,21 @@ public unsafe readonly /* ref */ partial struct Matrix6
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6(Vector6* columns)
         : this(columns[0], columns[1], columns[2], columns[3], columns[4], columns[5])
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6(IEnumerable<Vector6> columns)
         : this(columns.ToArray())
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6(Vector6[] columns)
         : this(columns[0], columns[1], columns[2], columns[3], columns[4], columns[5])
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6(Vector6 v0, Vector6 v1, Vector6 v2, Vector6 v3, Vector6 v4, Vector6 v5)
     {
         _c0 = v0;
@@ -8781,7 +8019,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// Negates the current instance and returns the result without modifying the current instance.
     /// </summary>
     /// <returns>Negated object</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 Negate() => new(-_c0, -_c1, -_c2, -_c3, -_c4, -_c5);
 
     /// <summary>
@@ -8789,31 +8026,22 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Addition result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 Add(in Matrix6 second) => new(_c0 + second._c0, _c1 + second._c1, _c2 + second._c2, _c3 + second._c3, _c4 + second._c4, _c5 + second._c5);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 Add(params Matrix6[] matrices) => matrices.Aggregate(this, Add);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 Add(Scalar Scalar) => Add(new Matrix6(Scalar));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 Increment() => Add(1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 Decrement() => Add(-1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 Subtract(in Matrix6 second) => Add(second.Negate());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 Subtract(params Matrix6[] matrices) => matrices.Aggregate(this, Subtract);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6 Subtract(Scalar scalar) => Add(scalar.Negate());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector5 HomogeneousMultiply(in Vector5 second) => Multiply(second.ToHomogeneousCoordinates()).FromHomogeneousCoordinates();
 
     /// <summary>
@@ -8823,7 +8051,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 Multiply(in Matrix6 second)
     {
         Vector6[] A = Rows;
@@ -8837,7 +8064,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
         return new Matrix6(C);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 Multiply(params Matrix6[] matrices) => matrices.Aggregate(this, Multiply);
 
     /// <summary>
@@ -8845,7 +8071,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// </summary>
     /// <param name="vector">Vector</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector6 Multiply(in Vector6 vector) => new(
         _c0[0] * vector[0] + _c1[0] * vector[1] + _c2[0] * vector[2] + _c3[0] * vector[3] + _c4[0] * vector[4] + _c5[0] * vector[5],
         _c0[1] * vector[0] + _c1[1] * vector[1] + _c2[1] * vector[2] + _c3[1] * vector[3] + _c4[1] * vector[4] + _c5[1] * vector[5],
@@ -8860,13 +8085,10 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// </summary>
     /// <param name="factor">Scalar factor</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 Multiply(Scalar factor) => new(_c0 * factor, _c1 * factor, _c2 * factor, _c3 * factor, _c4 * factor, _c5 * factor);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 Multiply(params Scalar[] factors) => Multiply(factors.Aggregate(Scalar.One, Scalar.Multiply));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix6 Power(int e)
     {
         if (e < 0)
@@ -8890,10 +8112,8 @@ public unsafe readonly /* ref */ partial struct Matrix6
         return r;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 Divide(Scalar factor) => Multiply(factor.Inverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 Modulus(Scalar factor) => new(_c0 % factor, _c1 % factor, _c2 % factor, _c3 % factor, _c4 % factor, _c5 % factor);
 
     public readonly Matrix6 Sin(InfiniteSeriesSettings? settings = null)
@@ -8982,50 +8202,36 @@ public unsafe readonly /* ref */ partial struct Matrix6
         MatrixNorm.L2_Norm => SpectralNorm,
     };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePNorm(Scalar p) => ToArray().Select(c => c.Abs().Power(p)).Sum().Power(p.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePQNorm(Scalar p, Scalar q) => Columns.Select(c => c.Select(v => v.Abs().Power(p)).Sum().Power(q / p)).Sum().Power(q.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputeMatrixCondition(MatrixNorm norm) => ComputeNorm(norm) * MultiplicativeInverse.ComputeNorm(norm);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePMatrixCondition(Scalar p) => ComputePNorm(p) * MultiplicativeInverse.ComputePNorm(p);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePQMatrixCondition(Scalar p, Scalar q) => ComputePQNorm(p, q) * MultiplicativeInverse.ComputePQNorm(p, q);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 ComponentwiseDivide(in Matrix6 second) => new(_c0.ComponentwiseDivide(second._c0), _c1.ComponentwiseDivide(second._c1), _c2.ComponentwiseDivide(second._c2), _c3.ComponentwiseDivide(second._c3), _c4.ComponentwiseDivide(second._c4), _c5.ComponentwiseDivide(second._c5));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 ComponentwiseMultiply(in Matrix6 second) => new(_c0.ComponentwiseMultiply(second._c0), _c1.ComponentwiseMultiply(second._c1), _c2.ComponentwiseMultiply(second._c2), _c3.ComponentwiseMultiply(second._c3), _c4.ComponentwiseMultiply(second._c4), _c5.ComponentwiseMultiply(second._c5));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 ComponentwiseApply(Func<Scalar, Scalar> function) => new(_c0.ComponentwiseApply(function), _c1.ComponentwiseApply(function), _c2.ComponentwiseApply(function), _c3.ComponentwiseApply(function), _c4.ComponentwiseApply(function), _c5.ComponentwiseApply(function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 ComponentwiseApply(Matrix6 second, Func<Scalar, Scalar, Scalar> function) =>
         new(_c0.ComponentwiseApply(second._c0, function), _c1.ComponentwiseApply(second._c1, function), _c2.ComponentwiseApply(second._c2, function), _c3.ComponentwiseApply(second._c3, function), _c4.ComponentwiseApply(second._c4, function), _c5.ComponentwiseApply(second._c5, function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 ComponentwiseApply(Matrix6 second, Matrix6 third, Func<Scalar, Scalar, Scalar, Scalar> function) =>
         new(_c0.ComponentwiseApply(second._c0, third._c0, function), _c1.ComponentwiseApply(second._c1, third._c1, function), _c2.ComponentwiseApply(second._c2, third._c2, function), _c3.ComponentwiseApply(second._c3, third._c3, function), _c4.ComponentwiseApply(second._c4, third._c4, function), _c5.ComponentwiseApply(second._c5, third._c5, function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 Clamp() => Clamp(Scalar.Zero, Scalar.One);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 Clamp(Scalar low, Scalar high) => new(_c0.Clamp(low, high), _c1.Clamp(low, high), _c2.Clamp(low, high), _c3.Clamp(low, high), _c4.Clamp(low, high), _c5.Clamp(low, high));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 LinearInterpolate(in Matrix6 other, Scalar factor) => Multiply(1 - factor).Add(other.Multiply(factor));
 
     #endregion
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool IsLinearDependant(in Matrix6 other, out Scalar? factor)
     {
         factor = null;
@@ -9053,7 +8259,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// Returns a set of the first 4 principal submatrices.
     /// </summary>
     /// <returns>Set of principal submatrices</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Algebra<Scalar>.IMatrix[] GetPrincipalSubmatrices()
     {
         (Matrix2 Sub2, Matrix3 Sub3, Matrix4 Sub4, Matrix5 Sub5) = PrincipalSubmatrices;
@@ -9061,7 +8266,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
         return new Algebra<Scalar>.IMatrix[] { _c0[0], Sub2, Sub3, Sub4, Sub5 };
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal readonly Matrix6 GetLinearIndependentForm()
     {
         Matrix6 m = this;
@@ -9097,7 +8301,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// </summary>
     /// <param name="vector">Vector6</param>
     /// <returns>Solution</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace6 Solve(Vector6 vector)
     {
         if (IsDiagonal)
@@ -9140,7 +8343,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
             return new VectorSpace6(SolveCG(vector));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace6 Solve(VectorSpace6 vectorspace)
     {
         VectorSpace6 result = VectorSpace6.Empty;
@@ -9152,7 +8354,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
         return result;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly bool Algebra<Scalar>.IMatrix<Vector6, Matrix6>.Solve(Vector6 vector, out Vector6 solution)
     {
         VectorSpace6 space = Solve(vector);
@@ -9168,7 +8369,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector6 SolveCG(Vector6 vector)
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -9245,7 +8445,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     #endregion
     #region INSTANCE METHODS : DECOMPOSITIONS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Vector6[] Eigenvectors, Scalar[] Eigenvalues) EigenDecompose(Scalar tolerance)
     {
         (Vector6 vec, Scalar val)[] pairs = GetEigenpairs(tolerance);
@@ -9255,7 +8454,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
         return (vectors, values);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Vector6 Eigenvector, Scalar Eigenvalue)[] GetEigenpairs(Scalar tolerance)
     {
         if (IsUpperTriangular || IsLowerTriangular || IsDiagonal)
@@ -9271,7 +8469,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
         return pairs;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private readonly (Vector6 Eigenvector, Scalar Eigenvalue) DoInverseVectoriteration(Scalar offset, Scalar tolerance)
     {
         Vector6 v_old = default;
@@ -9295,10 +8492,8 @@ public unsafe readonly /* ref */ partial struct Matrix6
         return (v_new, 1 / (λ - offset));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace6 GetEigenspace(Scalar eigenvalue) => VectorSpace6.FromVectors(Subtract(DiagonalMatrix(eigenvalue)).Columns.Select(v => v.Normalized)); // TODO : fix this shite
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int GetAlgebraicMulticiplity(Scalar eigenvalue) => GetEigenspace(eigenvalue).Dimension;
 
     /// <summary>
@@ -9319,7 +8514,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// Decomposes the current matrix (in a non-destructive fashion) into three matrices: A permutation-matrix P, an upper-triangular matrix U, and a lower-triangular matrix L.
     /// </summary>
     /// <returns>A tuple consisting of the permutation-matrix P, the upper-triangular matrix U, and the lower-triangular matrix L.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix6 P, Matrix6 L, Matrix6 U) PLUDecompose()
     {
         int[] perm = { 0, 1, 2, 3, 4, 5 };
@@ -9363,7 +8557,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
         return (FromRowPermutation(perm), L, U);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix3 A, Matrix3 C) SchurComplement()
     {
         (MatrixNM A, MatrixNM C) = SchurComplement(3);
@@ -9371,7 +8564,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
         return ((Matrix3)A, (Matrix3)C);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (MatrixNM A, MatrixNM C) SchurComplement(int size)
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -9392,7 +8584,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// <summary>
     /// Decomposes the current matrix instance into a lower triangular matrix 'L'. The product of L with its transposed results in the current matrix.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 CholeskyDecompose()
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -9413,7 +8604,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
         throw new NotImplementedException();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix6 Q, Matrix6 R) QRDecompose()
     {
         Matrix6 A = this;
@@ -9549,7 +8739,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
         );
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix6 U, Matrix6 D) IwasawaDecompose()
     {
         Matrix6 ONB = OrthonormalBasis;
@@ -9560,45 +8749,33 @@ public unsafe readonly /* ref */ partial struct Matrix6
 
     #endregion
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace6 GetKrylovSpace(Vector6 vector) => VectorSpace6.KrylovSpace(vector, this);
 
     #region INSTANCE METHODS : COMPARISONS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Is(Matrix6 o, Scalar tolerance) => _c0.Is(o._c0, tolerance) && _c1.Is(o._c1, tolerance) && _c2.Is(o._c2, tolerance) && _c3.Is(o._c3, tolerance) && _c4.Is(o._c4, tolerance) && _c5.Is(o._c5, tolerance);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Is(Matrix6 o) => Is(o, Scalar.ComputationalEpsilon);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool IsNot(Matrix6 o) => !Is(o);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override bool Equals(object? obj) => obj is Matrix6 v && Equals(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Equals(Matrix6 other) => Is(other);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo(Matrix6 other) => Is(other) ? 0 : throw new NotImplementedException();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo(object? other) => other is Matrix6 m ? CompareTo(m) : throw new ArgumentException($"The given value must be a Matrix of the type '{typeof(Matrix6)}'.", nameof(other));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override int GetHashCode() => LINQ.GetHashCode(Columns);
 
     #endregion
     #region INSTANCE METHODS : TO_STRING
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(bool @short) => @short ? ToShortString() : ToString();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(string? format) => ToString(format, null);
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(IFormatProvider prov) => ToString(null, prov);
 
     public readonly string ToString(string? format, IFormatProvider? provider) =>
@@ -9608,14 +8785,12 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// The 6x6-matrix' string representation
     /// </summary>
     /// <returns>String representation</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override string ToString() => Rows.Select(c => $"| {c.ToArray().Select(f => $"{f,22:F16}").StringJoin(", ")} |").StringJoinLines();
 
     /// <summary>
     /// The 6x6-matrix' short string representation
     /// </summary>
     /// <returns>Short string representation</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToShortString() => (from col in Columns
                                                let strings = (from entry in col.ToArray().Select(f => f.ToShortString("F25").PadRight(27).PadLeft(34))
                                                               let end = entry.Reverse().TakeWhile(c => c == '0' || c == ' ').Count()
@@ -9644,7 +8819,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// Returns the upper-left 2x2 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>2x2 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 ToMatrix2() => (
         _c0[0], _c1[0],
         _c0[1], _c1[1]
@@ -9654,7 +8828,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// Returns the upper-left 3x3 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>3x3 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 ToMatrix3() => (
         _c0[0], _c1[0], _c2[0],
         _c0[1], _c1[1], _c2[1],
@@ -9665,7 +8838,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// Returns the upper-left 4x4 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>4x4 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 ToMatrix4() => (
         _c0[0], _c1[0], _c2[0], _c3[0],
         _c0[1], _c1[1], _c2[1], _c3[1],
@@ -9677,7 +8849,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// Returns the upper-left 5x5 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>5x5 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 ToMatrix5() => (
         _c0[0], _c1[0], _c2[0], _c3[0], _c4[0],
         _c0[1], _c1[1], _c2[1], _c3[1], _c4[1],
@@ -9690,7 +8861,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// Creates the homogeneous 7x7 transformation matrix from the current matrix.
     /// </summary>
     /// <returns>Homogeneous 7x7 transformation matrix.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 ToHomogeneousTransformationMatrix() => (
         _c0.ToHomogeneousCoordinates(),
         _c1.ToHomogeneousCoordinates(),
@@ -9705,7 +8875,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// Returns the matrix as a flat array of matrix elements in column major format.
     /// </summary>
     /// <returns>Column major representation of the matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar[] ToArray() => FlattenedCoefficients.ToArray();
 
     /// <summary>
@@ -9713,7 +8882,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// This isomorphism is a simple multiplication of a given vector with the current matrix.
     /// </summary>
     /// <returns>The isomorphism.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Function<Vector6> ToIsomorphism()
     {
         Matrix6 copy = this;
@@ -9721,33 +8889,24 @@ public unsafe readonly /* ref */ partial struct Matrix6
         return new Function<Vector6>(v => copy.Multiply(v));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix(this);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly IEnumerator<Vector6> GetEnumerator() => ((IEnumerable<Vector6>)Columns).GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly IEnumerator<Scalar> IEnumerable<Scalar>.GetEnumerator() => Columns.SelectMany(v => v.AsEnumerable()).GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(out Scalar x_0_0, out Scalar x_1_0, out Scalar x_2_0, out Scalar x_3_0, out Scalar x_4_0, out Scalar x_5_0, out Scalar x_0_1, out Scalar x_1_1, out Scalar x_2_1, out Scalar x_3_1, out Scalar x_4_1, out Scalar x_5_1, out Scalar x_0_2, out Scalar x_1_2, out Scalar x_2_2, out Scalar x_3_2, out Scalar x_4_2, out Scalar x_5_2, out Scalar x_0_3, out Scalar x_1_3, out Scalar x_2_3, out Scalar x_3_3, out Scalar x_4_3, out Scalar x_5_3, out Scalar x_0_4, out Scalar x_1_4, out Scalar x_2_4, out Scalar x_3_4, out Scalar x_4_4, out Scalar x_5_4, out Scalar x_0_5, out Scalar x_1_5, out Scalar x_2_5, out Scalar x_3_5, out Scalar x_4_5, out Scalar x_5_5) =>
         (x_0_0, x_1_0, x_2_0, x_3_0, x_4_0, x_5_0, x_0_1, x_1_1, x_2_1, x_3_1, x_4_1, x_5_1, x_0_2, x_1_2, x_2_2, x_3_2, x_4_2, x_5_2, x_0_3, x_1_3, x_2_3, x_3_3, x_4_3, x_5_3, x_0_4, x_1_4, x_2_4, x_3_4, x_4_4, x_5_4, x_0_5, x_1_5, x_2_5, x_3_5, x_4_5, x_5_5) = (_c0[0], _c1[0], _c2[0], _c3[0], _c4[0], _c5[0], _c0[1], _c1[1], _c2[1], _c3[1], _c4[1], _c5[1], _c0[2], _c1[2], _c2[2], _c3[2], _c4[2], _c5[2], _c0[3], _c1[3], _c2[3], _c3[3], _c4[3], _c5[3], _c0[4], _c1[4], _c2[4], _c3[4], _c4[4], _c5[4], _c0[5], _c1[5], _c2[5], _c3[5], _c4[5], _c5[5]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(out Vector6 v0, out Vector6 v1, out Vector6 v2, out Vector6 v3, out Vector6 v4, out Vector6 v5) =>
         (v0, v1, v2, v3, v4, v5) = (_c0, _c1, _c2, _c3, _c4, _c5);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly object Clone() => new Matrix6(this);
 
     #endregion
@@ -9758,7 +8917,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// </summary>
     /// <param name="column">Column vector index (zero-based)</param>
     /// <returns>Column vector</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector6 GetColumn(int column) => column switch
     {
         0 => _c0,
@@ -9776,7 +8934,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// <param name="column">Column vector index (zero-based)</param>
     /// <param name="vector">New column vector</param>
     /// <returns>Modified matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 SetColumn(int column, in Vector6 vector)
     {
         if (column < 0 || column >= 6)
@@ -9789,13 +8946,10 @@ public unsafe readonly /* ref */ partial struct Matrix6
         return FromColumns(cols);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetColumns(Range columns) => GetRegion(columns, 0..6);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 SetColumns(Range columns, in MatrixNM values) => SetRegion(columns, 0..6, values);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 SwapColumns(int src_col, int dst_col)
     {
         Vector6 col = GetColumn(src_col);
@@ -9804,13 +8958,10 @@ public unsafe readonly /* ref */ partial struct Matrix6
                 .SetColumn(dst_col, col);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 MultiplyColumn(int col, Scalar factor) => SetColumn(col, GetColumn(col).Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 AddColumns(int src_col, int dst_col) => AddColumns(src_col, dst_col, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 AddColumns(int src_col, int dst_col, Scalar factor) => SetColumn(dst_col, GetColumn(src_col).Multiply(factor).Add(GetColumn(dst_col)));
 
     /// <summary>
@@ -9818,7 +8969,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// </summary>
     /// <param name="row">Row vector index (zero-based)</param>
     /// <returns>Row vector</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector6 GetRow(int row) => Transposed.GetColumn(row);
 
     /// <summary>
@@ -9827,16 +8977,12 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// <param name="row">Row vector index (zero-based)</param>
     /// <param name="vector">New row vector</param>
     /// <returns>Modified matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 SetRow(int row, in Vector6 vector) => Transposed.SetColumn(row, vector).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetRows(Range rows) => GetRegion(0..6, rows);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 SetRows(Range rows, in MatrixNM values) => SetRegion(0..6, rows, values);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 SwapRows(int src_row, int dst_row)
     {
         Vector6 row = GetRow(src_row);
@@ -9845,16 +8991,12 @@ public unsafe readonly /* ref */ partial struct Matrix6
                 .SetRow(dst_row, row);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 AddRows(int src_row, int dst_row) => AddRows(src_row, dst_row, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 AddRows(int src_row, int dst_row, Scalar factor) => SetRow(dst_row, GetRow(src_row).Multiply(factor).Add(GetRow(dst_row)));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 MultiplyRow(int row, Scalar factor) => SetRow(row, GetRow(row).Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetRegion(Range columns, Range rows)
     {
         // TODO : range checks
@@ -9871,7 +9013,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
         return new MatrixNM(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 SetRegion(Range columns, Range rows, in MatrixNM values)
     {
         // TODO : range checks
@@ -9894,7 +9035,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// <param name="column">Zero-based column index</param>
     /// <param name="row">Zero-based row index</param>
     /// <returns>5x5-minor</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 GetMinor(int column, int row) =>
         Columns
         .Take(column)
@@ -9909,43 +9049,30 @@ public unsafe readonly /* ref */ partial struct Matrix6
     #endregion
     #region STATIC METHODS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 Add(Matrix6 m1, Matrix6 m2) => m1.Add(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 Subtract(Matrix6 m1, Matrix6 m2) => m1.Subtract(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 Multiply(Matrix6 m1, Matrix6 m2) => m1.Multiply(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector6 Multiply(Matrix6 m, Vector6 v) => m.Multiply(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 Multiply(Matrix6 m, Scalar s) => m.Multiply(s);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 Divide(Matrix6 m, Scalar s) => m.Divide(s);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 Exp(Matrix6 matrix, InfiniteSeriesSettings? settings = null) => matrix.Exp(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 Sin(Matrix6 matrix, InfiniteSeriesSettings? settings = null) => matrix.Sin(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 Cos(Matrix6 matrix, InfiniteSeriesSettings? settings = null) => matrix.Cos(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 CracovianProduct(in Matrix6 first, in Matrix6 second) => second.Transposed.Multiply(in second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 HadamardProduct(in Matrix6 first, in Matrix6 second) => first.ComponentwiseMultiply(in second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar DistanceBetween(Matrix6 first, Matrix6 second, MatrixNorm norm) => first.DistanceTo(second, norm);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 SparseMatrix(params (int column, int row, Scalar value)[] entries)
     {
         Scalar[,] m = new Scalar[6, 6];
@@ -9956,10 +9083,8 @@ public unsafe readonly /* ref */ partial struct Matrix6
         return FromArray(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 SingleEntryMatrix(int column, int row) => SingleEntryMatrix(column, row, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 SingleEntryMatrix(int column, int row, Scalar value)
     {
         Scalar[,] m = new Scalar[6, 6];
@@ -9969,13 +9094,10 @@ public unsafe readonly /* ref */ partial struct Matrix6
         return FromArray(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 DiagonalMatrix(Scalar scalar) => Identity * scalar;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 DiagonalMatrix(in Vector6 diagonal) => DiagonalMatrix(diagonal[0], diagonal[1], diagonal[2], diagonal[3], diagonal[4], diagonal[5]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 DiagonalMatrix(Scalar d0, Scalar d1, Scalar d2, Scalar d3, Scalar d4, Scalar d5) => (
         d0, 0, 0, 0, 0, 0,
         0, d1, 0, 0, 0, 0,
@@ -9985,7 +9107,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
         0, 0, 0, 0, 0, d5
     );
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 KacMurdockSzegöMatrix(Scalar a) => new(
         1, a.Power(1) * .5, a.Power(2) * .5, a.Power(3) * .5, a.Power(4) * .5, a.Power(5) * .5,
         a.Power(1) * .5, 1, a.Power(1) * .5, a.Power(2) * .5, a.Power(3) * .5, a.Power(4) * .5,
@@ -9995,10 +9116,8 @@ public unsafe readonly /* ref */ partial struct Matrix6
         a.Power(5) * .5, a.Power(4) * .5, a.Power(3) * .5, a.Power(2) * .5, a.Power(1) * .5, 1
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 FromRowPermutation(int[] row_indices) => FromColumnPermutation(row_indices).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 FromColumnPermutation(int[] column_indices)
     {
         if (column_indices.Distinct().Count() != column_indices.Length)
@@ -10022,13 +9141,10 @@ public unsafe readonly /* ref */ partial struct Matrix6
 
     public static Matrix6 FromNative<T>(T* src) where T : unmanaged => new((Scalar*)src);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 FromCompressedStorageFormat(CompressedStorageFormat<Scalar> compressed) => FromArray(compressed.ToMatrix());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 FromArray(in Scalar[,] arr) => arr.GetLength(0) < 6 || arr.GetLength(1) < 6 ? throw new ArgumentException("The array must have a minimum size of 6x6.", nameof(arr)) : new Matrix6(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 FromArray(in Scalar[] arr) => arr switch {
         null => throw new ArgumentNullException(nameof(arr)),
         _ when arr.Length < 36 => throw new ArgumentException("The array must have a minimum length of 36.", nameof(arr)),
@@ -10042,10 +9158,8 @@ public unsafe readonly /* ref */ partial struct Matrix6
         )
     };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 FromRows(in Vector6[] arr) => FromColumns(arr).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 FromColumns(in Vector6[] arr) => arr switch {
         null => throw new ArgumentNullException(nameof(arr)),
         { Length: 6 } => new Matrix6(
@@ -10070,7 +9184,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(Matrix6 m1, Matrix6 m2) => m1.Is(m2);
 
     /// <summary>
@@ -10079,7 +9192,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(Matrix6 m1, Matrix6 m2) => !(m1 == m2);
 
     /// <summary>
@@ -10087,7 +9199,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// </summary>
     /// <param name="m">Original matrix</param>
     /// <returns>Unchanged matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 operator +(in Matrix6 m) => m;
 
     /// <summary>
@@ -10095,25 +9206,18 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// </summary>
     /// <param name="m">Original matrix</param>
     /// <returns>Negated matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 operator -(in Matrix6 m) => m.Negate();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 operator +(Scalar f, in Matrix6 m) => m.Add(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 operator +(in Matrix6 m, Scalar f) => m.Add(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 operator -(Scalar f, in Matrix6 m) => new Matrix6(f).Subtract(in m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 operator -(in Matrix6 m, Scalar f) => m.Subtract(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 operator ++(in Matrix6 m) => m.Increment();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 operator --(in Matrix6 m) => m.Decrement();
 
     /// <summary>
@@ -10122,7 +9226,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Addition result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 operator +(in Matrix6 m1, in Matrix6 m2) => m1.Add(in m2);
 
     /// <summary>
@@ -10131,25 +9234,18 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Subtraction result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 operator -(in Matrix6 m1, in Matrix6 m2) => m1.Subtract(in m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector6 operator *(in Matrix6 m, in Vector6 v) => m.Multiply(in v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 operator *(in Matrix6 m1, in Matrix6 m2) => m1.Multiply(in m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 operator *(in Matrix6 m, Scalar f) => m.Multiply(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 operator *(Scalar f, in Matrix6 m) => m.Multiply(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 operator ^(in Matrix6 m, int c) => m.Power(c);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 operator ^(in Matrix6 m1, in Matrix6 m2) => CracovianProduct(in m1, in m2);
 
     /// <summary>
@@ -10158,34 +9254,24 @@ public unsafe readonly /* ref */ partial struct Matrix6
     /// <param name="A">Matrix A</param>
     /// <param name="b">Vector b</param>
     /// <returns>Solution x</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static VectorSpace6 operator |(Matrix6 A, Vector6 b) => A.Solve(b);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static VectorSpace6 operator |(Matrix6 A, VectorSpace6 b) => A.Solve(b);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 operator /(Matrix6 m1, Matrix6 m2) => m1.Multiply(m2.Inverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 operator /(in Matrix6 m, Scalar f) => m.Divide(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 operator %(in Matrix6 m, Scalar f) => m.Modulus(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (Vector6 x0, Vector6 x1, Vector6 x2, Vector6 x3, Vector6 x4, Vector6 x5) (in Matrix6 m) => (m[0], m[1], m[2], m[3], m[4], m[5]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix6((Vector6 x0, Vector6 x1, Vector6 x2, Vector6 x3, Vector6 x4, Vector6 x5) t) => new(t.x0, t.x1, t.x2, t.x3, t.x4, t.x5);
 /*
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator ((Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5) c0, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5) c1, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5) c2, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5) c3, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5) c4, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5) c5) (in Matrix6 m) => (m[0], m[1], m[2], m[3], m[4], m[5]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix6(in ((Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5) c0, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5) c1, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5) c2, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5) c3, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5) c4, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5) c5) t) => new(t.c0, t.c1, t.c2, t.c3, t.c4, t.c5);
 */
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (Scalar x_0_0, Scalar x_1_0, Scalar x_2_0, Scalar x_3_0, Scalar x_4_0, Scalar x_5_0, Scalar x_0_1, Scalar x_1_1, Scalar x_2_1, Scalar x_3_1, Scalar x_4_1, Scalar x_5_1, Scalar x_0_2, Scalar x_1_2, Scalar x_2_2, Scalar x_3_2, Scalar x_4_2, Scalar x_5_2, Scalar x_0_3, Scalar x_1_3, Scalar x_2_3, Scalar x_3_3, Scalar x_4_3, Scalar x_5_3, Scalar x_0_4, Scalar x_1_4, Scalar x_2_4, Scalar x_3_4, Scalar x_4_4, Scalar x_5_4, Scalar x_0_5, Scalar x_1_5, Scalar x_2_5, Scalar x_3_5, Scalar x_4_5, Scalar x_5_5) (in Matrix6 m) => (
         m._c0[0], m._c1[0], m._c2[0], m._c3[0], m._c4[0], m._c5[0],
         m._c0[1], m._c1[1], m._c2[1], m._c3[1], m._c4[1], m._c5[1],
@@ -10195,7 +9281,6 @@ public unsafe readonly /* ref */ partial struct Matrix6
         m._c0[5], m._c1[5], m._c2[5], m._c3[5], m._c4[5], m._c5[5]
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix6(in (Scalar x_0_0, Scalar x_1_0, Scalar x_2_0, Scalar x_3_0, Scalar x_4_0, Scalar x_5_0, Scalar x_0_1, Scalar x_1_1, Scalar x_2_1, Scalar x_3_1, Scalar x_4_1, Scalar x_5_1, Scalar x_0_2, Scalar x_1_2, Scalar x_2_2, Scalar x_3_2, Scalar x_4_2, Scalar x_5_2, Scalar x_0_3, Scalar x_1_3, Scalar x_2_3, Scalar x_3_3, Scalar x_4_3, Scalar x_5_3, Scalar x_0_4, Scalar x_1_4, Scalar x_2_4, Scalar x_3_4, Scalar x_4_4, Scalar x_5_4, Scalar x_0_5, Scalar x_1_5, Scalar x_2_5, Scalar x_3_5, Scalar x_4_5, Scalar x_5_5) t) => new(
         t.x_0_0, t.x_1_0, t.x_2_0, t.x_3_0, t.x_4_0, t.x_5_0,
         t.x_0_1, t.x_1_1, t.x_2_1, t.x_3_1, t.x_4_1, t.x_5_1,
@@ -10205,37 +9290,26 @@ public unsafe readonly /* ref */ partial struct Matrix6
         t.x_0_5, t.x_1_5, t.x_2_5, t.x_3_5, t.x_4_5, t.x_5_5
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix6(Scalar m) => new(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix6(in Vector6[] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Vector6[](in Matrix6 m) => m.Columns;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Scalar[](in Matrix6 m) => m.ToArray();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix6(Scalar[] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Scalar[,](in Matrix6 m) => m.Coefficients;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix6(Scalar[,] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator MatrixNM(in Matrix6 m) => new(m.Coefficients);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix6(in MatrixNM m) => new(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator CompressedStorageFormat<Scalar>(in Matrix6 m) => CompressedStorageFormat<Scalar>.FromMatrix<Matrix6>(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Function<Vector6>(in Matrix6 m) => m.ToIsomorphism();
 
     #endregion
@@ -10253,10 +9327,8 @@ public unsafe readonly /* ref */ partial struct Matrix6
 
 public static class Matrix6Extensions
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 Sum(this IEnumerable<Matrix6> matrices) => Matrix6.Zero.Add(matrices.ToArray());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 Average(this IEnumerable<Matrix6> matrices)
     {
         Matrix6 mat = Matrix6.Zero;
@@ -10782,7 +9854,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// Creates a new 7x7-matrix where all diagonal elements have the value <paramref name="scale"/>. All elements outside the main diagonal are set to <see cref="Scalar.Zero"/>.
     /// </summary>
     /// <param name="scale">Scalar factor</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7(Scalar scale)
         : this(scale, 0, 0, 0, 0, 0, 0,
                0, scale, 0, 0, 0, 0, 0,
@@ -10804,7 +9875,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// <param name="diag_4">The diagonal element at the position (4, 4).</param>
     /// <param name="diag_5">The diagonal element at the position (5, 5).</param>
     /// <param name="diag_6">The diagonal element at the position (6, 6).</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7(Scalar diag_0, Scalar diag_1, Scalar diag_2, Scalar diag_3, Scalar diag_4, Scalar diag_5, Scalar diag_6)
         : this(diag_0, 0, 0, 0, 0, 0, 0,
                0, diag_1, 0, 0, 0, 0, 0,
@@ -10816,7 +9886,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7(Scalar s_0_0, Scalar s_1_0, Scalar s_2_0, Scalar s_3_0, Scalar s_4_0, Scalar s_5_0, Scalar s_6_0, Scalar s_0_1, Scalar s_1_1, Scalar s_2_1, Scalar s_3_1, Scalar s_4_1, Scalar s_5_1, Scalar s_6_1, Scalar s_0_2, Scalar s_1_2, Scalar s_2_2, Scalar s_3_2, Scalar s_4_2, Scalar s_5_2, Scalar s_6_2, Scalar s_0_3, Scalar s_1_3, Scalar s_2_3, Scalar s_3_3, Scalar s_4_3, Scalar s_5_3, Scalar s_6_3, Scalar s_0_4, Scalar s_1_4, Scalar s_2_4, Scalar s_3_4, Scalar s_4_4, Scalar s_5_4, Scalar s_6_4, Scalar s_0_5, Scalar s_1_5, Scalar s_2_5, Scalar s_3_5, Scalar s_4_5, Scalar s_5_5, Scalar s_6_5, Scalar s_0_6, Scalar s_1_6, Scalar s_2_6, Scalar s_3_6, Scalar s_4_6, Scalar s_5_6, Scalar s_6_6)
         : this(new Vector7(s_0_0, s_0_1, s_0_2, s_0_3, s_0_4, s_0_5, s_0_6),
                new Vector7(s_1_0, s_1_1, s_1_2, s_1_3, s_1_4, s_1_5, s_1_6),
@@ -10828,7 +9897,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7(Scalar[] values)
         : this(values[0], values[1], values[2], values[3], values[4], values[5], values[6],
                values[7], values[8], values[9], values[10], values[11], values[12], values[13],
@@ -10840,7 +9908,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7(Scalar[,] values)
         : this(values[0, 0], values[1, 0], values[2, 0], values[3, 0], values[4, 0], values[5, 0], values[6, 0],
                values[0, 1], values[1, 1], values[2, 1], values[3, 1], values[4, 1], values[5, 1], values[6, 1],
@@ -10852,7 +9919,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7(Scalar[][] values)
         : this(values[0][0], values[1][0], values[2][0], values[3][0], values[4][0], values[5][0], values[6][0],
                values[0][1], values[1][1], values[2][1], values[3][1], values[4][1], values[5][1], values[6][1],
@@ -10864,73 +9930,61 @@ public unsafe readonly /* ref */ partial struct Matrix7
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7(in Matrix2 matrix)
         : this(new Vector7(matrix[0]), new Vector7(matrix[1]), Vector7.Zero, Vector7.Zero, Vector7.Zero, Vector7.Zero, Vector7.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7(in Matrix3 matrix)
         : this(new Vector7(matrix[0]), new Vector7(matrix[1]), new Vector7(matrix[2]), Vector7.Zero, Vector7.Zero, Vector7.Zero, Vector7.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7(in Matrix4 matrix)
         : this(new Vector7(matrix[0]), new Vector7(matrix[1]), new Vector7(matrix[2]), new Vector7(matrix[3]), Vector7.Zero, Vector7.Zero, Vector7.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7(in Matrix5 matrix)
         : this(new Vector7(matrix[0]), new Vector7(matrix[1]), new Vector7(matrix[2]), new Vector7(matrix[3]), new Vector7(matrix[4]), Vector7.Zero, Vector7.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7(in Matrix6 matrix)
         : this(new Vector7(matrix[0]), new Vector7(matrix[1]), new Vector7(matrix[2]), new Vector7(matrix[3]), new Vector7(matrix[4]), new Vector7(matrix[5]), Vector7.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7(in Matrix7 matrix)
         : this(matrix.Columns)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7(in Matrix8 matrix)
         : this(new Vector7(matrix[0]), new Vector7(matrix[1]), new Vector7(matrix[2]), new Vector7(matrix[3]), new Vector7(matrix[4]), new Vector7(matrix[5]), new Vector7(matrix[6]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7(in Matrix9 matrix)
         : this(new Vector7(matrix[0]), new Vector7(matrix[1]), new Vector7(matrix[2]), new Vector7(matrix[3]), new Vector7(matrix[4]), new Vector7(matrix[5]), new Vector7(matrix[6]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7(in Matrix10 matrix)
         : this(new Vector7(matrix[0]), new Vector7(matrix[1]), new Vector7(matrix[2]), new Vector7(matrix[3]), new Vector7(matrix[4]), new Vector7(matrix[5]), new Vector7(matrix[6]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7(in MatrixNM matrix)
         : this(matrix.Coefficients)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7(Matrix7* matrix)
         : this(*matrix)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7(Scalar* values)
         : this(values[0], values[1], values[2], values[3], values[4], values[5], values[6],
                values[7], values[8], values[9], values[10], values[11], values[12], values[13],
@@ -10942,25 +9996,21 @@ public unsafe readonly /* ref */ partial struct Matrix7
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7(Vector7* columns)
         : this(columns[0], columns[1], columns[2], columns[3], columns[4], columns[5], columns[6])
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7(IEnumerable<Vector7> columns)
         : this(columns.ToArray())
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7(Vector7[] columns)
         : this(columns[0], columns[1], columns[2], columns[3], columns[4], columns[5], columns[6])
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7(Vector7 v0, Vector7 v1, Vector7 v2, Vector7 v3, Vector7 v4, Vector7 v5, Vector7 v6)
     {
         _c0 = v0;
@@ -10979,7 +10029,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// Negates the current instance and returns the result without modifying the current instance.
     /// </summary>
     /// <returns>Negated object</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 Negate() => new(-_c0, -_c1, -_c2, -_c3, -_c4, -_c5, -_c6);
 
     /// <summary>
@@ -10987,31 +10036,22 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Addition result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 Add(in Matrix7 second) => new(_c0 + second._c0, _c1 + second._c1, _c2 + second._c2, _c3 + second._c3, _c4 + second._c4, _c5 + second._c5, _c6 + second._c6);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 Add(params Matrix7[] matrices) => matrices.Aggregate(this, Add);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 Add(Scalar Scalar) => Add(new Matrix7(Scalar));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 Increment() => Add(1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 Decrement() => Add(-1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 Subtract(in Matrix7 second) => Add(second.Negate());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 Subtract(params Matrix7[] matrices) => matrices.Aggregate(this, Subtract);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7 Subtract(Scalar scalar) => Add(scalar.Negate());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector6 HomogeneousMultiply(in Vector6 second) => Multiply(second.ToHomogeneousCoordinates()).FromHomogeneousCoordinates();
 
     /// <summary>
@@ -11021,7 +10061,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 Multiply(in Matrix7 second)
     {
         Vector7[] A = Rows;
@@ -11035,7 +10074,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
         return new Matrix7(C);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 Multiply(params Matrix7[] matrices) => matrices.Aggregate(this, Multiply);
 
     /// <summary>
@@ -11043,7 +10081,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// </summary>
     /// <param name="vector">Vector</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector7 Multiply(in Vector7 vector) => new(
         _c0[0] * vector[0] + _c1[0] * vector[1] + _c2[0] * vector[2] + _c3[0] * vector[3] + _c4[0] * vector[4] + _c5[0] * vector[5] + _c6[0] * vector[6],
         _c0[1] * vector[0] + _c1[1] * vector[1] + _c2[1] * vector[2] + _c3[1] * vector[3] + _c4[1] * vector[4] + _c5[1] * vector[5] + _c6[1] * vector[6],
@@ -11059,13 +10096,10 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// </summary>
     /// <param name="factor">Scalar factor</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 Multiply(Scalar factor) => new(_c0 * factor, _c1 * factor, _c2 * factor, _c3 * factor, _c4 * factor, _c5 * factor, _c6 * factor);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 Multiply(params Scalar[] factors) => Multiply(factors.Aggregate(Scalar.One, Scalar.Multiply));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix7 Power(int e)
     {
         if (e < 0)
@@ -11089,10 +10123,8 @@ public unsafe readonly /* ref */ partial struct Matrix7
         return r;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 Divide(Scalar factor) => Multiply(factor.Inverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 Modulus(Scalar factor) => new(_c0 % factor, _c1 % factor, _c2 % factor, _c3 % factor, _c4 % factor, _c5 % factor, _c6 % factor);
 
     public readonly Matrix7 Sin(InfiniteSeriesSettings? settings = null)
@@ -11181,50 +10213,36 @@ public unsafe readonly /* ref */ partial struct Matrix7
         MatrixNorm.L2_Norm => SpectralNorm,
     };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePNorm(Scalar p) => ToArray().Select(c => c.Abs().Power(p)).Sum().Power(p.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePQNorm(Scalar p, Scalar q) => Columns.Select(c => c.Select(v => v.Abs().Power(p)).Sum().Power(q / p)).Sum().Power(q.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputeMatrixCondition(MatrixNorm norm) => ComputeNorm(norm) * MultiplicativeInverse.ComputeNorm(norm);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePMatrixCondition(Scalar p) => ComputePNorm(p) * MultiplicativeInverse.ComputePNorm(p);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePQMatrixCondition(Scalar p, Scalar q) => ComputePQNorm(p, q) * MultiplicativeInverse.ComputePQNorm(p, q);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 ComponentwiseDivide(in Matrix7 second) => new(_c0.ComponentwiseDivide(second._c0), _c1.ComponentwiseDivide(second._c1), _c2.ComponentwiseDivide(second._c2), _c3.ComponentwiseDivide(second._c3), _c4.ComponentwiseDivide(second._c4), _c5.ComponentwiseDivide(second._c5), _c6.ComponentwiseDivide(second._c6));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 ComponentwiseMultiply(in Matrix7 second) => new(_c0.ComponentwiseMultiply(second._c0), _c1.ComponentwiseMultiply(second._c1), _c2.ComponentwiseMultiply(second._c2), _c3.ComponentwiseMultiply(second._c3), _c4.ComponentwiseMultiply(second._c4), _c5.ComponentwiseMultiply(second._c5), _c6.ComponentwiseMultiply(second._c6));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 ComponentwiseApply(Func<Scalar, Scalar> function) => new(_c0.ComponentwiseApply(function), _c1.ComponentwiseApply(function), _c2.ComponentwiseApply(function), _c3.ComponentwiseApply(function), _c4.ComponentwiseApply(function), _c5.ComponentwiseApply(function), _c6.ComponentwiseApply(function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 ComponentwiseApply(Matrix7 second, Func<Scalar, Scalar, Scalar> function) =>
         new(_c0.ComponentwiseApply(second._c0, function), _c1.ComponentwiseApply(second._c1, function), _c2.ComponentwiseApply(second._c2, function), _c3.ComponentwiseApply(second._c3, function), _c4.ComponentwiseApply(second._c4, function), _c5.ComponentwiseApply(second._c5, function), _c6.ComponentwiseApply(second._c6, function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 ComponentwiseApply(Matrix7 second, Matrix7 third, Func<Scalar, Scalar, Scalar, Scalar> function) =>
         new(_c0.ComponentwiseApply(second._c0, third._c0, function), _c1.ComponentwiseApply(second._c1, third._c1, function), _c2.ComponentwiseApply(second._c2, third._c2, function), _c3.ComponentwiseApply(second._c3, third._c3, function), _c4.ComponentwiseApply(second._c4, third._c4, function), _c5.ComponentwiseApply(second._c5, third._c5, function), _c6.ComponentwiseApply(second._c6, third._c6, function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 Clamp() => Clamp(Scalar.Zero, Scalar.One);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 Clamp(Scalar low, Scalar high) => new(_c0.Clamp(low, high), _c1.Clamp(low, high), _c2.Clamp(low, high), _c3.Clamp(low, high), _c4.Clamp(low, high), _c5.Clamp(low, high), _c6.Clamp(low, high));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 LinearInterpolate(in Matrix7 other, Scalar factor) => Multiply(1 - factor).Add(other.Multiply(factor));
 
     #endregion
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool IsLinearDependant(in Matrix7 other, out Scalar? factor)
     {
         factor = null;
@@ -11252,7 +10270,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// Returns a set of the first 5 principal submatrices.
     /// </summary>
     /// <returns>Set of principal submatrices</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Algebra<Scalar>.IMatrix[] GetPrincipalSubmatrices()
     {
         (Matrix2 Sub2, Matrix3 Sub3, Matrix4 Sub4, Matrix5 Sub5, Matrix6 Sub6) = PrincipalSubmatrices;
@@ -11260,7 +10277,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
         return new Algebra<Scalar>.IMatrix[] { _c0[0], Sub2, Sub3, Sub4, Sub5, Sub6 };
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal readonly Matrix7 GetLinearIndependentForm()
     {
         Matrix7 m = this;
@@ -11296,7 +10312,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// </summary>
     /// <param name="vector">Vector7</param>
     /// <returns>Solution</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace7 Solve(Vector7 vector)
     {
         if (IsDiagonal)
@@ -11339,7 +10354,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
             return new VectorSpace7(SolveCG(vector));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace7 Solve(VectorSpace7 vectorspace)
     {
         VectorSpace7 result = VectorSpace7.Empty;
@@ -11351,7 +10365,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
         return result;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly bool Algebra<Scalar>.IMatrix<Vector7, Matrix7>.Solve(Vector7 vector, out Vector7 solution)
     {
         VectorSpace7 space = Solve(vector);
@@ -11367,7 +10380,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector7 SolveCG(Vector7 vector)
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -11444,7 +10456,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     #endregion
     #region INSTANCE METHODS : DECOMPOSITIONS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Vector7[] Eigenvectors, Scalar[] Eigenvalues) EigenDecompose(Scalar tolerance)
     {
         (Vector7 vec, Scalar val)[] pairs = GetEigenpairs(tolerance);
@@ -11454,7 +10465,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
         return (vectors, values);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Vector7 Eigenvector, Scalar Eigenvalue)[] GetEigenpairs(Scalar tolerance)
     {
         if (IsUpperTriangular || IsLowerTriangular || IsDiagonal)
@@ -11470,7 +10480,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
         return pairs;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private readonly (Vector7 Eigenvector, Scalar Eigenvalue) DoInverseVectoriteration(Scalar offset, Scalar tolerance)
     {
         Vector7 v_old = default;
@@ -11494,10 +10503,8 @@ public unsafe readonly /* ref */ partial struct Matrix7
         return (v_new, 1 / (λ - offset));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace7 GetEigenspace(Scalar eigenvalue) => VectorSpace7.FromVectors(Subtract(DiagonalMatrix(eigenvalue)).Columns.Select(v => v.Normalized)); // TODO : fix this shite
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int GetAlgebraicMulticiplity(Scalar eigenvalue) => GetEigenspace(eigenvalue).Dimension;
 
     /// <summary>
@@ -11518,7 +10525,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// Decomposes the current matrix (in a non-destructive fashion) into three matrices: A permutation-matrix P, an upper-triangular matrix U, and a lower-triangular matrix L.
     /// </summary>
     /// <returns>A tuple consisting of the permutation-matrix P, the upper-triangular matrix U, and the lower-triangular matrix L.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix7 P, Matrix7 L, Matrix7 U) PLUDecompose()
     {
         int[] perm = { 0, 1, 2, 3, 4, 5, 6 };
@@ -11562,7 +10568,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
         return (FromRowPermutation(perm), L, U);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix3 A, Matrix4 C) SchurComplement()
     {
         (MatrixNM A, MatrixNM C) = SchurComplement(3);
@@ -11570,7 +10575,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
         return ((Matrix3)A, (Matrix4)C);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (MatrixNM A, MatrixNM C) SchurComplement(int size)
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -11591,7 +10595,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// <summary>
     /// Decomposes the current matrix instance into a lower triangular matrix 'L'. The product of L with its transposed results in the current matrix.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 CholeskyDecompose()
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -11612,7 +10615,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
         throw new NotImplementedException();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix7 Q, Matrix7 R) QRDecompose()
     {
         Matrix7 A = this;
@@ -11776,7 +10778,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
         );
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix7 U, Matrix7 D) IwasawaDecompose()
     {
         Matrix7 ONB = OrthonormalBasis;
@@ -11787,45 +10788,33 @@ public unsafe readonly /* ref */ partial struct Matrix7
 
     #endregion
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace7 GetKrylovSpace(Vector7 vector) => VectorSpace7.KrylovSpace(vector, this);
 
     #region INSTANCE METHODS : COMPARISONS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Is(Matrix7 o, Scalar tolerance) => _c0.Is(o._c0, tolerance) && _c1.Is(o._c1, tolerance) && _c2.Is(o._c2, tolerance) && _c3.Is(o._c3, tolerance) && _c4.Is(o._c4, tolerance) && _c5.Is(o._c5, tolerance) && _c6.Is(o._c6, tolerance);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Is(Matrix7 o) => Is(o, Scalar.ComputationalEpsilon);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool IsNot(Matrix7 o) => !Is(o);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override bool Equals(object? obj) => obj is Matrix7 v && Equals(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Equals(Matrix7 other) => Is(other);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo(Matrix7 other) => Is(other) ? 0 : throw new NotImplementedException();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo(object? other) => other is Matrix7 m ? CompareTo(m) : throw new ArgumentException($"The given value must be a Matrix of the type '{typeof(Matrix7)}'.", nameof(other));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override int GetHashCode() => LINQ.GetHashCode(Columns);
 
     #endregion
     #region INSTANCE METHODS : TO_STRING
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(bool @short) => @short ? ToShortString() : ToString();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(string? format) => ToString(format, null);
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(IFormatProvider prov) => ToString(null, prov);
 
     public readonly string ToString(string? format, IFormatProvider? provider) =>
@@ -11835,14 +10824,12 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// The 7x7-matrix' string representation
     /// </summary>
     /// <returns>String representation</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override string ToString() => Rows.Select(c => $"| {c.ToArray().Select(f => $"{f,22:F16}").StringJoin(", ")} |").StringJoinLines();
 
     /// <summary>
     /// The 7x7-matrix' short string representation
     /// </summary>
     /// <returns>Short string representation</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToShortString() => (from col in Columns
                                                let strings = (from entry in col.ToArray().Select(f => f.ToShortString("F25").PadRight(27).PadLeft(34))
                                                               let end = entry.Reverse().TakeWhile(c => c == '0' || c == ' ').Count()
@@ -11871,7 +10858,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// Returns the upper-left 2x2 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>2x2 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 ToMatrix2() => (
         _c0[0], _c1[0],
         _c0[1], _c1[1]
@@ -11881,7 +10867,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// Returns the upper-left 3x3 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>3x3 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 ToMatrix3() => (
         _c0[0], _c1[0], _c2[0],
         _c0[1], _c1[1], _c2[1],
@@ -11892,7 +10877,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// Returns the upper-left 4x4 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>4x4 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 ToMatrix4() => (
         _c0[0], _c1[0], _c2[0], _c3[0],
         _c0[1], _c1[1], _c2[1], _c3[1],
@@ -11904,7 +10888,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// Returns the upper-left 5x5 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>5x5 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 ToMatrix5() => (
         _c0[0], _c1[0], _c2[0], _c3[0], _c4[0],
         _c0[1], _c1[1], _c2[1], _c3[1], _c4[1],
@@ -11917,7 +10900,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// Returns the upper-left 6x6 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>6x6 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 ToMatrix6() => (
         _c0[0], _c1[0], _c2[0], _c3[0], _c4[0], _c5[0],
         _c0[1], _c1[1], _c2[1], _c3[1], _c4[1], _c5[1],
@@ -11931,7 +10913,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// Creates the homogeneous 8x8 transformation matrix from the current matrix.
     /// </summary>
     /// <returns>Homogeneous 8x8 transformation matrix.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 ToHomogeneousTransformationMatrix() => (
         _c0.ToHomogeneousCoordinates(),
         _c1.ToHomogeneousCoordinates(),
@@ -11947,7 +10928,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// Returns the matrix as a flat array of matrix elements in column major format.
     /// </summary>
     /// <returns>Column major representation of the matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar[] ToArray() => FlattenedCoefficients.ToArray();
 
     /// <summary>
@@ -11955,7 +10935,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// This isomorphism is a simple multiplication of a given vector with the current matrix.
     /// </summary>
     /// <returns>The isomorphism.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Function<Vector7> ToIsomorphism()
     {
         Matrix7 copy = this;
@@ -11963,33 +10942,24 @@ public unsafe readonly /* ref */ partial struct Matrix7
         return new Function<Vector7>(v => copy.Multiply(v));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix(this);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly IEnumerator<Vector7> GetEnumerator() => ((IEnumerable<Vector7>)Columns).GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly IEnumerator<Scalar> IEnumerable<Scalar>.GetEnumerator() => Columns.SelectMany(v => v.AsEnumerable()).GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(out Scalar x_0_0, out Scalar x_1_0, out Scalar x_2_0, out Scalar x_3_0, out Scalar x_4_0, out Scalar x_5_0, out Scalar x_6_0, out Scalar x_0_1, out Scalar x_1_1, out Scalar x_2_1, out Scalar x_3_1, out Scalar x_4_1, out Scalar x_5_1, out Scalar x_6_1, out Scalar x_0_2, out Scalar x_1_2, out Scalar x_2_2, out Scalar x_3_2, out Scalar x_4_2, out Scalar x_5_2, out Scalar x_6_2, out Scalar x_0_3, out Scalar x_1_3, out Scalar x_2_3, out Scalar x_3_3, out Scalar x_4_3, out Scalar x_5_3, out Scalar x_6_3, out Scalar x_0_4, out Scalar x_1_4, out Scalar x_2_4, out Scalar x_3_4, out Scalar x_4_4, out Scalar x_5_4, out Scalar x_6_4, out Scalar x_0_5, out Scalar x_1_5, out Scalar x_2_5, out Scalar x_3_5, out Scalar x_4_5, out Scalar x_5_5, out Scalar x_6_5, out Scalar x_0_6, out Scalar x_1_6, out Scalar x_2_6, out Scalar x_3_6, out Scalar x_4_6, out Scalar x_5_6, out Scalar x_6_6) =>
         (x_0_0, x_1_0, x_2_0, x_3_0, x_4_0, x_5_0, x_6_0, x_0_1, x_1_1, x_2_1, x_3_1, x_4_1, x_5_1, x_6_1, x_0_2, x_1_2, x_2_2, x_3_2, x_4_2, x_5_2, x_6_2, x_0_3, x_1_3, x_2_3, x_3_3, x_4_3, x_5_3, x_6_3, x_0_4, x_1_4, x_2_4, x_3_4, x_4_4, x_5_4, x_6_4, x_0_5, x_1_5, x_2_5, x_3_5, x_4_5, x_5_5, x_6_5, x_0_6, x_1_6, x_2_6, x_3_6, x_4_6, x_5_6, x_6_6) = (_c0[0], _c1[0], _c2[0], _c3[0], _c4[0], _c5[0], _c6[0], _c0[1], _c1[1], _c2[1], _c3[1], _c4[1], _c5[1], _c6[1], _c0[2], _c1[2], _c2[2], _c3[2], _c4[2], _c5[2], _c6[2], _c0[3], _c1[3], _c2[3], _c3[3], _c4[3], _c5[3], _c6[3], _c0[4], _c1[4], _c2[4], _c3[4], _c4[4], _c5[4], _c6[4], _c0[5], _c1[5], _c2[5], _c3[5], _c4[5], _c5[5], _c6[5], _c0[6], _c1[6], _c2[6], _c3[6], _c4[6], _c5[6], _c6[6]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(out Vector7 v0, out Vector7 v1, out Vector7 v2, out Vector7 v3, out Vector7 v4, out Vector7 v5, out Vector7 v6) =>
         (v0, v1, v2, v3, v4, v5, v6) = (_c0, _c1, _c2, _c3, _c4, _c5, _c6);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly object Clone() => new Matrix7(this);
 
     #endregion
@@ -12000,7 +10970,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// </summary>
     /// <param name="column">Column vector index (zero-based)</param>
     /// <returns>Column vector</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector7 GetColumn(int column) => column switch
     {
         0 => _c0,
@@ -12019,7 +10988,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// <param name="column">Column vector index (zero-based)</param>
     /// <param name="vector">New column vector</param>
     /// <returns>Modified matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 SetColumn(int column, in Vector7 vector)
     {
         if (column < 0 || column >= 7)
@@ -12032,13 +11000,10 @@ public unsafe readonly /* ref */ partial struct Matrix7
         return FromColumns(cols);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetColumns(Range columns) => GetRegion(columns, 0..7);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 SetColumns(Range columns, in MatrixNM values) => SetRegion(columns, 0..7, values);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 SwapColumns(int src_col, int dst_col)
     {
         Vector7 col = GetColumn(src_col);
@@ -12047,13 +11012,10 @@ public unsafe readonly /* ref */ partial struct Matrix7
                 .SetColumn(dst_col, col);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 MultiplyColumn(int col, Scalar factor) => SetColumn(col, GetColumn(col).Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 AddColumns(int src_col, int dst_col) => AddColumns(src_col, dst_col, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 AddColumns(int src_col, int dst_col, Scalar factor) => SetColumn(dst_col, GetColumn(src_col).Multiply(factor).Add(GetColumn(dst_col)));
 
     /// <summary>
@@ -12061,7 +11023,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// </summary>
     /// <param name="row">Row vector index (zero-based)</param>
     /// <returns>Row vector</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector7 GetRow(int row) => Transposed.GetColumn(row);
 
     /// <summary>
@@ -12070,16 +11031,12 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// <param name="row">Row vector index (zero-based)</param>
     /// <param name="vector">New row vector</param>
     /// <returns>Modified matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 SetRow(int row, in Vector7 vector) => Transposed.SetColumn(row, vector).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetRows(Range rows) => GetRegion(0..7, rows);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 SetRows(Range rows, in MatrixNM values) => SetRegion(0..7, rows, values);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 SwapRows(int src_row, int dst_row)
     {
         Vector7 row = GetRow(src_row);
@@ -12088,16 +11045,12 @@ public unsafe readonly /* ref */ partial struct Matrix7
                 .SetRow(dst_row, row);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 AddRows(int src_row, int dst_row) => AddRows(src_row, dst_row, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 AddRows(int src_row, int dst_row, Scalar factor) => SetRow(dst_row, GetRow(src_row).Multiply(factor).Add(GetRow(dst_row)));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 MultiplyRow(int row, Scalar factor) => SetRow(row, GetRow(row).Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetRegion(Range columns, Range rows)
     {
         // TODO : range checks
@@ -12114,7 +11067,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
         return new MatrixNM(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 SetRegion(Range columns, Range rows, in MatrixNM values)
     {
         // TODO : range checks
@@ -12137,7 +11089,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// <param name="column">Zero-based column index</param>
     /// <param name="row">Zero-based row index</param>
     /// <returns>6x6-minor</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 GetMinor(int column, int row) =>
         Columns
         .Take(column)
@@ -12152,43 +11103,30 @@ public unsafe readonly /* ref */ partial struct Matrix7
     #endregion
     #region STATIC METHODS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 Add(Matrix7 m1, Matrix7 m2) => m1.Add(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 Subtract(Matrix7 m1, Matrix7 m2) => m1.Subtract(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 Multiply(Matrix7 m1, Matrix7 m2) => m1.Multiply(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector7 Multiply(Matrix7 m, Vector7 v) => m.Multiply(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 Multiply(Matrix7 m, Scalar s) => m.Multiply(s);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 Divide(Matrix7 m, Scalar s) => m.Divide(s);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 Exp(Matrix7 matrix, InfiniteSeriesSettings? settings = null) => matrix.Exp(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 Sin(Matrix7 matrix, InfiniteSeriesSettings? settings = null) => matrix.Sin(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 Cos(Matrix7 matrix, InfiniteSeriesSettings? settings = null) => matrix.Cos(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 CracovianProduct(in Matrix7 first, in Matrix7 second) => second.Transposed.Multiply(in second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 HadamardProduct(in Matrix7 first, in Matrix7 second) => first.ComponentwiseMultiply(in second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar DistanceBetween(Matrix7 first, Matrix7 second, MatrixNorm norm) => first.DistanceTo(second, norm);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 SparseMatrix(params (int column, int row, Scalar value)[] entries)
     {
         Scalar[,] m = new Scalar[7, 7];
@@ -12199,10 +11137,8 @@ public unsafe readonly /* ref */ partial struct Matrix7
         return FromArray(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 SingleEntryMatrix(int column, int row) => SingleEntryMatrix(column, row, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 SingleEntryMatrix(int column, int row, Scalar value)
     {
         Scalar[,] m = new Scalar[7, 7];
@@ -12212,13 +11148,10 @@ public unsafe readonly /* ref */ partial struct Matrix7
         return FromArray(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 DiagonalMatrix(Scalar scalar) => Identity * scalar;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 DiagonalMatrix(in Vector7 diagonal) => DiagonalMatrix(diagonal[0], diagonal[1], diagonal[2], diagonal[3], diagonal[4], diagonal[5], diagonal[6]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 DiagonalMatrix(Scalar d0, Scalar d1, Scalar d2, Scalar d3, Scalar d4, Scalar d5, Scalar d6) => (
         d0, 0, 0, 0, 0, 0, 0,
         0, d1, 0, 0, 0, 0, 0,
@@ -12229,7 +11162,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
         0, 0, 0, 0, 0, 0, d6
     );
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 KacMurdockSzegöMatrix(Scalar a) => new(
         1, a.Power(1) * .5, a.Power(2) * .5, a.Power(3) * .5, a.Power(4) * .5, a.Power(5) * .5, a.Power(6) * .5,
         a.Power(1) * .5, 1, a.Power(1) * .5, a.Power(2) * .5, a.Power(3) * .5, a.Power(4) * .5, a.Power(5) * .5,
@@ -12240,10 +11172,8 @@ public unsafe readonly /* ref */ partial struct Matrix7
         a.Power(6) * .5, a.Power(5) * .5, a.Power(4) * .5, a.Power(3) * .5, a.Power(2) * .5, a.Power(1) * .5, 1
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 FromRowPermutation(int[] row_indices) => FromColumnPermutation(row_indices).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 FromColumnPermutation(int[] column_indices)
     {
         if (column_indices.Distinct().Count() != column_indices.Length)
@@ -12267,13 +11197,10 @@ public unsafe readonly /* ref */ partial struct Matrix7
 
     public static Matrix7 FromNative<T>(T* src) where T : unmanaged => new((Scalar*)src);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 FromCompressedStorageFormat(CompressedStorageFormat<Scalar> compressed) => FromArray(compressed.ToMatrix());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 FromArray(in Scalar[,] arr) => arr.GetLength(0) < 7 || arr.GetLength(1) < 7 ? throw new ArgumentException("The array must have a minimum size of 7x7.", nameof(arr)) : new Matrix7(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 FromArray(in Scalar[] arr) => arr switch {
         null => throw new ArgumentNullException(nameof(arr)),
         _ when arr.Length < 49 => throw new ArgumentException("The array must have a minimum length of 49.", nameof(arr)),
@@ -12288,10 +11215,8 @@ public unsafe readonly /* ref */ partial struct Matrix7
         )
     };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 FromRows(in Vector7[] arr) => FromColumns(arr).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 FromColumns(in Vector7[] arr) => arr switch {
         null => throw new ArgumentNullException(nameof(arr)),
         { Length: 7 } => new Matrix7(
@@ -12317,7 +11242,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(Matrix7 m1, Matrix7 m2) => m1.Is(m2);
 
     /// <summary>
@@ -12326,7 +11250,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(Matrix7 m1, Matrix7 m2) => !(m1 == m2);
 
     /// <summary>
@@ -12334,7 +11257,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// </summary>
     /// <param name="m">Original matrix</param>
     /// <returns>Unchanged matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 operator +(in Matrix7 m) => m;
 
     /// <summary>
@@ -12342,25 +11264,18 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// </summary>
     /// <param name="m">Original matrix</param>
     /// <returns>Negated matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 operator -(in Matrix7 m) => m.Negate();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 operator +(Scalar f, in Matrix7 m) => m.Add(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 operator +(in Matrix7 m, Scalar f) => m.Add(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 operator -(Scalar f, in Matrix7 m) => new Matrix7(f).Subtract(in m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 operator -(in Matrix7 m, Scalar f) => m.Subtract(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 operator ++(in Matrix7 m) => m.Increment();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 operator --(in Matrix7 m) => m.Decrement();
 
     /// <summary>
@@ -12369,7 +11284,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Addition result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 operator +(in Matrix7 m1, in Matrix7 m2) => m1.Add(in m2);
 
     /// <summary>
@@ -12378,25 +11292,18 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Subtraction result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 operator -(in Matrix7 m1, in Matrix7 m2) => m1.Subtract(in m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector7 operator *(in Matrix7 m, in Vector7 v) => m.Multiply(in v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 operator *(in Matrix7 m1, in Matrix7 m2) => m1.Multiply(in m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 operator *(in Matrix7 m, Scalar f) => m.Multiply(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 operator *(Scalar f, in Matrix7 m) => m.Multiply(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 operator ^(in Matrix7 m, int c) => m.Power(c);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 operator ^(in Matrix7 m1, in Matrix7 m2) => CracovianProduct(in m1, in m2);
 
     /// <summary>
@@ -12405,34 +11312,24 @@ public unsafe readonly /* ref */ partial struct Matrix7
     /// <param name="A">Matrix A</param>
     /// <param name="b">Vector b</param>
     /// <returns>Solution x</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static VectorSpace7 operator |(Matrix7 A, Vector7 b) => A.Solve(b);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static VectorSpace7 operator |(Matrix7 A, VectorSpace7 b) => A.Solve(b);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 operator /(Matrix7 m1, Matrix7 m2) => m1.Multiply(m2.Inverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 operator /(in Matrix7 m, Scalar f) => m.Divide(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 operator %(in Matrix7 m, Scalar f) => m.Modulus(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (Vector7 x0, Vector7 x1, Vector7 x2, Vector7 x3, Vector7 x4, Vector7 x5, Vector7 x6) (in Matrix7 m) => (m[0], m[1], m[2], m[3], m[4], m[5], m[6]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix7((Vector7 x0, Vector7 x1, Vector7 x2, Vector7 x3, Vector7 x4, Vector7 x5, Vector7 x6) t) => new(t.x0, t.x1, t.x2, t.x3, t.x4, t.x5, t.x6);
 /*
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator ((Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6) c0, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6) c1, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6) c2, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6) c3, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6) c4, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6) c5, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6) c6) (in Matrix7 m) => (m[0], m[1], m[2], m[3], m[4], m[5], m[6]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix7(in ((Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6) c0, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6) c1, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6) c2, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6) c3, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6) c4, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6) c5, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6) c6) t) => new(t.c0, t.c1, t.c2, t.c3, t.c4, t.c5, t.c6);
 */
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (Scalar x_0_0, Scalar x_1_0, Scalar x_2_0, Scalar x_3_0, Scalar x_4_0, Scalar x_5_0, Scalar x_6_0, Scalar x_0_1, Scalar x_1_1, Scalar x_2_1, Scalar x_3_1, Scalar x_4_1, Scalar x_5_1, Scalar x_6_1, Scalar x_0_2, Scalar x_1_2, Scalar x_2_2, Scalar x_3_2, Scalar x_4_2, Scalar x_5_2, Scalar x_6_2, Scalar x_0_3, Scalar x_1_3, Scalar x_2_3, Scalar x_3_3, Scalar x_4_3, Scalar x_5_3, Scalar x_6_3, Scalar x_0_4, Scalar x_1_4, Scalar x_2_4, Scalar x_3_4, Scalar x_4_4, Scalar x_5_4, Scalar x_6_4, Scalar x_0_5, Scalar x_1_5, Scalar x_2_5, Scalar x_3_5, Scalar x_4_5, Scalar x_5_5, Scalar x_6_5, Scalar x_0_6, Scalar x_1_6, Scalar x_2_6, Scalar x_3_6, Scalar x_4_6, Scalar x_5_6, Scalar x_6_6) (in Matrix7 m) => (
         m._c0[0], m._c1[0], m._c2[0], m._c3[0], m._c4[0], m._c5[0], m._c6[0],
         m._c0[1], m._c1[1], m._c2[1], m._c3[1], m._c4[1], m._c5[1], m._c6[1],
@@ -12443,7 +11340,6 @@ public unsafe readonly /* ref */ partial struct Matrix7
         m._c0[6], m._c1[6], m._c2[6], m._c3[6], m._c4[6], m._c5[6], m._c6[6]
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix7(in (Scalar x_0_0, Scalar x_1_0, Scalar x_2_0, Scalar x_3_0, Scalar x_4_0, Scalar x_5_0, Scalar x_6_0, Scalar x_0_1, Scalar x_1_1, Scalar x_2_1, Scalar x_3_1, Scalar x_4_1, Scalar x_5_1, Scalar x_6_1, Scalar x_0_2, Scalar x_1_2, Scalar x_2_2, Scalar x_3_2, Scalar x_4_2, Scalar x_5_2, Scalar x_6_2, Scalar x_0_3, Scalar x_1_3, Scalar x_2_3, Scalar x_3_3, Scalar x_4_3, Scalar x_5_3, Scalar x_6_3, Scalar x_0_4, Scalar x_1_4, Scalar x_2_4, Scalar x_3_4, Scalar x_4_4, Scalar x_5_4, Scalar x_6_4, Scalar x_0_5, Scalar x_1_5, Scalar x_2_5, Scalar x_3_5, Scalar x_4_5, Scalar x_5_5, Scalar x_6_5, Scalar x_0_6, Scalar x_1_6, Scalar x_2_6, Scalar x_3_6, Scalar x_4_6, Scalar x_5_6, Scalar x_6_6) t) => new(
         t.x_0_0, t.x_1_0, t.x_2_0, t.x_3_0, t.x_4_0, t.x_5_0, t.x_6_0,
         t.x_0_1, t.x_1_1, t.x_2_1, t.x_3_1, t.x_4_1, t.x_5_1, t.x_6_1,
@@ -12454,37 +11350,26 @@ public unsafe readonly /* ref */ partial struct Matrix7
         t.x_0_6, t.x_1_6, t.x_2_6, t.x_3_6, t.x_4_6, t.x_5_6, t.x_6_6
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix7(Scalar m) => new(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix7(in Vector7[] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Vector7[](in Matrix7 m) => m.Columns;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Scalar[](in Matrix7 m) => m.ToArray();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix7(Scalar[] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Scalar[,](in Matrix7 m) => m.Coefficients;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix7(Scalar[,] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator MatrixNM(in Matrix7 m) => new(m.Coefficients);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix7(in MatrixNM m) => new(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator CompressedStorageFormat<Scalar>(in Matrix7 m) => CompressedStorageFormat<Scalar>.FromMatrix<Matrix7>(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Function<Vector7>(in Matrix7 m) => m.ToIsomorphism();
 
     #endregion
@@ -12502,10 +11387,8 @@ public unsafe readonly /* ref */ partial struct Matrix7
 
 public static class Matrix7Extensions
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 Sum(this IEnumerable<Matrix7> matrices) => Matrix7.Zero.Add(matrices.ToArray());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 Average(this IEnumerable<Matrix7> matrices)
     {
         Matrix7 mat = Matrix7.Zero;
@@ -13035,7 +11918,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// Creates a new 8x8-matrix where all diagonal elements have the value <paramref name="scale"/>. All elements outside the main diagonal are set to <see cref="Scalar.Zero"/>.
     /// </summary>
     /// <param name="scale">Scalar factor</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8(Scalar scale)
         : this(scale, 0, 0, 0, 0, 0, 0, 0,
                0, scale, 0, 0, 0, 0, 0, 0,
@@ -13059,7 +11941,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// <param name="diag_5">The diagonal element at the position (5, 5).</param>
     /// <param name="diag_6">The diagonal element at the position (6, 6).</param>
     /// <param name="diag_7">The diagonal element at the position (7, 7).</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8(Scalar diag_0, Scalar diag_1, Scalar diag_2, Scalar diag_3, Scalar diag_4, Scalar diag_5, Scalar diag_6, Scalar diag_7)
         : this(diag_0, 0, 0, 0, 0, 0, 0, 0,
                0, diag_1, 0, 0, 0, 0, 0, 0,
@@ -13072,7 +11953,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8(Scalar s_0_0, Scalar s_1_0, Scalar s_2_0, Scalar s_3_0, Scalar s_4_0, Scalar s_5_0, Scalar s_6_0, Scalar s_7_0, Scalar s_0_1, Scalar s_1_1, Scalar s_2_1, Scalar s_3_1, Scalar s_4_1, Scalar s_5_1, Scalar s_6_1, Scalar s_7_1, Scalar s_0_2, Scalar s_1_2, Scalar s_2_2, Scalar s_3_2, Scalar s_4_2, Scalar s_5_2, Scalar s_6_2, Scalar s_7_2, Scalar s_0_3, Scalar s_1_3, Scalar s_2_3, Scalar s_3_3, Scalar s_4_3, Scalar s_5_3, Scalar s_6_3, Scalar s_7_3, Scalar s_0_4, Scalar s_1_4, Scalar s_2_4, Scalar s_3_4, Scalar s_4_4, Scalar s_5_4, Scalar s_6_4, Scalar s_7_4, Scalar s_0_5, Scalar s_1_5, Scalar s_2_5, Scalar s_3_5, Scalar s_4_5, Scalar s_5_5, Scalar s_6_5, Scalar s_7_5, Scalar s_0_6, Scalar s_1_6, Scalar s_2_6, Scalar s_3_6, Scalar s_4_6, Scalar s_5_6, Scalar s_6_6, Scalar s_7_6, Scalar s_0_7, Scalar s_1_7, Scalar s_2_7, Scalar s_3_7, Scalar s_4_7, Scalar s_5_7, Scalar s_6_7, Scalar s_7_7)
         : this(new Vector8(s_0_0, s_0_1, s_0_2, s_0_3, s_0_4, s_0_5, s_0_6, s_0_7),
                new Vector8(s_1_0, s_1_1, s_1_2, s_1_3, s_1_4, s_1_5, s_1_6, s_1_7),
@@ -13085,7 +11965,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8(Scalar[] values)
         : this(values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7],
                values[8], values[9], values[10], values[11], values[12], values[13], values[14], values[15],
@@ -13098,7 +11977,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8(Scalar[,] values)
         : this(values[0, 0], values[1, 0], values[2, 0], values[3, 0], values[4, 0], values[5, 0], values[6, 0], values[7, 0],
                values[0, 1], values[1, 1], values[2, 1], values[3, 1], values[4, 1], values[5, 1], values[6, 1], values[7, 1],
@@ -13111,7 +11989,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8(Scalar[][] values)
         : this(values[0][0], values[1][0], values[2][0], values[3][0], values[4][0], values[5][0], values[6][0], values[7][0],
                values[0][1], values[1][1], values[2][1], values[3][1], values[4][1], values[5][1], values[6][1], values[7][1],
@@ -13124,73 +12001,61 @@ public unsafe readonly /* ref */ partial struct Matrix8
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8(in Matrix2 matrix)
         : this(new Vector8(matrix[0]), new Vector8(matrix[1]), Vector8.Zero, Vector8.Zero, Vector8.Zero, Vector8.Zero, Vector8.Zero, Vector8.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8(in Matrix3 matrix)
         : this(new Vector8(matrix[0]), new Vector8(matrix[1]), new Vector8(matrix[2]), Vector8.Zero, Vector8.Zero, Vector8.Zero, Vector8.Zero, Vector8.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8(in Matrix4 matrix)
         : this(new Vector8(matrix[0]), new Vector8(matrix[1]), new Vector8(matrix[2]), new Vector8(matrix[3]), Vector8.Zero, Vector8.Zero, Vector8.Zero, Vector8.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8(in Matrix5 matrix)
         : this(new Vector8(matrix[0]), new Vector8(matrix[1]), new Vector8(matrix[2]), new Vector8(matrix[3]), new Vector8(matrix[4]), Vector8.Zero, Vector8.Zero, Vector8.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8(in Matrix6 matrix)
         : this(new Vector8(matrix[0]), new Vector8(matrix[1]), new Vector8(matrix[2]), new Vector8(matrix[3]), new Vector8(matrix[4]), new Vector8(matrix[5]), Vector8.Zero, Vector8.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8(in Matrix7 matrix)
         : this(new Vector8(matrix[0]), new Vector8(matrix[1]), new Vector8(matrix[2]), new Vector8(matrix[3]), new Vector8(matrix[4]), new Vector8(matrix[5]), new Vector8(matrix[6]), Vector8.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8(in Matrix8 matrix)
         : this(matrix.Columns)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8(in Matrix9 matrix)
         : this(new Vector8(matrix[0]), new Vector8(matrix[1]), new Vector8(matrix[2]), new Vector8(matrix[3]), new Vector8(matrix[4]), new Vector8(matrix[5]), new Vector8(matrix[6]), new Vector8(matrix[7]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8(in Matrix10 matrix)
         : this(new Vector8(matrix[0]), new Vector8(matrix[1]), new Vector8(matrix[2]), new Vector8(matrix[3]), new Vector8(matrix[4]), new Vector8(matrix[5]), new Vector8(matrix[6]), new Vector8(matrix[7]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8(in MatrixNM matrix)
         : this(matrix.Coefficients)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8(Matrix8* matrix)
         : this(*matrix)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8(Scalar* values)
         : this(values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7],
                values[8], values[9], values[10], values[11], values[12], values[13], values[14], values[15],
@@ -13203,25 +12068,21 @@ public unsafe readonly /* ref */ partial struct Matrix8
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8(Vector8* columns)
         : this(columns[0], columns[1], columns[2], columns[3], columns[4], columns[5], columns[6], columns[7])
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8(IEnumerable<Vector8> columns)
         : this(columns.ToArray())
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8(Vector8[] columns)
         : this(columns[0], columns[1], columns[2], columns[3], columns[4], columns[5], columns[6], columns[7])
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8(Vector8 v0, Vector8 v1, Vector8 v2, Vector8 v3, Vector8 v4, Vector8 v5, Vector8 v6, Vector8 v7)
     {
         _c0 = v0;
@@ -13241,7 +12102,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// Negates the current instance and returns the result without modifying the current instance.
     /// </summary>
     /// <returns>Negated object</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 Negate() => new(-_c0, -_c1, -_c2, -_c3, -_c4, -_c5, -_c6, -_c7);
 
     /// <summary>
@@ -13249,31 +12109,22 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Addition result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 Add(in Matrix8 second) => new(_c0 + second._c0, _c1 + second._c1, _c2 + second._c2, _c3 + second._c3, _c4 + second._c4, _c5 + second._c5, _c6 + second._c6, _c7 + second._c7);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 Add(params Matrix8[] matrices) => matrices.Aggregate(this, Add);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 Add(Scalar Scalar) => Add(new Matrix8(Scalar));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 Increment() => Add(1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 Decrement() => Add(-1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 Subtract(in Matrix8 second) => Add(second.Negate());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 Subtract(params Matrix8[] matrices) => matrices.Aggregate(this, Subtract);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8 Subtract(Scalar scalar) => Add(scalar.Negate());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector7 HomogeneousMultiply(in Vector7 second) => Multiply(second.ToHomogeneousCoordinates()).FromHomogeneousCoordinates();
 
     /// <summary>
@@ -13283,7 +12134,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 Multiply(in Matrix8 second)
     {
         Vector8[] A = Rows;
@@ -13297,7 +12147,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
         return new Matrix8(C);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 Multiply(params Matrix8[] matrices) => matrices.Aggregate(this, Multiply);
 
     /// <summary>
@@ -13305,7 +12154,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// </summary>
     /// <param name="vector">Vector</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector8 Multiply(in Vector8 vector) => new(
         _c0[0] * vector[0] + _c1[0] * vector[1] + _c2[0] * vector[2] + _c3[0] * vector[3] + _c4[0] * vector[4] + _c5[0] * vector[5] + _c6[0] * vector[6] + _c7[0] * vector[7],
         _c0[1] * vector[0] + _c1[1] * vector[1] + _c2[1] * vector[2] + _c3[1] * vector[3] + _c4[1] * vector[4] + _c5[1] * vector[5] + _c6[1] * vector[6] + _c7[1] * vector[7],
@@ -13322,13 +12170,10 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// </summary>
     /// <param name="factor">Scalar factor</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 Multiply(Scalar factor) => new(_c0 * factor, _c1 * factor, _c2 * factor, _c3 * factor, _c4 * factor, _c5 * factor, _c6 * factor, _c7 * factor);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 Multiply(params Scalar[] factors) => Multiply(factors.Aggregate(Scalar.One, Scalar.Multiply));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix8 Power(int e)
     {
         if (e < 0)
@@ -13352,10 +12197,8 @@ public unsafe readonly /* ref */ partial struct Matrix8
         return r;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 Divide(Scalar factor) => Multiply(factor.Inverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 Modulus(Scalar factor) => new(_c0 % factor, _c1 % factor, _c2 % factor, _c3 % factor, _c4 % factor, _c5 % factor, _c6 % factor, _c7 % factor);
 
     public readonly Matrix8 Sin(InfiniteSeriesSettings? settings = null)
@@ -13444,50 +12287,36 @@ public unsafe readonly /* ref */ partial struct Matrix8
         MatrixNorm.L2_Norm => SpectralNorm,
     };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePNorm(Scalar p) => ToArray().Select(c => c.Abs().Power(p)).Sum().Power(p.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePQNorm(Scalar p, Scalar q) => Columns.Select(c => c.Select(v => v.Abs().Power(p)).Sum().Power(q / p)).Sum().Power(q.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputeMatrixCondition(MatrixNorm norm) => ComputeNorm(norm) * MultiplicativeInverse.ComputeNorm(norm);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePMatrixCondition(Scalar p) => ComputePNorm(p) * MultiplicativeInverse.ComputePNorm(p);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePQMatrixCondition(Scalar p, Scalar q) => ComputePQNorm(p, q) * MultiplicativeInverse.ComputePQNorm(p, q);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 ComponentwiseDivide(in Matrix8 second) => new(_c0.ComponentwiseDivide(second._c0), _c1.ComponentwiseDivide(second._c1), _c2.ComponentwiseDivide(second._c2), _c3.ComponentwiseDivide(second._c3), _c4.ComponentwiseDivide(second._c4), _c5.ComponentwiseDivide(second._c5), _c6.ComponentwiseDivide(second._c6), _c7.ComponentwiseDivide(second._c7));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 ComponentwiseMultiply(in Matrix8 second) => new(_c0.ComponentwiseMultiply(second._c0), _c1.ComponentwiseMultiply(second._c1), _c2.ComponentwiseMultiply(second._c2), _c3.ComponentwiseMultiply(second._c3), _c4.ComponentwiseMultiply(second._c4), _c5.ComponentwiseMultiply(second._c5), _c6.ComponentwiseMultiply(second._c6), _c7.ComponentwiseMultiply(second._c7));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 ComponentwiseApply(Func<Scalar, Scalar> function) => new(_c0.ComponentwiseApply(function), _c1.ComponentwiseApply(function), _c2.ComponentwiseApply(function), _c3.ComponentwiseApply(function), _c4.ComponentwiseApply(function), _c5.ComponentwiseApply(function), _c6.ComponentwiseApply(function), _c7.ComponentwiseApply(function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 ComponentwiseApply(Matrix8 second, Func<Scalar, Scalar, Scalar> function) =>
         new(_c0.ComponentwiseApply(second._c0, function), _c1.ComponentwiseApply(second._c1, function), _c2.ComponentwiseApply(second._c2, function), _c3.ComponentwiseApply(second._c3, function), _c4.ComponentwiseApply(second._c4, function), _c5.ComponentwiseApply(second._c5, function), _c6.ComponentwiseApply(second._c6, function), _c7.ComponentwiseApply(second._c7, function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 ComponentwiseApply(Matrix8 second, Matrix8 third, Func<Scalar, Scalar, Scalar, Scalar> function) =>
         new(_c0.ComponentwiseApply(second._c0, third._c0, function), _c1.ComponentwiseApply(second._c1, third._c1, function), _c2.ComponentwiseApply(second._c2, third._c2, function), _c3.ComponentwiseApply(second._c3, third._c3, function), _c4.ComponentwiseApply(second._c4, third._c4, function), _c5.ComponentwiseApply(second._c5, third._c5, function), _c6.ComponentwiseApply(second._c6, third._c6, function), _c7.ComponentwiseApply(second._c7, third._c7, function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 Clamp() => Clamp(Scalar.Zero, Scalar.One);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 Clamp(Scalar low, Scalar high) => new(_c0.Clamp(low, high), _c1.Clamp(low, high), _c2.Clamp(low, high), _c3.Clamp(low, high), _c4.Clamp(low, high), _c5.Clamp(low, high), _c6.Clamp(low, high), _c7.Clamp(low, high));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 LinearInterpolate(in Matrix8 other, Scalar factor) => Multiply(1 - factor).Add(other.Multiply(factor));
 
     #endregion
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool IsLinearDependant(in Matrix8 other, out Scalar? factor)
     {
         factor = null;
@@ -13515,7 +12344,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// Returns a set of the first 6 principal submatrices.
     /// </summary>
     /// <returns>Set of principal submatrices</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Algebra<Scalar>.IMatrix[] GetPrincipalSubmatrices()
     {
         (Matrix2 Sub2, Matrix3 Sub3, Matrix4 Sub4, Matrix5 Sub5, Matrix6 Sub6, Matrix7 Sub7) = PrincipalSubmatrices;
@@ -13523,7 +12351,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
         return new Algebra<Scalar>.IMatrix[] { _c0[0], Sub2, Sub3, Sub4, Sub5, Sub6, Sub7 };
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal readonly Matrix8 GetLinearIndependentForm()
     {
         Matrix8 m = this;
@@ -13559,7 +12386,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// </summary>
     /// <param name="vector">Vector8</param>
     /// <returns>Solution</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace8 Solve(Vector8 vector)
     {
         if (IsDiagonal)
@@ -13602,7 +12428,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
             return new VectorSpace8(SolveCG(vector));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace8 Solve(VectorSpace8 vectorspace)
     {
         VectorSpace8 result = VectorSpace8.Empty;
@@ -13614,7 +12439,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
         return result;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly bool Algebra<Scalar>.IMatrix<Vector8, Matrix8>.Solve(Vector8 vector, out Vector8 solution)
     {
         VectorSpace8 space = Solve(vector);
@@ -13630,7 +12454,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector8 SolveCG(Vector8 vector)
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -13707,7 +12530,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     #endregion
     #region INSTANCE METHODS : DECOMPOSITIONS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Vector8[] Eigenvectors, Scalar[] Eigenvalues) EigenDecompose(Scalar tolerance)
     {
         (Vector8 vec, Scalar val)[] pairs = GetEigenpairs(tolerance);
@@ -13717,7 +12539,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
         return (vectors, values);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Vector8 Eigenvector, Scalar Eigenvalue)[] GetEigenpairs(Scalar tolerance)
     {
         if (IsUpperTriangular || IsLowerTriangular || IsDiagonal)
@@ -13733,7 +12554,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
         return pairs;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private readonly (Vector8 Eigenvector, Scalar Eigenvalue) DoInverseVectoriteration(Scalar offset, Scalar tolerance)
     {
         Vector8 v_old = default;
@@ -13757,10 +12577,8 @@ public unsafe readonly /* ref */ partial struct Matrix8
         return (v_new, 1 / (λ - offset));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace8 GetEigenspace(Scalar eigenvalue) => VectorSpace8.FromVectors(Subtract(DiagonalMatrix(eigenvalue)).Columns.Select(v => v.Normalized)); // TODO : fix this shite
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int GetAlgebraicMulticiplity(Scalar eigenvalue) => GetEigenspace(eigenvalue).Dimension;
 
     /// <summary>
@@ -13781,7 +12599,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// Decomposes the current matrix (in a non-destructive fashion) into three matrices: A permutation-matrix P, an upper-triangular matrix U, and a lower-triangular matrix L.
     /// </summary>
     /// <returns>A tuple consisting of the permutation-matrix P, the upper-triangular matrix U, and the lower-triangular matrix L.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix8 P, Matrix8 L, Matrix8 U) PLUDecompose()
     {
         int[] perm = { 0, 1, 2, 3, 4, 5, 6, 7 };
@@ -13825,7 +12642,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
         return (FromRowPermutation(perm), L, U);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix4 A, Matrix4 C) SchurComplement()
     {
         (MatrixNM A, MatrixNM C) = SchurComplement(4);
@@ -13833,7 +12649,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
         return ((Matrix4)A, (Matrix4)C);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (MatrixNM A, MatrixNM C) SchurComplement(int size)
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -13854,7 +12669,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// <summary>
     /// Decomposes the current matrix instance into a lower triangular matrix 'L'. The product of L with its transposed results in the current matrix.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 CholeskyDecompose()
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -13875,7 +12689,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
         throw new NotImplementedException();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix8 Q, Matrix8 R) QRDecompose()
     {
         Matrix8 A = this;
@@ -14069,7 +12882,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
         );
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix8 U, Matrix8 D) IwasawaDecompose()
     {
         Matrix8 ONB = OrthonormalBasis;
@@ -14080,45 +12892,33 @@ public unsafe readonly /* ref */ partial struct Matrix8
 
     #endregion
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace8 GetKrylovSpace(Vector8 vector) => VectorSpace8.KrylovSpace(vector, this);
 
     #region INSTANCE METHODS : COMPARISONS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Is(Matrix8 o, Scalar tolerance) => _c0.Is(o._c0, tolerance) && _c1.Is(o._c1, tolerance) && _c2.Is(o._c2, tolerance) && _c3.Is(o._c3, tolerance) && _c4.Is(o._c4, tolerance) && _c5.Is(o._c5, tolerance) && _c6.Is(o._c6, tolerance) && _c7.Is(o._c7, tolerance);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Is(Matrix8 o) => Is(o, Scalar.ComputationalEpsilon);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool IsNot(Matrix8 o) => !Is(o);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override bool Equals(object? obj) => obj is Matrix8 v && Equals(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Equals(Matrix8 other) => Is(other);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo(Matrix8 other) => Is(other) ? 0 : throw new NotImplementedException();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo(object? other) => other is Matrix8 m ? CompareTo(m) : throw new ArgumentException($"The given value must be a Matrix of the type '{typeof(Matrix8)}'.", nameof(other));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override int GetHashCode() => LINQ.GetHashCode(Columns);
 
     #endregion
     #region INSTANCE METHODS : TO_STRING
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(bool @short) => @short ? ToShortString() : ToString();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(string? format) => ToString(format, null);
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(IFormatProvider prov) => ToString(null, prov);
 
     public readonly string ToString(string? format, IFormatProvider? provider) =>
@@ -14128,14 +12928,12 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// The 8x8-matrix' string representation
     /// </summary>
     /// <returns>String representation</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override string ToString() => Rows.Select(c => $"| {c.ToArray().Select(f => $"{f,22:F16}").StringJoin(", ")} |").StringJoinLines();
 
     /// <summary>
     /// The 8x8-matrix' short string representation
     /// </summary>
     /// <returns>Short string representation</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToShortString() => (from col in Columns
                                                let strings = (from entry in col.ToArray().Select(f => f.ToShortString("F25").PadRight(27).PadLeft(34))
                                                               let end = entry.Reverse().TakeWhile(c => c == '0' || c == ' ').Count()
@@ -14164,7 +12962,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// Returns the upper-left 2x2 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>2x2 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 ToMatrix2() => (
         _c0[0], _c1[0],
         _c0[1], _c1[1]
@@ -14174,7 +12971,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// Returns the upper-left 3x3 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>3x3 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 ToMatrix3() => (
         _c0[0], _c1[0], _c2[0],
         _c0[1], _c1[1], _c2[1],
@@ -14185,7 +12981,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// Returns the upper-left 4x4 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>4x4 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 ToMatrix4() => (
         _c0[0], _c1[0], _c2[0], _c3[0],
         _c0[1], _c1[1], _c2[1], _c3[1],
@@ -14197,7 +12992,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// Returns the upper-left 5x5 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>5x5 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 ToMatrix5() => (
         _c0[0], _c1[0], _c2[0], _c3[0], _c4[0],
         _c0[1], _c1[1], _c2[1], _c3[1], _c4[1],
@@ -14210,7 +13004,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// Returns the upper-left 6x6 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>6x6 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 ToMatrix6() => (
         _c0[0], _c1[0], _c2[0], _c3[0], _c4[0], _c5[0],
         _c0[1], _c1[1], _c2[1], _c3[1], _c4[1], _c5[1],
@@ -14224,7 +13017,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// Returns the upper-left 7x7 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>7x7 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 ToMatrix7() => (
         _c0[0], _c1[0], _c2[0], _c3[0], _c4[0], _c5[0], _c6[0],
         _c0[1], _c1[1], _c2[1], _c3[1], _c4[1], _c5[1], _c6[1],
@@ -14239,7 +13031,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// Creates the homogeneous 9x9 transformation matrix from the current matrix.
     /// </summary>
     /// <returns>Homogeneous 9x9 transformation matrix.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 ToHomogeneousTransformationMatrix() => (
         _c0.ToHomogeneousCoordinates(),
         _c1.ToHomogeneousCoordinates(),
@@ -14256,7 +13047,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// Returns the matrix as a flat array of matrix elements in column major format.
     /// </summary>
     /// <returns>Column major representation of the matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar[] ToArray() => FlattenedCoefficients.ToArray();
 
     /// <summary>
@@ -14264,7 +13054,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// This isomorphism is a simple multiplication of a given vector with the current matrix.
     /// </summary>
     /// <returns>The isomorphism.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Function<Vector8> ToIsomorphism()
     {
         Matrix8 copy = this;
@@ -14272,33 +13061,24 @@ public unsafe readonly /* ref */ partial struct Matrix8
         return new Function<Vector8>(v => copy.Multiply(v));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix(this);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly IEnumerator<Vector8> GetEnumerator() => ((IEnumerable<Vector8>)Columns).GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly IEnumerator<Scalar> IEnumerable<Scalar>.GetEnumerator() => Columns.SelectMany(v => v.AsEnumerable()).GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(out Scalar x_0_0, out Scalar x_1_0, out Scalar x_2_0, out Scalar x_3_0, out Scalar x_4_0, out Scalar x_5_0, out Scalar x_6_0, out Scalar x_7_0, out Scalar x_0_1, out Scalar x_1_1, out Scalar x_2_1, out Scalar x_3_1, out Scalar x_4_1, out Scalar x_5_1, out Scalar x_6_1, out Scalar x_7_1, out Scalar x_0_2, out Scalar x_1_2, out Scalar x_2_2, out Scalar x_3_2, out Scalar x_4_2, out Scalar x_5_2, out Scalar x_6_2, out Scalar x_7_2, out Scalar x_0_3, out Scalar x_1_3, out Scalar x_2_3, out Scalar x_3_3, out Scalar x_4_3, out Scalar x_5_3, out Scalar x_6_3, out Scalar x_7_3, out Scalar x_0_4, out Scalar x_1_4, out Scalar x_2_4, out Scalar x_3_4, out Scalar x_4_4, out Scalar x_5_4, out Scalar x_6_4, out Scalar x_7_4, out Scalar x_0_5, out Scalar x_1_5, out Scalar x_2_5, out Scalar x_3_5, out Scalar x_4_5, out Scalar x_5_5, out Scalar x_6_5, out Scalar x_7_5, out Scalar x_0_6, out Scalar x_1_6, out Scalar x_2_6, out Scalar x_3_6, out Scalar x_4_6, out Scalar x_5_6, out Scalar x_6_6, out Scalar x_7_6, out Scalar x_0_7, out Scalar x_1_7, out Scalar x_2_7, out Scalar x_3_7, out Scalar x_4_7, out Scalar x_5_7, out Scalar x_6_7, out Scalar x_7_7) =>
         (x_0_0, x_1_0, x_2_0, x_3_0, x_4_0, x_5_0, x_6_0, x_7_0, x_0_1, x_1_1, x_2_1, x_3_1, x_4_1, x_5_1, x_6_1, x_7_1, x_0_2, x_1_2, x_2_2, x_3_2, x_4_2, x_5_2, x_6_2, x_7_2, x_0_3, x_1_3, x_2_3, x_3_3, x_4_3, x_5_3, x_6_3, x_7_3, x_0_4, x_1_4, x_2_4, x_3_4, x_4_4, x_5_4, x_6_4, x_7_4, x_0_5, x_1_5, x_2_5, x_3_5, x_4_5, x_5_5, x_6_5, x_7_5, x_0_6, x_1_6, x_2_6, x_3_6, x_4_6, x_5_6, x_6_6, x_7_6, x_0_7, x_1_7, x_2_7, x_3_7, x_4_7, x_5_7, x_6_7, x_7_7) = (_c0[0], _c1[0], _c2[0], _c3[0], _c4[0], _c5[0], _c6[0], _c7[0], _c0[1], _c1[1], _c2[1], _c3[1], _c4[1], _c5[1], _c6[1], _c7[1], _c0[2], _c1[2], _c2[2], _c3[2], _c4[2], _c5[2], _c6[2], _c7[2], _c0[3], _c1[3], _c2[3], _c3[3], _c4[3], _c5[3], _c6[3], _c7[3], _c0[4], _c1[4], _c2[4], _c3[4], _c4[4], _c5[4], _c6[4], _c7[4], _c0[5], _c1[5], _c2[5], _c3[5], _c4[5], _c5[5], _c6[5], _c7[5], _c0[6], _c1[6], _c2[6], _c3[6], _c4[6], _c5[6], _c6[6], _c7[6], _c0[7], _c1[7], _c2[7], _c3[7], _c4[7], _c5[7], _c6[7], _c7[7]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(out Vector8 v0, out Vector8 v1, out Vector8 v2, out Vector8 v3, out Vector8 v4, out Vector8 v5, out Vector8 v6, out Vector8 v7) =>
         (v0, v1, v2, v3, v4, v5, v6, v7) = (_c0, _c1, _c2, _c3, _c4, _c5, _c6, _c7);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly object Clone() => new Matrix8(this);
 
     #endregion
@@ -14309,7 +13089,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// </summary>
     /// <param name="column">Column vector index (zero-based)</param>
     /// <returns>Column vector</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector8 GetColumn(int column) => column switch
     {
         0 => _c0,
@@ -14329,7 +13108,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// <param name="column">Column vector index (zero-based)</param>
     /// <param name="vector">New column vector</param>
     /// <returns>Modified matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 SetColumn(int column, in Vector8 vector)
     {
         if (column < 0 || column >= 8)
@@ -14342,13 +13120,10 @@ public unsafe readonly /* ref */ partial struct Matrix8
         return FromColumns(cols);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetColumns(Range columns) => GetRegion(columns, 0..8);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 SetColumns(Range columns, in MatrixNM values) => SetRegion(columns, 0..8, values);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 SwapColumns(int src_col, int dst_col)
     {
         Vector8 col = GetColumn(src_col);
@@ -14357,13 +13132,10 @@ public unsafe readonly /* ref */ partial struct Matrix8
                 .SetColumn(dst_col, col);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 MultiplyColumn(int col, Scalar factor) => SetColumn(col, GetColumn(col).Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 AddColumns(int src_col, int dst_col) => AddColumns(src_col, dst_col, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 AddColumns(int src_col, int dst_col, Scalar factor) => SetColumn(dst_col, GetColumn(src_col).Multiply(factor).Add(GetColumn(dst_col)));
 
     /// <summary>
@@ -14371,7 +13143,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// </summary>
     /// <param name="row">Row vector index (zero-based)</param>
     /// <returns>Row vector</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector8 GetRow(int row) => Transposed.GetColumn(row);
 
     /// <summary>
@@ -14380,16 +13151,12 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// <param name="row">Row vector index (zero-based)</param>
     /// <param name="vector">New row vector</param>
     /// <returns>Modified matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 SetRow(int row, in Vector8 vector) => Transposed.SetColumn(row, vector).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetRows(Range rows) => GetRegion(0..8, rows);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 SetRows(Range rows, in MatrixNM values) => SetRegion(0..8, rows, values);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 SwapRows(int src_row, int dst_row)
     {
         Vector8 row = GetRow(src_row);
@@ -14398,16 +13165,12 @@ public unsafe readonly /* ref */ partial struct Matrix8
                 .SetRow(dst_row, row);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 AddRows(int src_row, int dst_row) => AddRows(src_row, dst_row, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 AddRows(int src_row, int dst_row, Scalar factor) => SetRow(dst_row, GetRow(src_row).Multiply(factor).Add(GetRow(dst_row)));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 MultiplyRow(int row, Scalar factor) => SetRow(row, GetRow(row).Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetRegion(Range columns, Range rows)
     {
         // TODO : range checks
@@ -14424,7 +13187,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
         return new MatrixNM(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 SetRegion(Range columns, Range rows, in MatrixNM values)
     {
         // TODO : range checks
@@ -14447,7 +13209,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// <param name="column">Zero-based column index</param>
     /// <param name="row">Zero-based row index</param>
     /// <returns>7x7-minor</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 GetMinor(int column, int row) =>
         Columns
         .Take(column)
@@ -14462,43 +13223,30 @@ public unsafe readonly /* ref */ partial struct Matrix8
     #endregion
     #region STATIC METHODS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 Add(Matrix8 m1, Matrix8 m2) => m1.Add(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 Subtract(Matrix8 m1, Matrix8 m2) => m1.Subtract(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 Multiply(Matrix8 m1, Matrix8 m2) => m1.Multiply(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector8 Multiply(Matrix8 m, Vector8 v) => m.Multiply(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 Multiply(Matrix8 m, Scalar s) => m.Multiply(s);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 Divide(Matrix8 m, Scalar s) => m.Divide(s);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 Exp(Matrix8 matrix, InfiniteSeriesSettings? settings = null) => matrix.Exp(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 Sin(Matrix8 matrix, InfiniteSeriesSettings? settings = null) => matrix.Sin(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 Cos(Matrix8 matrix, InfiniteSeriesSettings? settings = null) => matrix.Cos(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 CracovianProduct(in Matrix8 first, in Matrix8 second) => second.Transposed.Multiply(in second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 HadamardProduct(in Matrix8 first, in Matrix8 second) => first.ComponentwiseMultiply(in second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar DistanceBetween(Matrix8 first, Matrix8 second, MatrixNorm norm) => first.DistanceTo(second, norm);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 SparseMatrix(params (int column, int row, Scalar value)[] entries)
     {
         Scalar[,] m = new Scalar[8, 8];
@@ -14509,10 +13257,8 @@ public unsafe readonly /* ref */ partial struct Matrix8
         return FromArray(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 SingleEntryMatrix(int column, int row) => SingleEntryMatrix(column, row, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 SingleEntryMatrix(int column, int row, Scalar value)
     {
         Scalar[,] m = new Scalar[8, 8];
@@ -14522,13 +13268,10 @@ public unsafe readonly /* ref */ partial struct Matrix8
         return FromArray(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 DiagonalMatrix(Scalar scalar) => Identity * scalar;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 DiagonalMatrix(in Vector8 diagonal) => DiagonalMatrix(diagonal[0], diagonal[1], diagonal[2], diagonal[3], diagonal[4], diagonal[5], diagonal[6], diagonal[7]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 DiagonalMatrix(Scalar d0, Scalar d1, Scalar d2, Scalar d3, Scalar d4, Scalar d5, Scalar d6, Scalar d7) => (
         d0, 0, 0, 0, 0, 0, 0, 0,
         0, d1, 0, 0, 0, 0, 0, 0,
@@ -14540,7 +13283,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
         0, 0, 0, 0, 0, 0, 0, d7
     );
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 KacMurdockSzegöMatrix(Scalar a) => new(
         1, a.Power(1) * .5, a.Power(2) * .5, a.Power(3) * .5, a.Power(4) * .5, a.Power(5) * .5, a.Power(6) * .5, a.Power(7) * .5,
         a.Power(1) * .5, 1, a.Power(1) * .5, a.Power(2) * .5, a.Power(3) * .5, a.Power(4) * .5, a.Power(5) * .5, a.Power(6) * .5,
@@ -14552,10 +13294,8 @@ public unsafe readonly /* ref */ partial struct Matrix8
         a.Power(7) * .5, a.Power(6) * .5, a.Power(5) * .5, a.Power(4) * .5, a.Power(3) * .5, a.Power(2) * .5, a.Power(1) * .5, 1
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 FromRowPermutation(int[] row_indices) => FromColumnPermutation(row_indices).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 FromColumnPermutation(int[] column_indices)
     {
         if (column_indices.Distinct().Count() != column_indices.Length)
@@ -14579,13 +13319,10 @@ public unsafe readonly /* ref */ partial struct Matrix8
 
     public static Matrix8 FromNative<T>(T* src) where T : unmanaged => new((Scalar*)src);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 FromCompressedStorageFormat(CompressedStorageFormat<Scalar> compressed) => FromArray(compressed.ToMatrix());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 FromArray(in Scalar[,] arr) => arr.GetLength(0) < 8 || arr.GetLength(1) < 8 ? throw new ArgumentException("The array must have a minimum size of 8x8.", nameof(arr)) : new Matrix8(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 FromArray(in Scalar[] arr) => arr switch {
         null => throw new ArgumentNullException(nameof(arr)),
         _ when arr.Length < 64 => throw new ArgumentException("The array must have a minimum length of 64.", nameof(arr)),
@@ -14601,10 +13338,8 @@ public unsafe readonly /* ref */ partial struct Matrix8
         )
     };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 FromRows(in Vector8[] arr) => FromColumns(arr).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 FromColumns(in Vector8[] arr) => arr switch {
         null => throw new ArgumentNullException(nameof(arr)),
         { Length: 8 } => new Matrix8(
@@ -14631,7 +13366,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(Matrix8 m1, Matrix8 m2) => m1.Is(m2);
 
     /// <summary>
@@ -14640,7 +13374,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(Matrix8 m1, Matrix8 m2) => !(m1 == m2);
 
     /// <summary>
@@ -14648,7 +13381,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// </summary>
     /// <param name="m">Original matrix</param>
     /// <returns>Unchanged matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 operator +(in Matrix8 m) => m;
 
     /// <summary>
@@ -14656,25 +13388,18 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// </summary>
     /// <param name="m">Original matrix</param>
     /// <returns>Negated matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 operator -(in Matrix8 m) => m.Negate();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 operator +(Scalar f, in Matrix8 m) => m.Add(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 operator +(in Matrix8 m, Scalar f) => m.Add(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 operator -(Scalar f, in Matrix8 m) => new Matrix8(f).Subtract(in m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 operator -(in Matrix8 m, Scalar f) => m.Subtract(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 operator ++(in Matrix8 m) => m.Increment();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 operator --(in Matrix8 m) => m.Decrement();
 
     /// <summary>
@@ -14683,7 +13408,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Addition result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 operator +(in Matrix8 m1, in Matrix8 m2) => m1.Add(in m2);
 
     /// <summary>
@@ -14692,25 +13416,18 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Subtraction result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 operator -(in Matrix8 m1, in Matrix8 m2) => m1.Subtract(in m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector8 operator *(in Matrix8 m, in Vector8 v) => m.Multiply(in v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 operator *(in Matrix8 m1, in Matrix8 m2) => m1.Multiply(in m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 operator *(in Matrix8 m, Scalar f) => m.Multiply(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 operator *(Scalar f, in Matrix8 m) => m.Multiply(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 operator ^(in Matrix8 m, int c) => m.Power(c);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 operator ^(in Matrix8 m1, in Matrix8 m2) => CracovianProduct(in m1, in m2);
 
     /// <summary>
@@ -14719,34 +13436,24 @@ public unsafe readonly /* ref */ partial struct Matrix8
     /// <param name="A">Matrix A</param>
     /// <param name="b">Vector b</param>
     /// <returns>Solution x</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static VectorSpace8 operator |(Matrix8 A, Vector8 b) => A.Solve(b);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static VectorSpace8 operator |(Matrix8 A, VectorSpace8 b) => A.Solve(b);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 operator /(Matrix8 m1, Matrix8 m2) => m1.Multiply(m2.Inverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 operator /(in Matrix8 m, Scalar f) => m.Divide(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 operator %(in Matrix8 m, Scalar f) => m.Modulus(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (Vector8 x0, Vector8 x1, Vector8 x2, Vector8 x3, Vector8 x4, Vector8 x5, Vector8 x6, Vector8 x7) (in Matrix8 m) => (m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix8((Vector8 x0, Vector8 x1, Vector8 x2, Vector8 x3, Vector8 x4, Vector8 x5, Vector8 x6, Vector8 x7) t) => new(t.x0, t.x1, t.x2, t.x3, t.x4, t.x5, t.x6, t.x7);
 /*
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator ((Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7) c0, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7) c1, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7) c2, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7) c3, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7) c4, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7) c5, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7) c6, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7) c7) (in Matrix8 m) => (m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix8(in ((Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7) c0, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7) c1, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7) c2, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7) c3, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7) c4, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7) c5, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7) c6, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7) c7) t) => new(t.c0, t.c1, t.c2, t.c3, t.c4, t.c5, t.c6, t.c7);
 */
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (Scalar x_0_0, Scalar x_1_0, Scalar x_2_0, Scalar x_3_0, Scalar x_4_0, Scalar x_5_0, Scalar x_6_0, Scalar x_7_0, Scalar x_0_1, Scalar x_1_1, Scalar x_2_1, Scalar x_3_1, Scalar x_4_1, Scalar x_5_1, Scalar x_6_1, Scalar x_7_1, Scalar x_0_2, Scalar x_1_2, Scalar x_2_2, Scalar x_3_2, Scalar x_4_2, Scalar x_5_2, Scalar x_6_2, Scalar x_7_2, Scalar x_0_3, Scalar x_1_3, Scalar x_2_3, Scalar x_3_3, Scalar x_4_3, Scalar x_5_3, Scalar x_6_3, Scalar x_7_3, Scalar x_0_4, Scalar x_1_4, Scalar x_2_4, Scalar x_3_4, Scalar x_4_4, Scalar x_5_4, Scalar x_6_4, Scalar x_7_4, Scalar x_0_5, Scalar x_1_5, Scalar x_2_5, Scalar x_3_5, Scalar x_4_5, Scalar x_5_5, Scalar x_6_5, Scalar x_7_5, Scalar x_0_6, Scalar x_1_6, Scalar x_2_6, Scalar x_3_6, Scalar x_4_6, Scalar x_5_6, Scalar x_6_6, Scalar x_7_6, Scalar x_0_7, Scalar x_1_7, Scalar x_2_7, Scalar x_3_7, Scalar x_4_7, Scalar x_5_7, Scalar x_6_7, Scalar x_7_7) (in Matrix8 m) => (
         m._c0[0], m._c1[0], m._c2[0], m._c3[0], m._c4[0], m._c5[0], m._c6[0], m._c7[0],
         m._c0[1], m._c1[1], m._c2[1], m._c3[1], m._c4[1], m._c5[1], m._c6[1], m._c7[1],
@@ -14758,7 +13465,6 @@ public unsafe readonly /* ref */ partial struct Matrix8
         m._c0[7], m._c1[7], m._c2[7], m._c3[7], m._c4[7], m._c5[7], m._c6[7], m._c7[7]
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix8(in (Scalar x_0_0, Scalar x_1_0, Scalar x_2_0, Scalar x_3_0, Scalar x_4_0, Scalar x_5_0, Scalar x_6_0, Scalar x_7_0, Scalar x_0_1, Scalar x_1_1, Scalar x_2_1, Scalar x_3_1, Scalar x_4_1, Scalar x_5_1, Scalar x_6_1, Scalar x_7_1, Scalar x_0_2, Scalar x_1_2, Scalar x_2_2, Scalar x_3_2, Scalar x_4_2, Scalar x_5_2, Scalar x_6_2, Scalar x_7_2, Scalar x_0_3, Scalar x_1_3, Scalar x_2_3, Scalar x_3_3, Scalar x_4_3, Scalar x_5_3, Scalar x_6_3, Scalar x_7_3, Scalar x_0_4, Scalar x_1_4, Scalar x_2_4, Scalar x_3_4, Scalar x_4_4, Scalar x_5_4, Scalar x_6_4, Scalar x_7_4, Scalar x_0_5, Scalar x_1_5, Scalar x_2_5, Scalar x_3_5, Scalar x_4_5, Scalar x_5_5, Scalar x_6_5, Scalar x_7_5, Scalar x_0_6, Scalar x_1_6, Scalar x_2_6, Scalar x_3_6, Scalar x_4_6, Scalar x_5_6, Scalar x_6_6, Scalar x_7_6, Scalar x_0_7, Scalar x_1_7, Scalar x_2_7, Scalar x_3_7, Scalar x_4_7, Scalar x_5_7, Scalar x_6_7, Scalar x_7_7) t) => new(
         t.x_0_0, t.x_1_0, t.x_2_0, t.x_3_0, t.x_4_0, t.x_5_0, t.x_6_0, t.x_7_0,
         t.x_0_1, t.x_1_1, t.x_2_1, t.x_3_1, t.x_4_1, t.x_5_1, t.x_6_1, t.x_7_1,
@@ -14770,37 +13476,26 @@ public unsafe readonly /* ref */ partial struct Matrix8
         t.x_0_7, t.x_1_7, t.x_2_7, t.x_3_7, t.x_4_7, t.x_5_7, t.x_6_7, t.x_7_7
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix8(Scalar m) => new(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix8(in Vector8[] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Vector8[](in Matrix8 m) => m.Columns;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Scalar[](in Matrix8 m) => m.ToArray();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix8(Scalar[] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Scalar[,](in Matrix8 m) => m.Coefficients;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix8(Scalar[,] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator MatrixNM(in Matrix8 m) => new(m.Coefficients);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix8(in MatrixNM m) => new(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator CompressedStorageFormat<Scalar>(in Matrix8 m) => CompressedStorageFormat<Scalar>.FromMatrix<Matrix8>(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Function<Vector8>(in Matrix8 m) => m.ToIsomorphism();
 
     #endregion
@@ -14818,10 +13513,8 @@ public unsafe readonly /* ref */ partial struct Matrix8
 
 public static class Matrix8Extensions
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 Sum(this IEnumerable<Matrix8> matrices) => Matrix8.Zero.Add(matrices.ToArray());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 Average(this IEnumerable<Matrix8> matrices)
     {
         Matrix8 mat = Matrix8.Zero;
@@ -15355,7 +14048,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// Creates a new 9x9-matrix where all diagonal elements have the value <paramref name="scale"/>. All elements outside the main diagonal are set to <see cref="Scalar.Zero"/>.
     /// </summary>
     /// <param name="scale">Scalar factor</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9(Scalar scale)
         : this(scale, 0, 0, 0, 0, 0, 0, 0, 0,
                0, scale, 0, 0, 0, 0, 0, 0, 0,
@@ -15381,7 +14073,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// <param name="diag_6">The diagonal element at the position (6, 6).</param>
     /// <param name="diag_7">The diagonal element at the position (7, 7).</param>
     /// <param name="diag_8">The diagonal element at the position (8, 8).</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9(Scalar diag_0, Scalar diag_1, Scalar diag_2, Scalar diag_3, Scalar diag_4, Scalar diag_5, Scalar diag_6, Scalar diag_7, Scalar diag_8)
         : this(diag_0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, diag_1, 0, 0, 0, 0, 0, 0, 0,
@@ -15395,7 +14086,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9(Scalar s_0_0, Scalar s_1_0, Scalar s_2_0, Scalar s_3_0, Scalar s_4_0, Scalar s_5_0, Scalar s_6_0, Scalar s_7_0, Scalar s_8_0, Scalar s_0_1, Scalar s_1_1, Scalar s_2_1, Scalar s_3_1, Scalar s_4_1, Scalar s_5_1, Scalar s_6_1, Scalar s_7_1, Scalar s_8_1, Scalar s_0_2, Scalar s_1_2, Scalar s_2_2, Scalar s_3_2, Scalar s_4_2, Scalar s_5_2, Scalar s_6_2, Scalar s_7_2, Scalar s_8_2, Scalar s_0_3, Scalar s_1_3, Scalar s_2_3, Scalar s_3_3, Scalar s_4_3, Scalar s_5_3, Scalar s_6_3, Scalar s_7_3, Scalar s_8_3, Scalar s_0_4, Scalar s_1_4, Scalar s_2_4, Scalar s_3_4, Scalar s_4_4, Scalar s_5_4, Scalar s_6_4, Scalar s_7_4, Scalar s_8_4, Scalar s_0_5, Scalar s_1_5, Scalar s_2_5, Scalar s_3_5, Scalar s_4_5, Scalar s_5_5, Scalar s_6_5, Scalar s_7_5, Scalar s_8_5, Scalar s_0_6, Scalar s_1_6, Scalar s_2_6, Scalar s_3_6, Scalar s_4_6, Scalar s_5_6, Scalar s_6_6, Scalar s_7_6, Scalar s_8_6, Scalar s_0_7, Scalar s_1_7, Scalar s_2_7, Scalar s_3_7, Scalar s_4_7, Scalar s_5_7, Scalar s_6_7, Scalar s_7_7, Scalar s_8_7, Scalar s_0_8, Scalar s_1_8, Scalar s_2_8, Scalar s_3_8, Scalar s_4_8, Scalar s_5_8, Scalar s_6_8, Scalar s_7_8, Scalar s_8_8)
         : this(new Vector9(s_0_0, s_0_1, s_0_2, s_0_3, s_0_4, s_0_5, s_0_6, s_0_7, s_0_8),
                new Vector9(s_1_0, s_1_1, s_1_2, s_1_3, s_1_4, s_1_5, s_1_6, s_1_7, s_1_8),
@@ -15409,7 +14099,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9(Scalar[] values)
         : this(values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8],
                values[9], values[10], values[11], values[12], values[13], values[14], values[15], values[16], values[17],
@@ -15423,7 +14112,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9(Scalar[,] values)
         : this(values[0, 0], values[1, 0], values[2, 0], values[3, 0], values[4, 0], values[5, 0], values[6, 0], values[7, 0], values[8, 0],
                values[0, 1], values[1, 1], values[2, 1], values[3, 1], values[4, 1], values[5, 1], values[6, 1], values[7, 1], values[8, 1],
@@ -15437,7 +14125,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9(Scalar[][] values)
         : this(values[0][0], values[1][0], values[2][0], values[3][0], values[4][0], values[5][0], values[6][0], values[7][0], values[8][0],
                values[0][1], values[1][1], values[2][1], values[3][1], values[4][1], values[5][1], values[6][1], values[7][1], values[8][1],
@@ -15451,73 +14138,61 @@ public unsafe readonly /* ref */ partial struct Matrix9
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9(in Matrix2 matrix)
         : this(new Vector9(matrix[0]), new Vector9(matrix[1]), Vector9.Zero, Vector9.Zero, Vector9.Zero, Vector9.Zero, Vector9.Zero, Vector9.Zero, Vector9.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9(in Matrix3 matrix)
         : this(new Vector9(matrix[0]), new Vector9(matrix[1]), new Vector9(matrix[2]), Vector9.Zero, Vector9.Zero, Vector9.Zero, Vector9.Zero, Vector9.Zero, Vector9.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9(in Matrix4 matrix)
         : this(new Vector9(matrix[0]), new Vector9(matrix[1]), new Vector9(matrix[2]), new Vector9(matrix[3]), Vector9.Zero, Vector9.Zero, Vector9.Zero, Vector9.Zero, Vector9.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9(in Matrix5 matrix)
         : this(new Vector9(matrix[0]), new Vector9(matrix[1]), new Vector9(matrix[2]), new Vector9(matrix[3]), new Vector9(matrix[4]), Vector9.Zero, Vector9.Zero, Vector9.Zero, Vector9.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9(in Matrix6 matrix)
         : this(new Vector9(matrix[0]), new Vector9(matrix[1]), new Vector9(matrix[2]), new Vector9(matrix[3]), new Vector9(matrix[4]), new Vector9(matrix[5]), Vector9.Zero, Vector9.Zero, Vector9.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9(in Matrix7 matrix)
         : this(new Vector9(matrix[0]), new Vector9(matrix[1]), new Vector9(matrix[2]), new Vector9(matrix[3]), new Vector9(matrix[4]), new Vector9(matrix[5]), new Vector9(matrix[6]), Vector9.Zero, Vector9.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9(in Matrix8 matrix)
         : this(new Vector9(matrix[0]), new Vector9(matrix[1]), new Vector9(matrix[2]), new Vector9(matrix[3]), new Vector9(matrix[4]), new Vector9(matrix[5]), new Vector9(matrix[6]), new Vector9(matrix[7]), Vector9.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9(in Matrix9 matrix)
         : this(matrix.Columns)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9(in Matrix10 matrix)
         : this(new Vector9(matrix[0]), new Vector9(matrix[1]), new Vector9(matrix[2]), new Vector9(matrix[3]), new Vector9(matrix[4]), new Vector9(matrix[5]), new Vector9(matrix[6]), new Vector9(matrix[7]), new Vector9(matrix[8]))
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9(in MatrixNM matrix)
         : this(matrix.Coefficients)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9(Matrix9* matrix)
         : this(*matrix)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9(Scalar* values)
         : this(values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8],
                values[9], values[10], values[11], values[12], values[13], values[14], values[15], values[16], values[17],
@@ -15531,25 +14206,21 @@ public unsafe readonly /* ref */ partial struct Matrix9
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9(Vector9* columns)
         : this(columns[0], columns[1], columns[2], columns[3], columns[4], columns[5], columns[6], columns[7], columns[8])
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9(IEnumerable<Vector9> columns)
         : this(columns.ToArray())
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9(Vector9[] columns)
         : this(columns[0], columns[1], columns[2], columns[3], columns[4], columns[5], columns[6], columns[7], columns[8])
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9(Vector9 v0, Vector9 v1, Vector9 v2, Vector9 v3, Vector9 v4, Vector9 v5, Vector9 v6, Vector9 v7, Vector9 v8)
     {
         _c0 = v0;
@@ -15570,7 +14241,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// Negates the current instance and returns the result without modifying the current instance.
     /// </summary>
     /// <returns>Negated object</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 Negate() => new(-_c0, -_c1, -_c2, -_c3, -_c4, -_c5, -_c6, -_c7, -_c8);
 
     /// <summary>
@@ -15578,31 +14248,22 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Addition result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 Add(in Matrix9 second) => new(_c0 + second._c0, _c1 + second._c1, _c2 + second._c2, _c3 + second._c3, _c4 + second._c4, _c5 + second._c5, _c6 + second._c6, _c7 + second._c7, _c8 + second._c8);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 Add(params Matrix9[] matrices) => matrices.Aggregate(this, Add);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 Add(Scalar Scalar) => Add(new Matrix9(Scalar));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 Increment() => Add(1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 Decrement() => Add(-1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 Subtract(in Matrix9 second) => Add(second.Negate());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 Subtract(params Matrix9[] matrices) => matrices.Aggregate(this, Subtract);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9 Subtract(Scalar scalar) => Add(scalar.Negate());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector8 HomogeneousMultiply(in Vector8 second) => Multiply(second.ToHomogeneousCoordinates()).FromHomogeneousCoordinates();
 
     /// <summary>
@@ -15612,7 +14273,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 Multiply(in Matrix9 second)
     {
         Vector9[] A = Rows;
@@ -15626,7 +14286,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
         return new Matrix9(C);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 Multiply(params Matrix9[] matrices) => matrices.Aggregate(this, Multiply);
 
     /// <summary>
@@ -15634,7 +14293,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// </summary>
     /// <param name="vector">Vector</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector9 Multiply(in Vector9 vector) => new(
         _c0[0] * vector[0] + _c1[0] * vector[1] + _c2[0] * vector[2] + _c3[0] * vector[3] + _c4[0] * vector[4] + _c5[0] * vector[5] + _c6[0] * vector[6] + _c7[0] * vector[7] + _c8[0] * vector[8],
         _c0[1] * vector[0] + _c1[1] * vector[1] + _c2[1] * vector[2] + _c3[1] * vector[3] + _c4[1] * vector[4] + _c5[1] * vector[5] + _c6[1] * vector[6] + _c7[1] * vector[7] + _c8[1] * vector[8],
@@ -15652,13 +14310,10 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// </summary>
     /// <param name="factor">Scalar factor</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 Multiply(Scalar factor) => new(_c0 * factor, _c1 * factor, _c2 * factor, _c3 * factor, _c4 * factor, _c5 * factor, _c6 * factor, _c7 * factor, _c8 * factor);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 Multiply(params Scalar[] factors) => Multiply(factors.Aggregate(Scalar.One, Scalar.Multiply));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix9 Power(int e)
     {
         if (e < 0)
@@ -15682,10 +14337,8 @@ public unsafe readonly /* ref */ partial struct Matrix9
         return r;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 Divide(Scalar factor) => Multiply(factor.Inverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 Modulus(Scalar factor) => new(_c0 % factor, _c1 % factor, _c2 % factor, _c3 % factor, _c4 % factor, _c5 % factor, _c6 % factor, _c7 % factor, _c8 % factor);
 
     public readonly Matrix9 Sin(InfiniteSeriesSettings? settings = null)
@@ -15774,50 +14427,36 @@ public unsafe readonly /* ref */ partial struct Matrix9
         MatrixNorm.L2_Norm => SpectralNorm,
     };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePNorm(Scalar p) => ToArray().Select(c => c.Abs().Power(p)).Sum().Power(p.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePQNorm(Scalar p, Scalar q) => Columns.Select(c => c.Select(v => v.Abs().Power(p)).Sum().Power(q / p)).Sum().Power(q.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputeMatrixCondition(MatrixNorm norm) => ComputeNorm(norm) * MultiplicativeInverse.ComputeNorm(norm);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePMatrixCondition(Scalar p) => ComputePNorm(p) * MultiplicativeInverse.ComputePNorm(p);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePQMatrixCondition(Scalar p, Scalar q) => ComputePQNorm(p, q) * MultiplicativeInverse.ComputePQNorm(p, q);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 ComponentwiseDivide(in Matrix9 second) => new(_c0.ComponentwiseDivide(second._c0), _c1.ComponentwiseDivide(second._c1), _c2.ComponentwiseDivide(second._c2), _c3.ComponentwiseDivide(second._c3), _c4.ComponentwiseDivide(second._c4), _c5.ComponentwiseDivide(second._c5), _c6.ComponentwiseDivide(second._c6), _c7.ComponentwiseDivide(second._c7), _c8.ComponentwiseDivide(second._c8));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 ComponentwiseMultiply(in Matrix9 second) => new(_c0.ComponentwiseMultiply(second._c0), _c1.ComponentwiseMultiply(second._c1), _c2.ComponentwiseMultiply(second._c2), _c3.ComponentwiseMultiply(second._c3), _c4.ComponentwiseMultiply(second._c4), _c5.ComponentwiseMultiply(second._c5), _c6.ComponentwiseMultiply(second._c6), _c7.ComponentwiseMultiply(second._c7), _c8.ComponentwiseMultiply(second._c8));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 ComponentwiseApply(Func<Scalar, Scalar> function) => new(_c0.ComponentwiseApply(function), _c1.ComponentwiseApply(function), _c2.ComponentwiseApply(function), _c3.ComponentwiseApply(function), _c4.ComponentwiseApply(function), _c5.ComponentwiseApply(function), _c6.ComponentwiseApply(function), _c7.ComponentwiseApply(function), _c8.ComponentwiseApply(function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 ComponentwiseApply(Matrix9 second, Func<Scalar, Scalar, Scalar> function) =>
         new(_c0.ComponentwiseApply(second._c0, function), _c1.ComponentwiseApply(second._c1, function), _c2.ComponentwiseApply(second._c2, function), _c3.ComponentwiseApply(second._c3, function), _c4.ComponentwiseApply(second._c4, function), _c5.ComponentwiseApply(second._c5, function), _c6.ComponentwiseApply(second._c6, function), _c7.ComponentwiseApply(second._c7, function), _c8.ComponentwiseApply(second._c8, function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 ComponentwiseApply(Matrix9 second, Matrix9 third, Func<Scalar, Scalar, Scalar, Scalar> function) =>
         new(_c0.ComponentwiseApply(second._c0, third._c0, function), _c1.ComponentwiseApply(second._c1, third._c1, function), _c2.ComponentwiseApply(second._c2, third._c2, function), _c3.ComponentwiseApply(second._c3, third._c3, function), _c4.ComponentwiseApply(second._c4, third._c4, function), _c5.ComponentwiseApply(second._c5, third._c5, function), _c6.ComponentwiseApply(second._c6, third._c6, function), _c7.ComponentwiseApply(second._c7, third._c7, function), _c8.ComponentwiseApply(second._c8, third._c8, function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 Clamp() => Clamp(Scalar.Zero, Scalar.One);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 Clamp(Scalar low, Scalar high) => new(_c0.Clamp(low, high), _c1.Clamp(low, high), _c2.Clamp(low, high), _c3.Clamp(low, high), _c4.Clamp(low, high), _c5.Clamp(low, high), _c6.Clamp(low, high), _c7.Clamp(low, high), _c8.Clamp(low, high));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 LinearInterpolate(in Matrix9 other, Scalar factor) => Multiply(1 - factor).Add(other.Multiply(factor));
 
     #endregion
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool IsLinearDependant(in Matrix9 other, out Scalar? factor)
     {
         factor = null;
@@ -15845,7 +14484,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// Returns a set of the first 7 principal submatrices.
     /// </summary>
     /// <returns>Set of principal submatrices</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Algebra<Scalar>.IMatrix[] GetPrincipalSubmatrices()
     {
         (Matrix2 Sub2, Matrix3 Sub3, Matrix4 Sub4, Matrix5 Sub5, Matrix6 Sub6, Matrix7 Sub7, Matrix8 Sub8) = PrincipalSubmatrices;
@@ -15853,7 +14491,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
         return new Algebra<Scalar>.IMatrix[] { _c0[0], Sub2, Sub3, Sub4, Sub5, Sub6, Sub7, Sub8 };
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal readonly Matrix9 GetLinearIndependentForm()
     {
         Matrix9 m = this;
@@ -15889,7 +14526,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// </summary>
     /// <param name="vector">Vector9</param>
     /// <returns>Solution</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace9 Solve(Vector9 vector)
     {
         if (IsDiagonal)
@@ -15932,7 +14568,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
             return new VectorSpace9(SolveCG(vector));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace9 Solve(VectorSpace9 vectorspace)
     {
         VectorSpace9 result = VectorSpace9.Empty;
@@ -15944,7 +14579,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
         return result;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly bool Algebra<Scalar>.IMatrix<Vector9, Matrix9>.Solve(Vector9 vector, out Vector9 solution)
     {
         VectorSpace9 space = Solve(vector);
@@ -15960,7 +14594,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector9 SolveCG(Vector9 vector)
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -16037,7 +14670,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     #endregion
     #region INSTANCE METHODS : DECOMPOSITIONS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Vector9[] Eigenvectors, Scalar[] Eigenvalues) EigenDecompose(Scalar tolerance)
     {
         (Vector9 vec, Scalar val)[] pairs = GetEigenpairs(tolerance);
@@ -16047,7 +14679,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
         return (vectors, values);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Vector9 Eigenvector, Scalar Eigenvalue)[] GetEigenpairs(Scalar tolerance)
     {
         if (IsUpperTriangular || IsLowerTriangular || IsDiagonal)
@@ -16063,7 +14694,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
         return pairs;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private readonly (Vector9 Eigenvector, Scalar Eigenvalue) DoInverseVectoriteration(Scalar offset, Scalar tolerance)
     {
         Vector9 v_old = default;
@@ -16087,10 +14717,8 @@ public unsafe readonly /* ref */ partial struct Matrix9
         return (v_new, 1 / (λ - offset));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace9 GetEigenspace(Scalar eigenvalue) => VectorSpace9.FromVectors(Subtract(DiagonalMatrix(eigenvalue)).Columns.Select(v => v.Normalized)); // TODO : fix this shite
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int GetAlgebraicMulticiplity(Scalar eigenvalue) => GetEigenspace(eigenvalue).Dimension;
 
     /// <summary>
@@ -16111,7 +14739,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// Decomposes the current matrix (in a non-destructive fashion) into three matrices: A permutation-matrix P, an upper-triangular matrix U, and a lower-triangular matrix L.
     /// </summary>
     /// <returns>A tuple consisting of the permutation-matrix P, the upper-triangular matrix U, and the lower-triangular matrix L.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix9 P, Matrix9 L, Matrix9 U) PLUDecompose()
     {
         int[] perm = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -16155,7 +14782,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
         return (FromRowPermutation(perm), L, U);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix4 A, Matrix5 C) SchurComplement()
     {
         (MatrixNM A, MatrixNM C) = SchurComplement(4);
@@ -16163,7 +14789,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
         return ((Matrix4)A, (Matrix5)C);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (MatrixNM A, MatrixNM C) SchurComplement(int size)
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -16184,7 +14809,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// <summary>
     /// Decomposes the current matrix instance into a lower triangular matrix 'L'. The product of L with its transposed results in the current matrix.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 CholeskyDecompose()
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -16205,7 +14829,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
         throw new NotImplementedException();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix9 Q, Matrix9 R) QRDecompose()
     {
         Matrix9 A = this;
@@ -16431,7 +15054,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
         );
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix9 U, Matrix9 D) IwasawaDecompose()
     {
         Matrix9 ONB = OrthonormalBasis;
@@ -16442,45 +15064,33 @@ public unsafe readonly /* ref */ partial struct Matrix9
 
     #endregion
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace9 GetKrylovSpace(Vector9 vector) => VectorSpace9.KrylovSpace(vector, this);
 
     #region INSTANCE METHODS : COMPARISONS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Is(Matrix9 o, Scalar tolerance) => _c0.Is(o._c0, tolerance) && _c1.Is(o._c1, tolerance) && _c2.Is(o._c2, tolerance) && _c3.Is(o._c3, tolerance) && _c4.Is(o._c4, tolerance) && _c5.Is(o._c5, tolerance) && _c6.Is(o._c6, tolerance) && _c7.Is(o._c7, tolerance) && _c8.Is(o._c8, tolerance);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Is(Matrix9 o) => Is(o, Scalar.ComputationalEpsilon);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool IsNot(Matrix9 o) => !Is(o);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override bool Equals(object? obj) => obj is Matrix9 v && Equals(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Equals(Matrix9 other) => Is(other);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo(Matrix9 other) => Is(other) ? 0 : throw new NotImplementedException();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo(object? other) => other is Matrix9 m ? CompareTo(m) : throw new ArgumentException($"The given value must be a Matrix of the type '{typeof(Matrix9)}'.", nameof(other));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override int GetHashCode() => LINQ.GetHashCode(Columns);
 
     #endregion
     #region INSTANCE METHODS : TO_STRING
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(bool @short) => @short ? ToShortString() : ToString();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(string? format) => ToString(format, null);
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(IFormatProvider prov) => ToString(null, prov);
 
     public readonly string ToString(string? format, IFormatProvider? provider) =>
@@ -16490,14 +15100,12 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// The 9x9-matrix' string representation
     /// </summary>
     /// <returns>String representation</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override string ToString() => Rows.Select(c => $"| {c.ToArray().Select(f => $"{f,22:F16}").StringJoin(", ")} |").StringJoinLines();
 
     /// <summary>
     /// The 9x9-matrix' short string representation
     /// </summary>
     /// <returns>Short string representation</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToShortString() => (from col in Columns
                                                let strings = (from entry in col.ToArray().Select(f => f.ToShortString("F25").PadRight(27).PadLeft(34))
                                                               let end = entry.Reverse().TakeWhile(c => c == '0' || c == ' ').Count()
@@ -16526,7 +15134,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// Returns the upper-left 2x2 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>2x2 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 ToMatrix2() => (
         _c0[0], _c1[0],
         _c0[1], _c1[1]
@@ -16536,7 +15143,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// Returns the upper-left 3x3 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>3x3 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 ToMatrix3() => (
         _c0[0], _c1[0], _c2[0],
         _c0[1], _c1[1], _c2[1],
@@ -16547,7 +15153,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// Returns the upper-left 4x4 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>4x4 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 ToMatrix4() => (
         _c0[0], _c1[0], _c2[0], _c3[0],
         _c0[1], _c1[1], _c2[1], _c3[1],
@@ -16559,7 +15164,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// Returns the upper-left 5x5 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>5x5 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 ToMatrix5() => (
         _c0[0], _c1[0], _c2[0], _c3[0], _c4[0],
         _c0[1], _c1[1], _c2[1], _c3[1], _c4[1],
@@ -16572,7 +15176,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// Returns the upper-left 6x6 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>6x6 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 ToMatrix6() => (
         _c0[0], _c1[0], _c2[0], _c3[0], _c4[0], _c5[0],
         _c0[1], _c1[1], _c2[1], _c3[1], _c4[1], _c5[1],
@@ -16586,7 +15189,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// Returns the upper-left 7x7 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>7x7 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 ToMatrix7() => (
         _c0[0], _c1[0], _c2[0], _c3[0], _c4[0], _c5[0], _c6[0],
         _c0[1], _c1[1], _c2[1], _c3[1], _c4[1], _c5[1], _c6[1],
@@ -16601,7 +15203,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// Returns the upper-left 8x8 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>8x8 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 ToMatrix8() => (
         _c0[0], _c1[0], _c2[0], _c3[0], _c4[0], _c5[0], _c6[0], _c7[0],
         _c0[1], _c1[1], _c2[1], _c3[1], _c4[1], _c5[1], _c6[1], _c7[1],
@@ -16617,7 +15218,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// Creates the homogeneous 10x10 transformation matrix from the current matrix.
     /// </summary>
     /// <returns>Homogeneous 10x10 transformation matrix.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 ToHomogeneousTransformationMatrix() => (
         _c0.ToHomogeneousCoordinates(),
         _c1.ToHomogeneousCoordinates(),
@@ -16635,7 +15235,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// Returns the matrix as a flat array of matrix elements in column major format.
     /// </summary>
     /// <returns>Column major representation of the matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar[] ToArray() => FlattenedCoefficients.ToArray();
 
     /// <summary>
@@ -16643,7 +15242,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// This isomorphism is a simple multiplication of a given vector with the current matrix.
     /// </summary>
     /// <returns>The isomorphism.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Function<Vector9> ToIsomorphism()
     {
         Matrix9 copy = this;
@@ -16651,33 +15249,24 @@ public unsafe readonly /* ref */ partial struct Matrix9
         return new Function<Vector9>(v => copy.Multiply(v));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix(this);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly IEnumerator<Vector9> GetEnumerator() => ((IEnumerable<Vector9>)Columns).GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly IEnumerator<Scalar> IEnumerable<Scalar>.GetEnumerator() => Columns.SelectMany(v => v.AsEnumerable()).GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(out Scalar x_0_0, out Scalar x_1_0, out Scalar x_2_0, out Scalar x_3_0, out Scalar x_4_0, out Scalar x_5_0, out Scalar x_6_0, out Scalar x_7_0, out Scalar x_8_0, out Scalar x_0_1, out Scalar x_1_1, out Scalar x_2_1, out Scalar x_3_1, out Scalar x_4_1, out Scalar x_5_1, out Scalar x_6_1, out Scalar x_7_1, out Scalar x_8_1, out Scalar x_0_2, out Scalar x_1_2, out Scalar x_2_2, out Scalar x_3_2, out Scalar x_4_2, out Scalar x_5_2, out Scalar x_6_2, out Scalar x_7_2, out Scalar x_8_2, out Scalar x_0_3, out Scalar x_1_3, out Scalar x_2_3, out Scalar x_3_3, out Scalar x_4_3, out Scalar x_5_3, out Scalar x_6_3, out Scalar x_7_3, out Scalar x_8_3, out Scalar x_0_4, out Scalar x_1_4, out Scalar x_2_4, out Scalar x_3_4, out Scalar x_4_4, out Scalar x_5_4, out Scalar x_6_4, out Scalar x_7_4, out Scalar x_8_4, out Scalar x_0_5, out Scalar x_1_5, out Scalar x_2_5, out Scalar x_3_5, out Scalar x_4_5, out Scalar x_5_5, out Scalar x_6_5, out Scalar x_7_5, out Scalar x_8_5, out Scalar x_0_6, out Scalar x_1_6, out Scalar x_2_6, out Scalar x_3_6, out Scalar x_4_6, out Scalar x_5_6, out Scalar x_6_6, out Scalar x_7_6, out Scalar x_8_6, out Scalar x_0_7, out Scalar x_1_7, out Scalar x_2_7, out Scalar x_3_7, out Scalar x_4_7, out Scalar x_5_7, out Scalar x_6_7, out Scalar x_7_7, out Scalar x_8_7, out Scalar x_0_8, out Scalar x_1_8, out Scalar x_2_8, out Scalar x_3_8, out Scalar x_4_8, out Scalar x_5_8, out Scalar x_6_8, out Scalar x_7_8, out Scalar x_8_8) =>
         (x_0_0, x_1_0, x_2_0, x_3_0, x_4_0, x_5_0, x_6_0, x_7_0, x_8_0, x_0_1, x_1_1, x_2_1, x_3_1, x_4_1, x_5_1, x_6_1, x_7_1, x_8_1, x_0_2, x_1_2, x_2_2, x_3_2, x_4_2, x_5_2, x_6_2, x_7_2, x_8_2, x_0_3, x_1_3, x_2_3, x_3_3, x_4_3, x_5_3, x_6_3, x_7_3, x_8_3, x_0_4, x_1_4, x_2_4, x_3_4, x_4_4, x_5_4, x_6_4, x_7_4, x_8_4, x_0_5, x_1_5, x_2_5, x_3_5, x_4_5, x_5_5, x_6_5, x_7_5, x_8_5, x_0_6, x_1_6, x_2_6, x_3_6, x_4_6, x_5_6, x_6_6, x_7_6, x_8_6, x_0_7, x_1_7, x_2_7, x_3_7, x_4_7, x_5_7, x_6_7, x_7_7, x_8_7, x_0_8, x_1_8, x_2_8, x_3_8, x_4_8, x_5_8, x_6_8, x_7_8, x_8_8) = (_c0[0], _c1[0], _c2[0], _c3[0], _c4[0], _c5[0], _c6[0], _c7[0], _c8[0], _c0[1], _c1[1], _c2[1], _c3[1], _c4[1], _c5[1], _c6[1], _c7[1], _c8[1], _c0[2], _c1[2], _c2[2], _c3[2], _c4[2], _c5[2], _c6[2], _c7[2], _c8[2], _c0[3], _c1[3], _c2[3], _c3[3], _c4[3], _c5[3], _c6[3], _c7[3], _c8[3], _c0[4], _c1[4], _c2[4], _c3[4], _c4[4], _c5[4], _c6[4], _c7[4], _c8[4], _c0[5], _c1[5], _c2[5], _c3[5], _c4[5], _c5[5], _c6[5], _c7[5], _c8[5], _c0[6], _c1[6], _c2[6], _c3[6], _c4[6], _c5[6], _c6[6], _c7[6], _c8[6], _c0[7], _c1[7], _c2[7], _c3[7], _c4[7], _c5[7], _c6[7], _c7[7], _c8[7], _c0[8], _c1[8], _c2[8], _c3[8], _c4[8], _c5[8], _c6[8], _c7[8], _c8[8]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(out Vector9 v0, out Vector9 v1, out Vector9 v2, out Vector9 v3, out Vector9 v4, out Vector9 v5, out Vector9 v6, out Vector9 v7, out Vector9 v8) =>
         (v0, v1, v2, v3, v4, v5, v6, v7, v8) = (_c0, _c1, _c2, _c3, _c4, _c5, _c6, _c7, _c8);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly object Clone() => new Matrix9(this);
 
     #endregion
@@ -16688,7 +15277,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// </summary>
     /// <param name="column">Column vector index (zero-based)</param>
     /// <returns>Column vector</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector9 GetColumn(int column) => column switch
     {
         0 => _c0,
@@ -16709,7 +15297,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// <param name="column">Column vector index (zero-based)</param>
     /// <param name="vector">New column vector</param>
     /// <returns>Modified matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 SetColumn(int column, in Vector9 vector)
     {
         if (column < 0 || column >= 9)
@@ -16722,13 +15309,10 @@ public unsafe readonly /* ref */ partial struct Matrix9
         return FromColumns(cols);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetColumns(Range columns) => GetRegion(columns, 0..9);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 SetColumns(Range columns, in MatrixNM values) => SetRegion(columns, 0..9, values);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 SwapColumns(int src_col, int dst_col)
     {
         Vector9 col = GetColumn(src_col);
@@ -16737,13 +15321,10 @@ public unsafe readonly /* ref */ partial struct Matrix9
                 .SetColumn(dst_col, col);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 MultiplyColumn(int col, Scalar factor) => SetColumn(col, GetColumn(col).Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 AddColumns(int src_col, int dst_col) => AddColumns(src_col, dst_col, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 AddColumns(int src_col, int dst_col, Scalar factor) => SetColumn(dst_col, GetColumn(src_col).Multiply(factor).Add(GetColumn(dst_col)));
 
     /// <summary>
@@ -16751,7 +15332,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// </summary>
     /// <param name="row">Row vector index (zero-based)</param>
     /// <returns>Row vector</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector9 GetRow(int row) => Transposed.GetColumn(row);
 
     /// <summary>
@@ -16760,16 +15340,12 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// <param name="row">Row vector index (zero-based)</param>
     /// <param name="vector">New row vector</param>
     /// <returns>Modified matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 SetRow(int row, in Vector9 vector) => Transposed.SetColumn(row, vector).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetRows(Range rows) => GetRegion(0..9, rows);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 SetRows(Range rows, in MatrixNM values) => SetRegion(0..9, rows, values);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 SwapRows(int src_row, int dst_row)
     {
         Vector9 row = GetRow(src_row);
@@ -16778,16 +15354,12 @@ public unsafe readonly /* ref */ partial struct Matrix9
                 .SetRow(dst_row, row);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 AddRows(int src_row, int dst_row) => AddRows(src_row, dst_row, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 AddRows(int src_row, int dst_row, Scalar factor) => SetRow(dst_row, GetRow(src_row).Multiply(factor).Add(GetRow(dst_row)));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 MultiplyRow(int row, Scalar factor) => SetRow(row, GetRow(row).Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetRegion(Range columns, Range rows)
     {
         // TODO : range checks
@@ -16804,7 +15376,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
         return new MatrixNM(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 SetRegion(Range columns, Range rows, in MatrixNM values)
     {
         // TODO : range checks
@@ -16827,7 +15398,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// <param name="column">Zero-based column index</param>
     /// <param name="row">Zero-based row index</param>
     /// <returns>8x8-minor</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 GetMinor(int column, int row) =>
         Columns
         .Take(column)
@@ -16842,43 +15412,30 @@ public unsafe readonly /* ref */ partial struct Matrix9
     #endregion
     #region STATIC METHODS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 Add(Matrix9 m1, Matrix9 m2) => m1.Add(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 Subtract(Matrix9 m1, Matrix9 m2) => m1.Subtract(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 Multiply(Matrix9 m1, Matrix9 m2) => m1.Multiply(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector9 Multiply(Matrix9 m, Vector9 v) => m.Multiply(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 Multiply(Matrix9 m, Scalar s) => m.Multiply(s);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 Divide(Matrix9 m, Scalar s) => m.Divide(s);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 Exp(Matrix9 matrix, InfiniteSeriesSettings? settings = null) => matrix.Exp(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 Sin(Matrix9 matrix, InfiniteSeriesSettings? settings = null) => matrix.Sin(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 Cos(Matrix9 matrix, InfiniteSeriesSettings? settings = null) => matrix.Cos(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 CracovianProduct(in Matrix9 first, in Matrix9 second) => second.Transposed.Multiply(in second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 HadamardProduct(in Matrix9 first, in Matrix9 second) => first.ComponentwiseMultiply(in second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar DistanceBetween(Matrix9 first, Matrix9 second, MatrixNorm norm) => first.DistanceTo(second, norm);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 SparseMatrix(params (int column, int row, Scalar value)[] entries)
     {
         Scalar[,] m = new Scalar[9, 9];
@@ -16889,10 +15446,8 @@ public unsafe readonly /* ref */ partial struct Matrix9
         return FromArray(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 SingleEntryMatrix(int column, int row) => SingleEntryMatrix(column, row, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 SingleEntryMatrix(int column, int row, Scalar value)
     {
         Scalar[,] m = new Scalar[9, 9];
@@ -16902,13 +15457,10 @@ public unsafe readonly /* ref */ partial struct Matrix9
         return FromArray(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 DiagonalMatrix(Scalar scalar) => Identity * scalar;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 DiagonalMatrix(in Vector9 diagonal) => DiagonalMatrix(diagonal[0], diagonal[1], diagonal[2], diagonal[3], diagonal[4], diagonal[5], diagonal[6], diagonal[7], diagonal[8]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 DiagonalMatrix(Scalar d0, Scalar d1, Scalar d2, Scalar d3, Scalar d4, Scalar d5, Scalar d6, Scalar d7, Scalar d8) => (
         d0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, d1, 0, 0, 0, 0, 0, 0, 0,
@@ -16921,7 +15473,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
         0, 0, 0, 0, 0, 0, 0, 0, d8
     );
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 KacMurdockSzegöMatrix(Scalar a) => new(
         1, a.Power(1) * .5, a.Power(2) * .5, a.Power(3) * .5, a.Power(4) * .5, a.Power(5) * .5, a.Power(6) * .5, a.Power(7) * .5, a.Power(8) * .5,
         a.Power(1) * .5, 1, a.Power(1) * .5, a.Power(2) * .5, a.Power(3) * .5, a.Power(4) * .5, a.Power(5) * .5, a.Power(6) * .5, a.Power(7) * .5,
@@ -16934,10 +15485,8 @@ public unsafe readonly /* ref */ partial struct Matrix9
         a.Power(8) * .5, a.Power(7) * .5, a.Power(6) * .5, a.Power(5) * .5, a.Power(4) * .5, a.Power(3) * .5, a.Power(2) * .5, a.Power(1) * .5, 1
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 FromRowPermutation(int[] row_indices) => FromColumnPermutation(row_indices).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 FromColumnPermutation(int[] column_indices)
     {
         if (column_indices.Distinct().Count() != column_indices.Length)
@@ -16961,13 +15510,10 @@ public unsafe readonly /* ref */ partial struct Matrix9
 
     public static Matrix9 FromNative<T>(T* src) where T : unmanaged => new((Scalar*)src);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 FromCompressedStorageFormat(CompressedStorageFormat<Scalar> compressed) => FromArray(compressed.ToMatrix());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 FromArray(in Scalar[,] arr) => arr.GetLength(0) < 9 || arr.GetLength(1) < 9 ? throw new ArgumentException("The array must have a minimum size of 9x9.", nameof(arr)) : new Matrix9(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 FromArray(in Scalar[] arr) => arr switch {
         null => throw new ArgumentNullException(nameof(arr)),
         _ when arr.Length < 81 => throw new ArgumentException("The array must have a minimum length of 81.", nameof(arr)),
@@ -16984,10 +15530,8 @@ public unsafe readonly /* ref */ partial struct Matrix9
         )
     };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 FromRows(in Vector9[] arr) => FromColumns(arr).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 FromColumns(in Vector9[] arr) => arr switch {
         null => throw new ArgumentNullException(nameof(arr)),
         { Length: 9 } => new Matrix9(
@@ -17015,7 +15559,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(Matrix9 m1, Matrix9 m2) => m1.Is(m2);
 
     /// <summary>
@@ -17024,7 +15567,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(Matrix9 m1, Matrix9 m2) => !(m1 == m2);
 
     /// <summary>
@@ -17032,7 +15574,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// </summary>
     /// <param name="m">Original matrix</param>
     /// <returns>Unchanged matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 operator +(in Matrix9 m) => m;
 
     /// <summary>
@@ -17040,25 +15581,18 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// </summary>
     /// <param name="m">Original matrix</param>
     /// <returns>Negated matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 operator -(in Matrix9 m) => m.Negate();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 operator +(Scalar f, in Matrix9 m) => m.Add(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 operator +(in Matrix9 m, Scalar f) => m.Add(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 operator -(Scalar f, in Matrix9 m) => new Matrix9(f).Subtract(in m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 operator -(in Matrix9 m, Scalar f) => m.Subtract(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 operator ++(in Matrix9 m) => m.Increment();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 operator --(in Matrix9 m) => m.Decrement();
 
     /// <summary>
@@ -17067,7 +15601,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Addition result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 operator +(in Matrix9 m1, in Matrix9 m2) => m1.Add(in m2);
 
     /// <summary>
@@ -17076,25 +15609,18 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Subtraction result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 operator -(in Matrix9 m1, in Matrix9 m2) => m1.Subtract(in m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector9 operator *(in Matrix9 m, in Vector9 v) => m.Multiply(in v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 operator *(in Matrix9 m1, in Matrix9 m2) => m1.Multiply(in m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 operator *(in Matrix9 m, Scalar f) => m.Multiply(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 operator *(Scalar f, in Matrix9 m) => m.Multiply(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 operator ^(in Matrix9 m, int c) => m.Power(c);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 operator ^(in Matrix9 m1, in Matrix9 m2) => CracovianProduct(in m1, in m2);
 
     /// <summary>
@@ -17103,34 +15629,24 @@ public unsafe readonly /* ref */ partial struct Matrix9
     /// <param name="A">Matrix A</param>
     /// <param name="b">Vector b</param>
     /// <returns>Solution x</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static VectorSpace9 operator |(Matrix9 A, Vector9 b) => A.Solve(b);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static VectorSpace9 operator |(Matrix9 A, VectorSpace9 b) => A.Solve(b);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 operator /(Matrix9 m1, Matrix9 m2) => m1.Multiply(m2.Inverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 operator /(in Matrix9 m, Scalar f) => m.Divide(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 operator %(in Matrix9 m, Scalar f) => m.Modulus(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (Vector9 x0, Vector9 x1, Vector9 x2, Vector9 x3, Vector9 x4, Vector9 x5, Vector9 x6, Vector9 x7, Vector9 x8) (in Matrix9 m) => (m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix9((Vector9 x0, Vector9 x1, Vector9 x2, Vector9 x3, Vector9 x4, Vector9 x5, Vector9 x6, Vector9 x7, Vector9 x8) t) => new(t.x0, t.x1, t.x2, t.x3, t.x4, t.x5, t.x6, t.x7, t.x8);
 /*
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator ((Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8) c0, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8) c1, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8) c2, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8) c3, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8) c4, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8) c5, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8) c6, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8) c7, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8) c8) (in Matrix9 m) => (m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix9(in ((Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8) c0, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8) c1, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8) c2, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8) c3, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8) c4, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8) c5, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8) c6, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8) c7, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8) c8) t) => new(t.c0, t.c1, t.c2, t.c3, t.c4, t.c5, t.c6, t.c7, t.c8);
 */
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (Scalar x_0_0, Scalar x_1_0, Scalar x_2_0, Scalar x_3_0, Scalar x_4_0, Scalar x_5_0, Scalar x_6_0, Scalar x_7_0, Scalar x_8_0, Scalar x_0_1, Scalar x_1_1, Scalar x_2_1, Scalar x_3_1, Scalar x_4_1, Scalar x_5_1, Scalar x_6_1, Scalar x_7_1, Scalar x_8_1, Scalar x_0_2, Scalar x_1_2, Scalar x_2_2, Scalar x_3_2, Scalar x_4_2, Scalar x_5_2, Scalar x_6_2, Scalar x_7_2, Scalar x_8_2, Scalar x_0_3, Scalar x_1_3, Scalar x_2_3, Scalar x_3_3, Scalar x_4_3, Scalar x_5_3, Scalar x_6_3, Scalar x_7_3, Scalar x_8_3, Scalar x_0_4, Scalar x_1_4, Scalar x_2_4, Scalar x_3_4, Scalar x_4_4, Scalar x_5_4, Scalar x_6_4, Scalar x_7_4, Scalar x_8_4, Scalar x_0_5, Scalar x_1_5, Scalar x_2_5, Scalar x_3_5, Scalar x_4_5, Scalar x_5_5, Scalar x_6_5, Scalar x_7_5, Scalar x_8_5, Scalar x_0_6, Scalar x_1_6, Scalar x_2_6, Scalar x_3_6, Scalar x_4_6, Scalar x_5_6, Scalar x_6_6, Scalar x_7_6, Scalar x_8_6, Scalar x_0_7, Scalar x_1_7, Scalar x_2_7, Scalar x_3_7, Scalar x_4_7, Scalar x_5_7, Scalar x_6_7, Scalar x_7_7, Scalar x_8_7, Scalar x_0_8, Scalar x_1_8, Scalar x_2_8, Scalar x_3_8, Scalar x_4_8, Scalar x_5_8, Scalar x_6_8, Scalar x_7_8, Scalar x_8_8) (in Matrix9 m) => (
         m._c0[0], m._c1[0], m._c2[0], m._c3[0], m._c4[0], m._c5[0], m._c6[0], m._c7[0], m._c8[0],
         m._c0[1], m._c1[1], m._c2[1], m._c3[1], m._c4[1], m._c5[1], m._c6[1], m._c7[1], m._c8[1],
@@ -17143,7 +15659,6 @@ public unsafe readonly /* ref */ partial struct Matrix9
         m._c0[8], m._c1[8], m._c2[8], m._c3[8], m._c4[8], m._c5[8], m._c6[8], m._c7[8], m._c8[8]
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix9(in (Scalar x_0_0, Scalar x_1_0, Scalar x_2_0, Scalar x_3_0, Scalar x_4_0, Scalar x_5_0, Scalar x_6_0, Scalar x_7_0, Scalar x_8_0, Scalar x_0_1, Scalar x_1_1, Scalar x_2_1, Scalar x_3_1, Scalar x_4_1, Scalar x_5_1, Scalar x_6_1, Scalar x_7_1, Scalar x_8_1, Scalar x_0_2, Scalar x_1_2, Scalar x_2_2, Scalar x_3_2, Scalar x_4_2, Scalar x_5_2, Scalar x_6_2, Scalar x_7_2, Scalar x_8_2, Scalar x_0_3, Scalar x_1_3, Scalar x_2_3, Scalar x_3_3, Scalar x_4_3, Scalar x_5_3, Scalar x_6_3, Scalar x_7_3, Scalar x_8_3, Scalar x_0_4, Scalar x_1_4, Scalar x_2_4, Scalar x_3_4, Scalar x_4_4, Scalar x_5_4, Scalar x_6_4, Scalar x_7_4, Scalar x_8_4, Scalar x_0_5, Scalar x_1_5, Scalar x_2_5, Scalar x_3_5, Scalar x_4_5, Scalar x_5_5, Scalar x_6_5, Scalar x_7_5, Scalar x_8_5, Scalar x_0_6, Scalar x_1_6, Scalar x_2_6, Scalar x_3_6, Scalar x_4_6, Scalar x_5_6, Scalar x_6_6, Scalar x_7_6, Scalar x_8_6, Scalar x_0_7, Scalar x_1_7, Scalar x_2_7, Scalar x_3_7, Scalar x_4_7, Scalar x_5_7, Scalar x_6_7, Scalar x_7_7, Scalar x_8_7, Scalar x_0_8, Scalar x_1_8, Scalar x_2_8, Scalar x_3_8, Scalar x_4_8, Scalar x_5_8, Scalar x_6_8, Scalar x_7_8, Scalar x_8_8) t) => new(
         t.x_0_0, t.x_1_0, t.x_2_0, t.x_3_0, t.x_4_0, t.x_5_0, t.x_6_0, t.x_7_0, t.x_8_0,
         t.x_0_1, t.x_1_1, t.x_2_1, t.x_3_1, t.x_4_1, t.x_5_1, t.x_6_1, t.x_7_1, t.x_8_1,
@@ -17156,37 +15671,26 @@ public unsafe readonly /* ref */ partial struct Matrix9
         t.x_0_8, t.x_1_8, t.x_2_8, t.x_3_8, t.x_4_8, t.x_5_8, t.x_6_8, t.x_7_8, t.x_8_8
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix9(Scalar m) => new(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix9(in Vector9[] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Vector9[](in Matrix9 m) => m.Columns;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Scalar[](in Matrix9 m) => m.ToArray();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix9(Scalar[] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Scalar[,](in Matrix9 m) => m.Coefficients;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix9(Scalar[,] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator MatrixNM(in Matrix9 m) => new(m.Coefficients);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix9(in MatrixNM m) => new(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator CompressedStorageFormat<Scalar>(in Matrix9 m) => CompressedStorageFormat<Scalar>.FromMatrix<Matrix9>(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Function<Vector9>(in Matrix9 m) => m.ToIsomorphism();
 
     #endregion
@@ -17204,10 +15708,8 @@ public unsafe readonly /* ref */ partial struct Matrix9
 
 public static class Matrix9Extensions
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 Sum(this IEnumerable<Matrix9> matrices) => Matrix9.Zero.Add(matrices.ToArray());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 Average(this IEnumerable<Matrix9> matrices)
     {
         Matrix9 mat = Matrix9.Zero;
@@ -17745,7 +16247,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// Creates a new 10x10-matrix where all diagonal elements have the value <paramref name="scale"/>. All elements outside the main diagonal are set to <see cref="Scalar.Zero"/>.
     /// </summary>
     /// <param name="scale">Scalar factor</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10(Scalar scale)
         : this(scale, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, scale, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -17773,7 +16274,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// <param name="diag_7">The diagonal element at the position (7, 7).</param>
     /// <param name="diag_8">The diagonal element at the position (8, 8).</param>
     /// <param name="diag_9">The diagonal element at the position (9, 9).</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10(Scalar diag_0, Scalar diag_1, Scalar diag_2, Scalar diag_3, Scalar diag_4, Scalar diag_5, Scalar diag_6, Scalar diag_7, Scalar diag_8, Scalar diag_9)
         : this(diag_0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, diag_1, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -17788,7 +16288,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10(Scalar s_0_0, Scalar s_1_0, Scalar s_2_0, Scalar s_3_0, Scalar s_4_0, Scalar s_5_0, Scalar s_6_0, Scalar s_7_0, Scalar s_8_0, Scalar s_9_0, Scalar s_0_1, Scalar s_1_1, Scalar s_2_1, Scalar s_3_1, Scalar s_4_1, Scalar s_5_1, Scalar s_6_1, Scalar s_7_1, Scalar s_8_1, Scalar s_9_1, Scalar s_0_2, Scalar s_1_2, Scalar s_2_2, Scalar s_3_2, Scalar s_4_2, Scalar s_5_2, Scalar s_6_2, Scalar s_7_2, Scalar s_8_2, Scalar s_9_2, Scalar s_0_3, Scalar s_1_3, Scalar s_2_3, Scalar s_3_3, Scalar s_4_3, Scalar s_5_3, Scalar s_6_3, Scalar s_7_3, Scalar s_8_3, Scalar s_9_3, Scalar s_0_4, Scalar s_1_4, Scalar s_2_4, Scalar s_3_4, Scalar s_4_4, Scalar s_5_4, Scalar s_6_4, Scalar s_7_4, Scalar s_8_4, Scalar s_9_4, Scalar s_0_5, Scalar s_1_5, Scalar s_2_5, Scalar s_3_5, Scalar s_4_5, Scalar s_5_5, Scalar s_6_5, Scalar s_7_5, Scalar s_8_5, Scalar s_9_5, Scalar s_0_6, Scalar s_1_6, Scalar s_2_6, Scalar s_3_6, Scalar s_4_6, Scalar s_5_6, Scalar s_6_6, Scalar s_7_6, Scalar s_8_6, Scalar s_9_6, Scalar s_0_7, Scalar s_1_7, Scalar s_2_7, Scalar s_3_7, Scalar s_4_7, Scalar s_5_7, Scalar s_6_7, Scalar s_7_7, Scalar s_8_7, Scalar s_9_7, Scalar s_0_8, Scalar s_1_8, Scalar s_2_8, Scalar s_3_8, Scalar s_4_8, Scalar s_5_8, Scalar s_6_8, Scalar s_7_8, Scalar s_8_8, Scalar s_9_8, Scalar s_0_9, Scalar s_1_9, Scalar s_2_9, Scalar s_3_9, Scalar s_4_9, Scalar s_5_9, Scalar s_6_9, Scalar s_7_9, Scalar s_8_9, Scalar s_9_9)
         : this(new Vector10(s_0_0, s_0_1, s_0_2, s_0_3, s_0_4, s_0_5, s_0_6, s_0_7, s_0_8, s_0_9),
                new Vector10(s_1_0, s_1_1, s_1_2, s_1_3, s_1_4, s_1_5, s_1_6, s_1_7, s_1_8, s_1_9),
@@ -17803,7 +16302,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10(Scalar[] values)
         : this(values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], values[9],
                values[10], values[11], values[12], values[13], values[14], values[15], values[16], values[17], values[18], values[19],
@@ -17818,7 +16316,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10(Scalar[,] values)
         : this(values[0, 0], values[1, 0], values[2, 0], values[3, 0], values[4, 0], values[5, 0], values[6, 0], values[7, 0], values[8, 0], values[9, 0],
                values[0, 1], values[1, 1], values[2, 1], values[3, 1], values[4, 1], values[5, 1], values[6, 1], values[7, 1], values[8, 1], values[9, 1],
@@ -17833,7 +16330,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10(Scalar[][] values)
         : this(values[0][0], values[1][0], values[2][0], values[3][0], values[4][0], values[5][0], values[6][0], values[7][0], values[8][0], values[9][0],
                values[0][1], values[1][1], values[2][1], values[3][1], values[4][1], values[5][1], values[6][1], values[7][1], values[8][1], values[9][1],
@@ -17848,73 +16344,61 @@ public unsafe readonly /* ref */ partial struct Matrix10
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10(in Matrix2 matrix)
         : this(new Vector10(matrix[0]), new Vector10(matrix[1]), Vector10.Zero, Vector10.Zero, Vector10.Zero, Vector10.Zero, Vector10.Zero, Vector10.Zero, Vector10.Zero, Vector10.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10(in Matrix3 matrix)
         : this(new Vector10(matrix[0]), new Vector10(matrix[1]), new Vector10(matrix[2]), Vector10.Zero, Vector10.Zero, Vector10.Zero, Vector10.Zero, Vector10.Zero, Vector10.Zero, Vector10.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10(in Matrix4 matrix)
         : this(new Vector10(matrix[0]), new Vector10(matrix[1]), new Vector10(matrix[2]), new Vector10(matrix[3]), Vector10.Zero, Vector10.Zero, Vector10.Zero, Vector10.Zero, Vector10.Zero, Vector10.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10(in Matrix5 matrix)
         : this(new Vector10(matrix[0]), new Vector10(matrix[1]), new Vector10(matrix[2]), new Vector10(matrix[3]), new Vector10(matrix[4]), Vector10.Zero, Vector10.Zero, Vector10.Zero, Vector10.Zero, Vector10.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10(in Matrix6 matrix)
         : this(new Vector10(matrix[0]), new Vector10(matrix[1]), new Vector10(matrix[2]), new Vector10(matrix[3]), new Vector10(matrix[4]), new Vector10(matrix[5]), Vector10.Zero, Vector10.Zero, Vector10.Zero, Vector10.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10(in Matrix7 matrix)
         : this(new Vector10(matrix[0]), new Vector10(matrix[1]), new Vector10(matrix[2]), new Vector10(matrix[3]), new Vector10(matrix[4]), new Vector10(matrix[5]), new Vector10(matrix[6]), Vector10.Zero, Vector10.Zero, Vector10.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10(in Matrix8 matrix)
         : this(new Vector10(matrix[0]), new Vector10(matrix[1]), new Vector10(matrix[2]), new Vector10(matrix[3]), new Vector10(matrix[4]), new Vector10(matrix[5]), new Vector10(matrix[6]), new Vector10(matrix[7]), Vector10.Zero, Vector10.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10(in Matrix9 matrix)
         : this(new Vector10(matrix[0]), new Vector10(matrix[1]), new Vector10(matrix[2]), new Vector10(matrix[3]), new Vector10(matrix[4]), new Vector10(matrix[5]), new Vector10(matrix[6]), new Vector10(matrix[7]), new Vector10(matrix[8]), Vector10.Zero)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10(in Matrix10 matrix)
         : this(matrix.Columns)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10(in MatrixNM matrix)
         : this(matrix.Coefficients)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10(Matrix10* matrix)
         : this(*matrix)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10(Scalar* values)
         : this(values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], values[9],
                values[10], values[11], values[12], values[13], values[14], values[15], values[16], values[17], values[18], values[19],
@@ -17929,25 +16413,21 @@ public unsafe readonly /* ref */ partial struct Matrix10
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10(Vector10* columns)
         : this(columns[0], columns[1], columns[2], columns[3], columns[4], columns[5], columns[6], columns[7], columns[8], columns[9])
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10(IEnumerable<Vector10> columns)
         : this(columns.ToArray())
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10(Vector10[] columns)
         : this(columns[0], columns[1], columns[2], columns[3], columns[4], columns[5], columns[6], columns[7], columns[8], columns[9])
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10(Vector10 v0, Vector10 v1, Vector10 v2, Vector10 v3, Vector10 v4, Vector10 v5, Vector10 v6, Vector10 v7, Vector10 v8, Vector10 v9)
     {
         _c0 = v0;
@@ -17969,7 +16449,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// Negates the current instance and returns the result without modifying the current instance.
     /// </summary>
     /// <returns>Negated object</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 Negate() => new(-_c0, -_c1, -_c2, -_c3, -_c4, -_c5, -_c6, -_c7, -_c8, -_c9);
 
     /// <summary>
@@ -17977,31 +16456,22 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Addition result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 Add(in Matrix10 second) => new(_c0 + second._c0, _c1 + second._c1, _c2 + second._c2, _c3 + second._c3, _c4 + second._c4, _c5 + second._c5, _c6 + second._c6, _c7 + second._c7, _c8 + second._c8, _c9 + second._c9);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 Add(params Matrix10[] matrices) => matrices.Aggregate(this, Add);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 Add(Scalar Scalar) => Add(new Matrix10(Scalar));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 Increment() => Add(1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 Decrement() => Add(-1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 Subtract(in Matrix10 second) => Add(second.Negate());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 Subtract(params Matrix10[] matrices) => matrices.Aggregate(this, Subtract);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10 Subtract(Scalar scalar) => Add(scalar.Negate());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector9 HomogeneousMultiply(in Vector9 second) => Multiply(second.ToHomogeneousCoordinates()).FromHomogeneousCoordinates();
 
     /// <summary>
@@ -18011,7 +16481,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 Multiply(in Matrix10 second)
     {
         Vector10[] A = Rows;
@@ -18025,7 +16494,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
         return new Matrix10(C);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 Multiply(params Matrix10[] matrices) => matrices.Aggregate(this, Multiply);
 
     /// <summary>
@@ -18033,7 +16501,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// </summary>
     /// <param name="vector">Vector</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector10 Multiply(in Vector10 vector) => new(
         _c0[0] * vector[0] + _c1[0] * vector[1] + _c2[0] * vector[2] + _c3[0] * vector[3] + _c4[0] * vector[4] + _c5[0] * vector[5] + _c6[0] * vector[6] + _c7[0] * vector[7] + _c8[0] * vector[8] + _c9[0] * vector[9],
         _c0[1] * vector[0] + _c1[1] * vector[1] + _c2[1] * vector[2] + _c3[1] * vector[3] + _c4[1] * vector[4] + _c5[1] * vector[5] + _c6[1] * vector[6] + _c7[1] * vector[7] + _c8[1] * vector[8] + _c9[1] * vector[9],
@@ -18052,13 +16519,10 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// </summary>
     /// <param name="factor">Scalar factor</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 Multiply(Scalar factor) => new(_c0 * factor, _c1 * factor, _c2 * factor, _c3 * factor, _c4 * factor, _c5 * factor, _c6 * factor, _c7 * factor, _c8 * factor, _c9 * factor);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 Multiply(params Scalar[] factors) => Multiply(factors.Aggregate(Scalar.One, Scalar.Multiply));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix10 Power(int e)
     {
         if (e < 0)
@@ -18082,10 +16546,8 @@ public unsafe readonly /* ref */ partial struct Matrix10
         return r;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 Divide(Scalar factor) => Multiply(factor.Inverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 Modulus(Scalar factor) => new(_c0 % factor, _c1 % factor, _c2 % factor, _c3 % factor, _c4 % factor, _c5 % factor, _c6 % factor, _c7 % factor, _c8 % factor, _c9 % factor);
 
     public readonly Matrix10 Sin(InfiniteSeriesSettings? settings = null)
@@ -18174,50 +16636,36 @@ public unsafe readonly /* ref */ partial struct Matrix10
         MatrixNorm.L2_Norm => SpectralNorm,
     };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePNorm(Scalar p) => ToArray().Select(c => c.Abs().Power(p)).Sum().Power(p.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePQNorm(Scalar p, Scalar q) => Columns.Select(c => c.Select(v => v.Abs().Power(p)).Sum().Power(q / p)).Sum().Power(q.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputeMatrixCondition(MatrixNorm norm) => ComputeNorm(norm) * MultiplicativeInverse.ComputeNorm(norm);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePMatrixCondition(Scalar p) => ComputePNorm(p) * MultiplicativeInverse.ComputePNorm(p);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePQMatrixCondition(Scalar p, Scalar q) => ComputePQNorm(p, q) * MultiplicativeInverse.ComputePQNorm(p, q);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 ComponentwiseDivide(in Matrix10 second) => new(_c0.ComponentwiseDivide(second._c0), _c1.ComponentwiseDivide(second._c1), _c2.ComponentwiseDivide(second._c2), _c3.ComponentwiseDivide(second._c3), _c4.ComponentwiseDivide(second._c4), _c5.ComponentwiseDivide(second._c5), _c6.ComponentwiseDivide(second._c6), _c7.ComponentwiseDivide(second._c7), _c8.ComponentwiseDivide(second._c8), _c9.ComponentwiseDivide(second._c9));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 ComponentwiseMultiply(in Matrix10 second) => new(_c0.ComponentwiseMultiply(second._c0), _c1.ComponentwiseMultiply(second._c1), _c2.ComponentwiseMultiply(second._c2), _c3.ComponentwiseMultiply(second._c3), _c4.ComponentwiseMultiply(second._c4), _c5.ComponentwiseMultiply(second._c5), _c6.ComponentwiseMultiply(second._c6), _c7.ComponentwiseMultiply(second._c7), _c8.ComponentwiseMultiply(second._c8), _c9.ComponentwiseMultiply(second._c9));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 ComponentwiseApply(Func<Scalar, Scalar> function) => new(_c0.ComponentwiseApply(function), _c1.ComponentwiseApply(function), _c2.ComponentwiseApply(function), _c3.ComponentwiseApply(function), _c4.ComponentwiseApply(function), _c5.ComponentwiseApply(function), _c6.ComponentwiseApply(function), _c7.ComponentwiseApply(function), _c8.ComponentwiseApply(function), _c9.ComponentwiseApply(function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 ComponentwiseApply(Matrix10 second, Func<Scalar, Scalar, Scalar> function) =>
         new(_c0.ComponentwiseApply(second._c0, function), _c1.ComponentwiseApply(second._c1, function), _c2.ComponentwiseApply(second._c2, function), _c3.ComponentwiseApply(second._c3, function), _c4.ComponentwiseApply(second._c4, function), _c5.ComponentwiseApply(second._c5, function), _c6.ComponentwiseApply(second._c6, function), _c7.ComponentwiseApply(second._c7, function), _c8.ComponentwiseApply(second._c8, function), _c9.ComponentwiseApply(second._c9, function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 ComponentwiseApply(Matrix10 second, Matrix10 third, Func<Scalar, Scalar, Scalar, Scalar> function) =>
         new(_c0.ComponentwiseApply(second._c0, third._c0, function), _c1.ComponentwiseApply(second._c1, third._c1, function), _c2.ComponentwiseApply(second._c2, third._c2, function), _c3.ComponentwiseApply(second._c3, third._c3, function), _c4.ComponentwiseApply(second._c4, third._c4, function), _c5.ComponentwiseApply(second._c5, third._c5, function), _c6.ComponentwiseApply(second._c6, third._c6, function), _c7.ComponentwiseApply(second._c7, third._c7, function), _c8.ComponentwiseApply(second._c8, third._c8, function), _c9.ComponentwiseApply(second._c9, third._c9, function));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 Clamp() => Clamp(Scalar.Zero, Scalar.One);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 Clamp(Scalar low, Scalar high) => new(_c0.Clamp(low, high), _c1.Clamp(low, high), _c2.Clamp(low, high), _c3.Clamp(low, high), _c4.Clamp(low, high), _c5.Clamp(low, high), _c6.Clamp(low, high), _c7.Clamp(low, high), _c8.Clamp(low, high), _c9.Clamp(low, high));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 LinearInterpolate(in Matrix10 other, Scalar factor) => Multiply(1 - factor).Add(other.Multiply(factor));
 
     #endregion
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool IsLinearDependant(in Matrix10 other, out Scalar? factor)
     {
         factor = null;
@@ -18245,7 +16693,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// Returns a set of the first 8 principal submatrices.
     /// </summary>
     /// <returns>Set of principal submatrices</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Algebra<Scalar>.IMatrix[] GetPrincipalSubmatrices()
     {
         (Matrix2 Sub2, Matrix3 Sub3, Matrix4 Sub4, Matrix5 Sub5, Matrix6 Sub6, Matrix7 Sub7, Matrix8 Sub8, Matrix9 Sub9) = PrincipalSubmatrices;
@@ -18253,7 +16700,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
         return new Algebra<Scalar>.IMatrix[] { _c0[0], Sub2, Sub3, Sub4, Sub5, Sub6, Sub7, Sub8, Sub9 };
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal readonly Matrix10 GetLinearIndependentForm()
     {
         Matrix10 m = this;
@@ -18289,7 +16735,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// </summary>
     /// <param name="vector">Vector10</param>
     /// <returns>Solution</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace10 Solve(Vector10 vector)
     {
         if (IsDiagonal)
@@ -18332,7 +16777,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
             return new VectorSpace10(SolveCG(vector));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace10 Solve(VectorSpace10 vectorspace)
     {
         VectorSpace10 result = VectorSpace10.Empty;
@@ -18344,7 +16788,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
         return result;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly bool Algebra<Scalar>.IMatrix<Vector10, Matrix10>.Solve(Vector10 vector, out Vector10 solution)
     {
         VectorSpace10 space = Solve(vector);
@@ -18360,7 +16803,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector10 SolveCG(Vector10 vector)
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -18437,7 +16879,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     #endregion
     #region INSTANCE METHODS : DECOMPOSITIONS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Vector10[] Eigenvectors, Scalar[] Eigenvalues) EigenDecompose(Scalar tolerance)
     {
         (Vector10 vec, Scalar val)[] pairs = GetEigenpairs(tolerance);
@@ -18447,7 +16888,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
         return (vectors, values);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Vector10 Eigenvector, Scalar Eigenvalue)[] GetEigenpairs(Scalar tolerance)
     {
         if (IsUpperTriangular || IsLowerTriangular || IsDiagonal)
@@ -18463,7 +16903,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
         return pairs;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private readonly (Vector10 Eigenvector, Scalar Eigenvalue) DoInverseVectoriteration(Scalar offset, Scalar tolerance)
     {
         Vector10 v_old = default;
@@ -18487,10 +16926,8 @@ public unsafe readonly /* ref */ partial struct Matrix10
         return (v_new, 1 / (λ - offset));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace10 GetEigenspace(Scalar eigenvalue) => VectorSpace10.FromVectors(Subtract(DiagonalMatrix(eigenvalue)).Columns.Select(v => v.Normalized)); // TODO : fix this shite
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int GetAlgebraicMulticiplity(Scalar eigenvalue) => GetEigenspace(eigenvalue).Dimension;
 
     /// <summary>
@@ -18511,7 +16948,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// Decomposes the current matrix (in a non-destructive fashion) into three matrices: A permutation-matrix P, an upper-triangular matrix U, and a lower-triangular matrix L.
     /// </summary>
     /// <returns>A tuple consisting of the permutation-matrix P, the upper-triangular matrix U, and the lower-triangular matrix L.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix10 P, Matrix10 L, Matrix10 U) PLUDecompose()
     {
         int[] perm = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
@@ -18555,7 +16991,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
         return (FromRowPermutation(perm), L, U);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix5 A, Matrix5 C) SchurComplement()
     {
         (MatrixNM A, MatrixNM C) = SchurComplement(5);
@@ -18563,7 +16998,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
         return ((Matrix5)A, (Matrix5)C);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (MatrixNM A, MatrixNM C) SchurComplement(int size)
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -18584,7 +17018,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// <summary>
     /// Decomposes the current matrix instance into a lower triangular matrix 'L'. The product of L with its transposed results in the current matrix.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 CholeskyDecompose()
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -18605,7 +17038,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
         throw new NotImplementedException();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix10 Q, Matrix10 R) QRDecompose()
     {
         Matrix10 A = this;
@@ -18865,7 +17297,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
         );
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (Matrix10 U, Matrix10 D) IwasawaDecompose()
     {
         Matrix10 ONB = OrthonormalBasis;
@@ -18876,45 +17307,33 @@ public unsafe readonly /* ref */ partial struct Matrix10
 
     #endregion
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly VectorSpace10 GetKrylovSpace(Vector10 vector) => VectorSpace10.KrylovSpace(vector, this);
 
     #region INSTANCE METHODS : COMPARISONS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Is(Matrix10 o, Scalar tolerance) => _c0.Is(o._c0, tolerance) && _c1.Is(o._c1, tolerance) && _c2.Is(o._c2, tolerance) && _c3.Is(o._c3, tolerance) && _c4.Is(o._c4, tolerance) && _c5.Is(o._c5, tolerance) && _c6.Is(o._c6, tolerance) && _c7.Is(o._c7, tolerance) && _c8.Is(o._c8, tolerance) && _c9.Is(o._c9, tolerance);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Is(Matrix10 o) => Is(o, Scalar.ComputationalEpsilon);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool IsNot(Matrix10 o) => !Is(o);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override bool Equals(object? obj) => obj is Matrix10 v && Equals(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Equals(Matrix10 other) => Is(other);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo(Matrix10 other) => Is(other) ? 0 : throw new NotImplementedException();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo(object? other) => other is Matrix10 m ? CompareTo(m) : throw new ArgumentException($"The given value must be a Matrix of the type '{typeof(Matrix10)}'.", nameof(other));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override int GetHashCode() => LINQ.GetHashCode(Columns);
 
     #endregion
     #region INSTANCE METHODS : TO_STRING
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(bool @short) => @short ? ToShortString() : ToString();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(string? format) => ToString(format, null);
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(IFormatProvider prov) => ToString(null, prov);
 
     public readonly string ToString(string? format, IFormatProvider? provider) =>
@@ -18924,14 +17343,12 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// The 10x10-matrix' string representation
     /// </summary>
     /// <returns>String representation</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override string ToString() => Rows.Select(c => $"| {c.ToArray().Select(f => $"{f,22:F16}").StringJoin(", ")} |").StringJoinLines();
 
     /// <summary>
     /// The 10x10-matrix' short string representation
     /// </summary>
     /// <returns>Short string representation</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToShortString() => (from col in Columns
                                                let strings = (from entry in col.ToArray().Select(f => f.ToShortString("F25").PadRight(27).PadLeft(34))
                                                               let end = entry.Reverse().TakeWhile(c => c == '0' || c == ' ').Count()
@@ -18960,7 +17377,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// Returns the upper-left 2x2 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>2x2 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix2 ToMatrix2() => (
         _c0[0], _c1[0],
         _c0[1], _c1[1]
@@ -18970,7 +17386,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// Returns the upper-left 3x3 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>3x3 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix3 ToMatrix3() => (
         _c0[0], _c1[0], _c2[0],
         _c0[1], _c1[1], _c2[1],
@@ -18981,7 +17396,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// Returns the upper-left 4x4 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>4x4 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 ToMatrix4() => (
         _c0[0], _c1[0], _c2[0], _c3[0],
         _c0[1], _c1[1], _c2[1], _c3[1],
@@ -18993,7 +17407,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// Returns the upper-left 5x5 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>5x5 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix5 ToMatrix5() => (
         _c0[0], _c1[0], _c2[0], _c3[0], _c4[0],
         _c0[1], _c1[1], _c2[1], _c3[1], _c4[1],
@@ -19006,7 +17419,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// Returns the upper-left 6x6 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>6x6 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix6 ToMatrix6() => (
         _c0[0], _c1[0], _c2[0], _c3[0], _c4[0], _c5[0],
         _c0[1], _c1[1], _c2[1], _c3[1], _c4[1], _c5[1],
@@ -19020,7 +17432,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// Returns the upper-left 7x7 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>7x7 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix7 ToMatrix7() => (
         _c0[0], _c1[0], _c2[0], _c3[0], _c4[0], _c5[0], _c6[0],
         _c0[1], _c1[1], _c2[1], _c3[1], _c4[1], _c5[1], _c6[1],
@@ -19035,7 +17446,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// Returns the upper-left 8x8 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>8x8 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix8 ToMatrix8() => (
         _c0[0], _c1[0], _c2[0], _c3[0], _c4[0], _c5[0], _c6[0], _c7[0],
         _c0[1], _c1[1], _c2[1], _c3[1], _c4[1], _c5[1], _c6[1], _c7[1],
@@ -19051,7 +17461,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// Returns the upper-left 9x9 sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns>9x9 sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 ToMatrix9() => (
         _c0[0], _c1[0], _c2[0], _c3[0], _c4[0], _c5[0], _c6[0], _c7[0], _c8[0],
         _c0[1], _c1[1], _c2[1], _c3[1], _c4[1], _c5[1], _c6[1], _c7[1], _c8[1],
@@ -19068,7 +17477,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// Returns the matrix as a flat array of matrix elements in column major format.
     /// </summary>
     /// <returns>Column major representation of the matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar[] ToArray() => FlattenedCoefficients.ToArray();
 
     /// <summary>
@@ -19076,7 +17484,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// This isomorphism is a simple multiplication of a given vector with the current matrix.
     /// </summary>
     /// <returns>The isomorphism.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Function<Vector10> ToIsomorphism()
     {
         Matrix10 copy = this;
@@ -19084,33 +17491,24 @@ public unsafe readonly /* ref */ partial struct Matrix10
         return new Function<Vector10>(v => copy.Multiply(v));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix(this);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly IEnumerator<Vector10> GetEnumerator() => ((IEnumerable<Vector10>)Columns).GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly IEnumerator<Scalar> IEnumerable<Scalar>.GetEnumerator() => Columns.SelectMany(v => v.AsEnumerable()).GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(out Scalar x_0_0, out Scalar x_1_0, out Scalar x_2_0, out Scalar x_3_0, out Scalar x_4_0, out Scalar x_5_0, out Scalar x_6_0, out Scalar x_7_0, out Scalar x_8_0, out Scalar x_9_0, out Scalar x_0_1, out Scalar x_1_1, out Scalar x_2_1, out Scalar x_3_1, out Scalar x_4_1, out Scalar x_5_1, out Scalar x_6_1, out Scalar x_7_1, out Scalar x_8_1, out Scalar x_9_1, out Scalar x_0_2, out Scalar x_1_2, out Scalar x_2_2, out Scalar x_3_2, out Scalar x_4_2, out Scalar x_5_2, out Scalar x_6_2, out Scalar x_7_2, out Scalar x_8_2, out Scalar x_9_2, out Scalar x_0_3, out Scalar x_1_3, out Scalar x_2_3, out Scalar x_3_3, out Scalar x_4_3, out Scalar x_5_3, out Scalar x_6_3, out Scalar x_7_3, out Scalar x_8_3, out Scalar x_9_3, out Scalar x_0_4, out Scalar x_1_4, out Scalar x_2_4, out Scalar x_3_4, out Scalar x_4_4, out Scalar x_5_4, out Scalar x_6_4, out Scalar x_7_4, out Scalar x_8_4, out Scalar x_9_4, out Scalar x_0_5, out Scalar x_1_5, out Scalar x_2_5, out Scalar x_3_5, out Scalar x_4_5, out Scalar x_5_5, out Scalar x_6_5, out Scalar x_7_5, out Scalar x_8_5, out Scalar x_9_5, out Scalar x_0_6, out Scalar x_1_6, out Scalar x_2_6, out Scalar x_3_6, out Scalar x_4_6, out Scalar x_5_6, out Scalar x_6_6, out Scalar x_7_6, out Scalar x_8_6, out Scalar x_9_6, out Scalar x_0_7, out Scalar x_1_7, out Scalar x_2_7, out Scalar x_3_7, out Scalar x_4_7, out Scalar x_5_7, out Scalar x_6_7, out Scalar x_7_7, out Scalar x_8_7, out Scalar x_9_7, out Scalar x_0_8, out Scalar x_1_8, out Scalar x_2_8, out Scalar x_3_8, out Scalar x_4_8, out Scalar x_5_8, out Scalar x_6_8, out Scalar x_7_8, out Scalar x_8_8, out Scalar x_9_8, out Scalar x_0_9, out Scalar x_1_9, out Scalar x_2_9, out Scalar x_3_9, out Scalar x_4_9, out Scalar x_5_9, out Scalar x_6_9, out Scalar x_7_9, out Scalar x_8_9, out Scalar x_9_9) =>
         (x_0_0, x_1_0, x_2_0, x_3_0, x_4_0, x_5_0, x_6_0, x_7_0, x_8_0, x_9_0, x_0_1, x_1_1, x_2_1, x_3_1, x_4_1, x_5_1, x_6_1, x_7_1, x_8_1, x_9_1, x_0_2, x_1_2, x_2_2, x_3_2, x_4_2, x_5_2, x_6_2, x_7_2, x_8_2, x_9_2, x_0_3, x_1_3, x_2_3, x_3_3, x_4_3, x_5_3, x_6_3, x_7_3, x_8_3, x_9_3, x_0_4, x_1_4, x_2_4, x_3_4, x_4_4, x_5_4, x_6_4, x_7_4, x_8_4, x_9_4, x_0_5, x_1_5, x_2_5, x_3_5, x_4_5, x_5_5, x_6_5, x_7_5, x_8_5, x_9_5, x_0_6, x_1_6, x_2_6, x_3_6, x_4_6, x_5_6, x_6_6, x_7_6, x_8_6, x_9_6, x_0_7, x_1_7, x_2_7, x_3_7, x_4_7, x_5_7, x_6_7, x_7_7, x_8_7, x_9_7, x_0_8, x_1_8, x_2_8, x_3_8, x_4_8, x_5_8, x_6_8, x_7_8, x_8_8, x_9_8, x_0_9, x_1_9, x_2_9, x_3_9, x_4_9, x_5_9, x_6_9, x_7_9, x_8_9, x_9_9) = (_c0[0], _c1[0], _c2[0], _c3[0], _c4[0], _c5[0], _c6[0], _c7[0], _c8[0], _c9[0], _c0[1], _c1[1], _c2[1], _c3[1], _c4[1], _c5[1], _c6[1], _c7[1], _c8[1], _c9[1], _c0[2], _c1[2], _c2[2], _c3[2], _c4[2], _c5[2], _c6[2], _c7[2], _c8[2], _c9[2], _c0[3], _c1[3], _c2[3], _c3[3], _c4[3], _c5[3], _c6[3], _c7[3], _c8[3], _c9[3], _c0[4], _c1[4], _c2[4], _c3[4], _c4[4], _c5[4], _c6[4], _c7[4], _c8[4], _c9[4], _c0[5], _c1[5], _c2[5], _c3[5], _c4[5], _c5[5], _c6[5], _c7[5], _c8[5], _c9[5], _c0[6], _c1[6], _c2[6], _c3[6], _c4[6], _c5[6], _c6[6], _c7[6], _c8[6], _c9[6], _c0[7], _c1[7], _c2[7], _c3[7], _c4[7], _c5[7], _c6[7], _c7[7], _c8[7], _c9[7], _c0[8], _c1[8], _c2[8], _c3[8], _c4[8], _c5[8], _c6[8], _c7[8], _c8[8], _c9[8], _c0[9], _c1[9], _c2[9], _c3[9], _c4[9], _c5[9], _c6[9], _c7[9], _c8[9], _c9[9]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(out Vector10 v0, out Vector10 v1, out Vector10 v2, out Vector10 v3, out Vector10 v4, out Vector10 v5, out Vector10 v6, out Vector10 v7, out Vector10 v8, out Vector10 v9) =>
         (v0, v1, v2, v3, v4, v5, v6, v7, v8, v9) = (_c0, _c1, _c2, _c3, _c4, _c5, _c6, _c7, _c8, _c9);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly object Clone() => new Matrix10(this);
 
     #endregion
@@ -19121,7 +17519,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// </summary>
     /// <param name="column">Column vector index (zero-based)</param>
     /// <returns>Column vector</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector10 GetColumn(int column) => column switch
     {
         0 => _c0,
@@ -19143,7 +17540,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// <param name="column">Column vector index (zero-based)</param>
     /// <param name="vector">New column vector</param>
     /// <returns>Modified matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 SetColumn(int column, in Vector10 vector)
     {
         if (column < 0 || column >= 10)
@@ -19156,13 +17552,10 @@ public unsafe readonly /* ref */ partial struct Matrix10
         return FromColumns(cols);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetColumns(Range columns) => GetRegion(columns, 0..10);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 SetColumns(Range columns, in MatrixNM values) => SetRegion(columns, 0..10, values);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 SwapColumns(int src_col, int dst_col)
     {
         Vector10 col = GetColumn(src_col);
@@ -19171,13 +17564,10 @@ public unsafe readonly /* ref */ partial struct Matrix10
                 .SetColumn(dst_col, col);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 MultiplyColumn(int col, Scalar factor) => SetColumn(col, GetColumn(col).Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 AddColumns(int src_col, int dst_col) => AddColumns(src_col, dst_col, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 AddColumns(int src_col, int dst_col, Scalar factor) => SetColumn(dst_col, GetColumn(src_col).Multiply(factor).Add(GetColumn(dst_col)));
 
     /// <summary>
@@ -19185,7 +17575,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// </summary>
     /// <param name="row">Row vector index (zero-based)</param>
     /// <returns>Row vector</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector10 GetRow(int row) => Transposed.GetColumn(row);
 
     /// <summary>
@@ -19194,16 +17583,12 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// <param name="row">Row vector index (zero-based)</param>
     /// <param name="vector">New row vector</param>
     /// <returns>Modified matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 SetRow(int row, in Vector10 vector) => Transposed.SetColumn(row, vector).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetRows(Range rows) => GetRegion(0..10, rows);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 SetRows(Range rows, in MatrixNM values) => SetRegion(0..10, rows, values);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 SwapRows(int src_row, int dst_row)
     {
         Vector10 row = GetRow(src_row);
@@ -19212,16 +17597,12 @@ public unsafe readonly /* ref */ partial struct Matrix10
                 .SetRow(dst_row, row);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 AddRows(int src_row, int dst_row) => AddRows(src_row, dst_row, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 AddRows(int src_row, int dst_row, Scalar factor) => SetRow(dst_row, GetRow(src_row).Multiply(factor).Add(GetRow(dst_row)));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 MultiplyRow(int row, Scalar factor) => SetRow(row, GetRow(row).Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetRegion(Range columns, Range rows)
     {
         // TODO : range checks
@@ -19238,7 +17619,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
         return new MatrixNM(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix10 SetRegion(Range columns, Range rows, in MatrixNM values)
     {
         // TODO : range checks
@@ -19261,7 +17641,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// <param name="column">Zero-based column index</param>
     /// <param name="row">Zero-based row index</param>
     /// <returns>9x9-minor</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix9 GetMinor(int column, int row) =>
         Columns
         .Take(column)
@@ -19276,43 +17655,30 @@ public unsafe readonly /* ref */ partial struct Matrix10
     #endregion
     #region STATIC METHODS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 Add(Matrix10 m1, Matrix10 m2) => m1.Add(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 Subtract(Matrix10 m1, Matrix10 m2) => m1.Subtract(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 Multiply(Matrix10 m1, Matrix10 m2) => m1.Multiply(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector10 Multiply(Matrix10 m, Vector10 v) => m.Multiply(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 Multiply(Matrix10 m, Scalar s) => m.Multiply(s);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 Divide(Matrix10 m, Scalar s) => m.Divide(s);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 Exp(Matrix10 matrix, InfiniteSeriesSettings? settings = null) => matrix.Exp(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 Sin(Matrix10 matrix, InfiniteSeriesSettings? settings = null) => matrix.Sin(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 Cos(Matrix10 matrix, InfiniteSeriesSettings? settings = null) => matrix.Cos(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 CracovianProduct(in Matrix10 first, in Matrix10 second) => second.Transposed.Multiply(in second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 HadamardProduct(in Matrix10 first, in Matrix10 second) => first.ComponentwiseMultiply(in second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar DistanceBetween(Matrix10 first, Matrix10 second, MatrixNorm norm) => first.DistanceTo(second, norm);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 SparseMatrix(params (int column, int row, Scalar value)[] entries)
     {
         Scalar[,] m = new Scalar[10, 10];
@@ -19323,10 +17689,8 @@ public unsafe readonly /* ref */ partial struct Matrix10
         return FromArray(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 SingleEntryMatrix(int column, int row) => SingleEntryMatrix(column, row, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 SingleEntryMatrix(int column, int row, Scalar value)
     {
         Scalar[,] m = new Scalar[10, 10];
@@ -19336,13 +17700,10 @@ public unsafe readonly /* ref */ partial struct Matrix10
         return FromArray(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 DiagonalMatrix(Scalar scalar) => Identity * scalar;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 DiagonalMatrix(in Vector10 diagonal) => DiagonalMatrix(diagonal[0], diagonal[1], diagonal[2], diagonal[3], diagonal[4], diagonal[5], diagonal[6], diagonal[7], diagonal[8], diagonal[9]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 DiagonalMatrix(Scalar d0, Scalar d1, Scalar d2, Scalar d3, Scalar d4, Scalar d5, Scalar d6, Scalar d7, Scalar d8, Scalar d9) => (
         d0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, d1, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -19356,7 +17717,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
         0, 0, 0, 0, 0, 0, 0, 0, 0, d9
     );
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 KacMurdockSzegöMatrix(Scalar a) => new(
         1, a.Power(1) * .5, a.Power(2) * .5, a.Power(3) * .5, a.Power(4) * .5, a.Power(5) * .5, a.Power(6) * .5, a.Power(7) * .5, a.Power(8) * .5, a.Power(9) * .5,
         a.Power(1) * .5, 1, a.Power(1) * .5, a.Power(2) * .5, a.Power(3) * .5, a.Power(4) * .5, a.Power(5) * .5, a.Power(6) * .5, a.Power(7) * .5, a.Power(8) * .5,
@@ -19370,10 +17730,8 @@ public unsafe readonly /* ref */ partial struct Matrix10
         a.Power(9) * .5, a.Power(8) * .5, a.Power(7) * .5, a.Power(6) * .5, a.Power(5) * .5, a.Power(4) * .5, a.Power(3) * .5, a.Power(2) * .5, a.Power(1) * .5, 1
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 FromRowPermutation(int[] row_indices) => FromColumnPermutation(row_indices).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 FromColumnPermutation(int[] column_indices)
     {
         if (column_indices.Distinct().Count() != column_indices.Length)
@@ -19397,13 +17755,10 @@ public unsafe readonly /* ref */ partial struct Matrix10
 
     public static Matrix10 FromNative<T>(T* src) where T : unmanaged => new((Scalar*)src);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 FromCompressedStorageFormat(CompressedStorageFormat<Scalar> compressed) => FromArray(compressed.ToMatrix());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 FromArray(in Scalar[,] arr) => arr.GetLength(0) < 10 || arr.GetLength(1) < 10 ? throw new ArgumentException("The array must have a minimum size of 10x10.", nameof(arr)) : new Matrix10(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 FromArray(in Scalar[] arr) => arr switch {
         null => throw new ArgumentNullException(nameof(arr)),
         _ when arr.Length < 100 => throw new ArgumentException("The array must have a minimum length of 100.", nameof(arr)),
@@ -19421,10 +17776,8 @@ public unsafe readonly /* ref */ partial struct Matrix10
         )
     };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 FromRows(in Vector10[] arr) => FromColumns(arr).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 FromColumns(in Vector10[] arr) => arr switch {
         null => throw new ArgumentNullException(nameof(arr)),
         { Length: 10 } => new Matrix10(
@@ -19453,7 +17806,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(Matrix10 m1, Matrix10 m2) => m1.Is(m2);
 
     /// <summary>
@@ -19462,7 +17814,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(Matrix10 m1, Matrix10 m2) => !(m1 == m2);
 
     /// <summary>
@@ -19470,7 +17821,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// </summary>
     /// <param name="m">Original matrix</param>
     /// <returns>Unchanged matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 operator +(in Matrix10 m) => m;
 
     /// <summary>
@@ -19478,25 +17828,18 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// </summary>
     /// <param name="m">Original matrix</param>
     /// <returns>Negated matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 operator -(in Matrix10 m) => m.Negate();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 operator +(Scalar f, in Matrix10 m) => m.Add(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 operator +(in Matrix10 m, Scalar f) => m.Add(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 operator -(Scalar f, in Matrix10 m) => new Matrix10(f).Subtract(in m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 operator -(in Matrix10 m, Scalar f) => m.Subtract(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 operator ++(in Matrix10 m) => m.Increment();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 operator --(in Matrix10 m) => m.Decrement();
 
     /// <summary>
@@ -19505,7 +17848,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Addition result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 operator +(in Matrix10 m1, in Matrix10 m2) => m1.Add(in m2);
 
     /// <summary>
@@ -19514,25 +17856,18 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Subtraction result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 operator -(in Matrix10 m1, in Matrix10 m2) => m1.Subtract(in m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector10 operator *(in Matrix10 m, in Vector10 v) => m.Multiply(in v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 operator *(in Matrix10 m1, in Matrix10 m2) => m1.Multiply(in m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 operator *(in Matrix10 m, Scalar f) => m.Multiply(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 operator *(Scalar f, in Matrix10 m) => m.Multiply(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 operator ^(in Matrix10 m, int c) => m.Power(c);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 operator ^(in Matrix10 m1, in Matrix10 m2) => CracovianProduct(in m1, in m2);
 
     /// <summary>
@@ -19541,34 +17876,24 @@ public unsafe readonly /* ref */ partial struct Matrix10
     /// <param name="A">Matrix A</param>
     /// <param name="b">Vector b</param>
     /// <returns>Solution x</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static VectorSpace10 operator |(Matrix10 A, Vector10 b) => A.Solve(b);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static VectorSpace10 operator |(Matrix10 A, VectorSpace10 b) => A.Solve(b);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 operator /(Matrix10 m1, Matrix10 m2) => m1.Multiply(m2.Inverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 operator /(in Matrix10 m, Scalar f) => m.Divide(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 operator %(in Matrix10 m, Scalar f) => m.Modulus(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (Vector10 x0, Vector10 x1, Vector10 x2, Vector10 x3, Vector10 x4, Vector10 x5, Vector10 x6, Vector10 x7, Vector10 x8, Vector10 x9) (in Matrix10 m) => (m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8], m[9]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix10((Vector10 x0, Vector10 x1, Vector10 x2, Vector10 x3, Vector10 x4, Vector10 x5, Vector10 x6, Vector10 x7, Vector10 x8, Vector10 x9) t) => new(t.x0, t.x1, t.x2, t.x3, t.x4, t.x5, t.x6, t.x7, t.x8, t.x9);
 /*
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator ((Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8, Scalar r9) c0, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8, Scalar r9) c1, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8, Scalar r9) c2, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8, Scalar r9) c3, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8, Scalar r9) c4, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8, Scalar r9) c5, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8, Scalar r9) c6, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8, Scalar r9) c7, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8, Scalar r9) c8, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8, Scalar r9) c9) (in Matrix10 m) => (m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8], m[9]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix10(in ((Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8, Scalar r9) c0, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8, Scalar r9) c1, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8, Scalar r9) c2, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8, Scalar r9) c3, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8, Scalar r9) c4, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8, Scalar r9) c5, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8, Scalar r9) c6, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8, Scalar r9) c7, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8, Scalar r9) c8, (Scalar r0, Scalar r1, Scalar r2, Scalar r3, Scalar r4, Scalar r5, Scalar r6, Scalar r7, Scalar r8, Scalar r9) c9) t) => new(t.c0, t.c1, t.c2, t.c3, t.c4, t.c5, t.c6, t.c7, t.c8, t.c9);
 */
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (Scalar x_0_0, Scalar x_1_0, Scalar x_2_0, Scalar x_3_0, Scalar x_4_0, Scalar x_5_0, Scalar x_6_0, Scalar x_7_0, Scalar x_8_0, Scalar x_9_0, Scalar x_0_1, Scalar x_1_1, Scalar x_2_1, Scalar x_3_1, Scalar x_4_1, Scalar x_5_1, Scalar x_6_1, Scalar x_7_1, Scalar x_8_1, Scalar x_9_1, Scalar x_0_2, Scalar x_1_2, Scalar x_2_2, Scalar x_3_2, Scalar x_4_2, Scalar x_5_2, Scalar x_6_2, Scalar x_7_2, Scalar x_8_2, Scalar x_9_2, Scalar x_0_3, Scalar x_1_3, Scalar x_2_3, Scalar x_3_3, Scalar x_4_3, Scalar x_5_3, Scalar x_6_3, Scalar x_7_3, Scalar x_8_3, Scalar x_9_3, Scalar x_0_4, Scalar x_1_4, Scalar x_2_4, Scalar x_3_4, Scalar x_4_4, Scalar x_5_4, Scalar x_6_4, Scalar x_7_4, Scalar x_8_4, Scalar x_9_4, Scalar x_0_5, Scalar x_1_5, Scalar x_2_5, Scalar x_3_5, Scalar x_4_5, Scalar x_5_5, Scalar x_6_5, Scalar x_7_5, Scalar x_8_5, Scalar x_9_5, Scalar x_0_6, Scalar x_1_6, Scalar x_2_6, Scalar x_3_6, Scalar x_4_6, Scalar x_5_6, Scalar x_6_6, Scalar x_7_6, Scalar x_8_6, Scalar x_9_6, Scalar x_0_7, Scalar x_1_7, Scalar x_2_7, Scalar x_3_7, Scalar x_4_7, Scalar x_5_7, Scalar x_6_7, Scalar x_7_7, Scalar x_8_7, Scalar x_9_7, Scalar x_0_8, Scalar x_1_8, Scalar x_2_8, Scalar x_3_8, Scalar x_4_8, Scalar x_5_8, Scalar x_6_8, Scalar x_7_8, Scalar x_8_8, Scalar x_9_8, Scalar x_0_9, Scalar x_1_9, Scalar x_2_9, Scalar x_3_9, Scalar x_4_9, Scalar x_5_9, Scalar x_6_9, Scalar x_7_9, Scalar x_8_9, Scalar x_9_9) (in Matrix10 m) => (
         m._c0[0], m._c1[0], m._c2[0], m._c3[0], m._c4[0], m._c5[0], m._c6[0], m._c7[0], m._c8[0], m._c9[0],
         m._c0[1], m._c1[1], m._c2[1], m._c3[1], m._c4[1], m._c5[1], m._c6[1], m._c7[1], m._c8[1], m._c9[1],
@@ -19582,7 +17907,6 @@ public unsafe readonly /* ref */ partial struct Matrix10
         m._c0[9], m._c1[9], m._c2[9], m._c3[9], m._c4[9], m._c5[9], m._c6[9], m._c7[9], m._c8[9], m._c9[9]
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix10(in (Scalar x_0_0, Scalar x_1_0, Scalar x_2_0, Scalar x_3_0, Scalar x_4_0, Scalar x_5_0, Scalar x_6_0, Scalar x_7_0, Scalar x_8_0, Scalar x_9_0, Scalar x_0_1, Scalar x_1_1, Scalar x_2_1, Scalar x_3_1, Scalar x_4_1, Scalar x_5_1, Scalar x_6_1, Scalar x_7_1, Scalar x_8_1, Scalar x_9_1, Scalar x_0_2, Scalar x_1_2, Scalar x_2_2, Scalar x_3_2, Scalar x_4_2, Scalar x_5_2, Scalar x_6_2, Scalar x_7_2, Scalar x_8_2, Scalar x_9_2, Scalar x_0_3, Scalar x_1_3, Scalar x_2_3, Scalar x_3_3, Scalar x_4_3, Scalar x_5_3, Scalar x_6_3, Scalar x_7_3, Scalar x_8_3, Scalar x_9_3, Scalar x_0_4, Scalar x_1_4, Scalar x_2_4, Scalar x_3_4, Scalar x_4_4, Scalar x_5_4, Scalar x_6_4, Scalar x_7_4, Scalar x_8_4, Scalar x_9_4, Scalar x_0_5, Scalar x_1_5, Scalar x_2_5, Scalar x_3_5, Scalar x_4_5, Scalar x_5_5, Scalar x_6_5, Scalar x_7_5, Scalar x_8_5, Scalar x_9_5, Scalar x_0_6, Scalar x_1_6, Scalar x_2_6, Scalar x_3_6, Scalar x_4_6, Scalar x_5_6, Scalar x_6_6, Scalar x_7_6, Scalar x_8_6, Scalar x_9_6, Scalar x_0_7, Scalar x_1_7, Scalar x_2_7, Scalar x_3_7, Scalar x_4_7, Scalar x_5_7, Scalar x_6_7, Scalar x_7_7, Scalar x_8_7, Scalar x_9_7, Scalar x_0_8, Scalar x_1_8, Scalar x_2_8, Scalar x_3_8, Scalar x_4_8, Scalar x_5_8, Scalar x_6_8, Scalar x_7_8, Scalar x_8_8, Scalar x_9_8, Scalar x_0_9, Scalar x_1_9, Scalar x_2_9, Scalar x_3_9, Scalar x_4_9, Scalar x_5_9, Scalar x_6_9, Scalar x_7_9, Scalar x_8_9, Scalar x_9_9) t) => new(
         t.x_0_0, t.x_1_0, t.x_2_0, t.x_3_0, t.x_4_0, t.x_5_0, t.x_6_0, t.x_7_0, t.x_8_0, t.x_9_0,
         t.x_0_1, t.x_1_1, t.x_2_1, t.x_3_1, t.x_4_1, t.x_5_1, t.x_6_1, t.x_7_1, t.x_8_1, t.x_9_1,
@@ -19596,37 +17920,26 @@ public unsafe readonly /* ref */ partial struct Matrix10
         t.x_0_9, t.x_1_9, t.x_2_9, t.x_3_9, t.x_4_9, t.x_5_9, t.x_6_9, t.x_7_9, t.x_8_9, t.x_9_9
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix10(Scalar m) => new(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix10(in Vector10[] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Vector10[](in Matrix10 m) => m.Columns;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Scalar[](in Matrix10 m) => m.ToArray();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix10(Scalar[] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Scalar[,](in Matrix10 m) => m.Coefficients;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Matrix10(Scalar[,] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator MatrixNM(in Matrix10 m) => new(m.Coefficients);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Matrix10(in MatrixNM m) => new(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator CompressedStorageFormat<Scalar>(in Matrix10 m) => CompressedStorageFormat<Scalar>.FromMatrix<Matrix10>(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Function<Vector10>(in Matrix10 m) => m.ToIsomorphism();
 
     #endregion
@@ -19644,10 +17957,8 @@ public unsafe readonly /* ref */ partial struct Matrix10
 
 public static class Matrix10Extensions
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 Sum(this IEnumerable<Matrix10> matrices) => Matrix10.Zero.Add(matrices.ToArray());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 Average(this IEnumerable<Matrix10> matrices)
     {
         Matrix10 mat = Matrix10.Zero;
@@ -19688,31 +17999,22 @@ public partial class MatrixNM
 public static class MatrixExtensions
 {
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 ToMatrix(this IEnumerable<Vector2> columns) => new(columns);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 ToMatrix(this IEnumerable<Vector3> columns) => new(columns);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 ToMatrix(this IEnumerable<Vector4> columns) => new(columns);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix5 ToMatrix(this IEnumerable<Vector5> columns) => new(columns);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix6 ToMatrix(this IEnumerable<Vector6> columns) => new(columns);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix7 ToMatrix(this IEnumerable<Vector7> columns) => new(columns);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix8 ToMatrix(this IEnumerable<Vector8> columns) => new(columns);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix9 ToMatrix(this IEnumerable<Vector9> columns) => new(columns);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix10 ToMatrix(this IEnumerable<Vector10> columns) => new(columns);
 }
 

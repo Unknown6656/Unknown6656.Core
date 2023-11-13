@@ -315,7 +315,6 @@ public class Polynomial<Function, T>
     /// </summary>
     /// <param name="o">Second polynomial</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool Is(Function<T, T>? o) => Is(o as Polynomial<Function, T>);
 
     /// <summary>
@@ -323,17 +322,14 @@ public class Polynomial<Function, T>
     /// </summary>
     /// <param name="o">Second polynomial</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Is(Polynomial<Function, T>? o) => o is { } && _coefficients.Are(o._coefficients, (c1, c2) => c1.Is(c2));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetHashCode() => LINQ.GetHashCode(_coefficients);
 
     /// <summary>
     /// Returns the string representation of the current polynomial.
     /// </summary>
     /// <returns>String representation</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override string ToString() => Degree == 0 ? Coefficients[0].ToString()! : string.Join(" + ", this.Select((c, i) =>
     {
         if (c.IsZero)
@@ -353,10 +349,8 @@ public class Polynomial<Function, T>
         return $"{cstr}x{(i == 1 ? "" : MathExtensions.ToSuperScript(i))}";
     }).Where(s => s.Length > 0).Reverse()).Replace("+ -", "- ");
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerator<T> GetEnumerator() => Coefficients.GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator IEnumerable.GetEnumerator() => (this as IEnumerable<T>).GetEnumerator();
 
     #endregion
@@ -452,20 +446,16 @@ public class Polynomial<Function, T>
     /// Implicitly converts the given scalar to a polynomial of degree zero.
     /// </summary>
     /// <param name="f">Scalar</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Polynomial<Function, T>(T f) => new(new[] { f });
 
     /// <summary>
     /// Implicitly converts the given array of scalar coefficients to their respective polynomial representation.
     /// </summary>
     /// <param name="c">Scalar coefficients</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Polynomial<Function, T>(T[] c) => new(c);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator T[](Polynomial<Function, T> p) => p.Coefficients.ToArray();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Function(Polynomial<Function, T> p) => _create(p._coefficients);
 
     /// <summary>
@@ -474,7 +464,6 @@ public class Polynomial<Function, T>
     /// <param name="p1">Second polynomial</param>
     /// <param name="p2">Second polynomial</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(Polynomial<Function, T> p1, Polynomial<Function, T> p2) => p1.Is(p2);
 
     /// <summary>
@@ -483,7 +472,6 @@ public class Polynomial<Function, T>
     /// <param name="p1">Second polynomial</param>
     /// <param name="p2">Second polynomial</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(Polynomial<Function, T> p1, Polynomial<Function, T> p2) => !p1.Is(p2);
 
     /// <summary>
@@ -491,7 +479,6 @@ public class Polynomial<Function, T>
     /// </summary>
     /// <param name="p">Polynomial</param>
     /// <returns>Unchanged polynomial</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Function operator +(Polynomial<Function, T> p) => p;
 
     /// <summary>
@@ -499,13 +486,10 @@ public class Polynomial<Function, T>
     /// </summary>
     /// <param name="p">Polynomial</param>
     /// <returns>Negated polynomial</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Function operator -(Polynomial<Function, T> p) => p.Negate();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Function operator ++(Polynomial<Function, T> p) => p.Increment();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Function operator --(Polynomial<Function, T> p) => p.Decrement();
 
     /// <summary>
@@ -514,7 +498,6 @@ public class Polynomial<Function, T>
     /// <param name="p1">First polynomial</param>
     /// <param name="p2">Second polynomial</param>
     /// <returns>Addition result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Function operator +(Polynomial<Function, T> p1, Polynomial<Function, T> p2) => p1.Add(p2);
 
     /// <summary>
@@ -523,7 +506,6 @@ public class Polynomial<Function, T>
     /// <param name="p1">First polynomial</param>
     /// <param name="p2">Second polynomial</param>
     /// <returns>Subtraction result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Function operator -(Polynomial<Function, T> p1, Polynomial<Function, T> p2) => p1.Subtract(p2);
 
     /*
@@ -550,7 +532,6 @@ public class Polynomial<Function, T>
     /// <param name="p1">First polynomial</param>
     /// <param name="p2">Second polynomial</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Function operator *(Polynomial<Function, T> p1, Polynomial<Function, T> p2) => p1.Multiply(p2);
 
     /// <summary>
@@ -559,7 +540,6 @@ public class Polynomial<Function, T>
     /// <param name="p">Polynomial</param>
     /// <param name="e">Exponent</param>
     /// <returns>Result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Function operator ^(Polynomial<Function, T> p, int e) => p.Power(e);
 
     /// <summary>
@@ -568,7 +548,6 @@ public class Polynomial<Function, T>
     /// <param name="p">Polynomial</param>
     /// <param name="f">Scalar divisor</param>
     /// <returns>Division result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Function operator /(Polynomial<Function, T> p, T f) => p.Divide(f);
 
     /// <summary>
@@ -577,7 +556,6 @@ public class Polynomial<Function, T>
     /// <param name="p1">First polynomial</param>
     /// <param name="p2">Second polynomial</param>
     /// <returns>Quotient</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Function operator /(Polynomial<Function, T> p1, Polynomial<Function, T> p2) => p1.Divide(p2);
 
     /// <summary>
@@ -586,7 +564,6 @@ public class Polynomial<Function, T>
     /// <param name="p1">First polynomial</param>
     /// <param name="p2">Second polynomial</param>
     /// <returns>Remainder</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Function operator %(Polynomial<Function, T> p1, Polynomial<Function, T> p2) => p1.Modulus(p2);
 
     /// <summary>
@@ -595,7 +572,6 @@ public class Polynomial<Function, T>
     /// <param name="p">Input polynomial</param>
     /// <param name="a">Increacement 'amount'</param>
     /// <returns>Output polynomial</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Function operator >>(Polynomial<Function, T> p, int a) => a switch
     {
         0 => (Function)p,
@@ -609,7 +585,6 @@ public class Polynomial<Function, T>
     /// <param name="p">Input polynomial</param>
     /// <param name="a">Decreacement 'amount'</param>
     /// <returns>Output polynomial</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Function operator <<(Polynomial<Function, T> p, int a) => a switch
     {
         0 => (Function)p,
@@ -635,7 +610,6 @@ public class ComplexPolynomial
     public IEnumerable<Complex> Solve(Complex y, PSOSolverConfiguration<Complex> configuration) =>
         new[] { CreateZeroPointFinder().CreateSolver(configuration).Solve().OptimalSolution };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override Complex Evaluate(Complex x)
     {
         int i = _coefficients.Length;
@@ -663,7 +637,6 @@ public class Polynomial<T>
 
     // TODO : parse
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override Scalar<T> Evaluate(Scalar<T> x)
     {
         int i = _coefficients.Length;
@@ -688,7 +661,6 @@ public partial class Polynomial
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override Scalar Evaluate(Scalar x)
     {
         int i = _coefficients.Length;
@@ -704,7 +676,6 @@ public partial class Polynomial
         return res;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Scalar NearestZeroPoint(Scalar x)
     {
         // TODO:
@@ -737,7 +708,6 @@ public partial class Polynomial
     /// </summary>
     /// <param name="y">y-value</param>
     /// <returns>X-values</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override IEnumerable<Scalar> Solve(Scalar y)
     {
         Scalar[] co = _coefficients;
@@ -812,7 +782,6 @@ public partial class Polynomial
     /// <para/>
     /// 'A' must not be zero.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IEnumerable<Complex> SolveCardano(Scalar A, Scalar B, Scalar C, Scalar D)
     {
         if (A.IsZero)
@@ -927,7 +896,6 @@ public partial class Polynomial
     /// <para/>
     /// 'A' must not be zero.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar[] SolveQuadratic(Scalar A, Scalar B, Scalar C)
     {
         if (A.IsZero)
@@ -955,7 +923,6 @@ public partial class Polynomial
                 select x).Distinct().ToArray();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Polynomial Parse(string str)
     {
         str = str.RegexReplace(/* lang=regex */@"\s+", "")
@@ -1002,7 +969,6 @@ public partial class Polynomial
         return Zero.Add(terms.ToArray());
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool TryParse(string str, Polynomial? polynomial)
     {
         polynomial = null;
@@ -1019,7 +985,6 @@ public partial class Polynomial
     }
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Polynomial(string str) => Parse(str);
 }
 

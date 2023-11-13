@@ -22,7 +22,6 @@ public partial struct Matrix2
     /// </summary>
     /// <param name="angle">Angle in radians</param>
     /// <returns>Rotation matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix2 CreateRotation(Scalar angle)
     {
         Scalar c = angle.Cos();
@@ -51,7 +50,6 @@ public partial struct Matrix3
     /// </summary>
     /// <param name="angle">Angle in radians</param>
     /// <returns>Rotation matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 CreateRotationX(Scalar angle)
     {
         Scalar c = angle.Cos();
@@ -69,7 +67,6 @@ public partial struct Matrix3
     /// </summary>
     /// <param name="angle">Angle in radians</param>
     /// <returns>Rotation matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 CreateRotationY(Scalar angle)
     {
         Scalar c = angle.Cos();
@@ -87,7 +84,6 @@ public partial struct Matrix3
     /// </summary>
     /// <param name="angle">Angle in radians</param>
     /// <returns>Rotation matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 CreateRotationZ(Scalar angle)
     {
         Scalar c = angle.Cos();
@@ -100,7 +96,6 @@ public partial struct Matrix3
         );
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 CreateRotationXYZ(Scalar euler_x, Scalar euler_y, Scalar euler_z)
     {
         Scalar sx = euler_x.Sin();
@@ -125,7 +120,6 @@ public partial struct Matrix3
     /// <param name="corner3">The transformed position of the third corner [x=1,y=1].</param>
     /// <param name="corner4">The transformed position of the fourth corner [x=0,y=1].</param>
     /// <returns>The homogeneous transformation matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix3 Create4CornerPinTransform(Vector2 corner1, Vector2 corner2, Vector2 corner3, Vector2 corner4) => Create4CornerPinTransform(
         (Vector2.Zero, corner1),
         (Vector2.UnitX, corner2),
@@ -182,7 +176,6 @@ public partial struct Matrix4
     /// <param name="m">The matrix to transform.</param>
     /// <param name="v">The vector to translate by.</param>
     /// <returns><paramref name="m"/> translated by <paramref name="v"/>.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix4 Translate(Vector3 v)
     {
         Matrix4 result = this;
@@ -191,7 +184,6 @@ public partial struct Matrix4
         return result[1, t];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 Rotate(Vector3 axis, Scalar angle) => CreateRotation(Identity, axis, angle);
 
     /// <summary>
@@ -204,7 +196,6 @@ public partial struct Matrix4
     /// <param name="nearVal">The near val.</param>
     /// <param name="farVal">The far val.</param>
     /// <returns></returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 CreateFrustum(Scalar left, Scalar right, Scalar bottom, Scalar top, Scalar nearVal, Scalar farVal) => (
         2 * nearVal / (right - left), 0, 0, 0,
         0, 2 * nearVal / (top - bottom), 0, 0,
@@ -224,7 +215,6 @@ public partial struct Matrix4
     /// <param name="aspect">The aspect.</param>
     /// <param name="zNear">The z near.</param>
     /// <returns></returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 CreateInfinitePerspective(Scalar fovy, Scalar aspect, Scalar zNear)
     {
         Scalar range = Tan(fovy / 2f) * zNear;
@@ -246,7 +236,6 @@ public partial struct Matrix4
     /// <param name="center">The center.</param>
     /// <param name="up">Up.</param>
     /// <returns></returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 CreateLookAt(Vector3 eye, Vector3 center, Vector3 up)
     {
         Vector3 f = (center - eye).Normalized;
@@ -271,7 +260,6 @@ public partial struct Matrix4
     /// <param name="zNear">The z near.</param>
     /// <param name="zFar">The z far.</param>
     /// <returns></returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 CreateOrtho(Scalar left, Scalar right, Scalar bottom, Scalar top, Scalar zNear, Scalar zFar) =>
     (
         2 / (right - left), 0, 0, 0,
@@ -291,7 +279,6 @@ public partial struct Matrix4
     /// <param name="bottom">The bottom.</param>
     /// <param name="top">The top.</param>
     /// <returns></returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 CreateOrtho(Scalar left, Scalar right, Scalar bottom, Scalar top) => (
         2 / (right - left), 0, 0, 0,
         0, 2 / (top - bottom), 0, 0,
@@ -307,7 +294,6 @@ public partial struct Matrix4
     /// <param name="zNear">The near depth clipping plane.</param>
     /// <param name="zFar">The far depth clipping plane.</param>
     /// <returns>A <see cref="Matrix4"/> that contains the projection matrix for the perspective transformation.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 CreatePerspective(Scalar fovy, Scalar aspect, Scalar zNear, Scalar zFar)
     {
         Scalar tanHalfFovy = Tan(fovy / 2);
@@ -330,7 +316,6 @@ public partial struct Matrix4
     /// <param name="zFar">The z far.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 CreatePerspectiveFOV(Scalar fov, Scalar width, Scalar height, Scalar zNear, Scalar zFar)
     {
         if (width <= 0 || height <= 0 || fov <= 0)
@@ -356,7 +341,6 @@ public partial struct Matrix4
     /// <param name="viewport">The viewport.</param>
     /// <returns></returns>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 PickMatrix(Vector2 center, Vector2 delta, Vector4 viewport)
     {
         if (delta.X <= 0 || delta.Y <= 0)
@@ -379,7 +363,6 @@ public partial struct Matrix4
     /// <param name="aspect">The aspect.</param>
     /// <param name="zNear">The z near.</param>
     /// <returns></returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 CreateTweakedInfinitePerspective(Scalar fovy, Scalar aspect, Scalar zNear)
     {
         Scalar range = Tan(fovy / 2) * zNear;
@@ -404,7 +387,6 @@ public partial struct Matrix4
     /// <param name="angle">The rotation angle (in radian).</param>
     /// <param name="axis">The rotation axis.</param>
     /// <returns></returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 CreateRotation(Matrix4 matrix, Vector3 axis, Scalar angle)
     {
         axis = axis.Normalized;
@@ -436,17 +418,13 @@ public partial struct Matrix4
         );
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 CreateRotation(Vector3 axis, Scalar angle) => CreateRotation(Identity, axis, angle);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 CreateRotation(Scalar euler_x, Scalar euler_y, Scalar euler_z) =>
         Matrix3.CreateRotationXYZ(euler_x, euler_y, euler_z).ToHomogeneousTransformationMatrix();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 CreateRotation((Scalar X, Scalar Y, Scalar Z) euler_angles) => CreateRotation(euler_angles.X, euler_angles.Y, euler_angles.Z);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4 CreateTranslation(Vector3 translation) => Identity.Translate(translation);
 }
 
@@ -545,7 +523,6 @@ public partial struct Vector2
             return false;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector2 Rotate(Scalar angle)
     {
         Scalar s = angle.Sin();
@@ -554,19 +531,14 @@ public partial struct Vector2
         return new Vector2(X * c - Y * s, X * s + Y * c);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector2 Rotate(Vector2 center, Scalar angle) => Subtract(center).Rotate(angle).Add(center);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Line2D To(Vector2 end) => new(this, end);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Line2D AltitudeFrom(Line2D line) => line.AltitudeTo(this);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar DistanceTo(Line2D line) => line.DistanceTo(this);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector2 MirrorAt(Line2D axis)
     {
         Vector2 d = axis.NormalizedDirection;
@@ -574,74 +546,51 @@ public partial struct Vector2
         return Reflect((-d.Y, d.X));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Complex ToComplex() => this;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly PointF ToPointF() => new(_0, _1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Point ToPoint() => new((int)_0, (int)_1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly SizeF ToSizeF() => new(_0, _1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Size ToSize() => new((int)_0, (int)_1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector2 ToPolar() => (Angle, Length);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 FromPolar(Vector2 polar) => FromPolar(polar.X, polar.Y);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 FromPolar(Scalar θ, Scalar r) => new(θ.Cos() * r, θ.Sin() * r);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 FromComplex(Complex c) => new(c.Real, c.Imaginary);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 FromSize(Size sz) => new(sz.Width, sz.Height);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 FromSize(SizeF sz) => new(sz.Width, sz.Height);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 FromPoint(Point pt) => new(pt.X, pt.Y);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 FromPoint(PointF pt) => new(pt.X, pt.Y);
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Point(Vector2 v) => v.ToPoint();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Size(Vector2 v) => v.ToSize();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator PointF(Vector2 v) => v.ToPointF();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator SizeF(Vector2 v) => v.ToSizeF();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Vector2(PointF p) => FromPoint(p);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Vector2(SizeF s) => FromSize(s);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Vector2(Point p) => FromPoint(p);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Vector2(Size s) => FromSize(s);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Vector2(num.Vector2 v) => new(v.X, v.Y);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator num.Vector2(Vector2 v) => new(v.X, v.Y);
 }
 
@@ -658,13 +607,10 @@ public partial struct Vector3
     }
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly RGBAColor ToRGBAColor() => (RGBAColor)this;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3 FromDirectionalAngle(Scalar α, Scalar β, Scalar γ) => new(α.Cos(), β.Cos(), γ.Cos());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3 FromDirectionalAngle(Scalar α, Scalar β, Scalar γ, Scalar length) => FromDirectionalAngle(α, β, γ) * length;
 
     /// <summary>
@@ -725,22 +671,17 @@ public partial struct Vector3
         return new Vector3(obj / obj.W);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Vector3(num.Vector3 v) => new(v.X, v.Y, v.Z);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator num.Vector3(Vector3 v) => new(v.X, v.Y, v.Z);
 }
 
 public partial struct Vector4
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly RGBAColor ToRGBAColor() => (RGBAColor)this;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Vector4(num.Vector4 v) => new(v.X, v.Y, v.Z, v.W);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator num.Vector4(Vector4 v) => new(v.X, v.Y, v.Z, v.W);
 }
 

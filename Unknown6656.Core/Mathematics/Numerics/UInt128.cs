@@ -92,73 +92,51 @@ public readonly unsafe struct UInt128
     #endregion
     #region INSTANCE METHEODS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private UInt128 Low(ulong new_value) => (_hi, new_value);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private UInt128 Low(Func<ulong, ulong> f) => (_hi, f(_lo));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private UInt128 High(ulong new_value) => (new_value, _lo);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private readonly UInt128 High(Func<ulong, ulong> f) => (f(_hi), _lo);
 
     [DebuggerHidden, DebuggerNonUserCode, EditorBrowsable(EditorBrowsableState.Never)]
     readonly UInt128 IGroup<UInt128>.Negate() => MaximumValue.Subtract(this).Increment();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly UInt128 Abs() => this;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly UInt128 Min(UInt128 second) => CompareTo(second) <= 0 ? this : second;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly UInt128 Max(UInt128 second) => CompareTo(second) >= 0 ? this : second;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly UInt128 Clamp() => Clamp(Zero, One);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly UInt128 Clamp(UInt128 low, UInt128 high) => Min(high).Max(low);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly UInt128 Add(in UInt128 second) => Add(this, second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly UInt128 Add(params UInt128[] others) => others.Aggregate(this, Add);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly UInt128 Subtract(in UInt128 second) => Subtract(this, second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly UInt128 Subtract(params UInt128[] others) => others.Aggregate(this, Subtract);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly UInt128 Increment() => Increment(this);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly UInt128 Decrement() => Decrement(this);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly UInt128 Not() => Not(this);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly UInt128 Or(UInt128 second) => Or(this, second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly UInt128 And(UInt128 second) => And(this, second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly UInt128 Xor(UInt128 second) => Xor(this, second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly UInt128 ShiftLeft(ulong second) => ShiftLeft(this, second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly UInt128 ShiftRight(ulong second) => ShiftRight(this, second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly UInt128 Power(int e)
     {
         if (e < 0)
@@ -182,55 +160,38 @@ public readonly unsafe struct UInt128
         return r;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly UInt128 Multiply(in UInt128 second) => Multiply(this, second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly UInt128 Multiply(params UInt128[] others) => others.Aggregate(this, Multiply);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (UInt128 High, UInt128 Low) BigMultiply(UInt128 second) => BigMultiply(this, second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly UInt128 Square() => Square(this);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (UInt128 High, UInt128 Low) BigSquare() => BigSquare(this);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (UInt128 Div, UInt128 Mod) DivideModulus(UInt128 second) => DivideModulus(this, second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly UInt128 Divide(UInt128 second) => Divide(this, second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly UInt128 Modulus(UInt128 second) => Modulus(this, second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly object Clone() => new UInt128(this);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo(UInt128 other) => Compare(this, other);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo(object? obj) => CompareTo((UInt128)obj!);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Is(UInt128 o) => (_hi == o._hi) && (_lo == o._lo);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool IsNot(UInt128 o) => !Is(o);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Equals(UInt128 other) => Is(other);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override bool Equals(object? obj) => obj is UInt128 o && Equals(o);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override string ToString() => ToString(10);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(byte @base)
     {
         const string digits = "0123456789abcdefghijklmnopqrstuvwxyz";
@@ -254,10 +215,8 @@ public readonly unsafe struct UInt128
         return sb.ToString();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override int GetHashCode() => (_hi ^ _lo).GetHashCode() ^ (_hi >> (int)(_lo % 64)).GetHashCode() ^ (_lo >> (int)(_hi % 64)).GetHashCode();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(string? format, IFormatProvider? _)
     {
         if (string.IsNullOrEmpty(format = format?.Trim()))
@@ -281,55 +240,38 @@ public readonly unsafe struct UInt128
         return res;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly TypeCode GetTypeCode() => TypeCode.Object;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool ToBoolean(IFormatProvider? provider) => this != Zero;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly char ToChar(IFormatProvider? provider) => (char)ToInt32(provider);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly sbyte ToSByte(IFormatProvider? provider) => (sbyte)ToByte(provider);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly byte ToByte(IFormatProvider? provider) => (byte)(ToInt16(provider) & 0xff);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly short ToInt16(IFormatProvider? provider) => (short)ToUInt16(provider);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly ushort ToUInt16(IFormatProvider? provider) => (ushort)(ToInt32(provider) & 0xffff);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int ToInt32(IFormatProvider? provider) => (int)ToUInt32(provider);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly uint ToUInt32(IFormatProvider? provider) => (uint)(ToUInt64(provider) & 0xffffffffful);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly long ToInt64(IFormatProvider? provider) => (long)ToUInt64(provider);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly ulong ToUInt64(IFormatProvider? provider) => (ulong)this;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly float ToSingle(IFormatProvider? provider) => (float)ToDecimal(provider);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly double ToDouble(IFormatProvider? provider) => (double)ToDecimal(provider);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly decimal ToDecimal(IFormatProvider? provider) => this;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly DateTime ToDateTime(IFormatProvider? provider) => new(ToInt64(provider));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(IFormatProvider? _) => ToString();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly object ToType(Type conversionType, IFormatProvider? provider)
     {
         try
@@ -361,12 +303,10 @@ public readonly unsafe struct UInt128
     #endregion
     #region STATIC METHODS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int Compare(UInt128 x, UInt128 y) =>
         (((x._hi > y._hi) || ((x._hi == y._hi) && (x._lo > y._lo))) ? 1 : 0)
       - (((x._hi < y._hi) || ((x._hi == y._hi) && (x._lo < y._lo))) ? 1 : 0);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 Add(UInt128 x, UInt128 y)
     {
         ulong C = (((x._lo & y._lo) & 1) + (x._lo >> 1) + (y._lo >> 1)) >> 63;
@@ -377,7 +317,6 @@ public readonly unsafe struct UInt128
         );
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 Subtract(UInt128 x, UInt128 y)
     {
         UInt128 res = x._lo - y._lo;
@@ -386,7 +325,6 @@ public readonly unsafe struct UInt128
         return res.High(x._hi - (y._hi + C));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 Increment(UInt128 x)
     {
         ulong T = x._lo + 1;
@@ -394,7 +332,6 @@ public readonly unsafe struct UInt128
         return (x._hi + ((x._lo ^ T) & x._lo) >> 63, T);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 Decrement(UInt128 x)
     {
         ulong T = x._lo - 1;
@@ -402,19 +339,14 @@ public readonly unsafe struct UInt128
         return (x._hi - ((T ^ x._lo) & T) >> 63, T);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 Not(UInt128 x) => (~x._hi, ~x._lo);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 Or(UInt128 x, UInt128 y) => (x._hi | y._hi, x._lo | y._lo);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 And(UInt128 x, UInt128 y) => (x._hi & y._hi, x._lo & y._lo);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 Xor(UInt128 x, UInt128 y) => (x._hi ^ y._hi, x._lo ^ y._lo);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 ShiftLeft(UInt128 x, ulong y)
     {
         int iy = (int)y;
@@ -434,7 +366,6 @@ public readonly unsafe struct UInt128
         return (h, l);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 ShiftRight(UInt128 x, ulong y)
     {
         int iy = (int)y;
@@ -454,7 +385,6 @@ public readonly unsafe struct UInt128
         return (h, l);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 Multiply(ulong x, ulong y)
     {
         if (x == y)
@@ -479,10 +409,8 @@ public readonly unsafe struct UInt128
         return ((x * y) + w1 + k, (t << 32) + w3);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 Multiply(UInt128 x, UInt128 y) => x == y ? Square(x) : Multiply(x._lo, y._lo).High(h => h + (x._hi * y._lo) + (x._lo * y._hi));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static (UInt128 High, UInt128 Low) BigMultiply(UInt128 x, UInt128 y)
     {
         if (x == y)
@@ -517,7 +445,6 @@ public readonly unsafe struct UInt128
         return (H, T);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 Square(ulong x)
     {
         ulong r1 = x & 0xffffffff;
@@ -540,7 +467,6 @@ public readonly unsafe struct UInt128
         return ((x * x) + w1 + k, (t << 32) + w3);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 Square(UInt128 x)
     {
         UInt128 res = Square(x._lo);
@@ -548,7 +474,6 @@ public readonly unsafe struct UInt128
         return (res._hi + ((res._hi * res._lo) << 1), res._lo);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static (UInt128 High, UInt128 Low) BigSquare(UInt128 R)
     {
         UInt128 H = Square(R._hi);
@@ -570,7 +495,6 @@ public readonly unsafe struct UInt128
         return (H, L);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static (UInt128 Div, UInt128 Mod) DivideModulus(UInt128 x, UInt128 y)
     {
         if (y == Zero)
@@ -603,19 +527,15 @@ public readonly unsafe struct UInt128
 
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 Divide(UInt128 x, UInt128 y) => DivideModulus(x, y).Div;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 Modulus(UInt128 x, UInt128 y) => DivideModulus(x, y).Mod;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 GreatestCommonDivisor(UInt128 a, UInt128 b) =>
         // TODO : extended euler algorithm
 
         throw new NotImplementedException();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static byte bit_count(UInt128 v)
     {
         ulong low = v._lo;
@@ -642,7 +562,6 @@ public readonly unsafe struct UInt128
         return res;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static ulong population_count(ulong x)
     {
         x -= (x >> 1) & 0x5555555555555555;
@@ -651,7 +570,6 @@ public readonly unsafe struct UInt128
         return ((x + (x >> 4) & 0xF0F0F0F0F0F0F0F) * 0x101010101010101) >> 56;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static ulong trailing_zeros(ulong x)
     {
         ulong I = ~x;
@@ -688,7 +606,6 @@ public readonly unsafe struct UInt128
         return res;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static ulong leading_zeros(ulong x)
     {
         ulong I = ~x;
@@ -728,82 +645,56 @@ public readonly unsafe struct UInt128
     #endregion
     #region OPERATORS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 operator +(in UInt128 x) => x;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 operator ~(in UInt128 x) => Not(x);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 operator -(in UInt128 x) => Subtract(Zero, x);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 operator ++(in UInt128 x) => Increment(x);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 operator --(in UInt128 x) => Decrement(x);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 operator +(in UInt128 x, in UInt128 y) => Add(x, y);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 operator -(in UInt128 x, in UInt128 y) => Subtract(x, y);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 operator *(in UInt128 x, in UInt128 y) => Multiply(x, y);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 operator /(in UInt128 x, in UInt128 y) => Divide(x, y);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 operator %(in UInt128 x, in UInt128 y) => Modulus(x, y);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 operator ^(UInt128 x, UInt128 y) => Xor(x, y);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 operator |(UInt128 x, UInt128 y) => Or(x, y);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 operator &(UInt128 x, UInt128 y) => And(x, y);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 operator <<(UInt128 x, int y) => ShiftLeft(x, (ulong)y);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt128 operator >>(UInt128 x, int y) => ShiftRight(x, (ulong)y);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(UInt128 x, UInt128 y) => x.Equals(y);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(UInt128 x, UInt128 y) => !(x == y);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <=(UInt128 x, UInt128 y) => x.CompareTo(y) <= 0;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >=(UInt128 x, UInt128 y) => x.CompareTo(y) >= 0;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <(UInt128 x, UInt128 y) => x.CompareTo(y) == -1;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >(UInt128 x, UInt128 y) => x.CompareTo(y) == 1;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator bool(UInt128 v) => !v.IsZero;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator UInt128(ulong v) => new(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator UInt128((ulong High, ulong Low) v) => new(v.High, v.Low);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (ulong High, ulong Low)(UInt128 v) => (v._hi, v._lo);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator UInt128(decimal v)
     {
         UInt128 res = Zero;
@@ -823,13 +714,10 @@ public readonly unsafe struct UInt128
         return res;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator decimal(UInt128 v) => decimal.Parse(v.ToString());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator BigInteger(UInt128 v) => new(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator ulong(UInt128 v) => v._lo;
 
     #endregion

@@ -28,7 +28,6 @@ public unsafe class BitmapLocker
 
     public BitmapLocker(Bitmap bitmap) => Bitmap = bitmap;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void LockPixels(BitmapLockerCallback<byte> callback)
     {
         BitmapData dat = Bitmap.LockBits(new Rectangle(0, 0, Bitmap.Width, Bitmap.Height), ImageLockMode.ReadWrite, Bitmap.PixelFormat);
@@ -43,7 +42,6 @@ public unsafe class BitmapLocker
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void LockPixels<T>(BitmapLockerCallback<T> callback)
         where T : unmanaged
     {
@@ -62,10 +60,8 @@ public unsafe class BitmapLocker
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void LockRGBAPixels(BitmapLockerCallback<RGBAColor> callback) => LockPixels(callback);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T LockRGBAPixels<T>(BitmapLockerCallback<RGBAColor, T> callback)
     {
         T value = default!;

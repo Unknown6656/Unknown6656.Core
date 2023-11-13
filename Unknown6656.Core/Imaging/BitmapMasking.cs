@@ -187,7 +187,6 @@ public sealed unsafe class BitmapMask
         return new(intensities);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static BitmapMask FromBitmap(Bitmap bitmap, Func<RGBAColor, Scalar> func, bool ignore_alpha = false) =>
         new(bitmap.ApplyEffect(new ColorEffect.Delegated(c => func(c).Clamp() * new Vector4(1, 1, 1, 0) + (0, 0, 0, ignore_alpha ? c.Af : 1))));
 

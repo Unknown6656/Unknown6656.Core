@@ -1205,20 +1205,15 @@ public class ColorPalette
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains(uint argb32) => base.Contains(argb32);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains(Color color) => base.Contains(color);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Contains<Color>(Color color) where Color : IColor<Color> => Contains(color.ToARGB32());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RGBAColor GetNearestColor<Color>(Color color, ColorEqualityMetric metric)
         where Color : IColor<Color> => GetNearestColor(color, metric, out _);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RGBAColor GetNearestColor<Color>(Color color, ColorEqualityMetric metric, out double distance)
         where Color : IColor<Color>
     {
@@ -1240,7 +1235,6 @@ public class ColorPalette
         return result;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<(RGBAColor Color, double Distance)> GetNearestColors<Color>(Color color, ColorEqualityMetric metric)
         where Color : IColor<Color>
     {

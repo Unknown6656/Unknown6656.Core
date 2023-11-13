@@ -61,7 +61,6 @@ public sealed class <#=typename#>
         <#=intname#>.Dispose();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override byte[] Hash(byte[] data) => <#=intname#>.ComputeHash(data);
 }
 <#

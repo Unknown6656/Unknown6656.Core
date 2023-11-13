@@ -34,19 +34,14 @@ public abstract class Function<Func, Domain, Codomain>
     public bool IsNonZero => !IsZero;
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual bool Is([MaybeNull] Func? other) => Equals(other);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual bool IsNot([MaybeNull] Func? other) => !Is(other);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public abstract bool Equals(Func? other);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     int IStructuralEquatable.GetHashCode(IEqualityComparer comparer) => GetHashCode();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     bool IStructuralEquatable.Equals(object? other, IEqualityComparer comparer) => Equals(other);
 
     /// <summary>
@@ -54,22 +49,16 @@ public abstract class Function<Func, Domain, Codomain>
     /// </summary>
     /// <param name="x">X value</param>
     /// <returns>Function evaluated at X</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public abstract Codomain? Evaluate(Domain x);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public abstract Func Negate();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public abstract Func Add(in Func second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual Func Add(params Func[] others) => others.Aggregate((Func)this, (x, y) => x + y);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual Func Subtract(in Func second) => Add(second.Negate());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual Func Subtract(params Func[] others) => others.Aggregate((Func)this, (x, y) => x - y);
 
     static Func IGroup<Func>.operator +(in Func function) => function;

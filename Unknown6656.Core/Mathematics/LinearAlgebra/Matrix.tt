@@ -711,7 +711,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// Creates a new <#=dim#>x<#=dim#>-matrix where all diagonal elements have the value <paramref name="scale"/>. All elements outside the main diagonal are set to <see cref="Scalar.Zero"/>.
     /// </summary>
     /// <param name="scale">Scalar factor</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public <#=typename#>(Scalar scale)
         : this(<#=string.Join(",\n               ", r(0, dim).Select(i => string.Join(", ", r(0, dim).Select(j => j == i ? "scale" : "0"))))#>)
     {
@@ -729,25 +728,21 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public <#=typename#>(<#=string.Join(", ", r(0, dim * dim).Select(i => $"Scalar s_{i % dim}_{i / dim}"))#>)
         : this(<#=string.Join(",\n               ", r(0, dim).Select(i => $"new {vecname}({string.Join(", ", r(0, dim).Select(j => $"s_{i}_{j}"))})"))#>)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public <#=typename#>(Scalar[] values)
         : this(<#=string.Join(",\n               ", r(0, dim).Select(i => string.Join(", ", r(0, dim).Select(j => $"values[{i * dim + j}]"))))#>)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public <#=typename#>(Scalar[,] values)
         : this(<#=string.Join(",\n               ", r(0, dim).Select(i => string.Join(", ", r(0, dim).Select(j => $"values[{j}, {i}]"))))#>)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public <#=typename#>(Scalar[][] values)
         : this(<#=string.Join(",\n               ", r(0, dim).Select(i => string.Join(", ", r(0, dim).Select(j => $"values[{j}][{i}]"))))#>)
     {
@@ -756,7 +751,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         for (int i = 2; i < maxdim; ++i)
         {
 #>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public <#=typename#>(in Matrix<#=i#> matrix)
         : this(<#
             if (i < dim)
@@ -772,43 +766,36 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         }
 #>
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public <#=typename#>(in MatrixNM matrix)
         : this(matrix.Coefficients)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public <#=typename#>(<#=typename#>* matrix)
         : this(*matrix)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public <#=typename#>(Scalar* values)
         : this(<#=string.Join(",\n               ", r(0, dim).Select(i => string.Join(", ", r(0, dim).Select(j => $"values[{i * dim + j}]"))))#>)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public <#=typename#>(<#=vecname#>* columns)
         : this(<#=string.Join(", ", r(0, dim).Select(i => $"columns[{i}]"))#>)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public <#=typename#>(IEnumerable<<#=vecname#>> columns)
         : this(columns.ToArray())
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public <#=typename#>(<#=vecname#>[] columns)
         : this(<#=string.Join(", ", r(0, dim).Select(i => $"columns[{i}]"))#>)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => $"{vecname} v{i}"))#>)
     {
 <#
@@ -824,7 +811,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// Negates the current instance and returns the result without modifying the current instance.
     /// </summary>
     /// <returns>Negated object</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> Negate() => new(<#=string.Join(", ", r(0, dim).Select(i => $"-_c{i}"))#>);
 
     /// <summary>
@@ -832,35 +818,26 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Addition result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> Add(in <#=typename#> second) => new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i} + second._c{i}"))#>);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> Add(params <#=typename#>[] matrices) => matrices.Aggregate(this, Add);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> Add(Scalar Scalar) => Add(new <#=typename#>(Scalar));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> Increment() => Add(1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> Decrement() => Add(-1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> Subtract(in <#=typename#> second) => Add(second.Negate());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> Subtract(params <#=typename#>[] matrices) => matrices.Aggregate(this, Subtract);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public <#=typename#> Subtract(Scalar scalar) => Add(scalar.Negate());
 
 <#
         if (dim > 2)
         {
 #>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Vector<#=dim-1#> HomogeneousMultiply(in Vector<#=dim-1#> second) => Multiply(second.ToHomogeneousCoordinates()).FromHomogeneousCoordinates();
 <#
         }
@@ -873,7 +850,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// </summary>
     /// <param name="second">Second operand</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> Multiply(in <#=typename#> second)
     {
         <#=vecname#>[] A = Rows;
@@ -887,7 +863,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         return new <#=typename#>(C);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> Multiply(params <#=typename#>[] matrices) => matrices.Aggregate(this, Multiply);
 
     /// <summary>
@@ -895,7 +870,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// </summary>
     /// <param name="vector">Vector</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=vecname#> Multiply(in <#=vecname#> vector) => new(
         <#=string.Join(",\n        ", Enumerable.Range(0, dim).Select(i => string.Join(" + ", Enumerable.Range(0, dim).Select(j => $"_c{j}[{i}] * vector[{j}]"))))#>
     );
@@ -905,13 +879,10 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// </summary>
     /// <param name="factor">Scalar factor</param>
     /// <returns>Multiplication result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> Multiply(Scalar factor) => new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i} * factor"))#>);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> Multiply(params Scalar[] factors) => Multiply(factors.Aggregate(Scalar.One, Scalar.Multiply));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public <#=typename#> Power(int e)
     {
         if (e < 0)
@@ -935,10 +906,8 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         return r;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> Divide(Scalar factor) => Multiply(factor.Inverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> Modulus(Scalar factor) => new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i} % factor"))#>);
 
     public readonly <#=typename#> Sin(InfiniteSeriesSettings? settings = null)
@@ -1027,50 +996,36 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         MatrixNorm.L2_Norm => SpectralNorm,
     };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePNorm(Scalar p) => ToArray().Select(c => c.Abs().Power(p)).Sum().Power(p.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePQNorm(Scalar p, Scalar q) => Columns.Select(c => c.Select(v => v.Abs().Power(p)).Sum().Power(q / p)).Sum().Power(q.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputeMatrixCondition(MatrixNorm norm) => ComputeNorm(norm) * MultiplicativeInverse.ComputeNorm(norm);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePMatrixCondition(Scalar p) => ComputePNorm(p) * MultiplicativeInverse.ComputePNorm(p);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar ComputePQMatrixCondition(Scalar p, Scalar q) => ComputePQNorm(p, q) * MultiplicativeInverse.ComputePQNorm(p, q);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> ComponentwiseDivide(in <#=typename#> second) => new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}.ComponentwiseDivide(second._c{i})"))#>);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> ComponentwiseMultiply(in <#=typename#> second) => new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}.ComponentwiseMultiply(second._c{i})"))#>);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> ComponentwiseApply(Func<Scalar, Scalar> function) => new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}.ComponentwiseApply(function)"))#>);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> ComponentwiseApply(<#=typename#> second, Func<Scalar, Scalar, Scalar> function) =>
         new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}.ComponentwiseApply(second._c{i}, function)"))#>);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> ComponentwiseApply(<#=typename#> second, <#=typename#> third, Func<Scalar, Scalar, Scalar, Scalar> function) =>
         new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}.ComponentwiseApply(second._c{i}, third._c{i}, function)"))#>);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> Clamp() => Clamp(Scalar.Zero, Scalar.One);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> Clamp(Scalar low, Scalar high) => new(<#=string.Join(", ", r(0, dim).Select(i => $"_c{i}.Clamp(low, high)"))#>);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> LinearInterpolate(in <#=typename#> other, Scalar factor) => Multiply(1 - factor).Add(other.Multiply(factor));
 
     #endregion
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool IsLinearDependant(in <#=typename#> other, out Scalar? factor)
     {
         factor = null;
@@ -1098,7 +1053,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// Returns a set of the first <#=dim-2#> principal submatrices.
     /// </summary>
     /// <returns>Set of principal submatrices</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Algebra<Scalar>.IMatrix[] GetPrincipalSubmatrices()
 <#
         if (dim > 3)
@@ -1117,7 +1071,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
             WriteLine("        => new Algebra<Scalar>.IMatrix[1] { _c0[0] };");
 #>
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal readonly <#=typename#> GetLinearIndependentForm()
     {
         <#=typename#> m = this;
@@ -1153,7 +1106,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// </summary>
     /// <param name="vector"><#=vecname#></param>
     /// <returns>Solution</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=vecspace#> Solve(<#=vecname#> vector)
     {
         if (IsDiagonal)
@@ -1196,7 +1148,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
             return new <#=vecspace#>(SolveCG(vector));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=vecspace#> Solve(<#=vecspace#> vectorspace)
     {
         <#=vecspace#> result = <#=vecspace#>.Empty;
@@ -1208,7 +1159,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         return result;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly bool Algebra<Scalar>.IMatrix<<#=vecname#>, <#=typename#>>.Solve(<#=vecname#> vector, out <#=vecname#> solution)
     {
         <#=vecspace#> space = Solve(vector);
@@ -1224,7 +1174,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=vecname#> SolveCG(<#=vecname#> vector)
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -1301,7 +1250,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     #endregion
     #region INSTANCE METHODS : DECOMPOSITIONS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (<#=vecname#>[] Eigenvectors, Scalar[] Eigenvalues) EigenDecompose(Scalar tolerance)
     {
         (<#=vecname#> vec, Scalar val)[] pairs = GetEigenpairs(tolerance);
@@ -1311,7 +1259,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         return (vectors, values);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (<#=vecname#> Eigenvector, Scalar Eigenvalue)[] GetEigenpairs(Scalar tolerance)
     {
         if (IsUpperTriangular || IsLowerTriangular || IsDiagonal)
@@ -1327,7 +1274,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         return pairs;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private readonly (<#=vecname#> Eigenvector, Scalar Eigenvalue) DoInverseVectoriteration(Scalar offset, Scalar tolerance)
     {
         <#=vecname#> v_old = default;
@@ -1351,10 +1297,8 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         return (v_new, 1 / (λ - offset));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=vecspace#> GetEigenspace(Scalar eigenvalue) => <#=vecspace#>.FromVectors(Subtract(DiagonalMatrix(eigenvalue)).Columns.Select(v => v.Normalized)); // TODO : fix this shite
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int GetAlgebraicMulticiplity(Scalar eigenvalue) => GetEigenspace(eigenvalue).Dimension;
 
     /// <summary>
@@ -1375,7 +1319,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// Decomposes the current matrix (in a non-destructive fashion) into three matrices: A permutation-matrix P, an upper-triangular matrix U, and a lower-triangular matrix L.
     /// </summary>
     /// <returns>A tuple consisting of the permutation-matrix P, the upper-triangular matrix U, and the lower-triangular matrix L.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (<#=typename#> P, <#=typename#> L, <#=typename#> U) PLUDecompose()
     {
         int[] perm = { <#=string.Join(", ", r(0, dim))#> };
@@ -1423,7 +1366,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         var schur1 = $"Matrix{dim / 2}".Replace("Matrix1", "Scalar");
         var schur2 = $"Matrix{dim - dim / 2}".Replace("Matrix1", "Scalar");
 #>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (<#=schur1#> A, <#=schur2#> C) SchurComplement()
     {
         (MatrixNM A, MatrixNM C) = SchurComplement(<#=dim / 2#>);
@@ -1431,7 +1373,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         return ((<#=schur1#>)A, (<#=schur2#>)C);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (MatrixNM A, MatrixNM C) SchurComplement(int size)
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -1452,7 +1393,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// <summary>
     /// Decomposes the current matrix instance into a lower triangular matrix 'L'. The product of L with its transposed results in the current matrix.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> CholeskyDecompose()
     {
         if (!IsSymmetric && !IsPositiveDefinite)
@@ -1512,7 +1452,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 #>
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (<#=typename#> Q, <#=typename#> R) QRDecompose()
     {
         <#=typename#> A = this;
@@ -1607,7 +1546,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         );
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (<#=typename#> U, <#=typename#> D) IwasawaDecompose()
     {
         <#=typename#> ONB = OrthonormalBasis;
@@ -1618,45 +1556,33 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 
     #endregion
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=vecspace#> GetKrylovSpace(<#=vecname#> vector) => <#=vecspace#>.KrylovSpace(vector, this);
 
     #region INSTANCE METHODS : COMPARISONS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Is(<#=typename#> o, Scalar tolerance) => <#=string.Join(" && ", cols.Select(s => $"{s}.Is(o.{s}, tolerance)"))#>;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Is(<#=typename#> o) => Is(o, Scalar.ComputationalEpsilon);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool IsNot(<#=typename#> o) => !Is(o);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override bool Equals(object? obj) => obj is <#=typename#> v && Equals(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Equals(<#=typename#> other) => Is(other);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo(<#=typename#> other) => Is(other) ? 0 : throw new NotImplementedException();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo(object? other) => other is <#=typename#> m ? CompareTo(m) : throw new ArgumentException($"The given value must be a Matrix of the type '{typeof(<#=typename#>)}'.", nameof(other));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override int GetHashCode() => LINQ.GetHashCode(Columns);
 
     #endregion
     #region INSTANCE METHODS : TO_STRING
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(bool @short) => @short ? ToShortString() : ToString();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(string? format) => ToString(format, null);
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToString(IFormatProvider prov) => ToString(null, prov);
 
     public readonly string ToString(string? format, IFormatProvider? provider) =>
@@ -1666,14 +1592,12 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// The <#=dim#>x<#=dim#>-matrix' string representation
     /// </summary>
     /// <returns>String representation</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override string ToString() => Rows.Select(c => $"| {c.ToArray().Select(f => $"{f,22:F16}").StringJoin(", ")} |").StringJoinLines();
 
     /// <summary>
     /// The <#=dim#>x<#=dim#>-matrix' short string representation
     /// </summary>
     /// <returns>Short string representation</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToShortString() => (from col in Columns
                                                let strings = (from entry in col.ToArray().Select(f => f.ToShortString("F25").PadRight(27).PadLeft(34))
                                                               let end = entry.Reverse().TakeWhile(c => c == '0' || c == ' ').Count()
@@ -1706,7 +1630,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// Returns the upper-left <#=i#>x<#=i#> sub-matrix by copying all respective coefficients.
     /// </summary>
     /// <returns><#=i#>x<#=i#> sub-matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix<#=i#> ToMatrix<#=i#>() => (
 <#
             for (int j = 0; j < i; ++j)
@@ -1724,7 +1647,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// Creates the homogeneous <#=dim+1#>x<#=dim+1#> transformation matrix from the current matrix.
     /// </summary>
     /// <returns>Homogeneous <#=dim+1#>x<#=dim+1#> transformation matrix.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix<#=dim+1#> ToHomogeneousTransformationMatrix() => (
 <#
             for (int i = 0; i < dim; ++i)
@@ -1740,7 +1662,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// Returns the matrix as a flat array of matrix elements in column major format.
     /// </summary>
     /// <returns>Column major representation of the matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar[] ToArray() => FlattenedCoefficients.ToArray();
 
     /// <summary>
@@ -1748,7 +1669,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// This isomorphism is a simple multiplication of a given vector with the current matrix.
     /// </summary>
     /// <returns>The isomorphism.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Function<<#=vecname#>> ToIsomorphism()
     {
         <#=typename#> copy = this;
@@ -1756,33 +1676,24 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         return new Function<<#=vecname#>>(v => copy.Multiply(v));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly CompressedStorageFormat<Scalar> ToCompressedStorageFormat() => CompressedStorageFormat<Scalar>.FromMatrix(this);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly T[] ToArray<T>() where T : unmanaged => DataStream.FromUnmanaged(this).ToArray<T>();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void ToNative<T>(T* dst) where T : unmanaged => DataStream.FromUnmanaged(this).ToPointer(dst);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly IEnumerator<<#=vecname#>> GetEnumerator() => ((IEnumerable<<#=vecname#>>)Columns).GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly IEnumerator<Scalar> IEnumerable<Scalar>.GetEnumerator() => Columns.SelectMany(v => v.AsEnumerable()).GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(<#=string.Join(", ", r(0, dim).SelectMany(i => r(0, dim).Select(j => $"out Scalar x_{j}_{i}")))#>) =>
         (<#=string.Join(", ", r(0, dim).SelectMany(i => r(0, dim).Select(j => $"x_{j}_{i}")))#>) = (<#=string.Join(", ", r(0, dim).SelectMany(i => r(0, dim).Select(j => $"_c{j}[{i}]")))#>);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(<#=string.Join(", ", r(0, dim).Select(i => $"out {vecname} v{i}"))#>) =>
         (<#=string.Join(", ", r(0, dim).Select(i => "v" + i))#>) = (<#=string.Join(", ", r(0, dim).Select(i => "_c" + i))#>);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly object Clone() => new <#=typename#>(this);
 
     #endregion
@@ -1793,7 +1704,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// </summary>
     /// <param name="column">Column vector index (zero-based)</param>
     /// <returns>Column vector</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=vecname#> GetColumn(int column) => column switch
     {
 <#=string.Join("\n", r(0, dim).Select(i => $"        {i} => {cols[i]},"))#>
@@ -1806,7 +1716,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// <param name="column">Column vector index (zero-based)</param>
     /// <param name="vector">New column vector</param>
     /// <returns>Modified matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> SetColumn(int column, in <#=vecname#> vector)
     {
         if (column < 0 || column >= <#=dim#>)
@@ -1819,13 +1728,10 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         return FromColumns(cols);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetColumns(Range columns) => GetRegion(columns, 0..<#=dim#>);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> SetColumns(Range columns, in MatrixNM values) => SetRegion(columns, 0..<#=dim#>, values);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> SwapColumns(int src_col, int dst_col)
     {
         <#=vecname#> col = GetColumn(src_col);
@@ -1834,13 +1740,10 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
                 .SetColumn(dst_col, col);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> MultiplyColumn(int col, Scalar factor) => SetColumn(col, GetColumn(col).Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> AddColumns(int src_col, int dst_col) => AddColumns(src_col, dst_col, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> AddColumns(int src_col, int dst_col, Scalar factor) => SetColumn(dst_col, GetColumn(src_col).Multiply(factor).Add(GetColumn(dst_col)));
 
     /// <summary>
@@ -1848,7 +1751,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// </summary>
     /// <param name="row">Row vector index (zero-based)</param>
     /// <returns>Row vector</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=vecname#> GetRow(int row) => Transposed.GetColumn(row);
 
     /// <summary>
@@ -1857,16 +1759,12 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// <param name="row">Row vector index (zero-based)</param>
     /// <param name="vector">New row vector</param>
     /// <returns>Modified matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> SetRow(int row, in <#=vecname#> vector) => Transposed.SetColumn(row, vector).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetRows(Range rows) => GetRegion(0..<#=dim#>, rows);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> SetRows(Range rows, in MatrixNM values) => SetRegion(0..<#=dim#>, rows, values);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> SwapRows(int src_row, int dst_row)
     {
         <#=vecname#> row = GetRow(src_row);
@@ -1875,16 +1773,12 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
                 .SetRow(dst_row, row);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> AddRows(int src_row, int dst_row) => AddRows(src_row, dst_row, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> AddRows(int src_row, int dst_row, Scalar factor) => SetRow(dst_row, GetRow(src_row).Multiply(factor).Add(GetRow(dst_row)));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> MultiplyRow(int row, Scalar factor) => SetRow(row, GetRow(row).Multiply(factor));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly MatrixNM GetRegion(Range columns, Range rows)
     {
         // TODO : range checks
@@ -1901,7 +1795,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         return new MatrixNM(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly <#=typename#> SetRegion(Range columns, Range rows, in MatrixNM values)
     {
         // TODO : range checks
@@ -1928,7 +1821,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// <param name="column">Zero-based column index</param>
     /// <param name="row">Zero-based row index</param>
     /// <returns><#=dim-1#>x<#=dim-1#>-minor</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Matrix<#=dim-1#> GetMinor(int column, int row) =>
         Columns
         .Take(column)
@@ -1946,43 +1838,30 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     #endregion
     #region STATIC METHODS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> Add(<#=typename#> m1, <#=typename#> m2) => m1.Add(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> Subtract(<#=typename#> m1, <#=typename#> m2) => m1.Subtract(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> Multiply(<#=typename#> m1, <#=typename#> m2) => m1.Multiply(m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=vecname#> Multiply(<#=typename#> m, <#=vecname#> v) => m.Multiply(v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> Multiply(<#=typename#> m, Scalar s) => m.Multiply(s);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> Divide(<#=typename#> m, Scalar s) => m.Divide(s);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> Exp(<#=typename#> matrix, InfiniteSeriesSettings? settings = null) => matrix.Exp(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> Sin(<#=typename#> matrix, InfiniteSeriesSettings? settings = null) => matrix.Sin(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> Cos(<#=typename#> matrix, InfiniteSeriesSettings? settings = null) => matrix.Cos(settings);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> CracovianProduct(in <#=typename#> first, in <#=typename#> second) => second.Transposed.Multiply(in second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> HadamardProduct(in <#=typename#> first, in <#=typename#> second) => first.ComponentwiseMultiply(in second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Scalar DistanceBetween(<#=typename#> first, <#=typename#> second, MatrixNorm norm) => first.DistanceTo(second, norm);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> SparseMatrix(params (int column, int row, Scalar value)[] entries)
     {
         Scalar[,] m = new Scalar[<#=dim#>, <#=dim#>];
@@ -1993,10 +1872,8 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         return FromArray(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> SingleEntryMatrix(int column, int row) => SingleEntryMatrix(column, row, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> SingleEntryMatrix(int column, int row, Scalar value)
     {
         Scalar[,] m = new Scalar[<#=dim#>, <#=dim#>];
@@ -2006,13 +1883,10 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         return FromArray(m);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> DiagonalMatrix(Scalar scalar) => Identity * scalar;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> DiagonalMatrix(in <#=vecname#> diagonal) => DiagonalMatrix(<#=string.Join(", ", r(0, dim).Select(i => $"diagonal[{i}]"))#>);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> DiagonalMatrix(<#=string.Join(", ", r(0, dim).Select(i => "Scalar d" + i))#>) => (
 <#
             for (int i = 0; i < dim; ++i)
@@ -2024,7 +1898,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 #>
     );
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> KacMurdockSzegöMatrix(Scalar a) => new(
 <#
             for (int i = 0; i < dim; ++i)
@@ -2035,10 +1908,8 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
             }
 #>    );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> FromRowPermutation(int[] row_indices) => FromColumnPermutation(row_indices).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> FromColumnPermutation(int[] column_indices)
     {
         if (column_indices.Distinct().Count() != column_indices.Length)
@@ -2062,13 +1933,10 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 
     public static <#=typename#> FromNative<T>(T* src) where T : unmanaged => new((Scalar*)src);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> FromCompressedStorageFormat(CompressedStorageFormat<Scalar> compressed) => FromArray(compressed.ToMatrix());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> FromArray(in Scalar[,] arr) => arr.GetLength(0) < <#=dim#> || arr.GetLength(1) < <#=dim#> ? throw new ArgumentException("The array must have a minimum size of <#=dim#>x<#=dim#>.", nameof(arr)) : new <#=typename#>(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> FromArray(in Scalar[] arr) => arr switch {
         null => throw new ArgumentNullException(nameof(arr)),
         _ when arr.Length < <#=dim * dim#> => throw new ArgumentException("The array must have a minimum length of <#=dim * dim#>.", nameof(arr)),
@@ -2077,10 +1945,8 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         )
     };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> FromRows(in <#=vecname#>[] arr) => FromColumns(arr).Transposed;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> FromColumns(in <#=vecname#>[] arr) => arr switch {
         null => throw new ArgumentNullException(nameof(arr)),
         { Length: <#=dim#> } => new <#=typename#>(
@@ -2100,7 +1966,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(<#=typename#> m1, <#=typename#> m2) => m1.Is(m2);
 
     /// <summary>
@@ -2109,7 +1974,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Comparison result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(<#=typename#> m1, <#=typename#> m2) => !(m1 == m2);
 
     /// <summary>
@@ -2117,7 +1981,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// </summary>
     /// <param name="m">Original matrix</param>
     /// <returns>Unchanged matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> operator +(in <#=typename#> m) => m;
 
     /// <summary>
@@ -2125,25 +1988,18 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// </summary>
     /// <param name="m">Original matrix</param>
     /// <returns>Negated matrix</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> operator -(in <#=typename#> m) => m.Negate();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> operator +(Scalar f, in <#=typename#> m) => m.Add(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> operator +(in <#=typename#> m, Scalar f) => m.Add(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> operator -(Scalar f, in <#=typename#> m) => new <#=typename#>(f).Subtract(in m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> operator -(in <#=typename#> m, Scalar f) => m.Subtract(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> operator ++(in <#=typename#> m) => m.Increment();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> operator --(in <#=typename#> m) => m.Decrement();
 
     /// <summary>
@@ -2152,7 +2008,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Addition result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> operator +(in <#=typename#> m1, in <#=typename#> m2) => m1.Add(in m2);
 
     /// <summary>
@@ -2161,25 +2016,18 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// <param name="m1">First matrix</param>
     /// <param name="m2">Second matrix</param>
     /// <returns>Subtraction result</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> operator -(in <#=typename#> m1, in <#=typename#> m2) => m1.Subtract(in m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=vecname#> operator *(in <#=typename#> m, in <#=vecname#> v) => m.Multiply(in v);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> operator *(in <#=typename#> m1, in <#=typename#> m2) => m1.Multiply(in m2);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> operator *(in <#=typename#> m, Scalar f) => m.Multiply(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> operator *(Scalar f, in <#=typename#> m) => m.Multiply(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> operator ^(in <#=typename#> m, int c) => m.Power(c);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> operator ^(in <#=typename#> m1, in <#=typename#> m2) => CracovianProduct(in m1, in m2);
 
     /// <summary>
@@ -2188,19 +2036,14 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// <param name="A">Matrix A</param>
     /// <param name="b">Vector b</param>
     /// <returns>Solution x</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=vecspace#> operator |(<#=typename#> A, <#=vecname#> b) => A.Solve(b);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=vecspace#> operator |(<#=typename#> A, <#=vecspace#> b) => A.Solve(b);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> operator /(<#=typename#> m1, <#=typename#> m2) => m1.Multiply(m2.Inverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> operator /(in <#=typename#> m, Scalar f) => m.Divide(f);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> operator %(in <#=typename#> m, Scalar f) => m.Modulus(f);
 
 <#
@@ -2208,19 +2051,14 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         string _scals = string.Join(", ", r(0, dim).Select(i => $"({string.Join(", ", r(0, dim).Select(j => $"Scalar r{j}"))}) c{i}"));
         string _flats = string.Join(", ", r(0, dim).SelectMany(i => r(0, dim).Select(j => $"Scalar x_{j}_{i}")));
 #>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (<#=_vecs#>) (in <#=typename#> m) => (<#=string.Join(", ", r(0, dim).Select(i => $"m[{i}]"))#>);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator <#=typename#>((<#=_vecs#>) t) => new(<#=string.Join(", ", r(0, dim).Select(i => $"t.x{i}"))#>);
 /*
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator (<#=_scals#>) (in <#=typename#> m) => (<#=string.Join(", ", r(0, dim).Select(i => $"m[{i}]"))#>);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator <#=typename#>(in (<#=_scals#>) t) => new(<#=string.Join(", ", r(0, dim).Select(i => $"t.c{i}"))#>);
 */
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (<#=_flats#>) (in <#=typename#> m) => (
 <#
         for (int i = 0; i < dim; ++i)
@@ -2232,7 +2070,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 #>
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator <#=typename#>(in (<#=_flats#>) t) => new(
 <#
         for (int i = 0; i < dim; ++i)
@@ -2244,37 +2081,26 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 #>
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator <#=typename#>(Scalar m) => new(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator <#=typename#>(in <#=vecname#>[] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator <#=vecname#>[](in <#=typename#> m) => m.Columns;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Scalar[](in <#=typename#> m) => m.ToArray();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator <#=typename#>(Scalar[] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Scalar[,](in <#=typename#> m) => m.Coefficients;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator <#=typename#>(Scalar[,] arr) => new(arr);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator MatrixNM(in <#=typename#> m) => new(m.Coefficients);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator <#=typename#>(in MatrixNM m) => new(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator CompressedStorageFormat<Scalar>(in <#=typename#> m) => CompressedStorageFormat<Scalar>.FromMatrix<<#=typename#>>(m);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Function<<#=vecname#>>(in <#=typename#> m) => m.ToIsomorphism();
 
     #endregion
@@ -2292,10 +2118,8 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 
 public static class <#=typename#>Extensions
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> Sum(this IEnumerable<<#=typename#>> matrices) => <#=typename#>.Zero.Add(matrices.ToArray());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static <#=typename#> Average(this IEnumerable<<#=typename#>> matrices)
     {
         <#=typename#> mat = <#=typename#>.Zero;
@@ -2342,7 +2166,6 @@ public static class MatrixExtensions
     {
 #>
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix<#=dim#> ToMatrix(this IEnumerable<Vector<#=dim#>> columns) => new(columns);
 <#
     }

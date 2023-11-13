@@ -1436,55 +1436,46 @@ public unsafe partial struct HDRColor
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HDRColor(uint argb)
         : this((int)argb)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HDRColor(double r, double g, double b)
         : this(r, g, b, 1)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HDRColor(HDRColor color)
         : this(color, color.A)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HDRColor(HDRColor color, double α)
         : this(color.R, color.G, color.B, α)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HDRColor(double gray)
         : this(gray, 1.0)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HDRColor(double gray, double α)
         : this(gray, gray, gray, α)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HDRColor(HDRColor* ptr)
         : this(*ptr)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HDRColor(HDRColor** ptr)
         : this(**ptr)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HDRColor(double r, double g, double b, double α)
         : this()
     {
@@ -1494,7 +1485,6 @@ public unsafe partial struct HDRColor
         B = b;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public HDRColor(int argb) : this() => ARGB32 = argb;
 
     public readonly HDRColor Rotate(Scalar φ)
@@ -1512,7 +1502,6 @@ public unsafe partial struct HDRColor
         return FromHSL(h + φ, s, l, A);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly HDRColor[] GetNeutrals(Scalar φ_step, int count)
     {
         HDRColor copy = this;
@@ -1520,7 +1509,6 @@ public unsafe partial struct HDRColor
         return Enumerable.Range(-count / 2, count).Select(i => copy.Rotate(i * φ_step)).ToArray();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly HDRColor CorrectGamma(Scalar gamma) => new(
         Math.Pow(R, gamma.MultiplicativeInverse),
         Math.Pow(G, gamma.MultiplicativeInverse),
@@ -1528,16 +1516,12 @@ public unsafe partial struct HDRColor
         A
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly HDRColor FromSRGB() => CorrectGamma(RGBAColor.SRGB_GAMMA_CORRECTION_FACTOR);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly HDRColor ToSRGB() => CorrectGamma(RGBAColor.SRGB_GAMMA_CORRECTION_FACTOR.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar EucledianRGBDistanceTo(HDRColor other) => ((Vector3)this).DistanceTo(other);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar EucledianRGBADistanceTo(HDRColor other) => ((Vector4)this).DistanceTo(other);
 
     public readonly Scalar CIALAB94DistanceTo(IColor other)
@@ -1600,17 +1584,14 @@ public unsafe partial struct HDRColor
         return (h, s, l);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (double R, double G, double B) ToRGB() => (R, G, B);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (double X, double Y, double Z) ToXYZ() => new Matrix3(
         .4124, .3576, .1805,
         .2126, .7152, .0722,
         .0193, .1192, .9505
     ) * this;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (double x, double y) ToNormalizedChromaticity()
     {
         (double X, double Y, double Z) = ToXYZ();
@@ -1619,7 +1600,6 @@ public unsafe partial struct HDRColor
         return (X / sum, Y / sum);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (double H, double S, double V) ToHSV()
     {
         (double H, double S, double L) = ToHSL();
@@ -1671,7 +1651,6 @@ public unsafe partial struct HDRColor
         );
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly DiscreteSpectrum ToSpectrum()
     {
         HDRColor color = this;
@@ -1694,21 +1673,18 @@ public unsafe partial struct HDRColor
         return (dist_lo * .2 + dist_mid * .6 + dist_hi * .2).Clamp();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (double Y, double U, double V) ToYUV() => (
          .257 * R + .504 * G + .098 * B + 16,
         -.148 * R - .291 * G + .439 * B + 128,
          .439 * R - .368 * G - .071 * B + 128
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (double Y, double I, double Q) ToYIQ() => (
         .299  * R + .587  * G + .114  * B,
         .5959 * R - .2746 * G - .3213 * B,
         .2115 * R - .5227 * G + .3112 * B
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (double Y, double Cb, double Cr) ToYCbCr() => (
          .299   * R + .587   * G + .114   * B,
         -.16874 * R - .33126 * G + .5     * B + 128,
@@ -1748,7 +1724,6 @@ public unsafe partial struct HDRColor
         return (H, C, L);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly double ToBlackbodyTemperature()
     {
         (double x, double y) = ToNormalizedChromaticity();
@@ -1767,7 +1742,6 @@ public unsafe partial struct HDRColor
                 select kvp.Key).FirstOrDefault();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo([AllowNull] HDRColor other)
     {
         int dist = ((Vector3)this).Length.CompareTo(((Vector3)other).Length);
@@ -1775,7 +1749,6 @@ public unsafe partial struct HDRColor
         return dist is 0 ? A.CompareTo(other.A) : dist;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor Parse(string str) => TryParse(str, out HDRColor color) ? color : throw new ArgumentException($"The given string '{str}' cannot be parsed as a {typeof(HDRColor)}.", nameof(str));
 
     public static bool TryParse(string str, out HDRColor color)
@@ -1925,28 +1898,20 @@ public unsafe partial struct HDRColor
         _ => throw new ArgumentOutOfRangeException(nameof(metric)),
     };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override readonly int GetHashCode() => ARGB32;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool Equals(object? other) => other is HDRColor c && Equals(c);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Equals(HDRColor other) => ARGB32 == other.ARGB32;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Equals(HDRColor other, ColorEqualityMetric metric) => Equals(other, metric, Scalar.ComputationalEpsilon);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Equals(HDRColor other, ColorEqualityMetric metric, double tolerance) => Equals(other, new(tolerance, metric));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Equals(HDRColor other, ColorTolerance tolerance) => DistanceTo(other, tolerance.Metric) <= tolerance.Tolerance;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromConsoleColor(ConsoleColor color, ConsoleColorScheme color_scheme) => (HDRColor)IColor.ConsoleColorSchemes[color_scheme][color];
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromComplexWrapped(Complex c) => FromComplexWrapped(c, 1);
 
     public static HDRColor FromComplexWrapped(Complex c, double α)
@@ -1965,40 +1930,28 @@ public unsafe partial struct HDRColor
         return FromHSL(c.Argument, 1, l, α);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromComplexSmooth(Complex c) => FromComplexSmooth(c, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromComplexSmooth(Complex c, double α) => FromComplexSmooth(c, α, .95);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromComplexSmooth(Complex c, double α, Scalar white_shift) => FromHSL(c.Argument, 1, 1 - white_shift.Clamp().Power(c.Length), α);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly HDRColor ToSRGB(HDRColor c) => c.ToSRGB();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly HDRColor ToSRGB(double R, double G, double B) => ToSRGB(R, G, B, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly HDRColor ToSRGB(double R, double G, double B, double α) => ToSRGB(FromRGB(R, G, B, α));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly HDRColor FromSRGB(HDRColor c) => c.FromSRGB();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly HDRColor FromSRGB(double sR, double sG, double sB) => FromSRGB(sR, sG, sB, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly HDRColor FromSRGB(double sR, double sG, double sB, double α) => FromSRGB(FromRGB(sR, sG, sB, α));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromRGB(double R, double G, double B) => FromRGB(R, G, B, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromRGB(double R, double G, double B, double α) => new HDRColor(R, G, B, α);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromHSL(double H, double S, double L) => FromHSL(H, S, L, 1);
 
     public static HDRColor FromHSL(double H, double S, double L, double α)
@@ -2035,22 +1988,16 @@ public unsafe partial struct HDRColor
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromNormalizedVector(Vector2 vector) => FromHSV(vector.Angle, 1, vector.Length);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromHue(Complex complex) => FromHue(complex.Argument);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromHue(Vector2 vector) => FromHue(vector.Angle);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromHue(double hue) => FromHSV(hue, 1, 1, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromHSV(double H, double S, double V) => FromHSV(H, S, V, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromHSV(double H, double S, double V, double α)
     {
         double L = V - V * S / 2;
@@ -2059,7 +2006,6 @@ public unsafe partial struct HDRColor
         return FromHSL(H, m > 0 ? (V - L) / m : 0, L, α);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromHCY(double H, double C, double Y) => FromHCY(H, C, Y, 1);
 
     public static HDRColor FromHCY(double H, double C, double Y, double α)
@@ -2075,7 +2021,6 @@ public unsafe partial struct HDRColor
         return new Vector4((RGB - Z) * C + Y, α);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromCIELAB94(double L, double a, double b) => FromCIELAB94(L, a, b, 1);
 
     public static HDRColor FromCIELAB94(double L, double a, double b, double α)
@@ -2102,10 +2047,8 @@ public unsafe partial struct HDRColor
         return new HDRColor(rf, gf, bf, α);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromXYZ(double X, double Y) => FromXYZ(X, Y, 0);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromXYZ(double X, double Y, double Z) => FromXYZ(X, Y, Z, 1);
 
     public static HDRColor FromXYZ(double X, double Y, double Z, double α)
@@ -2119,13 +2062,10 @@ public unsafe partial struct HDRColor
         return new Vector4(M * (X, Y, Z), α);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromUV(double U, double V) => FromUV(U, V, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromUV(double U, double V, double α) => FromXYZ((9 * U) / ((6 * U) - (16 * V) + 12), (4 * V) / ((6 * U) - (16 * V) + 12), α);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromYUV(double Y, double U, double V) => FromYUV(Y, U, V, 1);
 
     public static HDRColor FromYUV(double Y, double U, double V, double α)
@@ -2142,7 +2082,6 @@ public unsafe partial struct HDRColor
         );
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromHCL(double H, double C, double L) => FromHCL(H, C, L, 1);
 
     public static HDRColor FromHCL(double H, double C, double L, double α)
@@ -2177,10 +2116,8 @@ public unsafe partial struct HDRColor
         return new Vector4(rgb, α);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromYIQ(double Y, double I, double Q) => FromYIQ(Y, I, Q, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromYIQ(double Y, double I, double Q, double α) => new HDRColor(
         Y +  .956 * I +  .619 * Q,
         Y -  .272 * I -  .647 * Q,
@@ -2188,10 +2125,8 @@ public unsafe partial struct HDRColor
         α
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromYCbCr(double Y, double Cb, double Cr) => FromYCbCr(Y, Cb, Cr, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromYCbCr(double Y, double Cb, double Cr, double α) => new HDRColor(
         Y + (Cr - 128) * 1.402,
         Y + (Cb - 128) * -.34414 + (Cr - 128) * -.71414,
@@ -2199,10 +2134,8 @@ public unsafe partial struct HDRColor
         α
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromCMYK(double C, double M, double Y, double K) => FromCMYK(C, M, Y, K, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromCMYK(double C, double M, double Y, double K, double α) => (
         (1 - C) * (1 - K),
         (1 - M) * (1 - K),
@@ -2210,7 +2143,6 @@ public unsafe partial struct HDRColor
         α
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromWavelength(in Wavelength wavelength) => FromWavelength(in wavelength, 1);
 
     public static HDRColor FromWavelength(in Wavelength wavelength, double α)
@@ -2279,7 +2211,6 @@ public unsafe partial struct HDRColor
         return new HDRColor(r, g, b, α);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromSpectrum(Spectrum spectrum) => FromSpectrum(spectrum, 1);
 
     public static HDRColor FromSpectrum(Spectrum spectrum, double α)
@@ -2312,7 +2243,6 @@ public unsafe partial struct HDRColor
         return new HDRColor(color.X, color.Y, color.Z, α);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromBlackbodyTemperature(double temperature) => FromBlackbodyTemperature(temperature, 1);
 
     public static HDRColor FromBlackbodyTemperature(double temperature, double α)
@@ -2356,88 +2286,60 @@ public unsafe partial struct HDRColor
         return res;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromARGB32(int argb) => new(argb);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor FromARGB32(uint argb) => new(argb);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(HDRColor first, HDRColor second) => first.Equals(second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(HDRColor first, HDRColor second) => !(first == second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <(HDRColor first, HDRColor second) => first.CompareTo(second) < 0;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >(HDRColor first, HDRColor second) => first.CompareTo(second) > 0;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <=(HDRColor first, HDRColor second) => first.CompareTo(second) <= 0;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >=(HDRColor first, HDRColor second) => first.CompareTo(second) >= 0;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor operator +(HDRColor color) => color;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor operator -(HDRColor color) => new(-color.R, -color.G, -color.B, -color.A);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor operator +(HDRColor first, HDRColor second) => new(first.R + second.R, first.G + second.G, first.B + second.B, first.A + second.A);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor operator -(HDRColor first, HDRColor second) => new(first.R - second.R, first.G - second.G, first.B - second.B, first.A - second.A);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor operator *(double factor, HDRColor color) => color * factor;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor operator *(HDRColor color, double factor) => new(color.R * factor, color.G * factor, color.B * factor, color.A * factor);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HDRColor operator /(HDRColor color, double factor) => new(color.R / factor, color.G / factor, color.B / factor, color.A / factor);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (double r, double g, double b)(HDRColor color) => (color.R, color.G, color.B);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (double r, double g, double b, double α)(HDRColor color) => (color.R, color.G, color.B, color.A);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator HDRColor((double r, double g, double b) color) => new(color.r, color.g, color.b, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator HDRColor((double r, double g, double b, double α) color) => new(color.r, color.g, color.b, color.α);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Vector3(HDRColor color) => new(color.R, color.G, color.B);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Vector4(HDRColor color) => new(color.R, color.G, color.B, color.A);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (Vector3 color, Scalar α)(HDRColor color) => (new(color.R, color.G, color.B), color.A);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (Vector3 color, double α)(HDRColor color) => (new(color.R, color.G, color.B), color.A);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator HDRColor(Vector3 color) => new(color.X, color.Y, color.Z, 1d);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator HDRColor(Vector4 color) => new(color.X, color.Y, color.Z, color.W);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator HDRColor((Vector3 color, Scalar α) rgba) => new(rgba.color.X, rgba.color.Y, rgba.color.Z, rgba.α);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator HDRColor((Vector3 color, double α) rgba) => new(rgba.color.X, rgba.color.Y, rgba.color.Z, rgba.α);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator HDRColor(in Wavelength wavelength) => FromWavelength(in wavelength);
 
 
@@ -16351,55 +16253,46 @@ public unsafe partial struct RGBAColor
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RGBAColor(uint argb)
         : this((int)argb)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RGBAColor(double r, double g, double b)
         : this(r, g, b, 1)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RGBAColor(RGBAColor color)
         : this(color, color.Af)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RGBAColor(RGBAColor color, double α)
         : this(color.Rf, color.Gf, color.Bf, α)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RGBAColor(double gray)
         : this(gray, 1.0)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RGBAColor(double gray, double α)
         : this(gray, gray, gray, α)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RGBAColor(RGBAColor* ptr)
         : this(*ptr)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RGBAColor(RGBAColor** ptr)
         : this(**ptr)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RGBAColor(double r, double g, double b, double α)
         : this()
     {
@@ -16409,7 +16302,6 @@ public unsafe partial struct RGBAColor
         Bf = b;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RGBAColor(int argb) : this() => ARGB = argb;
 
     public readonly RGBAColor Rotate(Scalar φ)
@@ -16427,7 +16319,6 @@ public unsafe partial struct RGBAColor
         return FromHSL(h + φ, s, l, Af);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly RGBAColor[] GetNeutrals(Scalar φ_step, int count)
     {
         RGBAColor copy = this;
@@ -16435,7 +16326,6 @@ public unsafe partial struct RGBAColor
         return Enumerable.Range(-count / 2, count).Select(i => copy.Rotate(i * φ_step)).ToArray();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly RGBAColor CorrectGamma(Scalar gamma) => new(
         Math.Pow(Rf, gamma.MultiplicativeInverse),
         Math.Pow(Gf, gamma.MultiplicativeInverse),
@@ -16443,16 +16333,12 @@ public unsafe partial struct RGBAColor
         Af
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly RGBAColor FromSRGB() => CorrectGamma(RGBAColor.SRGB_GAMMA_CORRECTION_FACTOR);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly RGBAColor ToSRGB() => CorrectGamma(RGBAColor.SRGB_GAMMA_CORRECTION_FACTOR.MultiplicativeInverse);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar EucledianRGBDistanceTo(RGBAColor other) => ((Vector3)this).DistanceTo(other);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Scalar EucledianRGBADistanceTo(RGBAColor other) => ((Vector4)this).DistanceTo(other);
 
     public readonly Scalar CIALAB94DistanceTo(IColor other)
@@ -16515,17 +16401,14 @@ public unsafe partial struct RGBAColor
         return (h, s, l);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (double R, double G, double B) ToRGB() => (Rf, Gf, Bf);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (double X, double Y, double Z) ToXYZ() => new Matrix3(
         .4124, .3576, .1805,
         .2126, .7152, .0722,
         .0193, .1192, .9505
     ) * this;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (double x, double y) ToNormalizedChromaticity()
     {
         (double X, double Y, double Z) = ToXYZ();
@@ -16534,7 +16417,6 @@ public unsafe partial struct RGBAColor
         return (X / sum, Y / sum);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (double H, double S, double V) ToHSV()
     {
         (double H, double S, double L) = ToHSL();
@@ -16586,7 +16468,6 @@ public unsafe partial struct RGBAColor
         );
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly DiscreteSpectrum ToSpectrum()
     {
         RGBAColor color = this;
@@ -16609,21 +16490,18 @@ public unsafe partial struct RGBAColor
         return (dist_lo * .2 + dist_mid * .6 + dist_hi * .2).Clamp();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (double Y, double U, double V) ToYUV() => (
          .257 * Rf + .504 * Gf + .098 * Bf + 16,
         -.148 * Rf - .291 * Gf + .439 * Bf + 128,
          .439 * Rf - .368 * Gf - .071 * Bf + 128
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (double Y, double I, double Q) ToYIQ() => (
         .299  * Rf + .587  * Gf + .114  * Bf,
         .5959 * Rf - .2746 * Gf - .3213 * Bf,
         .2115 * Rf - .5227 * Gf + .3112 * Bf
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly (double Y, double Cb, double Cr) ToYCbCr() => (
          .299   * Rf + .587   * Gf + .114   * Bf,
         -.16874 * Rf - .33126 * Gf + .5     * Bf + 128,
@@ -16663,7 +16541,6 @@ public unsafe partial struct RGBAColor
         return (H, C, L);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly double ToBlackbodyTemperature()
     {
         (double x, double y) = ToNormalizedChromaticity();
@@ -16682,7 +16559,6 @@ public unsafe partial struct RGBAColor
                 select kvp.Key).FirstOrDefault();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly int CompareTo([AllowNull] RGBAColor other)
     {
         int dist = ((Vector3)this).Length.CompareTo(((Vector3)other).Length);
@@ -16690,7 +16566,6 @@ public unsafe partial struct RGBAColor
         return dist is 0 ? Af.CompareTo(other.Af) : dist;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor Parse(string str) => TryParse(str, out RGBAColor color) ? color : throw new ArgumentException($"The given string '{str}' cannot be parsed as a {typeof(RGBAColor)}.", nameof(str));
 
     public static bool TryParse(string str, out RGBAColor color)
@@ -16840,28 +16715,20 @@ public unsafe partial struct RGBAColor
         _ => throw new ArgumentOutOfRangeException(nameof(metric)),
     };
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override readonly int GetHashCode() => ARGB;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool Equals(object? other) => other is RGBAColor c && Equals(c);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Equals(RGBAColor other) => ARGB == other.ARGB;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Equals(RGBAColor other, ColorEqualityMetric metric) => Equals(other, metric, Scalar.ComputationalEpsilon);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Equals(RGBAColor other, ColorEqualityMetric metric, double tolerance) => Equals(other, new(tolerance, metric));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Equals(RGBAColor other, ColorTolerance tolerance) => DistanceTo(other, tolerance.Metric) <= tolerance.Tolerance;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromConsoleColor(ConsoleColor color, ConsoleColorScheme color_scheme) => (RGBAColor)IColor.ConsoleColorSchemes[color_scheme][color];
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromComplexWrapped(Complex c) => FromComplexWrapped(c, 1);
 
     public static RGBAColor FromComplexWrapped(Complex c, double α)
@@ -16880,40 +16747,28 @@ public unsafe partial struct RGBAColor
         return FromHSL(c.Argument, 1, l, α);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromComplexSmooth(Complex c) => FromComplexSmooth(c, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromComplexSmooth(Complex c, double α) => FromComplexSmooth(c, α, .95);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromComplexSmooth(Complex c, double α, Scalar white_shift) => FromHSL(c.Argument, 1, 1 - white_shift.Clamp().Power(c.Length), α);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly RGBAColor ToSRGB(RGBAColor c) => c.ToSRGB();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly RGBAColor ToSRGB(double R, double G, double B) => ToSRGB(R, G, B, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly RGBAColor ToSRGB(double R, double G, double B, double α) => ToSRGB(FromRGB(R, G, B, α));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly RGBAColor FromSRGB(RGBAColor c) => c.FromSRGB();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly RGBAColor FromSRGB(double sR, double sG, double sB) => FromSRGB(sR, sG, sB, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly RGBAColor FromSRGB(double sR, double sG, double sB, double α) => FromSRGB(FromRGB(sR, sG, sB, α));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromRGB(double R, double G, double B) => FromRGB(R, G, B, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromRGB(double R, double G, double B, double α) => new RGBAColor(R, G, B, α);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromHSL(double H, double S, double L) => FromHSL(H, S, L, 1);
 
     public static RGBAColor FromHSL(double H, double S, double L, double α)
@@ -16950,22 +16805,16 @@ public unsafe partial struct RGBAColor
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromNormalizedVector(Vector2 vector) => FromHSV(vector.Angle, 1, vector.Length);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromHue(Complex complex) => FromHue(complex.Argument);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromHue(Vector2 vector) => FromHue(vector.Angle);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromHue(double hue) => FromHSV(hue, 1, 1, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromHSV(double H, double S, double V) => FromHSV(H, S, V, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromHSV(double H, double S, double V, double α)
     {
         double L = V - V * S / 2;
@@ -16974,7 +16823,6 @@ public unsafe partial struct RGBAColor
         return FromHSL(H, m > 0 ? (V - L) / m : 0, L, α);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromHCY(double H, double C, double Y) => FromHCY(H, C, Y, 1);
 
     public static RGBAColor FromHCY(double H, double C, double Y, double α)
@@ -16990,7 +16838,6 @@ public unsafe partial struct RGBAColor
         return new Vector4((RGB - Z) * C + Y, α);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromCIELAB94(double L, double a, double b) => FromCIELAB94(L, a, b, 1);
 
     public static RGBAColor FromCIELAB94(double L, double a, double b, double α)
@@ -17017,10 +16864,8 @@ public unsafe partial struct RGBAColor
         return new RGBAColor(rf, gf, bf, α);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromXYZ(double X, double Y) => FromXYZ(X, Y, 0);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromXYZ(double X, double Y, double Z) => FromXYZ(X, Y, Z, 1);
 
     public static RGBAColor FromXYZ(double X, double Y, double Z, double α)
@@ -17034,13 +16879,10 @@ public unsafe partial struct RGBAColor
         return new Vector4(M * (X, Y, Z), α);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromUV(double U, double V) => FromUV(U, V, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromUV(double U, double V, double α) => FromXYZ((9 * U) / ((6 * U) - (16 * V) + 12), (4 * V) / ((6 * U) - (16 * V) + 12), α);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromYUV(double Y, double U, double V) => FromYUV(Y, U, V, 1);
 
     public static RGBAColor FromYUV(double Y, double U, double V, double α)
@@ -17057,7 +16899,6 @@ public unsafe partial struct RGBAColor
         );
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromHCL(double H, double C, double L) => FromHCL(H, C, L, 1);
 
     public static RGBAColor FromHCL(double H, double C, double L, double α)
@@ -17092,10 +16933,8 @@ public unsafe partial struct RGBAColor
         return new Vector4(rgb, α);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromYIQ(double Y, double I, double Q) => FromYIQ(Y, I, Q, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromYIQ(double Y, double I, double Q, double α) => new RGBAColor(
         Y +  .956 * I +  .619 * Q,
         Y -  .272 * I -  .647 * Q,
@@ -17103,10 +16942,8 @@ public unsafe partial struct RGBAColor
         α
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromYCbCr(double Y, double Cb, double Cr) => FromYCbCr(Y, Cb, Cr, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromYCbCr(double Y, double Cb, double Cr, double α) => new RGBAColor(
         Y + (Cr - 128) * 1.402,
         Y + (Cb - 128) * -.34414 + (Cr - 128) * -.71414,
@@ -17114,10 +16951,8 @@ public unsafe partial struct RGBAColor
         α
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromCMYK(double C, double M, double Y, double K) => FromCMYK(C, M, Y, K, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromCMYK(double C, double M, double Y, double K, double α) => (
         (1 - C) * (1 - K),
         (1 - M) * (1 - K),
@@ -17125,7 +16960,6 @@ public unsafe partial struct RGBAColor
         α
     );
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromWavelength(in Wavelength wavelength) => FromWavelength(in wavelength, 1);
 
     public static RGBAColor FromWavelength(in Wavelength wavelength, double α)
@@ -17194,7 +17028,6 @@ public unsafe partial struct RGBAColor
         return new RGBAColor(r, g, b, α);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromSpectrum(Spectrum spectrum) => FromSpectrum(spectrum, 1);
 
     public static RGBAColor FromSpectrum(Spectrum spectrum, double α)
@@ -17227,7 +17060,6 @@ public unsafe partial struct RGBAColor
         return new RGBAColor(color.X, color.Y, color.Z, α);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromBlackbodyTemperature(double temperature) => FromBlackbodyTemperature(temperature, 1);
 
     public static RGBAColor FromBlackbodyTemperature(double temperature, double α)
@@ -17271,88 +17103,60 @@ public unsafe partial struct RGBAColor
         return res;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromARGB32(int argb) => new(argb);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor FromARGB32(uint argb) => new(argb);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(RGBAColor first, RGBAColor second) => first.Equals(second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator !=(RGBAColor first, RGBAColor second) => !(first == second);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <(RGBAColor first, RGBAColor second) => first.CompareTo(second) < 0;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >(RGBAColor first, RGBAColor second) => first.CompareTo(second) > 0;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <=(RGBAColor first, RGBAColor second) => first.CompareTo(second) <= 0;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >=(RGBAColor first, RGBAColor second) => first.CompareTo(second) >= 0;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor operator +(RGBAColor color) => color;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor operator -(RGBAColor color) => new(-color.Rf, -color.Gf, -color.Bf, -color.Af);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor operator +(RGBAColor first, RGBAColor second) => new(first.Rf + second.Rf, first.Gf + second.Gf, first.Bf + second.Bf, first.Af + second.Af);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor operator -(RGBAColor first, RGBAColor second) => new(first.Rf - second.Rf, first.Gf - second.Gf, first.Bf - second.Bf, first.Af - second.Af);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor operator *(double factor, RGBAColor color) => color * factor;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor operator *(RGBAColor color, double factor) => new(color.Rf * factor, color.Gf * factor, color.Bf * factor, color.Af * factor);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor operator /(RGBAColor color, double factor) => new(color.Rf / factor, color.Gf / factor, color.Bf / factor, color.Af / factor);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (double r, double g, double b)(RGBAColor color) => (color.Rf, color.Gf, color.Bf);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (double r, double g, double b, double α)(RGBAColor color) => (color.Rf, color.Gf, color.Bf, color.Af);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator RGBAColor((double r, double g, double b) color) => new(color.r, color.g, color.b, 1);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator RGBAColor((double r, double g, double b, double α) color) => new(color.r, color.g, color.b, color.α);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Vector3(RGBAColor color) => new(color.Rf, color.Gf, color.Bf);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Vector4(RGBAColor color) => new(color.Rf, color.Gf, color.Bf, color.Af);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (Vector3 color, Scalar α)(RGBAColor color) => (new(color.Rf, color.Gf, color.Bf), color.Af);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (Vector3 color, double α)(RGBAColor color) => (new(color.Rf, color.Gf, color.Bf), color.Af);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator RGBAColor(Vector3 color) => new(color.X, color.Y, color.Z, 1d);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator RGBAColor(Vector4 color) => new(color.X, color.Y, color.Z, color.W);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator RGBAColor((Vector3 color, Scalar α) rgba) => new(rgba.color.X, rgba.color.Y, rgba.color.Z, rgba.α);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator RGBAColor((Vector3 color, double α) rgba) => new(rgba.color.X, rgba.color.Y, rgba.color.Z, rgba.α);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator RGBAColor(in Wavelength wavelength) => FromWavelength(in wavelength);
 
 

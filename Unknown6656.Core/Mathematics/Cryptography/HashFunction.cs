@@ -19,13 +19,10 @@ public unsafe abstract class HashFunction<T>
     public abstract int HashSize { get; }
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public abstract byte[] Hash(byte[] data);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual byte[] Hash(byte[] data, int offset, int length) => Hash(data[offset..(offset + length)]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual byte[] Hash(Stream stream)
     {
         using MemoryStream ms = new();
@@ -36,19 +33,14 @@ public unsafe abstract class HashFunction<T>
         return Hash(ms);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual byte[] Hash(MemoryStream stream) => Hash(stream.ToArray());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual byte[] Hash(string data) => Hash(data, BytewiseEncoding.Instance);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual byte[] Hash(string data, Encoding encoding) => Hash(encoding.GetBytes(data));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual byte[] Hash<X>(X data) where X : unmanaged => Hash(&data, sizeof(X));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual byte[] Hash<X>(X* pointer, int size)
         where X : unmanaged
     {
@@ -61,7 +53,6 @@ public unsafe abstract class HashFunction<T>
         return Hash(data);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public OAEP<T, Random> CreateOAEP<Random>(Random random) where Random : Numerics.Random => new((T)this, random);
 }
 
@@ -135,7 +126,6 @@ public sealed unsafe class OAEP<Hash, Random>
         RandomGenerator = random;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte[] Pad(byte[] data)
     {
         int hashsz = HashFunction.HashSize;
@@ -168,10 +158,8 @@ public sealed unsafe class OAEP<Hash, Random>
         return result;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte[] Pad(byte[] data, int offset, int length) => Pad(data[offset..(offset + length)]);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte[] Pad(Stream stream)
     {
         using MemoryStream ms = new();
@@ -182,19 +170,14 @@ public sealed unsafe class OAEP<Hash, Random>
         return Pad(ms);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte[] Pad(MemoryStream stream) => Pad(stream.ToArray());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte[] Pad(string data) => Pad(data, BytewiseEncoding.Instance);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte[] Pad(string data, Encoding encoding) => Pad(encoding.GetBytes(data));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte[] Pad<T>(T data) where T : unmanaged => Pad(&data, sizeof(T));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte[] Pad<T>(T* pointer, int size)
         where T : unmanaged
     {
@@ -207,7 +190,6 @@ public sealed unsafe class OAEP<Hash, Random>
         return Pad(data);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte[] UnpadBytes(byte[] data)
     {
         int hashsz = HashFunction.HashSize;
@@ -233,13 +215,10 @@ public sealed unsafe class OAEP<Hash, Random>
         return data[4..(4 + datasz)];
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string UnpadString(byte[] data) => UnpadString(data, BytewiseEncoding.Instance);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string UnpadString(byte[] data, Encoding encoding) => encoding.GetString(UnpadBytes(data));
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T UnpadData<T>(byte[] data)
         where T : unmanaged
     {

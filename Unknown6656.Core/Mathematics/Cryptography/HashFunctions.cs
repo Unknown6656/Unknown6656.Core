@@ -40,7 +40,6 @@ public sealed class MD5Hash
         _md5.Dispose();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override byte[] Hash(byte[] data) => _md5.ComputeHash(data);
 }
 
@@ -65,7 +64,6 @@ public sealed class SHA1Hash
         _sha1.Dispose();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override byte[] Hash(byte[] data) => _sha1.ComputeHash(data);
 }
 
@@ -90,7 +88,6 @@ public sealed class SHA256Hash
         _sha256.Dispose();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override byte[] Hash(byte[] data) => _sha256.ComputeHash(data);
 }
 
@@ -115,7 +112,6 @@ public sealed class SHA384Hash
         _sha384.Dispose();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override byte[] Hash(byte[] data) => _sha384.ComputeHash(data);
 }
 
@@ -140,6 +136,5 @@ public sealed class SHA512Hash
         _sha512.Dispose();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override byte[] Hash(byte[] data) => _sha512.ComputeHash(data);
 }

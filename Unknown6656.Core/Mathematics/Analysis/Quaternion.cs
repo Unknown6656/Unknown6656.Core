@@ -144,7 +144,6 @@ public unsafe readonly /* ref */ partial struct Quaternion
         return GetElementUnsafe(ref quaternion, index);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static float GetElementUnsafe(ref Quaternion quaternion, int index)
     {
         Debug.Assert(index is >= 0 and < Count);
@@ -169,7 +168,6 @@ public unsafe readonly /* ref */ partial struct Quaternion
         return result;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void SetElementUnsafe(ref Quaternion quaternion, int index, float value)
     {
         Debug.Assert(index is >= 0 and < Count);
@@ -355,7 +353,6 @@ public unsafe readonly /* ref */ partial struct Quaternion
     /// <param name="value1">The first quaternion.</param>
     /// <param name="value2">The second quaternion.</param>
     /// <returns>The quaternion that contains the summed values of <paramref name="value1" /> and <paramref name="value2" />.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Quaternion Add(Quaternion value1, Quaternion value2)
     {
         return value1 + value2;
@@ -521,7 +518,6 @@ public unsafe readonly /* ref */ partial struct Quaternion
     /// <param name="value1">The dividend.</param>
     /// <param name="value2">The divisor.</param>
     /// <returns>The quaternion that results from dividing <paramref name="value1" /> by <paramref name="value2" />.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Quaternion Divide(Quaternion value1, Quaternion value2)
     {
         return value1 / value2;
@@ -607,7 +603,6 @@ public unsafe readonly /* ref */ partial struct Quaternion
     /// <param name="value1">The first quaternion.</param>
     /// <param name="value2">The second quaternion.</param>
     /// <returns>The product quaternion.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Quaternion Multiply(Quaternion value1, Quaternion value2)
     {
         return value1 * value2;
@@ -617,7 +612,6 @@ public unsafe readonly /* ref */ partial struct Quaternion
     /// <param name="value1">The source quaternion.</param>
     /// <param name="value2">The scalar value.</param>
     /// <returns>The scaled quaternion.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Quaternion Multiply(Quaternion value1, float value2)
     {
         return value1 * value2;
@@ -626,7 +620,6 @@ public unsafe readonly /* ref */ partial struct Quaternion
     /// <summary>Reverses the sign of each component of the quaternion.</summary>
     /// <param name="value">The quaternion to negate.</param>
     /// <returns>The negated quaternion.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Quaternion Negate(Quaternion value)
     {
         return -value;
@@ -704,7 +697,6 @@ public unsafe readonly /* ref */ partial struct Quaternion
     /// <param name="value1">The first quaternion.</param>
     /// <param name="value2">The second quaternion.</param>
     /// <returns>The quaternion containing the values that result from subtracting each element in <paramref name="value2" /> from its corresponding element in <paramref name="value1" />.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Quaternion Subtract(Quaternion value1, Quaternion value2)
     {
         return value1 - value2;
@@ -723,7 +715,6 @@ public unsafe readonly /* ref */ partial struct Quaternion
     /// <param name="other">The other quaternion.</param>
     /// <returns><see langword="true" /> if the two quaternions are equal; otherwise, <see langword="false" />.</returns>
     /// <remarks>Two quaternions are equal if each of their corresponding components is equal.</remarks>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool Equals(Quaternion other)
     {
         // This function needs to account for floating-point equality around NaN

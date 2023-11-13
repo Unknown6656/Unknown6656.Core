@@ -469,13 +469,11 @@ public unsafe partial struct RGBAColor
             throw new InvalidProgramException($"The size of the structure '{typeof(RGBAColor)}' is {sizeof(RGBAColor)} Bytes. However, due to binary constraints, the expected size are {sizeof(uint)} bytes.");
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RGBAColor(byte gray)
         : this(gray, 255)
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RGBAColor(byte gray, byte α)
         : this(gray, gray, gray, α)
     {
@@ -487,7 +485,6 @@ public unsafe partial struct RGBAColor
     /// <param name="r">Red value</param>
     /// <param name="g">Green value</param>
     /// <param name="b">Blue value</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RGBAColor(byte r, byte g, byte b)
         : this(r, g, b, 255)
     {
@@ -500,7 +497,6 @@ public unsafe partial struct RGBAColor
     /// <param name="r">Red value</param>
     /// <param name="g">Green value</param>
     /// <param name="b">Blue value</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public RGBAColor(byte r, byte g, byte b, byte α)
     {
         A = α;
@@ -512,7 +508,6 @@ public unsafe partial struct RGBAColor
     #endregion
     #region INSTANCE METHODS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly override string ToString()
     {
         uint argb = ARGBu;
@@ -520,13 +515,10 @@ public unsafe partial struct RGBAColor
         return IColor.KnownColorNames.TryGetValue(argb, out string? name) ? name : $"#{argb:x8}";
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly uint ToARGB32() => ARGBu;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToVT100ForegroundString() => $"\x1b[38;2;{R};{G};{B}m";
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly string ToVT100BackgroundString() => $"\x1b[48;2;{R};{G};{B}m";
 
     //[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -545,10 +537,8 @@ public unsafe partial struct RGBAColor
     //    );
     //}
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(out byte r, out byte g, out byte b) => Deconstruct(out r, out g, out b, out _);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Deconstruct(out byte r, out byte g, out byte b, out byte α)
     {
         r = R;
@@ -567,7 +557,6 @@ public unsafe partial struct RGBAColor
 
     #region STATIC METHODS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static RGBAColor Blend(RGBAColor bottom, RGBAColor top, BlendMode mode)
     {
         Vector3 b = bottom;
@@ -694,28 +683,20 @@ public unsafe partial struct RGBAColor
     #endregion
     #region OPERATORS
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator int(RGBAColor color) => color.ARGB;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator uint(RGBAColor color) => color.ARGBu;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator RGBAColor(int argb) => FromARGB32(argb);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator RGBAColor(uint argb) => FromARGB32(argb);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator (byte r, byte g, byte b, byte α)(RGBAColor color) => (color.R, color.G, color.B, color.A);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Color(RGBAColor color) => Color.FromArgb(color.ARGB);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator RGBAColor(Color color) => new(color.ToArgb());
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator RGBAColor((byte r, byte g, byte b, byte α) color) => new(color.r, color.g, color.b, color.α);
 
     #endregion

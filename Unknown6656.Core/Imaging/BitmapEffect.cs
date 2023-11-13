@@ -291,10 +291,8 @@ public class AcceleratedChainedPartialBitmapEffect
 public abstract class ColorEffect
     : PartialBitmapEffect.Accelerated
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private protected abstract RGBAColor ProcessColor(RGBAColor input);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal protected override sealed unsafe void Process(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region)
     {
         int[] indices = GetIndices(bmp, region);
@@ -326,10 +324,8 @@ public abstract class ColorEffect
 public abstract class CoordinateColorEffect
     : PartialBitmapEffect.Accelerated
 {
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private protected abstract RGBAColor ProcessCoordinate(int x, int y, int w, int h, RGBAColor source);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal protected override sealed unsafe void Process(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region)
     {
         int w = bmp.Width;
@@ -412,7 +408,6 @@ public class RGBAColorEffect
         ColorBias = bias;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private protected override RGBAColor ProcessColor(RGBAColor input) => (ColorMatrix * input) + ColorBias;
 }
 
@@ -442,7 +437,6 @@ public class RGBColorEffect
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private protected override RGBAColor ProcessColor(RGBAColor input) => (ColorMatrix * input) + ColorBias;
 }
 
@@ -468,7 +462,6 @@ public class MultiConvolutionEffect
         ConvolutionKernel = kernels;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal protected override unsafe void Process(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region)
     {
         (int cols, int rows, Scalar[,] vals)[] kernels = ConvolutionKernel.Select(k => (k.ColumnCount, k.RowCount, k.Coefficients)).ToArray();
@@ -515,7 +508,6 @@ public class SingleConvolutionEffect
     public SingleConvolutionEffect(MatrixNM kernel)
         : base(kernel) => ConvolutionKernel = kernel;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal protected override unsafe void Process(Bitmap bmp, RGBAColor* source, RGBAColor* destination, Rectangle region)
     {
         Scalar[,] matrix = ConvolutionKernel;

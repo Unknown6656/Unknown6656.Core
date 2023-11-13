@@ -155,7 +155,7 @@ public class Polynomial<Function, T>
     {
         Type F = typeof(Function);
 
-        if (F.GetConstructor(new[] { typeof(T[]) }) is { } ctor)
+        if (F.GetConstructor([typeof(T[])]) is { } ctor)
             _create = c => (Function)ctor.Invoke(new object[] { c is T[] a ? a : c.ToArray() });
         else
             throw new InvalidOperationException($"The type parameter '{F}' cannot be used as polynomial function type, as it has no constructor accepting an array of polynomial coefficents ('{typeof(T[])}').");
@@ -207,7 +207,7 @@ public class Polynomial<Function, T>
                                    .Reverse()
                                    .ToArray();
 
-        return coefficients is { Length: 0 } c ? (new T[] { default }) : coefficients;
+        return coefficients is { Length: 0 } c ? ([default]) : coefficients;
     }
 
     #endregion

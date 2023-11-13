@@ -483,7 +483,7 @@ public unsafe readonly /* ref */ struct Complex
     readonly Complex IScalar<Complex>.Sqrt() => Sqrt()[0];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Complex[] Sqrt() => IsReal && !IsNegative ? new Complex[] { Real.Sqrt() } : Roots(2);
+    public readonly Complex[] Sqrt() => IsReal && !IsNegative ? [Real.Sqrt()] : Roots(2);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Complex[] Roots(int root)

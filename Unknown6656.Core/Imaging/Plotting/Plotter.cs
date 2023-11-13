@@ -292,7 +292,7 @@ public abstract class Plotter<POIValue>
 
         if (AxisType == AxisType.Polar)
         {
-            using Pen cpen = new(AxisColor, AxisThickness) { DashPattern = new float[] { 3, 6 } };
+            using Pen cpen = new(AxisColor, AxisThickness) { DashPattern = [3, 6] };
             Scalar diag = new Vector2(w, h).Length;
             int cskip = Math.Max(vskip, hskip) * 4;
             int c = (int)(diag / s / 2);

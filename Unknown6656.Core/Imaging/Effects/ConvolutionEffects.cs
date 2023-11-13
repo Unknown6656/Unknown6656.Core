@@ -100,8 +100,8 @@ public sealed class KirschEdgeDetection
         {
             Scalar a = amount.Clamp();
 
-            return new MatrixNM[]
-            {
+            return
+            [
                     new Matrix3(
                         a * 5, a * 5, a * 5,
                         a * -3, 1 - a, a * -3,
@@ -112,7 +112,7 @@ public sealed class KirschEdgeDetection
                         a * 5, 1 - a, a * -3,
                         a * 5, a * -3, a * -3
                     ),
-            };
+            ];
         })())
     {
     }

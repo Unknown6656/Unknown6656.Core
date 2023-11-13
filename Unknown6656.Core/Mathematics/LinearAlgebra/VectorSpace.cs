@@ -33,7 +33,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra
             }
         }
 
-        public Vector2 this[Scalar x0, Scalar x1] => this[new[] { x0, x1 }];
+        public Vector2 this[Scalar x0, Scalar x1] => this[[x0, x1]];
 
         public VectorSpace2 Orthogonalized => 
 throw new NotImplementedException(); // TODO
@@ -122,7 +122,7 @@ throw new NotImplementedException(); // TODO
             }
         }
 
-        public Vector3 this[Scalar x0, Scalar x1, Scalar x2] => this[new[] { x0, x1, x2 }];
+        public Vector3 this[Scalar x0, Scalar x1, Scalar x2] => this[[x0, x1, x2]];
 
         public VectorSpace3 Orthogonalized => 
 throw new NotImplementedException(); // TODO
@@ -211,7 +211,7 @@ throw new NotImplementedException(); // TODO
             }
         }
 
-        public Vector4 this[Scalar x0, Scalar x1, Scalar x2, Scalar x3] => this[new[] { x0, x1, x2, x3 }];
+        public Vector4 this[Scalar x0, Scalar x1, Scalar x2, Scalar x3] => this[[x0, x1, x2, x3]];
 
         public VectorSpace4 Orthogonalized => 
 throw new NotImplementedException(); // TODO
@@ -300,7 +300,7 @@ throw new NotImplementedException(); // TODO
             }
         }
 
-        public Vector5 this[Scalar x0, Scalar x1, Scalar x2, Scalar x3, Scalar x4] => this[new[] { x0, x1, x2, x3, x4 }];
+        public Vector5 this[Scalar x0, Scalar x1, Scalar x2, Scalar x3, Scalar x4] => this[[x0, x1, x2, x3, x4]];
 
         public VectorSpace5 Orthogonalized => 
 throw new NotImplementedException(); // TODO
@@ -389,7 +389,7 @@ throw new NotImplementedException(); // TODO
             }
         }
 
-        public Vector6 this[Scalar x0, Scalar x1, Scalar x2, Scalar x3, Scalar x4, Scalar x5] => this[new[] { x0, x1, x2, x3, x4, x5 }];
+        public Vector6 this[Scalar x0, Scalar x1, Scalar x2, Scalar x3, Scalar x4, Scalar x5] => this[[x0, x1, x2, x3, x4, x5]];
 
         public VectorSpace6 Orthogonalized => 
 throw new NotImplementedException(); // TODO
@@ -478,7 +478,7 @@ throw new NotImplementedException(); // TODO
             }
         }
 
-        public Vector7 this[Scalar x0, Scalar x1, Scalar x2, Scalar x3, Scalar x4, Scalar x5, Scalar x6] => this[new[] { x0, x1, x2, x3, x4, x5, x6 }];
+        public Vector7 this[Scalar x0, Scalar x1, Scalar x2, Scalar x3, Scalar x4, Scalar x5, Scalar x6] => this[[x0, x1, x2, x3, x4, x5, x6]];
 
         public VectorSpace7 Orthogonalized => 
 throw new NotImplementedException(); // TODO
@@ -567,7 +567,7 @@ throw new NotImplementedException(); // TODO
             }
         }
 
-        public Vector8 this[Scalar x0, Scalar x1, Scalar x2, Scalar x3, Scalar x4, Scalar x5, Scalar x6, Scalar x7] => this[new[] { x0, x1, x2, x3, x4, x5, x6, x7 }];
+        public Vector8 this[Scalar x0, Scalar x1, Scalar x2, Scalar x3, Scalar x4, Scalar x5, Scalar x6, Scalar x7] => this[[x0, x1, x2, x3, x4, x5, x6, x7]];
 
         public VectorSpace8 Orthogonalized => 
 throw new NotImplementedException(); // TODO
@@ -656,7 +656,7 @@ throw new NotImplementedException(); // TODO
             }
         }
 
-        public Vector9 this[Scalar x0, Scalar x1, Scalar x2, Scalar x3, Scalar x4, Scalar x5, Scalar x6, Scalar x7, Scalar x8] => this[new[] { x0, x1, x2, x3, x4, x5, x6, x7, x8 }];
+        public Vector9 this[Scalar x0, Scalar x1, Scalar x2, Scalar x3, Scalar x4, Scalar x5, Scalar x6, Scalar x7, Scalar x8] => this[[x0, x1, x2, x3, x4, x5, x6, x7, x8]];
 
         public VectorSpace9 Orthogonalized => 
 throw new NotImplementedException(); // TODO
@@ -745,7 +745,7 @@ throw new NotImplementedException(); // TODO
             }
         }
 
-        public Vector10 this[Scalar x0, Scalar x1, Scalar x2, Scalar x3, Scalar x4, Scalar x5, Scalar x6, Scalar x7, Scalar x8, Scalar x9] => this[new[] { x0, x1, x2, x3, x4, x5, x6, x7, x8, x9 }];
+        public Vector10 this[Scalar x0, Scalar x1, Scalar x2, Scalar x3, Scalar x4, Scalar x5, Scalar x6, Scalar x7, Scalar x8, Scalar x9] => this[[x0, x1, x2, x3, x4, x5, x6, x7, x8, x9]];
 
         public VectorSpace10 Orthogonalized => 
 throw new NotImplementedException(); // TODO

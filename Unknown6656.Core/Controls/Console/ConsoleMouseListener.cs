@@ -74,7 +74,7 @@ public static class ConsoleMouseListener
                                 // TODO : key event
 
                             if (records.Count > 0)
-                                NativeInterop.WriteConsoleInput(handle, records.ToArray(), records.Count, out _);
+                                NativeInterop.WriteConsoleInput(handle, [.. records], records.Count, out _);
                         }
                         catch (Exception e)
                         {

@@ -57,9 +57,9 @@ public sealed unsafe class CompressedStorageFormat<Field>
             cols.Add(vals.Count);
         }
 
-        Values = vals.ToArray();
-        Rows = rows.ToArray();
-        Cols = cols.ToArray();
+        Values = [.. vals];
+        Rows = [.. rows];
+        Cols = [.. cols];
     }
 
     private CompressedStorageFormat(byte[] bytes)
@@ -128,7 +128,7 @@ public sealed unsafe class CompressedStorageFormat<Field>
     public Field[,] ToMatrix()
     {
         Field[,] mat = new Field[Dimensions.Columns, Dimensions.Rows];
-        List<int> cols = Cols.ToList();
+        List<int> cols = [.. Cols];
 
         for (int i = 0, c = 0; i < Values.Length; ++i)
         {
@@ -284,7 +284,7 @@ public unsafe abstract class VectorN<Vector, Matrix, Polynomial, Scalar>
     public Matrix HouseholderMatrix => IsZero ? throw new InvalidOperationException("The Householder matrix is undefined for zero vectors.")
                                               : OuterProduct(this).Multiply(Scalar.One + Scalar.One).Divide(SquaredNorm);
 
-    public Matrix Transposed => MatrixNM<Vector, Matrix, Polynomial, Scalar>.FromRows(new Vector[] { this });
+    public Matrix Transposed => MatrixNM<Vector, Matrix, Polynomial, Scalar>.FromRows([this]);
 
     #endregion
     #region CONSTRUCTORS
@@ -718,7 +718,7 @@ public unsafe abstract class VectorN<Vector, Matrix, Polynomial, Scalar>
     public static explicit operator Polynomial(in VectorN<Vector, Matrix, Polynomial, Scalar> v) => v.ToPolynomial();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static explicit operator VectorN<Vector, Matrix, Polynomial, Scalar>(Scalar s) => FromArray(new[] { s });
+    public static explicit operator VectorN<Vector, Matrix, Polynomial, Scalar>(Scalar s) => FromArray([s]);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static Vector Algebra<Scalar>.IVectorSpace<Vector>.operator *(Scalar scalar, in Vector vector) => vector.Multiply(scalar);
@@ -1833,7 +1833,7 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
     {
         (Vector vec, Scalar val)[] pairs = GetEigenpairs(comparer);
         Vector[] vectors = pairs.Select(p => p.vec).Distinct<Vector>(new CustomEqualityComparer<Vector>((v1, v2) => v1.Coefficients.SequenceEqual(v2.Coefficients, comparer))).ToArray();
-        Scalar[] values = pairs.Select(p => p.val).Distinct<Scalar>(comparer).OrderByDescending(LINQ.id).ToArray();
+        Scalar[] values = [.. pairs.Select(p => p.val).Distinct<Scalar>(comparer).OrderByDescending(LINQ.id)];
 
         return (vectors, values);
     }
@@ -2158,7 +2158,7 @@ public abstract class VectorSpace<Space, Vector, Scalar>
     {
         Type space = typeof(Space);
 
-        if (space.GetConstructor(new[] { typeof(IEnumerable<Vector>) }) is { } c)
+        if (space.GetConstructor([typeof(IEnumerable<Vector>)]) is { } c)
             _create = v => (Space)c.Invoke(new object[] { v });
         else
             throw new InvalidOperationException($"The type '{space}' cannot be used as vector space type as it does not provide a constructor accepting a single parameter of the type '{typeof(IEnumerable<Vector>)}'.");
@@ -2179,7 +2179,7 @@ public abstract class VectorSpace<Space, Vector, Scalar>
             if (v.IsNonZero && result.All(b => !v.IsLinearDependant(b, out _)))
                 result.Add(v);
 
-        return result.ToArray();
+        return [.. result];
     }
 
     #endregion

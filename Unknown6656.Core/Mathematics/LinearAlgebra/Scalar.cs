@@ -272,7 +272,7 @@ public unsafe readonly /* ref */ partial struct Scalar
 
     readonly bool Algebra<Scalar>.IMatrix.IsSignatureMatrix => Abs().IsOne;
 
-    readonly Scalar[] Algebra<Scalar>.IMatrix.Eigenvalues => IsZero ? Array.Empty<Scalar>() : new[] { this };
+    readonly Scalar[] Algebra<Scalar>.IMatrix.Eigenvalues => IsZero ? Array.Empty<Scalar>() : [this];
 
     readonly IEnumerable<Scalar> Algebra<Scalar>.IComposite2D.FlattenedCoefficients => new[] { this };
 
@@ -724,7 +724,7 @@ public unsafe readonly /* ref */ partial struct Scalar
     readonly Scalar Algebra<Scalar>.IMetricVectorSpace<Scalar>.DistanceTo(in Scalar second) => Subtract(in second).Abs();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    readonly Algebra<Scalar>.IMatrix[] Algebra<Scalar>.IMatrix.GetPrincipalSubmatrices() => global::System.Array.Empty<global::Unknown6656.Mathematics.LinearAlgebra.Algebra<global::Unknown6656.Mathematics.LinearAlgebra.Scalar>.IMatrix>();
+    readonly Algebra<Scalar>.IMatrix[] Algebra<Scalar>.IMatrix.GetPrincipalSubmatrices() => Array.Empty<global::Unknown6656.Mathematics.LinearAlgebra.Algebra<global::Unknown6656.Mathematics.LinearAlgebra.Scalar>.IMatrix>();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     readonly bool Algebra<Scalar>.IVectorSpace<Scalar>.IsLinearDependant(in Scalar other, out Scalar? factor) => (factor = IsZero || other.IsZero ? (Scalar?)null : other / this) != null;
@@ -1496,14 +1496,14 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
     {
         Type T = typeof(T);
         OpType[] critical =
-        {
+        [
             OpType.op_Equality,
             OpType.op_Addition,
             OpType.op_UnaryNegation,
             OpType.op_Division,
             OpType.op_Multiply,
             OpType.op_Modulus,
-        };
+        ];
 
         _zero = default;
         _one = LINQ.TryAll<T>(

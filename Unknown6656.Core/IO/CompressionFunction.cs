@@ -114,6 +114,6 @@ public sealed class RLECompression
         for (int i = count + 1; i < input.Count; ++i)
             output.AddRange(input[i] < 256 ? input[i].InternalBytes : dic[input[i]]);
 
-        return output.ToArray();
+        return [.. output];
     }
 }

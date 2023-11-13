@@ -926,10 +926,13 @@ namespace Unknown6656.Controls.Console
         internal void OnKeyPress(ConsoleKeyInfo key, ref bool handled)
         {
             bool backwards = false;
-            Control[] focusable_children = this is ContainerControl { Children: var cs } ? (from c in cs
-                                                                                            where c.FocusBehaviour != FocusBehaviour.NonFocusable
-                                                                                            orderby c.RelativeTabIndex ascending
-                                                                                            select c).ToArray() : Array.Empty<Control>();
+            Control[] focusable_children = this is ContainerControl { Children: var cs } ?
+            [
+                .. (from c in cs
+                                                                                                            where c.FocusBehaviour != FocusBehaviour.NonFocusable
+                                                                                                            orderby c.RelativeTabIndex ascending
+                                                                                                            select c),
+            ] : Array.Empty<Control>();
 
             switch (Host.KeyMapping.GetHandledAction(key))
             {
@@ -1001,7 +1004,7 @@ namespace Unknown6656.Controls.Console
                     return;
                 else
                 {
-                    object[] args = { this, key, handled };
+                    object[] args = [this, key, handled];
 
                     del?.DynamicInvoke(args);
 
@@ -1374,7 +1377,7 @@ namespace Unknown6656.Controls.Console
         {
             try
             {
-                if (typeof(T).GetConstructor(new[] { typeof(ControlHost) })?.Invoke(new object[] { Host }) is T control)
+                if (typeof(T).GetConstructor([typeof(ControlHost)])?.Invoke(new object[] { Host }) is T control)
                     return AddChild<T>(control);
             }
             catch

@@ -51,7 +51,7 @@ public class GIF
         int count = gif.GetFrameCount(FrameDimension.Time);
 
         if (count <= 1)
-            return new[] { new GIFFrame(gif) };
+            return [new GIFFrame(gif)];
 
         byte[] times = gif.GetPropertyItem(0x5100).Value;
         List<GIFFrame> frames = new();
@@ -66,7 +66,7 @@ public class GIF
 
         gif.Dispose();
 
-        return frames.ToArray();
+        return [.. frames];
     }
 }
 

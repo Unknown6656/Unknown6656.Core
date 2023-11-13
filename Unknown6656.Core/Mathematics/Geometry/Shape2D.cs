@@ -380,7 +380,7 @@ public abstract class Polygon2D<T>
             throw new NotImplementedException();
         }
 
-        return triangles.ToArray();
+        return [.. triangles];
     }
 }
 

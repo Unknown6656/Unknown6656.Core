@@ -85,20 +85,20 @@ public unsafe class ErrorDiffusionDithering
                     (0, 1, .3125),
                     (1, 1, .0625)
                 },
-                ErrorDiffusionDitheringAlgorithm.FalseFloydSteinberg => new error_diffusion_factor[] {
+                ErrorDiffusionDitheringAlgorithm.FalseFloydSteinberg => [
                     (1, 0, .375),
                     (0, 1, .25),
                     (1, 1, .375)
-                },
-                ErrorDiffusionDitheringAlgorithm.Atkinson => new error_diffusion_factor[] {
+                ],
+                ErrorDiffusionDitheringAlgorithm.Atkinson => [
                     (1, 0, .125),
                     (2, 0, .125),
                     (-1, 1, .125),
                     (0, 1, .125),
                     (1, 1, .125),
                     (0, 2, .125)
-                },
-                ErrorDiffusionDitheringAlgorithm.Burkes => new error_diffusion_factor[] {
+                ],
+                ErrorDiffusionDitheringAlgorithm.Burkes => [
                     (1, 0, .25),
                     (2, 0, .125),
                     (-2, 1, .0625),
@@ -106,8 +106,8 @@ public unsafe class ErrorDiffusionDithering
                     (0, 1, .25),
                     (1, 1, .125),
                     (2, 1, .0625)
-                },
-                ErrorDiffusionDitheringAlgorithm.JarvisJudiceNinke => new error_diffusion_factor[] {
+                ],
+                ErrorDiffusionDitheringAlgorithm.JarvisJudiceNinke => [
                     (1, 0, .1458333333),
                     (2, 0, .1041666667),
                     (-2, 1, .0625),
@@ -120,8 +120,8 @@ public unsafe class ErrorDiffusionDithering
                     (0, 2, .1041666667),
                     (1, 2, .0625),
                     (2, 2, .0208333333)
-                },
-                ErrorDiffusionDitheringAlgorithm.Stucki => new error_diffusion_factor[] {
+                ],
+                ErrorDiffusionDitheringAlgorithm.Stucki => [
                     (1, 0, .1904761905),
                     (2, 0, .0952380952),
                     (-2, 1, .0476190476),
@@ -134,8 +134,8 @@ public unsafe class ErrorDiffusionDithering
                     (0, 2, .0952380952),
                     (1, 2, .0476190476),
                     (2, 2, .0238095238)
-                },
-                ErrorDiffusionDitheringAlgorithm.Sierra => new error_diffusion_factor[] {
+                ],
+                ErrorDiffusionDitheringAlgorithm.Sierra => [
                     (1, 0, .15625),
                     (2, 0, .09375),
                     (-2, 1, .0625),
@@ -146,8 +146,8 @@ public unsafe class ErrorDiffusionDithering
                     (-1, 2, .0625),
                     (0, 2, .09375),
                     (1, 2, .0625)
-                },
-                ErrorDiffusionDitheringAlgorithm.SierraTwoRow => new error_diffusion_factor[] {
+                ],
+                ErrorDiffusionDitheringAlgorithm.SierraTwoRow => [
                     (1, 0, .1875),
                     (2, 0, .25),
                     (-2, 1, .0625),
@@ -155,16 +155,16 @@ public unsafe class ErrorDiffusionDithering
                     (0, 1, .1875),
                     (1, 1, .125),
                     (2, 1, .0625)
-                },
-                ErrorDiffusionDitheringAlgorithm.SierraLite => new error_diffusion_factor[] {
+                ],
+                ErrorDiffusionDitheringAlgorithm.SierraLite => [
                     (1, 0, .5),
                     (-1, 1, .25),
                     (0, 1, .25)
-                },
-                ErrorDiffusionDitheringAlgorithm.TwoDimensional => new error_diffusion_factor[] {
+                ],
+                ErrorDiffusionDitheringAlgorithm.TwoDimensional => [
                     (1, 0, .5),
                     (0, 1, .5)
-                },
+                ],
             });
     }
 

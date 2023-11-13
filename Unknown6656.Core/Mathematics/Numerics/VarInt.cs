@@ -93,7 +93,7 @@ namespace Unknown6656.Mathematics.Numerics
 
         public BigInteger ToBigInteger() => new(InternalBytes);
 
-        public VarInt Clone() => new(InternalBytes.ToArray());
+        public VarInt Clone() => new([.. InternalBytes]);
 
         object ICloneable.Clone() => Clone();
 
@@ -198,14 +198,14 @@ namespace Unknown6656.Mathematics.Numerics
             }
             while (has_next);
 
-            return new VarInt(bytes.ToArray());
+            return new VarInt([.. bytes]);
         }
 
         public static VarInt FromBytes(byte[] bytes) => new(bytes);
 
-        public static VarInt FromNumber(byte value) => FromBytes(new[] { value });
+        public static VarInt FromNumber(byte value) => FromBytes([value]);
 
-        public static VarInt FromNumber(sbyte value) => FromBytes(new[] { unchecked((byte)value) });
+        public static VarInt FromNumber(sbyte value) => FromBytes([unchecked((byte)value)]);
 
         public static VarInt FromNumber(short value) => FromNumber((BigInteger)value);
 

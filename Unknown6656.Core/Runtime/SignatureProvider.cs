@@ -13,7 +13,7 @@ namespace Unknown6656.Runtime;
 
 public record NullabilityInformation(bool[] RawNullability, Ref<int> Processed)
 {
-    public static NullabilityInformation Empty { get; } = new(new[] { false }, Ref<int>.Null);
+    public static NullabilityInformation Empty { get; } = new([false], Ref<int>.Null);
 
     public bool IsNullable { get; } = RawNullability.Any(LINQ.id);
 

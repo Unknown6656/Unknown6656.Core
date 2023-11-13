@@ -27,6 +27,6 @@ namespace Tester
             (ScalarFunction.Sine, RGBAColor.Green)
         );
 
-        public void KeyDown(object? sender, KeyEventArgs args) => base.FunctionPlotterControl_KeyDown(sender, args);
+        public void KeyDown(object? sender, KeyEventArgs args) => FunctionPlotterControl_KeyDown(sender, args);
     }
 }

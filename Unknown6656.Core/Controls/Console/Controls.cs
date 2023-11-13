@@ -613,7 +613,7 @@ public class ProgressBar
 public sealed class ColorPicker
     : Control
 {
-    private static readonly ColorChannel[] _channels = { ColorChannel.R, ColorChannel.G, ColorChannel.B };
+    private static readonly ColorChannel[] _channels = [ColorChannel.R, ColorChannel.G, ColorChannel.B];
     private RGBAColor _PickedColor = RGBAColor.Red;
     private int _selectedchannelindex = 0;
     private int _selectedhexindex = 0;

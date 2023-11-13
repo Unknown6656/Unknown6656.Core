@@ -97,7 +97,7 @@ public abstract class Clustering<Item>
             return from t in clustering.Zip(array)
                    let id = t.First
                    group t.Second by id into @group
-                   select new Cluster<Item>(this, @group.Key, @group.ToArray());
+                   select new Cluster<Item>(this, @group.Key, [.. @group]);
         }
         else
             return Enumerable.Empty<Cluster<Item>>();

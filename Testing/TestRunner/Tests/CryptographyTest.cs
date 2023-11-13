@@ -20,7 +20,7 @@ namespace Unknown6656.Testing.Tests
     {
         private static readonly Mathematics.Numerics.Random RANDOM = new XorShift();
         private static readonly string PASS = "-=secure password=-";
-        private static readonly byte[] IV = { 0x14, 0xab, 0x88, 0xf7 };
+        private static readonly byte[] IV = [0x14, 0xab, 0x88, 0xf7];
         private static readonly string DATA_1 = "0123"; // "Hello, World! This is a test message!";
         private static readonly (Matrix3, Vector5, DateTime) DATA_2 = (
             new Matrix3(

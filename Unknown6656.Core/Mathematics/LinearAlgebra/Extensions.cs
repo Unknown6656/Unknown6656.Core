@@ -454,7 +454,7 @@ public partial struct Vector2
 {
     private static string _PLUSCODE_CHARS = "23456789CFGHJMPQRVWX";
     private static readonly double[] _PLUSCODE_LEVELS =
-    {
+    [
         20,
         1,
         .05,
@@ -462,7 +462,7 @@ public partial struct Vector2
         .000125,
         .00003125,
         .00000625,
-    };
+    ];
     private static readonly Regex _REGEX_PLUSCODE = new(
         @$"^(([{_PLUSCODE_CHARS}]{{2}}){{1,6}}|[{_PLUSCODE_CHARS}]?([{_PLUSCODE_CHARS}]{{2}}){{1,4}}\+[{_PLUSCODE_CHARS}]{{2}}[{_PLUSCODE_CHARS}]?)$",
         RegexOptions.IgnoreCase | RegexOptions.Compiled

@@ -516,7 +516,7 @@ public abstract class Graph<G, V, E>
 #if ID_API
     public Path<G, V, E> AddCycle(params int[] ids) => AddCycle(ids.ToArray(i => this[i]));
 #endif
-    public Path<G, V, E> AddCycle(params Vertex<G, V, E>[] vertices) => AddPath(vertices.Append(vertices[0]).ToArray());
+    public Path<G, V, E> AddCycle(params Vertex<G, V, E>[] vertices) => AddPath([.. vertices, vertices[0]]);
 
     public G2 Cast<G2, V2, E2>(Func<V, V2> vertex_cast, Func<E, E2> edge_cast)
         where G2 : Graph<G2, V2, E2>, new()

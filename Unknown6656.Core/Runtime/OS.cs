@@ -55,7 +55,7 @@ public static class OS
     public static unsafe void CreateBluescreenOfDeath()
     {
 #pragma warning disable CA1416 // Validate platform compatibility
-        if (OS.IsWindows)
+        if (IsWindows)
         {
             NativeInterop.RtlAdjustPrivilege(19, true, false, out _);
             NativeInterop.NtRaiseHardError(0xc0000420u, 0, 0, null, 6, out _);

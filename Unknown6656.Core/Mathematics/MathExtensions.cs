@@ -119,7 +119,7 @@ public static partial class MathExtensions
     public static T Median<T>(this IEnumerable<T> scalars)
         where T : IComparable<T>
     {
-        T[] ordered = scalars.OrderBy(LINQ.id).ToArray();
+        T[] ordered = [.. scalars.OrderBy(LINQ.id)];
 
         return ordered.Length == 0 ? default : ordered[ordered.Length / 2];
     }
@@ -141,14 +141,14 @@ public static partial class MathExtensions
     {
         double avg = scalars.Average();
 
-        return Math.Pow(scalars?.Sum(x => x - avg) ?? 0, 2);
+        return Pow(scalars?.Sum(x => x - avg) ?? 0, 2);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float StandardDeviation(this IEnumerable<float>? scalars) => (float)StandardDeviation(scalars?.Select(Convert.ToDouble));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static double StandardDeviation(this IEnumerable<double>? scalars) => Math.Sqrt(scalars.Variance());
+    public static double StandardDeviation(this IEnumerable<double>? scalars) => Sqrt(scalars.Variance());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static decimal StandardDeviation(this IEnumerable<decimal>? scalars) => (decimal)StandardDeviation(scalars?.Select(Convert.ToDouble));
@@ -160,7 +160,7 @@ public static partial class MathExtensions
     {
         double[] arr = scalars as double[] ?? scalars.ToArray();
 
-        return Math.Pow(arr.Product(), 1d / arr.Length);
+        return Pow(arr.Product(), 1d / arr.Length);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -173,7 +173,7 @@ public static partial class MathExtensions
     /// </summary>
     public static double GeothmeticMeandian(this IEnumerable<double> scalars, double epsilon = 1e-12, int max_iterations = 10_000)
     {
-        double[] arr = new[] { scalars.Average(), scalars.GeometricMean(), scalars.Median() };
+        double[] arr = [scalars.Average(), scalars.GeometricMean(), scalars.Median()];
         double last_avg = 0, diff;
 
         for (int iter = 0; iter < max_iterations; ++iter)
@@ -455,7 +455,7 @@ public static partial class MathExtensions
                 f.Add(b);
             }
 
-        return f.ToArray();
+        return [.. f];
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -743,7 +743,7 @@ public static partial class MathExtensions
 
     public static string ToHumanReadableSize(this long l)
     {
-        string[] sizes = { "B", "KB", "MB", "GB", "TB", "EB", "PB" };
+        string[] sizes = ["B", "KB", "MB", "GB", "TB", "EB", "PB"];
         int order = 0;
 
         while (l >= 1024 && order < sizes.Length - 1)

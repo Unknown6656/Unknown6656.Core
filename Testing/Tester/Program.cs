@@ -274,7 +274,7 @@ public static class Program
             p.AddNewChild<OptionBox>(c =>
             {
                 c.Text = "Select lel";
-                c.Options = new[] { "top", "kaikokek", "jej !null", "ebin h4x" };
+                c.Options = ["top", "kaikokek", "jej !null", "ebin h4x"];
             });
             p.AddNewChild<ProgressBar>(c =>
             {

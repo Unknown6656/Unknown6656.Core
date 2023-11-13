@@ -31,8 +31,8 @@ namespace Unknown6656.Testing.Tests
             });
             Matrix2 m5 = new(new Scalar[2][]
             {
-                new Scalar[2] { 0, 2 },
-                new Scalar[2] { 1, 3 },
+                [0, 2],
+                [1, 3],
             });
             Matrix2 m6 = new(m.Columns);
             Matrix2 m7 = new(new Vector2[]
@@ -138,12 +138,12 @@ namespace Unknown6656.Testing.Tests
         [TestMethod]
         public void Test_03__matrix_nm()
         {
-            MatrixNM m = new(4, 3, new Scalar[]
-            {
+            MatrixNM m = new(4, 3,
+            [
                 0, 1, 2, 3,
                 4, 5, 6, 7,
                 8, 9, -1, -2
-            });
+            ]);
 
             MatrixNM m1 = new(m);
             MatrixNM m2 = new(m.Coefficients);
@@ -160,12 +160,12 @@ namespace Unknown6656.Testing.Tests
             Assert.AreEqual(m, m3);
             Assert.AreEqual(m, m4);
 
-            m = new MatrixNM(3, 3, new Scalar[]
-            {
+            m = new MatrixNM(3, 3,
+            [
                 0, 1, 2,
                 3, 4, 5,
                 6, 7, 8
-            });
+            ]);
 
             Algebra<Scalar, Polynomial>.IMatrix m5 = m.Cast();
             MatrixNM m6 = (Matrix3)m5;
@@ -197,11 +197,11 @@ namespace Unknown6656.Testing.Tests
                 8, 9, -1,
                 -2, -3, -5
             ), m.Minors[2, 1]);
-            Assert.AreEqual(new MatrixNM(3, 2, new Scalar[]
-            {
+            Assert.AreEqual(new MatrixNM(3, 2,
+            [
                 1, 2, 3,
                 5, 6, 7,
-            }), m[1..4, ..2]);
+            ]), m[1..4, ..2]);
         }
 
         [TestMethod]

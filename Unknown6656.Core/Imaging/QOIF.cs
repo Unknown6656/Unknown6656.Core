@@ -91,7 +91,7 @@ internal sealed unsafe class QOIF_V1
     private const byte MASK_LUMA_BG = 0b_0000_1111;
     private const int SHIFT_LUMA_RG = 4;
 
-    private static readonly byte[] END = { 0, 0, 0, 0, 0, 0, 0, 1 };
+    private static readonly byte[] END = [0, 0, 0, 0, 0, 0, 0, 1];
 
 
     public override Bitmap Load(QOIFHeader header, BinaryReader rd)
@@ -691,7 +691,7 @@ internal sealed unsafe class QOIF_V2
         wr.WriteNative(header);
         bitmap.LockRGBAPixels((ptr, w, h) =>
         {
-            RGBAColor[] palette_colors = palette.Colors.ToArray();
+            RGBAColor[] palette_colors = [.. palette.Colors];
             int palette_set_idx = 0;
             RGBAColor[] indexed = new RGBAColor[64];
             RGBAColor pprevious = RGBAColor.Black;

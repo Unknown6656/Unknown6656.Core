@@ -94,7 +94,7 @@ public class ColorPalette
 #else
         false;
 #endif
-    private static readonly ConstructorInfo _palette_ctor = typeof(sys_palette).GetConstructor(new[] { typeof(int) })!;
+    private static readonly ConstructorInfo _palette_ctor = typeof(sys_palette).GetConstructor([typeof(int)])!;
 
 
     public static ReadOnlyIndexer<int, ColorPalette> Grayscale { get; } = new(count => new(from i in Enumerable.Range(0, count)
@@ -1254,7 +1254,7 @@ public class ColorPalette
 
     public sys_palette ToImageColorPalette()
     {
-        sys_palette palette = (sys_palette)_palette_ctor.Invoke(new object?[] { Colors.Count })!;
+        sys_palette palette = (sys_palette)_palette_ctor.Invoke([Colors.Count])!;
         int i = 0;
 
 #pragma warning disable CA1416 // Validate platform compatibility

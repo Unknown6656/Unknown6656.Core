@@ -75,7 +75,7 @@ public readonly struct Wavelength
         for (Wavelength w = LowestVisibleWavelength; w < HighestVisibleWavelength; w = w.InNanometers + 1)
             wavelengths.Add(w);
 
-        VisibleWavelengths = wavelengths.ToImmutableList();
+        VisibleWavelengths = [.. wavelengths];
     }
 
     public Wavelength(double wavelength_in_nm) => InNanometers = wavelength_in_nm;

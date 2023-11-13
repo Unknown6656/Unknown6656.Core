@@ -769,7 +769,7 @@ public unsafe class DataStream
         DataStream[] sources = ToArrayOfSources();
         int dim0 = sources[0].ToUnmanaged<int>();
         int dim1 = sources[1].ToUnmanaged<int>();
-        T[] flat = sources[2].ToArray<T>();
+        T[] flat = [.. sources[2]];
         T[,] array = new T[dim0, dim1];
 
         Parallel.For(0, flat.Length, i => array[i / dim0, i % dim0] = flat[i]);
@@ -784,7 +784,7 @@ public unsafe class DataStream
         int dim0 = sources[0].ToUnmanaged<int>();
         int dim1 = sources[1].ToUnmanaged<int>();
         int dim2 = sources[2].ToUnmanaged<int>();
-        T[] flat = sources[3].ToArray<T>();
+        T[] flat = [.. sources[3]];
         T[,,] array = new T[dim0, dim1, dim2];
 
         Parallel.For(0, flat.Length, i => array[i / (dim2 * dim1), i / dim2 % dim1, i % dim2] = flat[i]);
@@ -800,7 +800,7 @@ public unsafe class DataStream
         int dim1 = sources[1].ToUnmanaged<int>();
         int dim2 = sources[2].ToUnmanaged<int>();
         int dim3 = sources[3].ToUnmanaged<int>();
-        T[] flat = sources[4].ToArray<T>();
+        T[] flat = [.. sources[4]];
         T[,,,] array = new T[dim0, dim1, dim2, dim3];
 
         Parallel.For(0, flat.Length, i => array[i / (dim3 * dim2 * dim1), i / (dim3 * dim2) % dim1, i / dim3 % dim2, i % dim3] = flat[i]);
@@ -904,7 +904,7 @@ public unsafe class DataStream
         Guid clsid = sources[0].ToUnmanaged<Guid>();
         string name = sources[1].ToString();
 
-        return System.Type.GetTypeFromCLSID(clsid) ?? System.Type.GetType(name);
+        return Type.GetTypeFromCLSID(clsid) ?? Type.GetType(name);
     }
 
     #endregion

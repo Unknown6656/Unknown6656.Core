@@ -558,7 +558,7 @@ public class RegressionDataSet2D
         Q = V * RI;
         y = RI * (Q.Transposed * y);
 
-        return new Polynomial(y.ToArray());
+        return new Polynomial([.. y]);
     }
 
     public void Add(Scalar x, Scalar y)

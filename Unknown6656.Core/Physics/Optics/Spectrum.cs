@@ -252,7 +252,7 @@ public class DiscreteSpectrum
 
     public DiscreteSpectrum NormalizeVisible()
     {
-        List<(Wavelength, double)> intensities = new();
+        List<(Wavelength, double)> intensities = new(Intensities.Count);
         double max = 0;
 
         foreach (KeyValuePair<Wavelength, double> kvp in Intensities)
@@ -330,13 +330,10 @@ public class DiscreteSpectrum
     public static implicit operator HDRColor(DiscreteSpectrum spectrum) => spectrum.ToVisibleColor();
 }
 
-public class ContinuousSpectrum
+public class ContinuousSpectrum(Func<Wavelength, double> intensity_function)
     : Spectrum
 {
-    public Func<Wavelength, double> IntensityFunction { get; }
-
-
-    public ContinuousSpectrum(Func<Wavelength, double> intensity_function) => IntensityFunction = intensity_function;
+    public Func<Wavelength, double> IntensityFunction { get; } = intensity_function;
 
     public override double GetIntensity(Wavelength wavelength) => IntensityFunction(wavelength);
 

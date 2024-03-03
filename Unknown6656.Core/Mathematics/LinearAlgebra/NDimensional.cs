@@ -362,8 +362,7 @@ public unsafe abstract class VectorN<Vector, Matrix, Polynomial, Scalar>
 
     public Vector Power(int e)
     {
-        if (e < 0)
-            throw new ArgumentOutOfRangeException(nameof(e));
+        ArgumentOutOfRangeException.ThrowIfNegative(e);
 
         Vector r = ScalarVector(Size, Scalar.One);
         Vector p = this;
@@ -564,9 +563,9 @@ public unsafe abstract class VectorN<Vector, Matrix, Polynomial, Scalar>
     #endregion
     #region OPERATORS
 
-    static bool IEquality<Vector>.operator ==(Vector? first, Vector? second) => first == second;
+    //public static bool operator ==(Vector? first, Vector? second) => first?.Is(second) ?? second is null;
 
-    static bool IEquality<Vector>.operator !=(Vector? first, Vector? second) => first != second;
+    //public static bool operator !=(Vector? first, Vector? second) => !(first == second);
 
     public static bool operator ==(in VectorN<Vector, Matrix, Polynomial, Scalar>? v1, in VectorN<Vector, Matrix, Polynomial, Scalar>? v2) => v1?.Is(v2) ?? v2 is null;
 
@@ -1312,8 +1311,7 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
 
     public Matrix Power(int e)
     {
-        if (e < 0)
-            throw new ArgumentOutOfRangeException(nameof(e));
+        ArgumentOutOfRangeException.ThrowIfNegative(e);
 
         Matrix r = IdentityMatrix(_columns, _rows);
         Matrix p = this;
@@ -1893,9 +1891,9 @@ public unsafe abstract class MatrixNM<Vector, Matrix, Polynomial, Scalar>
 
     public static implicit operator MatrixNM<Vector, Matrix, Polynomial, Scalar>(CompressedStorageFormat<Scalar> c) => FromCompressedStorageFormat(c);
 
-    static bool IEquality<Matrix>.operator ==(Matrix first, Matrix second) => throw new NotImplementedException();
+    //public static bool operator ==(Matrix? first, Matrix? second) => first?.Is(second) ?? second is null;
 
-    static bool IEquality<Matrix>.operator !=(Matrix first, Matrix second) => throw new NotImplementedException();
+    //public static bool operator !=(Matrix? first, Matrix? second) => !(first == second);
 
     #endregion
 }

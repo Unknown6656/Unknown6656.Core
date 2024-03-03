@@ -69,9 +69,9 @@ public abstract class Function<Func, Domain, Codomain>
 
     static Func IGroup<Func>.operator -(in Func first, in Func second) => first.Subtract(in second);
 
-    static bool IEquality<Func>.operator ==(Func first, Func second) => first?.Equals(second) ?? second is null;
+    //public static bool operator ==(Func? first, Func? second) => first?.Equals(second) ?? second is null;
 
-    static bool IEquality<Func>.operator !=(Func first, Func second) => !(first?.Equals(second) ?? second is null);
+    //public static bool operator !=(Func? first, Func? second) => !(first?.Equals(second) ?? second is null);
 }
 
 public class Function<Domain, Codomain>

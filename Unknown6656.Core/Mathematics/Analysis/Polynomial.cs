@@ -258,8 +258,7 @@ public class Polynomial<Function, T>
 
     public Function Power(int e)
     {
-        if (e < 0)
-            throw new ArgumentOutOfRangeException(nameof(e));
+        ArgumentOutOfRangeException.ThrowIfNegative(e);
 
         Function r = One;
         Function p = _create(_coefficients);

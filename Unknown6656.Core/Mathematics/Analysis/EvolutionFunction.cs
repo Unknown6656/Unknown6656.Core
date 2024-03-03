@@ -48,8 +48,7 @@ public abstract class EvolutionFunction<T>
 
     public void Iterate(int count)
     {
-        if (count < 0)
-            throw new ArgumentOutOfRangeException(nameof(count));
+        ArgumentOutOfRangeException.ThrowIfNegative(count);
 
         while (count --> 0)
             Iterate();

@@ -117,7 +117,7 @@ namespace Unknown6656.Mathematics.LinearAlgebra;
 /// </summary>
 /// <inheritdoc cref="IMatrix{M,V,S}"/>
 [StructLayout(LayoutKind.Sequential), NativeCppClass, Serializable, CLSCompliant(false)]
-public unsafe readonly /* ref */ partial struct <#=typename#>
+public unsafe readonly /* ref */ partial struct <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => "Scalar x" + i))#>)
     : Algebra<Scalar>.IVector<<#=typename#>, <#=matname#>>
 <#
         if (crossable)
@@ -131,6 +131,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     , IFormattable
     , ICloneable
 #if GENERIC_MATH
+// TODO : move generic math operators to the dedicated algebraic interfaces
     , IIncrementOperators<<#=typename#>>
     , IModulusOperators<<#=typename#>, Scalar, <#=typename#>>
     , IMultiplyOperators<<#=typename#>, <#=typename#>, Scalar>
@@ -150,12 +151,10 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 {
     #region PRIVATE FIELDS
 
-#pragma warning disable IDE0032
 <#
         for (int i = 0; i < dim; ++i)
-            WriteLine($"    private readonly Scalar {comps[i]};");
+            WriteLine($"    private readonly Scalar {comps[i]} = x{i};");
 #>
-#pragma warning restore IDE0032
 
     #endregion
     #region STATIC PROPERTIES
@@ -166,7 +165,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     /// <summary>
     /// The zero vector
     /// </summary>
-    public static <#=typename#> Zero { get; } = new <#=typename#>(0);
+    public static <#=typename#> Zero { get; } = new(0);
 
     public static <#=typename#>[] UnitVectors { get; } = <#=matname#>.Identity.Columns;
 <#
@@ -191,9 +190,9 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     public static int BinarySize { get; } = sizeof(<#=typename#>);
 
     /// <summary>
-    /// The default compoonent-wise equality comparer for  <see cref="<#=typename#>"/>.
+    /// The default component-wise equality comparer for  <see cref="<#=typename#>"/>.
     /// </summary>
-    public static <#=typename#>EqualityComparer EqualityComparer { get; } = new <#=typename#>EqualityComparer();
+    public static <#=typename#>EqualityComparer EqualityComparer { get; } = new();
 
     public static VectorSpace<#=dim#> UnitSpace { get; } = VectorSpace<#=dim#>.FromMatrixColumns(<#=matname#>.Identity);
 
@@ -220,7 +219,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 
             arr[index] = new_value;
 
-            return new <#=typename#>(arr);
+            return new(arr);
         }
     }
 
@@ -261,7 +260,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 
     readonly int Algebra<Scalar>.IComposite1D.Dimension => Dimension;
 
-    public readonly MatrixNM Transposed => new MatrixNM(<#=dim#>, 1, Coefficients);
+    public readonly MatrixNM Transposed => new(<#=dim#>, 1, Coefficients);
 
     public readonly Scalar[] Coefficients => new[] { <#=string.Join(", ", comps)#> };
 
@@ -322,17 +321,6 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     public <#=typename#>(Scalar s = default)
         : this(<#=string.Join(", ", Enumerable.Repeat("s", dim))#>)
     {
-    }
-
-    /// <summary>
-    /// Creates a new <#=dim#>-dimensional vector
-    /// </summary>
-    public <#=typename#>(<#=string.Join(", ", r(0, dim).Select(i => "Scalar x" + i))#>)
-    {
-<#
-        for (int i = 0; i < dim; ++i)
-            WriteLine($"        {comps[i]} = x{i};");
-#>
     }
 
     public <#=typename#>(Scalar* values)
@@ -495,8 +483,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
 
     public readonly <#=typename#> Power(int e)
     {
-        if (e < 0)
-            throw new ArgumentOutOfRangeException(nameof(e));
+        ArgumentOutOfRangeException.ThrowIfNegative(e, nameof(e));
 
         <#=typename#> r = (<#=string.Join(", ", Enumerable.Repeat(1, dim))#>);
         <#=typename#> p = this;
@@ -687,6 +674,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         if (dim > 2)
         {
 #>
+
     public readonly Vector<#=dim-1#> FromHomogeneousCoordinates() => new(<#=string.Join(", ", comps.Take(dim - 1).Select(c => $"{c} / {comps.Last()}"))#>);
 <#
         }
@@ -694,6 +682,7 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
         if (dim < maxdim - 1)
         {
 #>
+
     public readonly Vector<#=dim+1#> ToHomogeneousCoordinates() => new(<#=string.Join(", ", comps)#>, Scalar.One);
 <#
         }
@@ -718,10 +707,8 @@ public unsafe readonly /* ref */ partial struct <#=typename#>
     public readonly <#=typename#> SwapEntries(int src_idx, int dst_idx)
     {
         Scalar[] res = ToArray();
-        Scalar tmp = res[dst_idx];
 
-        res[dst_idx] = res[src_idx];
-        res[src_idx] = tmp;
+        (res[src_idx], res[dst_idx]) = (res[dst_idx], res[src_idx]);
 
         return FromArray(res);
     }

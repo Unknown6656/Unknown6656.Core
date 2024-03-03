@@ -1,7 +1,6 @@
 ﻿// #define DEFAULT_IMPL
 #define READONLY
 
-
 #if DEFAULT_IMPL
 using System.ComponentModel;
 using System.Reflection;
@@ -10,6 +9,7 @@ using System.Runtime.Serialization;
 using System.Collections.Generic;
 using System.Collections;
 using System.Diagnostics;
+using System.Numerics;
 using System.Linq;
 using System;
 
@@ -19,9 +19,9 @@ using Unknown6656.IO;
 
 namespace Unknown6656.Mathematics.LinearAlgebra;
 
+
 // TODO : Use C# 10's abstract static !!
 // TODO : Use C# 10's generic math !!
-
 
 public interface IDisplayable
     : IFormattable
@@ -47,6 +47,7 @@ public interface ISerializable<@this>
 public interface IEquality<Object>
     : IEquatable<Object>
     , IStructuralEquatable
+  //, IEqualityOperators<Object, Object, bool>
     where Object : IEquality<Object>
 {
     /// <summary>
@@ -67,10 +68,6 @@ public interface IEquality<Object>
         other is Object o && comparer.GetHashCode(o) == comparer.GetHashCode(this);
 
     int IStructuralEquatable.GetHashCode(IEqualityComparer comparer) => comparer.GetHashCode(this);
-
-    static abstract bool operator ==(Object first, Object second);
-
-    static abstract bool operator !=(Object first, Object second);
 }
 
 public interface IGroup

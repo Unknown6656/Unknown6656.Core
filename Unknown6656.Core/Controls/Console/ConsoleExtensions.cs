@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 using System.Linq;
 using System.IO;
@@ -11,7 +12,6 @@ using Unknown6656.Generics;
 using Unknown6656.Imaging;
 using Unknown6656.Runtime;
 using Unknown6656.Common;
-using System.Drawing;
 
 namespace Unknown6656.Controls.Console;
 
@@ -118,6 +118,27 @@ public static unsafe class ConsoleExtensions
     }
 
     [SupportedOSPlatform(OS.WIN)]
+    public static ConsoleMode STDERRConsoleMode
+    {
+        set
+        {
+            if (!OS.IsWindows)
+                throw new InvalidOperationException("Writing the STDERR console mode is not supported on non-Windows operating systems.");
+            else if (!NativeInterop.SetConsoleMode(STDERRHandle, value))
+                throw NETRuntimeInterop.GetLastWin32Error();
+        }
+        get
+        {
+            if (!OS.IsWindows)
+                throw new InvalidOperationException("Reading the STDERR console mode is not supported on non-Windows operating systems.");
+
+            ConsoleMode mode = default;
+
+            return NativeInterop.GetConsoleMode(STDERRHandle, &mode) ? mode : throw NETRuntimeInterop.GetLastWin32Error();
+        }
+    }
+
+    [SupportedOSPlatform(OS.WIN)]
     public static ConsoleFontInfo FontInfo
     {
         set
@@ -153,14 +174,24 @@ public static unsafe class ConsoleExtensions
         }
     }
 
+    public static bool SupportsVTEscapeSequences => !OS.IsWindows || Environment.OSVersion.Version is { Major: >= 10, Build: >= 16257 };
+
+    public static bool AreSTDInVTEscapeSequencesEnabled => !OS.IsWindows || STDINConsoleMode.HasFlag(ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+
+    public static bool AreSTDOutVTEscapeSequencesEnabled => !OS.IsWindows || STDOUTConsoleMode.HasFlag(ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+
+    public static bool AreSTDErrVTEscapeSequencesEnabled => !OS.IsWindows || STDERRConsoleMode.HasFlag(ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+
 
     static ConsoleExtensions()
     {
         if (OS.IsWindows)
         {
-            // STDINConsoleMode |= ConsoleMode.ENABLE_VIRTUAL_TERMINAL_INPUT;
-            STDINConsoleMode |= ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-            STDOUTConsoleMode |= ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+            LINQ.TryDo(() => STDINConsoleMode |= ConsoleMode.ENABLE_VIRTUAL_TERMINAL_INPUT);
+
+            LINQ.TryDo(() => STDINConsoleMode |= ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+            LINQ.TryDo(() => STDOUTConsoleMode |= ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+            LINQ.TryDo(() => STDERRConsoleMode |= ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING);
         }
     }
 

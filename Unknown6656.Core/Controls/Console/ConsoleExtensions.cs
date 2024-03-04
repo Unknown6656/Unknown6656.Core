@@ -63,6 +63,8 @@ public static unsafe class ConsoleExtensions
         }
     }
 
+    public static bool ThrowOnInvalidConsoleMode { get; set; } = false;
+
     [SupportedOSPlatform(OS.WIN)]
     public static void* STDINHandle => OS.IsWindows ? NativeInterop.GetStdHandle(-10)
                                                     : throw new InvalidOperationException("This operation is not supported on non-Windows operating systems.");
@@ -83,7 +85,8 @@ public static unsafe class ConsoleExtensions
             if (!OS.IsWindows)
                 throw new InvalidOperationException("Writing the STDIN console mode is not supported on non-Windows operating systems.");
             else if (!NativeInterop.SetConsoleMode(STDINHandle, value))
-                throw NETRuntimeInterop.GetLastWin32Error();
+                if (ThrowOnInvalidConsoleMode)
+                    throw NETRuntimeInterop.GetLastWin32Error();
         }
         get
         {
@@ -92,7 +95,12 @@ public static unsafe class ConsoleExtensions
 
             ConsoleMode mode = default;
 
-            return NativeInterop.GetConsoleMode(STDINHandle, &mode) ? mode : throw NETRuntimeInterop.GetLastWin32Error();
+            if (NativeInterop.GetConsoleMode(STDINHandle, &mode))
+                return mode;
+            else if (ThrowOnInvalidConsoleMode)
+                throw NETRuntimeInterop.GetLastWin32Error();
+            else
+                return default;
         }
     }
 
@@ -104,7 +112,8 @@ public static unsafe class ConsoleExtensions
             if (!OS.IsWindows)
                 throw new InvalidOperationException("Writing the STDOUT console mode is not supported on non-Windows operating systems.");
             else if (!NativeInterop.SetConsoleMode(STDOUTHandle, value))
-                throw NETRuntimeInterop.GetLastWin32Error();
+                if (ThrowOnInvalidConsoleMode)
+                    throw NETRuntimeInterop.GetLastWin32Error();
         }
         get
         {
@@ -113,7 +122,12 @@ public static unsafe class ConsoleExtensions
 
             ConsoleMode mode = default;
 
-            return NativeInterop.GetConsoleMode(STDOUTHandle, &mode) ? mode : throw NETRuntimeInterop.GetLastWin32Error();
+            if (NativeInterop.GetConsoleMode(STDOUTHandle, &mode))
+                return mode;
+            else if (ThrowOnInvalidConsoleMode)
+                throw NETRuntimeInterop.GetLastWin32Error();
+            else
+                return default;
         }
     }
 
@@ -125,7 +139,8 @@ public static unsafe class ConsoleExtensions
             if (!OS.IsWindows)
                 throw new InvalidOperationException("Writing the STDERR console mode is not supported on non-Windows operating systems.");
             else if (!NativeInterop.SetConsoleMode(STDERRHandle, value))
-                throw NETRuntimeInterop.GetLastWin32Error();
+                if (ThrowOnInvalidConsoleMode)
+                    throw NETRuntimeInterop.GetLastWin32Error();
         }
         get
         {
@@ -134,7 +149,12 @@ public static unsafe class ConsoleExtensions
 
             ConsoleMode mode = default;
 
-            return NativeInterop.GetConsoleMode(STDERRHandle, &mode) ? mode : throw NETRuntimeInterop.GetLastWin32Error();
+            if (NativeInterop.GetConsoleMode(STDERRHandle, &mode))
+                return mode;
+            else if (ThrowOnInvalidConsoleMode)
+                throw NETRuntimeInterop.GetLastWin32Error();
+            else
+                return default;
         }
     }
 
@@ -187,8 +207,7 @@ public static unsafe class ConsoleExtensions
     {
         if (OS.IsWindows)
         {
-            LINQ.TryDo(() => STDINConsoleMode |= ConsoleMode.ENABLE_VIRTUAL_TERMINAL_INPUT);
-
+            //LINQ.TryDo(() => STDINConsoleMode |= ConsoleMode.ENABLE_VIRTUAL_TERMINAL_INPUT);
             LINQ.TryDo(() => STDINConsoleMode |= ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING);
             LINQ.TryDo(() => STDOUTConsoleMode |= ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING);
             LINQ.TryDo(() => STDERRConsoleMode |= ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING);

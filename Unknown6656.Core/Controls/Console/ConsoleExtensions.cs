@@ -429,16 +429,30 @@ public static unsafe class ConsoleExtensions
         RestoreConsoleState(state);
     }
 
-    public static ConsoleState SaveConsoleState() => new()
+    public static ConsoleState SaveConsoleState()
     {
-        Background = Console.BackgroundColor,
-        Foreground = Console.ForegroundColor,
-        InputEncoding = Console.InputEncoding,
-        OutputEncoding = Console.OutputEncoding,
-        CursorVisible = OS.IsPosix || Console.CursorVisible,
-        CursorSize = OS.IsWindows ? Console.CursorSize : 100,
-        Mode = OS.IsWindows ? STDINConsoleMode : default,
-    };
+        bool cursor_visible = OS.IsPosix;
+        ConsoleMode stdinmode = default;
+
+        if (OS.IsWindows)
+        {
+#pragma warning disable CA1416 // Validate platform compatibility
+            cursor_visible |= Console.CursorVisible;
+            stdinmode = STDINConsoleMode;
+#pragma warning restore CA1416
+        }
+
+        return new()
+        {
+            Background = Console.BackgroundColor,
+            Foreground = Console.ForegroundColor,
+            InputEncoding = Console.InputEncoding,
+            OutputEncoding = Console.OutputEncoding,
+            CursorVisible = cursor_visible,
+            CursorSize = OS.IsWindows ? Console.CursorSize : 100,
+            Mode = stdinmode,
+        };
+    }
 
     public static void RestoreConsoleState(ConsoleState? state)
     { 

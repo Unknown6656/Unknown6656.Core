@@ -230,10 +230,10 @@ public class TextBox
             Console.Write(txt[..s]);
 
             if (render_information.BlinkState)
-                Console.Write("\x1b[7m");
+                Console.Write("\e[7m");
 
             Console.Write(txt[s]);
-            Console.Write("\x1b[27m");
+            Console.Write("\e[27m");
             Console.Write(txt[(s + 1)..]);
         }
         else
@@ -241,25 +241,25 @@ public class TextBox
             Console.Write(txt[..s]);
 
             if (!_cursorback || render_information.BlinkState)
-                Console.Write("\x1b[7m");
+                Console.Write("\e[7m");
 
             Console.Write(txt[s]);
 
             if (s < e)
             {
-                Console.Write("\x1b[7m");
+                Console.Write("\e[7m");
                 Console.Write(txt[(s + 1)..e]);
             }
 
             if (!_cursorback && render_information.BlinkState)
             {
-                Console.Write("\x1b[7m");
+                Console.Write("\e[7m");
                 Console.Write(txt[e]);
             }
 
             if (e < txt.Length)
             {
-                Console.Write("\x1b[27m");
+                Console.Write("\e[27m");
                 Console.Write(txt[(e + 1)..]);
             }
         }

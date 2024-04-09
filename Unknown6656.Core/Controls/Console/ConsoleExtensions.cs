@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Text.RegularExpressions;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Collections.Generic;
@@ -35,7 +36,7 @@ public enum ConsoleMode
     ENABLE_VIRTUAL_TERMINAL_INPUT = 0x0200,
 }
 
-public static unsafe class ConsoleExtensions
+public static unsafe partial class ConsoleExtensions
 {
     private static RGBAColor? _fg;
     private static RGBAColor? _bg;
@@ -194,13 +195,13 @@ public static unsafe class ConsoleExtensions
         }
     }
 
-    public static bool SupportsVTEscapeSequences => !OS.IsWindows || Environment.OSVersion.Version is { Major: >= 10, Build: >= 16257 };
+    public static bool SupportsVT100EscapeSequences => !OS.IsWindows || Environment.OSVersion.Version is { Major: >= 10, Build: >= 16257 };
 
-    public static bool AreSTDInVTEscapeSequencesEnabled => !OS.IsWindows || STDINConsoleMode.HasFlag(ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+    public static bool AreSTDInVT100EscapeSequencesEnabled => !OS.IsWindows || STDINConsoleMode.HasFlag(ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING);
 
-    public static bool AreSTDOutVTEscapeSequencesEnabled => !OS.IsWindows || STDOUTConsoleMode.HasFlag(ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+    public static bool AreSTDOutVT100EscapeSequencesEnabled => !OS.IsWindows || STDOUTConsoleMode.HasFlag(ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING);
 
-    public static bool AreSTDErrVTEscapeSequencesEnabled => !OS.IsWindows || STDERRConsoleMode.HasFlag(ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+    public static bool AreSTDErrVT100EscapeSequencesEnabled => !OS.IsWindows || STDERRConsoleMode.HasFlag(ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING);
 
 
     static ConsoleExtensions()
@@ -288,9 +289,9 @@ public static unsafe class ConsoleExtensions
         }
     }
 
-    public static void WriteUnderlined(object? value) => Console.Write($"\x1b[4m{value}\x1b[24m");
+    public static void WriteUnderlined(object? value) => Console.Write($"\e[4m{value}\e[24m");
 
-    public static void WriteInverted(object? value) => Console.Write($"\x1b[7m{value}\x1b[27m");
+    public static void WriteInverted(object? value) => Console.Write($"\e[7m{value}\e[27m");
 
     [SupportedOSPlatform(OS.WIN)]
     public static (ConsoleFontInfo before, ConsoleFontInfo after) SetCurrentFont(Font font)
@@ -477,6 +478,18 @@ public static unsafe class ConsoleExtensions
                 LINQ.TryDo(() => Console.CursorVisible = vis);
         }
     }
+
+    public static string StripVT100EscapeSequences(this string raw_string) => GenerateVT100Regex().Replace(raw_string, "");
+
+    public static MatchCollection MatchVT100EscapeSequences(this string raw_string) => GenerateVT100Regex().Matches(raw_string);
+
+    public static int CountVT100EscapeSequences(this string raw_string) => GenerateVT100Regex().Count(raw_string);
+
+    public static bool ContainsVT100EscapeSequences(this string raw_string) => GenerateVT100Regex().IsMatch(raw_string);
+
+
+    [GeneratedRegex(@"(\x1b\[|\x9b)([0-\?]*[\x20-\/]*[@-~]|[^@-_]*[@-_]|[\da-z]{1,2};\d{1,2}H)|\x1b([@-_0-\?\x60-~]|[\x20-\/]|[\x20-\/]{2,}[@-~])", RegexOptions.IgnoreCase | RegexOptions.Compiled)]
+    private static partial Regex GenerateVT100Regex();
 }
 
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]

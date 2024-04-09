@@ -220,11 +220,11 @@ public static class Program
     public static void Main_ConsoleUI()
     {
         for (int i = 0; i < 56; ++i)
-            Console.WriteLine($"{i,3}:\x1b[{i}m top kkk kek      lol \x1b[0m");
+            Console.WriteLine($"{i,3}:\e[{i}m top kkk kek      lol \e[0m");
         for (int i = 0; i < 256; ++i)
         {
-            // Console.Write($"\x1b[38;5;{i}m█\x1b[0m"); // fg
-            Console.Write($"\x1b[48;5;{i}m {i:x2}\x1b[0m");
+            // Console.Write($"\e[38;5;{i}m█\e[0m"); // fg
+            Console.Write($"\e[48;5;{i}m {i:x2}\e[0m");
             if (((i + 1) % 16) == 0)
                 Console.WriteLine();
         }

@@ -1089,7 +1089,7 @@ namespace Unknown6656.Controls.Console
                 Console.SetCursorPosition(AbsolutePosition.X, AbsolutePosition.Y);
                 ConsoleExtensions.RGBForegroundColor = old_fg;
                 ConsoleExtensions.RGBBackgroundColor = old_bg;
-                Console.Write("\x1b[?25l");
+                Console.Write("\e[?25l");
 
                 AfterRendering?.Invoke(this);
             }

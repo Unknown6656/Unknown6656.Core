@@ -517,9 +517,9 @@ public unsafe partial struct RGBAColor
 
     public readonly uint ToARGB32() => ARGBu;
 
-    public readonly string ToVT100ForegroundString() => $"\x1b[38;2;{R};{G};{B}m";
+    public readonly string ToVT100ForegroundString() => $"\e[38;2;{R};{G};{B}m";
 
-    public readonly string ToVT100BackgroundString() => $"\x1b[48;2;{R};{G};{B}m";
+    public readonly string ToVT100BackgroundString() => $"\e[48;2;{R};{G};{B}m";
 
     //[MethodImpl(MethodImplOptions.AggressiveInlining)]
     //public (double X, double Y, double Z) ToXYZ()

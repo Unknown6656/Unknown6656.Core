@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Diagnostics;
@@ -112,7 +112,7 @@ public abstract class Plotter
     /// </summary>
     public virtual (string Text, RGBAColor Color)? OptionalComment { set; get; } = null;
 
-    protected virtual FontFamily FontFamily { get; set; } = FontFamily.GenericMonospace;
+    public virtual FontFamily FontFamily { get; set; } = FontFamily.GenericMonospace;
 
     public abstract void Plot(Graphics g, int width, int height);
 
@@ -1605,8 +1605,8 @@ public class DiscretizedRecurrencePlotter
     protected override bool IsPolarPlotter { get; } = false;
 
     public Scalar WindowSize { get; set; } = 10;
-    public Scalar WindowOffset { get; set; } = -5;
-    public int WindowResolution { get; set; } = 256;
+    public Scalar WindowOffset { get; set; } = -10;
+    public int WindowResolution { get; set; } = 20;
     public ColorMap ColorMap { get; set; } = ColorMap.Jet;
     public Function<Scalar, Scalar> Function { get; set; }
 

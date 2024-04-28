@@ -105,7 +105,7 @@ public unsafe class ARMDisassembler
 
     public List<string> Disassemble(uint* ptr, int count)
     {
-        List<string> instructions = new();
+        List<string> instructions = [];
 
         while (count --> 0)
         {

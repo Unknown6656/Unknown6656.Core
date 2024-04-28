@@ -194,7 +194,7 @@ public unsafe readonly /* ref */ struct Complex
 
     public bool IsPrime => IsInteger && Real.IsPrime;
 
-    public Complex[] PrimeFactors => IsInteger ? Real.PrimeFactors.Select(f => new Complex(f)).ToArray() : Array.Empty<Complex>();
+    public Complex[] PrimeFactors => IsInteger ? Real.PrimeFactors.Select(f => new Complex(f)).ToArray() : [];
 
     public Complex Phi => IsInteger ? Real.Phi : throw new InvalidOperationException("Euler's totient function φ(n) is only defined for positive integer numbers.");
 

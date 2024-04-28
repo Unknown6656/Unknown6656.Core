@@ -247,7 +247,7 @@ public static unsafe partial class ConsoleExtensions
 
     public static (int max_line_length, int line_count) WriteBlock(IEnumerable<string> lines, (int left, int top) starting_pos, (int width, int height) max_size, bool wrap_overflow = true)
     {
-        List<string> cropped_lines = new();
+        List<string> cropped_lines = [];
 
         foreach (string line in lines)
         {

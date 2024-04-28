@@ -106,7 +106,7 @@ public unsafe class DataStream
     private static readonly FieldInfo _MEMORYSTREAM_BUFFER;
 
 
-    public static DataStream Empty { get; } = new(Array.Empty<byte>());
+    public static DataStream Empty { get; } = new([]);
 
     public static JsonSerializerOptions DefaultJSONOptions { get; } = new()
     {
@@ -145,11 +145,11 @@ public unsafe class DataStream
     }
 
     public DataStream()
-        : this(Array.Empty<byte>())
+        : this([])
     {
     }
 
-    public DataStream(Stream ms) : this(Array.Empty<byte>()) => ms.CopyTo(this);
+    public DataStream(Stream ms) : this([]) => ms.CopyTo(this);
 
     public DataStream(IEnumerable<byte>? data)
         : this(data as byte[] ?? data?.ToArray())
@@ -1240,7 +1240,7 @@ public unsafe class DataStream
 
     public static DataStream FromBytes(IEnumerable<byte>? bytes) => FromBytes(bytes?.ToArray());
 
-    public static DataStream FromBytes(params byte[]? bytes) => new(bytes ?? Array.Empty<byte>());
+    public static DataStream FromBytes(params byte[]? bytes) => new(bytes ?? []);
 
     public static DataStream FromBytes(byte[] bytes, int offset) => FromBytes(bytes[offset..]);
 

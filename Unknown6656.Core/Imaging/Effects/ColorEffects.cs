@@ -293,7 +293,7 @@ public sealed class Duotone
     }
 
     public Duotone(RGBAColor black, RGBAColor tint)
-        : base(black, Enumerable.Empty<RGBAColor>(), tint)
+        : base(black, [], tint)
     {
     }
 }
@@ -328,7 +328,7 @@ public class Multitone
 
     public Multitone(RGBAColor black, IEnumerable<RGBAColor>? tones, RGBAColor white)
     {
-        Tones = tones as RGBAColor[] ?? tones?.ToArray() ?? Array.Empty<RGBAColor>();
+        Tones = tones as RGBAColor[] ?? tones?.ToArray() ?? [];
         Black = black;
         White = white;
         _map = ColorMap.Uniform(Tones.Prepend(black).Append(white).ToArray());

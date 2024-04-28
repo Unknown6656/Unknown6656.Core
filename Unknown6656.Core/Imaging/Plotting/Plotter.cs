@@ -176,7 +176,7 @@ public abstract class Plotter<POIValue>
 
         float scale = Scale.Max(1e-5) * DefaultGridSpacing.Max(1);
         PointF center = new(width / 2f - CenterPoint.X * scale, height / 2f + CenterPoint.Y * scale);
-        List<(Vector2 pos, POIValue desc)> poi = new();
+        List<(Vector2 pos, POIValue desc)> poi = [];
 
         void plot_graph() => PlotGraph(g, width, height, center.X, center.Y, scale, out poi);
 
@@ -526,7 +526,7 @@ public class CombinedPlotter<POIValue>
 
     protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, POIValue value)> poi)
     {
-        poi = new();
+        poi = [];
 
         foreach (Plotter<POIValue> plotter in Plotters)
         {
@@ -609,7 +609,7 @@ public abstract class MultiPlotter<PlotterItem, POIValue>
 
     protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, POIValue value)> poi)
     {
-        poi = new();
+        poi = [];
 
         for (int idx = 0; idx < PlottableItems.Length; ++idx)
         {
@@ -769,7 +769,7 @@ public class ImplicitFunctionPlotter
                     g.DrawLine(pen, points[2], points[3]);
             }
 
-        poi = new(); // TODO
+        poi = []; // TODO
     }
 }
 
@@ -825,7 +825,7 @@ public class ImplicitFunctionSignedDistancePlotter
 
     protected internal override unsafe void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Vector2 value)> poi)
     {
-        poi = new();
+        poi = [];
 
         int CELLS_Y = h / SamplingPixelStride;
         int CELLS_X = w / SamplingPixelStride;
@@ -941,7 +941,7 @@ public class CartesianFunctionPlotter<Func>
 
     protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, Func func, Pen pen, Brush fill, out List<(Vector2 pos, Scalar value)> poi)
     {
-        poi = new List<(Vector2, Scalar)>();
+        poi = [];
 
         float last = y - func[-x / s] * s;
         float curr = last;
@@ -1014,7 +1014,7 @@ public class PolarFunctionPlotter<Func>
 
     protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, Func func, Pen pen, Brush fill, out List<(Vector2 pos, Scalar value)> poi)
     {
-        poi = new();
+        poi = [];
 
         Scalar rad = new Vector2(w, h).SquaredLength;
         Scalar last = func[MinAngle] * s;
@@ -1114,7 +1114,7 @@ public class ComplexFunctionPlotter
 
     protected internal override unsafe void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Complex value)> poi)
     {
-        ConcurrentBag<(Vector2, Complex)> bag = new();
+        ConcurrentBag<(Vector2, Complex)> bag = [];
         Func<Complex, RGBAColor> color = Style == ComplexColorStyle.Wrapped ? RGBAColor.FromComplexWrapped : RGBAColor.FromComplexSmooth;
         Scalar phasediv = Scalar.Tau / Math.Max(PhaseLineSteps, 0);
         Vector3 plotter(int u, int v)
@@ -1199,7 +1199,7 @@ public class PointCloud2DPlotter
 
     protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, IEnumerable<Vector2> points, Pen pen, Brush fill, out List<(Vector2 pos, Vector2 value)> poi)
     {
-        poi = new();
+        poi = [];
 
         float α = 1;
 
@@ -1259,7 +1259,7 @@ public class Trajectory2DPlotter
         if (PlotPoints)
             base.PlotGraph(g, w, h, x, y, s, trajectory, pen, fill, out poi);
         else
-            poi = new(); // TODO
+            poi = []; // TODO
 
         Vector2? last = null;
         float α = 1;
@@ -1368,7 +1368,7 @@ public class Heatmap2DPlotter
         });
 
         g.DrawImageUnscaled(plot, 0, 0);
-        poi = new();
+        poi = [];
 
         // TODO
     }
@@ -1455,7 +1455,7 @@ public class VectorFieldPlotter
 
     protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Vector2 value)> poi)
     {
-        poi = new();
+        poi = [];
 
         List<Vector2> samples = PlotterSamplingPointGenerator.GenerateSamplingPoints(w, h, SampleCount, SamplingMethod, out double mindist);
         Vector2[] length = new Vector2[samples.Count];
@@ -1523,7 +1523,7 @@ public class EvolutionFunctionPlotter<Func>
 
     protected internal override void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, Vector2 value)> poi)
     {
-        poi = new();
+        poi = [];
 
         List<Vector2> samples = PlotterSamplingPointGenerator.GenerateSamplingPoints(w, h, TrajectoryCount, SamplingMethod);
 
@@ -1617,7 +1617,7 @@ public class DiscretizedRecurrencePlotter
 
     protected internal override unsafe void PlotGraph(Graphics g, int w, int h, float x, float y, float s, out List<(Vector2 pos, (Scalar current, Scalar previous) value)> poi)
     {
-        poi = new();
+        poi = [];
 
         int sz = WindowResolution;
         using Bitmap plot = new(sz, sz, PixelFormat.Format32bppArgb);

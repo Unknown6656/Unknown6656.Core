@@ -23,7 +23,7 @@ public abstract class EvolutionFunction<T>
     : IEvolutionFunction<T?>
     where T : IGroup<T>
 {
-    private protected readonly List<T?> _values = new();
+    private protected readonly List<T?> _values = [];
     private T? _initial_val = default;
 
     public T? InitialValue

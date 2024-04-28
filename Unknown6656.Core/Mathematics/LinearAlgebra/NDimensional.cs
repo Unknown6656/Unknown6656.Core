@@ -41,9 +41,9 @@ public sealed unsafe class CompressedStorageFormat<Field>
     {
         Dimensions = (matrix.GetLength(0), matrix.GetLength(1));
 
-        List<Field> vals = new();
-        List<int> rows = new();
-        List<int> cols = new();
+        List<Field> vals = [];
+        List<int> rows = [];
+        List<int> cols = [];
 
         for (int c = 0; c < Dimensions.Columns; ++c)
         {
@@ -222,7 +222,7 @@ public unsafe abstract class VectorN<Vector, Matrix, Polynomial, Scalar>
     #endregion
     #region PROPERTIES
 
-    public static Vector Empty { get; } = FromCoefficients(Array.Empty<Scalar>());
+    public static Vector Empty { get; } = FromCoefficients([]);
 
     static Vector INumericGroup<Vector>.Zero => throw new InvalidOperationException("No dimension has been provided.");
 
@@ -304,7 +304,7 @@ public unsafe abstract class VectorN<Vector, Matrix, Polynomial, Scalar>
     {
     }
 
-    public VectorN(IEnumerable<Scalar>? coefficients) => _coefficients = coefficients?.ToArray() ?? Array.Empty<Scalar>();
+    public VectorN(IEnumerable<Scalar>? coefficients) => _coefficients = coefficients?.ToArray() ?? [];
 
     #endregion
     #region INSTANCE FUNCTIONS
@@ -1914,7 +1914,7 @@ public abstract class VectorSpace<Space, Vector, Scalar>
     #region PROPERTIES / FIELDS
 
     private static readonly Func<IEnumerable<Vector>, Space> _create;
-    private protected readonly List<Vector> _basis = new();
+    private protected readonly List<Vector> _basis = [];
 
 
     public Vector[] Basis => _basis.ToArray();
@@ -1949,7 +1949,7 @@ public abstract class VectorSpace<Space, Vector, Scalar>
 
     public static Vector[] GetLinearIndependantSet(IEnumerable<Vector> vectors)
     {
-        List<Vector> result = new();
+        List<Vector> result = [];
 
         foreach (Vector v in vectors)
             if (v.IsNonZero && result.All(b => !v.IsLinearDependant(b, out _)))

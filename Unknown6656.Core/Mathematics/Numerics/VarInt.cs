@@ -149,7 +149,7 @@ namespace Unknown6656.Mathematics.Numerics
 
         public static VarInt Deserialize(Stream stream)
         {
-            List<byte> bytes = new();
+            List<byte> bytes = [];
             bool has_next = true;
             int bit_index = 0;
             byte current = 0;

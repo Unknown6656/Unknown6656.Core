@@ -100,7 +100,7 @@ public abstract class Clustering<Item>
                    select new Cluster<Item>(this, @group.Key, [.. @group]);
         }
         else
-            return Enumerable.Empty<Cluster<Item>>();
+            return [];
     }
 
     private protected abstract int[] AssignCluster(double[,] data);

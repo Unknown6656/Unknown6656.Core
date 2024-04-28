@@ -273,7 +273,7 @@ public sealed class INISection
     private readonly bool _case_insensitive;
 
 
-    public static INISection Empty => new();
+    public static INISection Empty => [];
 
     public int Count => _dictionary.Count;
 

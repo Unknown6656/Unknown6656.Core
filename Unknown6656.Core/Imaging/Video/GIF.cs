@@ -54,7 +54,7 @@ public class GIF
             return [new GIFFrame(gif)];
 
         byte[] times = gif.GetPropertyItem(0x5100).Value;
-        List<GIFFrame> frames = new();
+        List<GIFFrame> frames = [];
 
         for (int frame = 0; frame < count; ++frame)
         {

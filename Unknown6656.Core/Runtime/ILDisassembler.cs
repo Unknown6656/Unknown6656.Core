@@ -79,7 +79,7 @@ public unsafe class ILDisassembler
 
     public override List<string> DisassembleIntoLines(byte* start, int length, Module module)
     {
-        List<string> lines = new();
+        List<string> lines = [];
         byte* ptr = start;
         byte* end = start + length;
         int processed = 0;

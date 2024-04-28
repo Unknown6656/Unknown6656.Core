@@ -203,7 +203,7 @@ public unsafe readonly /* ref */ partial struct Scalar
 
     public readonly bool IsPrime => IsPositive && IsInteger && ((bint)Determinant).IsPrime();
 
-    public readonly Scalar[] PrimeFactors => IsInteger && IsPositive ? ((bint)Determinant).PrimeFactorization().Select(b => new Scalar((__scalar)b)).ToArray() : Array.Empty<Scalar>();
+    public readonly Scalar[] PrimeFactors => IsInteger && IsPositive ? ((bint)Determinant).PrimeFactorization().Select(b => new Scalar((__scalar)b)).ToArray() : [];
 
     public readonly Scalar Phi => PrimeFactors is { Length: 2 } f ? (__scalar)((f[0] - 1) * (f[1] - 1)) : throw new InvalidOperationException($"φ({this}) is not defined.");
 
@@ -272,7 +272,7 @@ public unsafe readonly /* ref */ partial struct Scalar
 
     readonly bool Algebra<Scalar>.IMatrix.IsSignatureMatrix => Abs().IsOne;
 
-    readonly Scalar[] Algebra<Scalar>.IMatrix.Eigenvalues => IsZero ? Array.Empty<Scalar>() : [this];
+    readonly Scalar[] Algebra<Scalar>.IMatrix.Eigenvalues => IsZero ? [] : [this];
 
     readonly IEnumerable<Scalar> Algebra<Scalar>.IComposite2D.FlattenedCoefficients => new[] { this };
 
@@ -633,7 +633,7 @@ public unsafe readonly /* ref */ partial struct Scalar
 
     readonly Scalar Algebra<Scalar>.IMetricVectorSpace<Scalar>.DistanceTo(in Scalar second) => Subtract(in second).Abs();
 
-    readonly Algebra<Scalar>.IMatrix[] Algebra<Scalar>.IMatrix.GetPrincipalSubmatrices() => Array.Empty<global::Unknown6656.Mathematics.LinearAlgebra.Algebra<global::Unknown6656.Mathematics.LinearAlgebra.Scalar>.IMatrix>();
+    readonly Algebra<Scalar>.IMatrix[] Algebra<Scalar>.IMatrix.GetPrincipalSubmatrices() => [];
 
     readonly bool Algebra<Scalar>.IVectorSpace<Scalar>.IsLinearDependant(in Scalar other, out Scalar? factor) => (factor = IsZero || other.IsZero ? (Scalar?)null : other / this) != null;
 
@@ -1079,7 +1079,7 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
 {
     #region STATIC FIELDS
 
-    private static readonly Dictionary<OpType, MethodInfo?> _operators = new();
+    private static readonly Dictionary<OpType, MethodInfo?> _operators = [];
     private static readonly T _zero;
     private static readonly T _one;
 
@@ -1187,7 +1187,7 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
 
     public readonly bool IsPrime => IsPositive && IsInteger && ((bint)(dynamic)Value).IsPrime();
 
-    public readonly Scalar<T>[] PrimeFactors => IsInteger && IsPositive ? ((bint)(dynamic)Value).PrimeFactorization().Select(b => new Scalar<T>((T)(dynamic)b)).ToArray() : Array.Empty<Scalar<T>>();
+    public readonly Scalar<T>[] PrimeFactors => IsInteger && IsPositive ? ((bint)(dynamic)Value).PrimeFactorization().Select(b => new Scalar<T>((T)(dynamic)b)).ToArray() : [];
 
     public readonly Scalar<T> Phi => PrimeFactors is { Length: 2 } f ? f[0].Decrement().Multiply(f[1].Decrement()) : throw new InvalidOperationException($"φ({this}) is not defined.");
 
@@ -1230,7 +1230,7 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
 
     readonly Polynomial<T> Algebra<Scalar<T>, Polynomial<T>>.IMatrix.CharacteristicPolynomial => new(this, NegativeOne);
 
-    readonly Scalar<T>[] Algebra<Scalar<T>>.IMatrix.Eigenvalues => IsZero ? Array.Empty<Scalar<T>>() : new[] { this };
+    readonly Scalar<T>[] Algebra<Scalar<T>>.IMatrix.Eigenvalues => IsZero ? [] : new[] { this };
 
     readonly int Algebra<Scalar<T>>.IMatrix.Rank => IsZero ? 0 : 1;
 
@@ -1297,7 +1297,7 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
 
                 return _1++;
             },
-            () => (T)typeof(T).GetMethod("Increment", BindingFlags.Instance | BindingFlags.Public)!.Invoke(_zero, Array.Empty<object>())!,
+            () => (T)typeof(T).GetMethod("Increment", BindingFlags.Instance | BindingFlags.Public)!.Invoke(_zero, [])!,
             () => (dynamic)_zero + (T)(dynamic)1
         ); // TODO : fix this shit!
 
@@ -1545,7 +1545,7 @@ public unsafe readonly /* ref */ partial struct Scalar<T>
 
     readonly Scalar<T> Algebra<Scalar<T>>.IVector<Scalar<T>, Scalar<T>>.OuterProduct(in Scalar<T> second) => Multiply(in second);
 
-    readonly Algebra<Scalar<T>>.IMatrix[] Algebra<Scalar<T>>.IMatrix.GetPrincipalSubmatrices() => Array.Empty<Algebra<Scalar<T>>.IMatrix>();
+    readonly Algebra<Scalar<T>>.IMatrix[] Algebra<Scalar<T>>.IMatrix.GetPrincipalSubmatrices() => [];
 
     readonly bool Algebra<Scalar<T>>.IVectorSpace<Scalar<T>>.IsLinearDependant(in Scalar<T> other, out Scalar<T>? factor) => (factor = IsNonZero && other.IsNonZero ? (Scalar<T>?)Divide(other) : null) != null;
 

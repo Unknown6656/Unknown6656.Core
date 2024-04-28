@@ -15,7 +15,7 @@ public class FunctionCache<F, I, V>
     where I : IEquatable<I>
 {
     public const uint DEFAULT_CACHE_SIZE = 1024 * 1024 * 256;
-    private readonly Dictionary<I, V> _valdic = new();
+    private readonly Dictionary<I, V> _valdic = [];
 
 
     public ReadOnlyIndexer<I, bool> IsCached { get; }

@@ -55,7 +55,7 @@ public static class StringExtensions
     [return: MaybeNull]
     public static T Match<T>(this string input, [MaybeNull] T @default, params (Regex pattern, Func<Match, T> action)[] patterns)
     {
-        foreach ((Regex pattern, Func<Match, T> action) in patterns ?? Array.Empty<(Regex, Func<Match, T>)>())
+        foreach ((Regex pattern, Func<Match, T> action) in patterns ?? [])
             if (input.Match(pattern, out Match m))
                 return action(m);
 
@@ -344,7 +344,7 @@ public static class StringExtensions
     public static string? FromPunycode(this string str, PunycodeConfig config)
     {
         int b = Math.Max(0, 1 + str.LastIndexOf('-'));
-        List<char> output = b > 0 ? str.Take(b - 1).ToList() : new();
+        List<char> output = b > 0 ? str.Take(b - 1).ToList() : [];
         int bias = config.INITIAL_BIAS;
         int n = config.INITIAL_N;
         int i = 0;
@@ -433,7 +433,7 @@ public static class StringExtensions
 
     private static List<int> punycode_encode(int bias, int delta, PunycodeConfig config)
     {
-        List<int> result = new();
+        List<int> result = [];
         int k = config.BASE;
         int q = delta;
 

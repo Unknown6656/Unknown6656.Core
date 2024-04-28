@@ -64,12 +64,12 @@ public abstract class SignatureProvider
         EventInfo e => e.CustomAttributes,
         MethodBase m => m.CustomAttributes,
         PropertyInfo p => p.CustomAttributes,
-        _ => Enumerable.Empty<CustomAttributeData>(),
+        _ => [],
     }, return_params);
 
     protected List<string> GetAttributes(IEnumerable<CustomAttributeData>? attributes, bool return_params = false)
     {
-        List<string> attrs = new();
+        List<string> attrs = [];
 
         if (attributes is { })
             foreach (CustomAttributeData attr in attributes)
@@ -80,7 +80,7 @@ public abstract class SignatureProvider
 
     protected List<string> GetParameters(IEnumerable<ParameterInfo>? parameters, bool extension_method = false)
     {
-        List<string> ps = new();
+        List<string> ps = [];
 
         if (parameters is { })
             foreach (ParameterInfo param in parameters.OrderBy(p => p.Position))
@@ -336,7 +336,7 @@ public class CSharpSignatureProvider
     protected override string GetAttribute(CustomAttributeData attribute, bool return_params = false)
     {
         string name = GetTypeName(attribute.AttributeType);
-        List<string> args = new();
+        List<string> args = [];
 
         if (name.EndsWith("Attribute"))
             name = name[..^"Attribute".Length];
@@ -366,7 +366,7 @@ public class CSharpSignatureProvider
                 EventInfo e => e.CustomAttributes,
                 MethodBase m => m.CustomAttributes,
                 PropertyInfo p => p.CustomAttributes,
-                _ => Enumerable.Empty<CustomAttributeData>()
+                _ => []
             }, TYPE_NULLABLE_CONTEXT_ATTRIBUTE))
                 if (attr.ConstructorArguments is { Count: > 0 } args && args[0].ArgumentType == typeof(byte))
                     contexts.Push((byte?)args[0].Value switch
@@ -403,13 +403,13 @@ public class CSharpSignatureProvider
 
         foreach (CustomAttributeData attribute in FilterByName(attrs, TYPE_NULLABLE_ATTRIBUTE))
         {
-            List<byte> args = new();
+            List<byte> args = [];
 
             foreach (CustomAttributeTypedArgument arg in attribute.ConstructorArguments)
                 if (arg.ArgumentType == typeof(byte))
                     args.Add((byte)arg.Value!);
                 else if (arg.ArgumentType == typeof(byte[]))
-                    foreach (CustomAttributeTypedArgument elem in arg.Value as IEnumerable<CustomAttributeTypedArgument> ?? Enumerable.Empty<CustomAttributeTypedArgument>())
+                    foreach (CustomAttributeTypedArgument elem in arg.Value as IEnumerable<CustomAttributeTypedArgument> ?? [])
                         args.Add((byte)elem.Value!);
                 else
                     throw new NotImplementedException();
@@ -459,13 +459,13 @@ public class CSharpSignatureProvider
 
     protected (string arguments, string constraints) GetGenericArguments(IEnumerable<Type> generic_arguments)
     {
-        List<string> genparams = new();
+        List<string> genparams = [];
         string genconstr = "";
 
         foreach (Type gen in generic_arguments)
         {
             string genparam = GetTypeName(gen);
-            List<string> constraints = new();
+            List<string> constraints = [];
 
             if (gen.GenericParameterAttributes.HasFlag(GenericParameterAttributes.ReferenceTypeConstraint))
                 constraints.Add("class");
@@ -516,7 +516,7 @@ public class CSharpSignatureProvider
             (string genparams, string genconstr) = GetGenericArguments(function.GetGenericArguments());
             string name = function.Name;
 
-            IEnumerable<CustomAttributeData> retattrs = (function.ReturnTypeCustomAttributes as ParameterInfo)?.CustomAttributes ?? Enumerable.Empty<CustomAttributeData>();
+            IEnumerable<CustomAttributeData> retattrs = (function.ReturnTypeCustomAttributes as ParameterInfo)?.CustomAttributes ?? [];
             
             (retattrs, string rettype) = ProcessNullabilityInfo(retattrs, function.ReturnType, nullable_context);
 

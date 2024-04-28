@@ -1261,7 +1261,7 @@ public class ColorPalette
 
     public static unsafe ColorPalette FromImage(Bitmap bitmap)
     {
-        IEnumerable<RGBAColor> colors = Enumerable.Empty<RGBAColor>();
+        IEnumerable<RGBAColor> colors = [];
 
         bitmap.LockRGBAPixels((ptr, w, h) => colors = Enumerable.Range(0, w * h).Select(i => ptr[i]).Distinct());
 
@@ -1286,7 +1286,7 @@ public class ColorPalette
 
     public static ColorPalette FromChannels(ColorChannel channels)
     {
-        List<RGBAColor> colors = new() { RGBAColor.Black };
+        List<RGBAColor> colors = [RGBAColor.Black];
         bool a = channels.HasFlag(ColorChannel.A);
         bool r = channels.HasFlag(ColorChannel.R);
         bool g = channels.HasFlag(ColorChannel.G);

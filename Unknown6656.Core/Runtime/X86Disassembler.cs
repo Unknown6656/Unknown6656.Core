@@ -12,7 +12,7 @@ public unsafe class X86Disassembler
 {
     public override unsafe List<string> DisassembleIntoLines(byte* ptr, int length, __empty config)
     {
-        List<string> instructions = new();
+        List<string> instructions = [];
 
         throw new NotImplementedException(); // TODO
 

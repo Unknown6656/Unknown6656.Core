@@ -20,7 +20,7 @@ public class DeterministicFiniteAutomaton<S, T>
 
     public DeterministicFiniteAutomaton(DirectedGraph<S, IEnumerable<T>?> graph, Vertex<DirectedGraph<S, IEnumerable<T>?>, S, IEnumerable<T>?> start)
     {
-        _accepted = new HashSet<Vertex<DirectedGraph<S, IEnumerable<T>?>, S, IEnumerable<T>?>>();
+        _accepted = [];
         _graph = graph;
 
         Start = _graph.HasVertex(start) ? start : throw new ArgumentException("The start vertex is not part of the underlying graph.", nameof(start));
@@ -87,12 +87,12 @@ public class DeterministicFiniteAutomaton<S, T>
         string gen_for(Vertex<DirectedGraph<S, IEnumerable<T>?>, S, IEnumerable<T>?> vertex)
         {
             var edges = vertex.OutboundEdges.ToArray();
-            List<string> branches = new();
+            List<string> branches = [];
             string res;
 
             foreach (var e in edges)
             {
-                var d = e.Data?.ToArray(printer) ?? Array.Empty<string>();
+                var d = e.Data?.ToArray(printer) ?? [];
                 var r_e = d.Length == 1 ? Regex.Escape(d[0])
                                         : d.All(s => s.Length == 1) ? $"[{string.Concat(d.Select(Regex.Escape))}]"
                                                                     : $"({string.Join("|", d.Select(Regex.Escape))})";
@@ -156,7 +156,7 @@ public class DeterministicFiniteAutomaton<S, T>
         if (_accepted.Count == 0)
             return AutomatonResult.Reject;
 
-        List<Vertex<DirectedGraph<S, IEnumerable<T>?>, S, IEnumerable<T>?>> path = new() { Start };
+        List<Vertex<DirectedGraph<S, IEnumerable<T>?>, S, IEnumerable<T>?>> path = [Start];
         Vertex<DirectedGraph<S, IEnumerable<T>?>, S, IEnumerable<T>?> last = Start;
 
         foreach (T i in input)
@@ -187,9 +187,9 @@ public sealed class ParserBuilder<T>
 
     public ParserBuilder(IEnumerable<T> alphabet)
     {
-        _accepted = new HashSet<Vertex<DirectedGraph<string, IEnumerable<T>?>, string, IEnumerable<T>?>>();
-        _graph = new DirectedGraph<string, IEnumerable<T>?>();
-        _alphabet = alphabet?.Distinct()?.ToArray() ?? Array.Empty<T>();
+        _accepted = [];
+        _graph = [];
+        _alphabet = alphabet?.Distinct()?.ToArray() ?? [];
         _start = _graph.AddVertex("[start]");
     }
 

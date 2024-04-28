@@ -940,7 +940,7 @@ public partial class Polynomial
                      _ => throw new ArgumentException($"Invalid exponent character '{c}'.")
                  })));
 
-        List<Polynomial> terms = new();
+        List<Polynomial> terms = [];
 
         while (str.Match(/* lang=regex */@"^(?<sign>[+\-]?)((?<coeff>(\d*\.)?\b\d+(e[+\-]?\d+)?)[fdm]?(\*?x\b(\^\+?(?<exp>[0-9]+)\b)?)?|\bx\b(\^\+?(?<exp2>[0-9]+)\b)?)", out Match match))
         {

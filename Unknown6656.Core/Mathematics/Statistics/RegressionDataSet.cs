@@ -90,7 +90,7 @@ public unsafe class RegressionDataSet1D
 {
     #region FIELDS / CONSTANTS
 
-    protected readonly List<Scalar> _values = new();
+    protected readonly List<Scalar> _values = [];
 
     #endregion
     #region INDEXERS
@@ -118,7 +118,7 @@ public unsafe class RegressionDataSet1D
             int[] idxs = range.GetOffsets(Count);
 
             if (idxs.Length == 0)
-                return new RegressionDataSet1D();
+                return [];
             else if (idxs.Length > Count)
                 throw new ArgumentOutOfRangeException(nameof(range), $"The given range '{range}' must not be longer than the total element count of the current regression data set ({Count}).");
             else if (idxs[0] < 0)
@@ -530,8 +530,8 @@ public class RegressionDataSet2D
     /// <param name="data">Data collection</param>
     public RegressionDataSet2D(IEnumerable<(Scalar X, Scalar Y)> data)
     {
-        _x = new RegressionDataSet1D();
-        _y = new RegressionDataSet1D();
+        _x = [];
+        _y = [];
 
         AddRange(data);
     }

@@ -392,7 +392,7 @@ public static partial class MathExtensions
 
     public static bint[] PrimeFactorization(this bint a)
     {
-        List<bint> f = new();
+        List<bint> f = [];
 
         for (bint b = 2; a > 1; ++b)
             while (a % b == 0)

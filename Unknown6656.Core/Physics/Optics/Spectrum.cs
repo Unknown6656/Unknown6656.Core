@@ -70,7 +70,7 @@ public readonly struct Wavelength
 
     static Wavelength()
     {
-        List<Wavelength> wavelengths = new();
+        List<Wavelength> wavelengths = [];
 
         for (Wavelength w = LowestVisibleWavelength; w < HighestVisibleWavelength; w = w.InNanometers + 1)
             wavelengths.Add(w);

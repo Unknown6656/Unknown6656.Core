@@ -45,8 +45,8 @@ public sealed class RLECompression
 
     public override byte[] CompressData(byte[] data)
     {
-        List<DictionaryEntry> dictionary = new();
-        List<VarInt> output = new();
+        List<DictionaryEntry> dictionary = [];
+        List<VarInt> output = [];
         int cp = 256;
 
         for (int i = 0; i < data.Length;)
@@ -99,13 +99,13 @@ public sealed class RLECompression
     public override byte[] UncompressData(byte[] data)
     {
         using MemoryStream ms = new(data);
-        List<VarInt> input = new();
-        List<byte> output = new();
+        List<VarInt> input = [];
+        List<byte> output = [];
 
         while (ms.Position < ms.Length)
             input.Add(VarInt.Deserialize(ms));
 
-        Dictionary<VarInt, byte[]> dic = new();
+        Dictionary<VarInt, byte[]> dic = [];
         int count = (int)input[0];
 
         for (int i = 0; i < count; ++i)

@@ -62,7 +62,7 @@ public class COMObject
                 BindingFlags.GetProperty,
                 Type.DefaultBinder,
                 Unwrap(),
-                Array.Empty<object>()
+                []
             );
 
             return true;

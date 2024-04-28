@@ -367,7 +367,7 @@ public abstract class Polygon2D<T>
     public virtual Triangle2D[] Triangulize(long triangle_count_hint)
     {
         Vector2[] corners = Corners;
-        List<Triangle2D> triangles = new();
+        List<Triangle2D> triangles = [];
 
         if (corners.Length < 3)
             throw new InvalidOperationException($"A shape with only {corners.Length} corners cannot be triangulized. At least 3 corners are necessary.");

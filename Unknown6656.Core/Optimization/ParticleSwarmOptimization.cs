@@ -175,7 +175,7 @@ namespace Unknown6656.Optimization.ParticleSwarmOptimization
         where Codomain : IComparable<Codomain>
         where Problem : PSOProblem<Domain, Codomain, Problem>
     {
-        private readonly List<(Domain Position, Domain Velocity, Codomain Value)> _history = new();
+        private readonly List<(Domain Position, Domain Velocity, Codomain Value)> _history = [];
 
         public PSOSolver<Domain, Codomain, Problem> Solver { get; }
         public Codomain? CachedValue { get; private set; }

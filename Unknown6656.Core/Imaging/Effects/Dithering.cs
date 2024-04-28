@@ -248,7 +248,7 @@ public unsafe class ErrorDiffusionDithering
                 }
             else
             {
-                List<(int, int)> coordinates = new();
+                List<(int, int)> coordinates = [];
                 (int ax2, int ay2) = (ax / 2, ay / 2);
                 (int bx2, int by2) = (bx / 2, by / 2);
                 int w2 = Math.Abs(ax2 + ay2);

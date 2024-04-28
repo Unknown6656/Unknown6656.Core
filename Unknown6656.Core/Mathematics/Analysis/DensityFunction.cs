@@ -129,7 +129,7 @@ namespace Unknown6656.Mathematics.Analysis
         /// </summary>
         /// <param name="value">Value to be compared with.</param>
         /// <returns>Collection of items equal to or smaller than the given value.</returns>
-        public T[] ItemsSmallerThan(T value) => GetBinIndex(value) is int idx ? _items.Take(idx + 1).SelectMany(t => t.items).ToArray() : Array.Empty<T>();
+        public T[] ItemsSmallerThan(T value) => GetBinIndex(value) is int idx ? _items.Take(idx + 1).SelectMany(t => t.items).ToArray() : [];
 
         /// <summary>
         /// Returns the cumulative probability of all items equal or smaller than the given value.
@@ -143,7 +143,7 @@ namespace Unknown6656.Mathematics.Analysis
         /// </summary>
         /// <param name="value">Value to be compared with.</param>
         /// <returns>Collection of items equal to or greater than the given value.</returns>
-        public T[] ItemsGreaterThan(T value) => GetBinIndex(value) is int idx ? _items.Skip(idx).SelectMany(t => t.items).ToArray() : Array.Empty<T>();
+        public T[] ItemsGreaterThan(T value) => GetBinIndex(value) is int idx ? _items.Skip(idx).SelectMany(t => t.items).ToArray() : [];
 
         /// <summary>
         /// Returns the cumulative probability of all items equal or greater than the given value.

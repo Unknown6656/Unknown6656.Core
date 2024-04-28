@@ -798,7 +798,7 @@ namespace Unknown6656.Controls.Console
 
         protected Rectangle BoundingBox => new(AbsolutePosition, Size);
 
-        public Control[] Siblings => Parent is { Children: IEnumerable<Control> ch } ? ch.ToArrayWhere(c => c != this) : Array.Empty<Control>();
+        public Control[] Siblings => Parent is { Children: IEnumerable<Control> ch } ? ch.ToArrayWhere(c => c != this) : [];
 
         protected Rectangle RenderableAbsoluteClientArea
         {
@@ -999,7 +999,7 @@ namespace Unknown6656.Controls.Console
                     break;
             }
 
-            foreach (Delegate? del in KeyPress?.GetInvocationList() ?? Array.Empty<Delegate>())
+            foreach (Delegate? del in KeyPress?.GetInvocationList() ?? [])
                 if (handled)
                     return;
                 else
@@ -1261,7 +1261,7 @@ namespace Unknown6656.Controls.Console
     public class ContainerControl
         : Control
     {
-        private readonly HashSet<Control> _children = new();
+        private readonly HashSet<Control> _children = [];
 
 
         protected override bool UseDefaultTextRenderer { get; } = true;

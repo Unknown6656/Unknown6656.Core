@@ -443,7 +443,7 @@ public static unsafe class BitmapExtensions
 
         if (bmp.GetPropertyItem((int)tag) is PropertyItem property)
         {
-            value = property.Value?[..property.Len] ?? Array.Empty<byte>();
+            value = property.Value?[..property.Len] ?? [];
             type = (ExifDataType)property.Type;
         }
 

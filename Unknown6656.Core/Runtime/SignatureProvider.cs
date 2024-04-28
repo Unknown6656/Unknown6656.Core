@@ -5,8 +5,9 @@ using System.Reflection;
 using System.Linq;
 using System;
 
-using Unknown6656.Common;
 using Unknown6656.Generics;
+using Unknown6656.Common;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Unknown6656.Runtime;
 
@@ -170,8 +171,9 @@ public class CSharpSignatureProvider
         '\r' => @"\r",
         '\t' => @"\t",
         '\v' => @"\v",
+        '\e' => @"\e",
         >= '\x20' and < '\x7f' => character.ToString(),
-        _ => $"\\u{character:x4}",
+        _ => $"\\u{(ushort)character:x4}",
     };
 
     protected string GetConstructorTypeName(ConstructorInfo constructor)
@@ -251,12 +253,15 @@ public class CSharpSignatureProvider
 
             return $"{GetTypeName(type.GetElementType(), nullability.Slice(1.., new(ref progress)))}[{new string(',', type.GetArrayRank() - 1)}]{(nullability[0] ? "?" : "")}";
         }
-        else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && false)
+        else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
         {
             int progress = 0;
 
             return $"{GetTypeName(type.GenericTypeArguments[0], nullability.Slice(1.., new(ref progress)))}?";
         }
+        else if (type.IsGenericType && type.IsAssignableTo(typeof(ITuple)))
+#warning TODO : nullability and tuple names
+            return $"({type.GenericTypeArguments.Select(GetTypeName).StringJoin(", ")})";
         else
         {
             string name = type.Name;

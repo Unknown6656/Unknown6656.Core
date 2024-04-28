@@ -223,6 +223,8 @@ public static unsafe partial class ConsoleExtensions
         Console.Write(value);
     }
 
+#warning TODO : ignore escape sequences for length calculation in all the following functions
+
     public static (int max_line_length, int line_count) WriteBlock(string value, int left, int top) =>
         WriteBlock(value, (left, top));
 
@@ -486,6 +488,8 @@ public static unsafe partial class ConsoleExtensions
     public static int CountVT100EscapeSequences(this string raw_string) => GenerateVT100Regex().Count(raw_string);
 
     public static bool ContainsVT100EscapeSequences(this string raw_string) => GenerateVT100Regex().IsMatch(raw_string);
+
+    public static int LengthWithoutVT100EscapeSequences(this string raw_string) => raw_string.Length - MatchVT100EscapeSequences(raw_string).Sum(m => m.Length);
 
 
     [GeneratedRegex(@"(\x1b\[|\x9b)([0-\?]*[\x20-\/]*[@-~]|[^@-_]*[@-_]|[\da-z]{1,2};\d{1,2}H)|\x1b([@-_0-\?\x60-~]|[\x20-\/]|[\x20-\/]{2,}[@-~])", RegexOptions.IgnoreCase | RegexOptions.Compiled)]
